@@ -238,3 +238,146 @@ export function formatTime(seconds: number): string {
 	const s = seconds - m * 60;
 	return `${m}:${s.toFixed(1).padStart(4, "0")}`;
 }
+
+export interface TrimVideoOptions {
+	start: number;
+	end: number;
+	onProgress?: (fraction: number) => void;
+	signal?: AbortSignal;
+}
+
+/**
+ * Trims a video file between start and end timestamps.
+ */
+export async function trimVideo(file: File, options: TrimVideoOptions): Promise<Blob> {
+	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+	const output = new Output({
+		format: new Mp4OutputFormat({ fastStart: "in-memory" }),
+		target: new BufferTarget(),
+	});
+
+	const conversion = await Conversion.init({
+		input,
+		output,
+		tracks: "primary",
+		trim: {
+			start: options.start,
+			end: options.end,
+		},
+		video: {
+			codec: "avc",
+			quality: QUALITY_HIGH,
+		},
+		audio: { codec: "aac", quality: QUALITY_MEDIUM },
+		showWarnings: false,
+	});
+
+	if (!conversion.isValid) {
+		throw new Error("Unable to trim this video in your browser. Please try another file.");
+	}
+
+	conversion.onProgress = (p) => options.onProgress?.(p);
+	options.signal?.addEventListener("abort", () => void conversion.cancel());
+	await conversion.execute();
+	const buffer = output.target.buffer;
+	if (!buffer) throw new Error("Video trimming failed.");
+	return new Blob([buffer], { type: "video/mp4" });
+}
+
+/**
+ * Extracts audio track from any video file to MP3 or uncompressed WAV.
+ */
+export async function extractAudioFromVideo(
+	file: File,
+	format: "mp3" | "wav" = "mp3",
+	onProgress?: (fraction: number) => void,
+): Promise<Blob> {
+	onProgress?.(0.1);
+	const audioBuffer = await decodeAudio(file);
+	onProgress?.(0.5);
+
+	if (format === "wav") {
+		const blob = encodeWav(audioBuffer);
+		onProgress?.(1.0);
+		return blob;
+	}
+
+	const blob = await encodeMp3(audioBuffer, 192_000);
+	onProgress?.(1.0);
+	return blob;
+}
+
+import { GIFEncoder, applyPalette, quantize } from "gifenc";
+
+export interface VideoToGifOptions {
+	start: number;
+	end: number;
+	fps?: number;
+	width?: number;
+	onProgress?: (fraction: number) => void;
+	signal?: AbortSignal;
+}
+
+/**
+ * Converts a segment of video into an animated GIF client-side.
+ */
+export async function videoToGif(file: File, options: VideoToGifOptions): Promise<Blob> {
+	const fps = options.fps || 12;
+	const delay = Math.round(1000 / fps);
+	const start = Math.max(0, options.start);
+	const end = Math.max(start + 0.1, options.end);
+	const duration = end - start;
+	const totalFrames = Math.max(1, Math.floor(duration * fps));
+
+	const url = URL.createObjectURL(file);
+	try {
+		const video = document.createElement("video");
+		video.muted = true;
+		video.playsInline = true;
+		video.preload = "auto";
+		video.src = url;
+
+		await new Promise<void>((resolve, reject) => {
+			video.onloadeddata = () => resolve();
+			video.onerror = () => reject(new Error("Unable to load video for GIF conversion."));
+		});
+
+		const origWidth = video.videoWidth || 640;
+		const origHeight = video.videoHeight || 360;
+		const targetWidth = options.width ? Math.min(options.width, origWidth) : Math.min(480, origWidth);
+		const targetHeight = Math.round((origHeight / origWidth) * targetWidth);
+
+		const canvas = document.createElement("canvas");
+		canvas.width = targetWidth;
+		canvas.height = targetHeight;
+		const ctx = canvas.getContext("2d", { willReadFrequently: true });
+		if (!ctx) throw new Error("Could not create canvas context.");
+
+		const gif = GIFEncoder();
+
+		for (let i = 0; i < totalFrames; i++) {
+			if (options.signal?.aborted) throw new Error("Cancelled by user.");
+			const time = start + i / fps;
+			video.currentTime = Math.min(time, video.duration - 0.05);
+
+			await new Promise<void>((resolve) => {
+				video.onseeked = () => resolve();
+			});
+
+			ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+			const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+			const palette = quantize(imgData.data, 256);
+			const index = applyPalette(imgData.data, palette);
+			gif.writeFrame(index, targetWidth, targetHeight, { palette, delay });
+
+			options.onProgress?.((i + 1) / totalFrames);
+		}
+
+		gif.finish();
+		const bytes = gif.bytes();
+		return new Blob([bytes as unknown as BlobPart], { type: "image/gif" });
+	} finally {
+		URL.revokeObjectURL(url);
+	}
+}
+

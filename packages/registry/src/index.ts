@@ -4,6 +4,7 @@ import { generatorTools } from "./tools/generators";
 import { imageTools } from "./tools/image";
 import { mediaTools } from "./tools/media";
 import { pdfTools } from "./tools/pdf";
+import { securityTools } from "./tools/security";
 import { textTools } from "./tools/text";
 import type { CategoryId, ToolDef, ToolPreset } from "./types";
 
@@ -19,6 +20,7 @@ export const tools: ToolDef[] = [
 	...calculatorTools,
 	...generatorTools,
 	...mediaTools,
+	...securityTools,
 ];
 
 const toolMap = new Map(tools.map((tool) => [tool.slug, tool]));

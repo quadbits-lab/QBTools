@@ -12,11 +12,13 @@ import {
 	Files,
 	FileText,
 	GraduationCap,
+	Hash,
 	HeartPulse,
 	Image,
 	KeyRound,
 	Landmark,
 	Letters,
+	Lock,
 	type LucideIcon,
 	Minimize2,
 	PanelsTopLeft,
@@ -26,6 +28,7 @@ import {
 	Repeat,
 	Scaling,
 	Scissors,
+	ShieldCheck,
 	Signature,
 	Sparkles,
 	SpellCheck,
@@ -47,11 +50,13 @@ const icons: Record<string, LucideIcon> = {
 	files: Files,
 	"file-text": FileText,
 	"graduation-cap": GraduationCap,
+	hash: Hash,
 	"heart-pulse": HeartPulse,
 	image: Image,
 	"key-round": KeyRound,
 	landmark: Landmark,
 	letters: Letters,
+	lock: Lock,
 	"minimize-2": Minimize2,
 	"panels-top-left": PanelsTopLeft,
 	percent: Percent,
@@ -60,6 +65,7 @@ const icons: Record<string, LucideIcon> = {
 	repeat: Repeat,
 	scaling: Scaling,
 	scissors: Scissors,
+	"shield-check": ShieldCheck,
 	signature: Signature,
 	sparkles: Sparkles,
 	"spell-check": SpellCheck,
@@ -120,6 +126,12 @@ export const categoryStyles: Record<
 		borderHover: "hover:border-sky-500/50",
 		accent: "sky",
 	},
+	security: {
+		tile: "border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400",
+		badge: "border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300",
+		borderHover: "hover:border-teal-500/50",
+		accent: "security",
+	},
 };
 
 export const categoryTone: Record<CategoryId, string> = {
@@ -129,6 +141,7 @@ export const categoryTone: Record<CategoryId, string> = {
 	calculators: categoryStyles.calculators.tile,
 	generators: categoryStyles.generators.tile,
 	media: categoryStyles.media.tile,
+	security: categoryStyles.security.tile,
 };
 
 

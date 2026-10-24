@@ -55,6 +55,15 @@ export const categories: Category[] = [
 			"Free media tools that work on your device: compress videos for sharing, trim audio clips and design YouTube thumbnails.",
 		icon: "clapperboard",
 	},
+	{
+		id: "security",
+		name: "Security & Encryption",
+		plural: "security tools",
+		tagline: "Encrypt files, verify hashes, protect private data.",
+		description:
+			"Free client-side encryption and security tools: protect documents with AES-256 passwords, compute SHA-256 hashes, and encrypt private notes.",
+		icon: "shield-check",
+	},
 ];
 
 export const categoryById = Object.fromEntries(categories.map((c) => [c.id, c])) as Record<

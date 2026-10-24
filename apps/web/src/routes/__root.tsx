@@ -26,6 +26,7 @@ export const Route = createRootRoute({
 				{ name: "theme-color", content: THEME_COLOR },
 				{ name: "color-scheme", content: "dark light" },
 				{ name: "format-detection", content: "telephone=no" },
+				{ name: "google-adsense-account", content: "ca-pub-7437740312049843" },
 				...base.meta,
 			],
 			links: [

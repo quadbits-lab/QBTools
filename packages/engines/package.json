@@ -10,6 +10,7 @@
 		"./image": "./src/image/index.ts",
 		"./pdf": "./src/pdf/index.ts",
 		"./media": "./src/media/index.ts",
+		"./crypto": "./src/crypto/index.ts",
 		"./files": "./src/files.ts",
 		"./invoice-pdf": "./src/generators/invoice-pdf.ts",
 		"./pdf-render": "./src/pdf/render.ts"
@@ -21,6 +22,7 @@
 		"@huggingface/transformers": "^4.3.1",
 		"@mediabunny/mp3-encoder": "^1.62.1",
 		"client-zip": "^2.5.0",
+		"gifenc": "^1.0.3",
 		"heic2any": "^0.0.4",
 		"mediabunny": "^1.62.1",
 		"pdf-lib": "^1.17.1",
