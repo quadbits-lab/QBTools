@@ -25,7 +25,7 @@ export function seo({
 }: SeoInput) {
 	const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
 	const url = absoluteUrl(path);
-	const image = absoluteUrl("/og-default.png");
+	const image = "https://tools.quadbits.app/og.jpg";
 	return {
 		meta: [
 			{ title: fullTitle },
