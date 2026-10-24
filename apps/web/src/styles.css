@@ -4,7 +4,7 @@
 /* Tailwind must scan workspace packages that ship JSX. */
 @source "../../../packages/ui/src";
 
-/* Nina container: 1280px with a 4vw gutter (min 16px). */
+/* Page container: 1280px max with a 4vw gutter (min 16px). */
 @utility container-page {
 	width: 100%;
 	max-width: 80rem;
@@ -46,42 +46,6 @@
 		background-color: #fff;
 		background-image: conic-gradient(#e5e7eb 25%, transparent 0 50%, #e5e7eb 0 75%, transparent 0);
 		background-size: 20px 20px;
-	}
-
-	/* Modern subtle grid pattern with soft radial fade mask */
-	.pattern-grid {
-		background-image: 
-			linear-gradient(to right in oklch, color-mix(in oklch, var(--border) 70%, transparent) 1px, transparent 1px),
-			linear-gradient(to bottom in oklch, color-mix(in oklch, var(--border) 70%, transparent) 1px, transparent 1px);
-		background-size: 32px 32px;
-		mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 35%, transparent 95%);
-	}
-
-	/* Hero ambient lighting using OKLCH color interpolation */
-	.hero-ambient-glow {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		background: 
-			radial-gradient(circle 650px at 50% 0%, color-mix(in oklch, var(--foreground) 7%, transparent), transparent 75%),
-			radial-gradient(circle 450px at 15% 15%, color-mix(in oklch, var(--accent) 30%, transparent), transparent 70%),
-			radial-gradient(circle 500px at 85% 25%, color-mix(in oklch, var(--primary) 8%, transparent), transparent 65%);
-	}
-
-	/* Glass card styling */
-	.glass-card {
-		background-color: color-mix(in oklch, var(--surface) 85%, transparent);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-	}
-
-	/* Interactive card with lift & subtle ambient border highlight */
-	.interactive-card {
-		transition: transform 180ms var(--ease-out-soft), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
-	}
-	.interactive-card:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 12px 30px -10px color-mix(in oklch, var(--background) 50%, transparent);
 	}
 
 	/* Interactive star button bounce animation */

@@ -10,7 +10,7 @@ Set `PGLITE_DATA_DIR` to a persistent, writable directory, separate from `DATABA
 
 Configure `S3_ENDPOINT`, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY` for your RustFS instance. Use a dedicated **private, unversioned** bucket without Object Lock and an application service account with object read/write/delete, multipart, and list permissions on the application prefix. Do not provide root credentials to the application. Bun uses path-style addressing. RustFS can stay on an internal network: browsers access authenticated application endpoints, not RustFS URLs, so bucket CORS is unnecessary.
 
-For optional local RustFS, set unique `RUSTFS_ACCESS_KEY` and `RUSTFS_SECRET_KEY`, then use `docker compose --profile storage up -d rustfs`. Create the bucket through your RustFS administration tools. Ports 9000/9001 bind to localhost. Configure a bucket lifecycle rule to abort incomplete multipart uploads after one day. The application never makes a bucket public or changes an existing production bucket policy.
+For optional local RustFS, set unique `RUSTFS_ACCESS_KEY` and `RUSTFS_SECRET_KEY`, then use `docker compose --profile storage up -d rustfs`. Create the bucket through your RustFS administration tools. Port 8314 (API) and 8313 (Console) bind to localhost. Configure a bucket lifecycle rule to abort incomplete multipart uploads after one day. The application never makes a bucket public or changes an existing production bucket policy.
 
 ## Storage semantics
 

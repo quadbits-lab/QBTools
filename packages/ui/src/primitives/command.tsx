@@ -12,7 +12,7 @@ export function CommandInput({
 	...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
 	return (
-		<div className="flex items-center gap-3 border-b border-input px-4">
+		<div className="flex items-center gap-3 border-b border-border px-4">
 			<SearchIcon className="size-5 text-muted-foreground" />
 			<CommandPrimitive.Input
 				className={cn(
@@ -63,7 +63,7 @@ export function CommandItem({
 	return (
 		<CommandPrimitive.Item
 			className={cn(
-				"flex min-h-12 cursor-pointer items-center gap-3 px-3 text-base data-[selected=true]:bg-muted",
+				"flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-3 text-base data-[selected=true]:bg-accent",
 				className,
 			)}
 			{...props}

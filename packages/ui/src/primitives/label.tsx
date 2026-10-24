@@ -1,10 +1,15 @@
 import type * as React from "react";
 import { cn } from "../lib/utils";
 
-/** DM Mono uppercase label (Nina field label). */
+/** Field label: 14px medium. */
 export function Label({ className, ...props }: React.ComponentProps<"label">) {
 	// biome-ignore lint/a11y/noLabelWithoutControl: htmlFor is passed through props
-	return <label className={cn("label-mono", className)} {...props} />;
+	return (
+		<label
+			className={cn("text-sm font-medium leading-none text-foreground", className)}
+			{...props}
+		/>
+	);
 }
 
 /** Label + control + optional hint/error, stacked. */
@@ -28,7 +33,7 @@ export function Field({
 			<Label htmlFor={htmlFor}>{label}</Label>
 			{children}
 			{error ? (
-				<p role="alert" className="text-critical text-sm">
+				<p role="alert" className="text-destructive text-sm">
 					{error}
 				</p>
 			) : hint ? (

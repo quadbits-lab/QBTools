@@ -23,13 +23,13 @@ export function ThemeToggle() {
 	const Icon = mode === "light" ? Sun : mode === "dark" ? Moon : Monitor;
 	return (
 		<Button
-			variant="ghost"
+			variant="outline"
 			size="icon-sm"
 			onClick={() => setThemeMode(NEXT[mode])}
 			aria-label={`Theme: ${LABEL[mode]}. Switch to ${LABEL[NEXT[mode]]}`}
 			title={`Theme: ${LABEL[mode]}`}
 		>
-			<Icon strokeWidth={1.5} />
+			<Icon />
 		</Button>
 	);
 }

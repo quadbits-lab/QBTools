@@ -24,11 +24,11 @@ export function Progress({
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={pct ?? undefined}
-				className="h-1.5 overflow-hidden bg-muted"
+				className="h-2 overflow-hidden rounded-full bg-muted"
 			>
 				<div
 					className={cn(
-						"h-full bg-foreground transition-[width] duration-300",
+						"h-full rounded-full bg-primary transition-[width] duration-300",
 						pct === null && "w-1/3 animate-pulse",
 					)}
 					style={pct === null ? undefined : { width: `${pct}%` }}

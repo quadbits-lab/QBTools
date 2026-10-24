@@ -94,64 +94,89 @@ export function iconFor(name: string): LucideIcon {
 }
 
 /**
- * Curated tone and style classes per category for rich visual structure.
- * Designed with high contrast in both dark and light color schemes.
+ * Category accent classes. Colors come from the `--cat-*` tokens in theme.css
+ * (soft fill, hairline, icon and text per discipline), so they follow light/dark.
+ * Class names are written out in full so Tailwind can see them.
  */
+export type CategoryAccent = "emerald" | "rose" | "indigo" | "amber" | "violet" | "sky" | "teal";
+
 export const categoryStyles: Record<
 	CategoryId,
 	{
+		/** Icon tile: soft fill, hairline, icon color. */
 		tile: string;
+		/** Pill badge: soft fill, hairline, text color. */
 		badge: string;
+		/** Accent text color. */
+		text: string;
+		/** Small solid dot. */
+		dot: string;
 		borderHover: string;
-		accent: string;
+		accent: CategoryAccent;
 	}
 > = {
 	image: {
-		tile: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-		badge: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-		borderHover: "hover:border-emerald-500/50",
+		tile: "border-cat-emerald-border bg-cat-emerald-bg text-cat-emerald-icon",
+		badge: "border-cat-emerald-border bg-cat-emerald-bg text-cat-emerald-fg",
+		text: "text-cat-emerald-fg",
+		dot: "bg-cat-emerald-icon",
+		borderHover: "hover:border-cat-emerald-border",
 		accent: "emerald",
 	},
 	pdf: {
-		tile: "border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400",
-		badge: "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300",
-		borderHover: "hover:border-rose-500/50",
+		tile: "border-cat-rose-border bg-cat-rose-bg text-cat-rose-icon",
+		badge: "border-cat-rose-border bg-cat-rose-bg text-cat-rose-fg",
+		text: "text-cat-rose-fg",
+		dot: "bg-cat-rose-icon",
+		borderHover: "hover:border-cat-rose-border",
 		accent: "rose",
 	},
 	text: {
-		tile: "border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-		badge: "border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300",
-		borderHover: "hover:border-indigo-500/50",
+		tile: "border-cat-indigo-border bg-cat-indigo-bg text-cat-indigo-icon",
+		badge: "border-cat-indigo-border bg-cat-indigo-bg text-cat-indigo-fg",
+		text: "text-cat-indigo-fg",
+		dot: "bg-cat-indigo-icon",
+		borderHover: "hover:border-cat-indigo-border",
 		accent: "indigo",
 	},
 	calculators: {
-		tile: "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400",
-		badge: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300",
-		borderHover: "hover:border-amber-500/50",
+		tile: "border-cat-amber-border bg-cat-amber-bg text-cat-amber-icon",
+		badge: "border-cat-amber-border bg-cat-amber-bg text-cat-amber-fg",
+		text: "text-cat-amber-fg",
+		dot: "bg-cat-amber-icon",
+		borderHover: "hover:border-cat-amber-border",
 		accent: "amber",
 	},
 	generators: {
-		tile: "border-violet-500/30 bg-violet-500/10 text-violet-600 dark:text-violet-400",
-		badge: "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300",
-		borderHover: "hover:border-violet-500/50",
+		tile: "border-cat-violet-border bg-cat-violet-bg text-cat-violet-icon",
+		badge: "border-cat-violet-border bg-cat-violet-bg text-cat-violet-fg",
+		text: "text-cat-violet-fg",
+		dot: "bg-cat-violet-icon",
+		borderHover: "hover:border-cat-violet-border",
 		accent: "violet",
 	},
 	media: {
-		tile: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
-		badge: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-		borderHover: "hover:border-sky-500/50",
+		tile: "border-cat-sky-border bg-cat-sky-bg text-cat-sky-icon",
+		badge: "border-cat-sky-border bg-cat-sky-bg text-cat-sky-fg",
+		text: "text-cat-sky-fg",
+		dot: "bg-cat-sky-icon",
+		borderHover: "hover:border-cat-sky-border",
 		accent: "sky",
 	},
 	security: {
-		tile: "border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400",
-		badge: "border-teal-500/30 bg-teal-500/10 text-teal-700 dark:text-teal-300",
-		borderHover: "hover:border-teal-500/50",
-		accent: "security",
+		tile: "border-cat-teal-border bg-cat-teal-bg text-cat-teal-icon",
+		badge: "border-cat-teal-border bg-cat-teal-bg text-cat-teal-fg",
+		text: "text-cat-teal-fg",
+		dot: "bg-cat-teal-icon",
+		borderHover: "hover:border-cat-teal-border",
+		accent: "teal",
 	},
 	developer: {
-		tile: "border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400",
-		badge: "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300",
-		borderHover: "hover:border-sky-500/50",
+		tile: "border-cat-sky-border bg-cat-sky-bg text-cat-sky-icon",
+		badge: "border-cat-sky-border bg-cat-sky-bg text-cat-sky-fg",
+		text: "text-cat-sky-fg",
+		dot: "bg-cat-sky-icon",
+		borderHover: "hover:border-cat-sky-border",
 		accent: "sky",
 	},
 };
@@ -166,3 +191,8 @@ export const categoryTone: Record<CategoryId, string> = {
 	security: categoryStyles.security.tile,
 	developer: categoryStyles.developer.tile,
 };
+
+/** "Image tools" → "Image", "Security & Encryption" → "Security". */
+export function categoryShortName(name: string): string {
+	return name.replace(/ tools$/i, "").replace(/ & .*$/, "");
+}

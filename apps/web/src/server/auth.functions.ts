@@ -4,7 +4,12 @@ import { authConfigured, githubConfigured, isDevAuth, requestSession } from "./a
 
 export const sessionFn = createServerFn({ method: "GET" }).handler(async () => {
 	setResponseHeader("Cache-Control", "private, no-store");
-	const session = await requestSession(getRequestHeaders());
+	let session = null;
+	try {
+		session = await requestSession(getRequestHeaders());
+	} catch (error) {
+		console.error("[auth] Failed to retrieve session:", error);
+	}
 	return {
 		enabled: authConfigured(),
 		emailPasswordEnabled: isDevAuth(),

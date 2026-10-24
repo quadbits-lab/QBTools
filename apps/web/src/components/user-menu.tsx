@@ -11,21 +11,20 @@ export function UserMenu() {
 			<span
 				role="status"
 				aria-label="Checking account"
-				className="h-9 w-10 animate-pulse bg-muted sm:h-10 sm:w-36"
+				className="h-9 w-10 animate-pulse rounded-md bg-muted sm:w-24"
 			/>
 		);
 	if (!user)
 		return (
-			<Button asChild variant="secondary" size="sm">
+			<Button asChild variant="default" size="sm">
 				<a href="/login" className="flex items-center gap-2">
-					<UserRound className="size-4" />
 					<span>Sign in</span>
 				</a>
 			</Button>
 		);
 	return (
 		<details className="relative">
-			<summary className="flex cursor-pointer list-none items-center gap-2 border border-input px-3 py-2 text-sm">
+			<summary className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-md border border-input bg-background px-3 text-sm font-medium hover:bg-accent">
 				{user.image ? (
 					<img src={user.image} alt="" className="size-5 rounded-full" />
 				) : (
@@ -33,19 +32,19 @@ export function UserMenu() {
 				)}
 				<span className="hidden max-w-28 truncate sm:inline">{user.name}</span>
 			</summary>
-			<div className="absolute right-0 z-50 mt-2 grid min-w-52 gap-1 border border-input bg-background p-2 shadow-lg">
-				<Link className="p-2 hover:bg-muted" to="/dashboard">
+			<div className="absolute right-0 z-50 mt-2 grid min-w-52 gap-1 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-popover">
+				<Link className="rounded-md p-2 text-sm hover:bg-accent" to="/dashboard">
 					Dashboard
 				</Link>
-				<Link className="p-2 hover:bg-muted" to="/dashboard/media">
+				<Link className="rounded-md p-2 text-sm hover:bg-accent" to="/dashboard/media">
 					Media Storage
 				</Link>
-				<Link className="p-2 hover:bg-muted" to="/dashboard/settings">
+				<Link className="rounded-md p-2 text-sm hover:bg-accent" to="/dashboard/settings">
 					Settings
 				</Link>
 				<button
 					type="button"
-					className="flex items-center gap-2 p-2 text-left hover:bg-muted"
+					className="flex cursor-pointer items-center gap-2 rounded-md p-2 text-left text-sm hover:bg-accent"
 					onClick={async () => {
 						await authClient.signOut();
 						window.location.assign("/");

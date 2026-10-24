@@ -1,6 +1,6 @@
 import { cn } from "../lib/utils";
 
-/** Row of boxed cells sharing hairlines (radio group semantics). */
+/** Segmented control: rounded muted track with a lifted active option (radio group semantics). */
 export function Segmented<T extends string>({
 	value,
 	onChange,
@@ -18,7 +18,7 @@ export function Segmented<T extends string>({
 		<div
 			role="radiogroup"
 			aria-label={label}
-			className={cn("flex flex-wrap pt-px pl-px", className)}
+			className={cn("flex flex-wrap gap-1 rounded-lg bg-muted p-1", className)}
 		>
 			{options.map((option) => {
 				const active = option.value === value;
@@ -30,10 +30,10 @@ export function Segmented<T extends string>({
 						aria-checked={active}
 						onClick={() => onChange(option.value)}
 						className={cn(
-							"-mt-px -ml-px min-h-11 flex-1 cursor-pointer border px-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] transition-colors duration-150",
+							"min-h-9 flex-1 cursor-pointer rounded-md px-3 text-sm font-medium transition-colors duration-150",
 							active
-								? "relative z-10 border-foreground bg-primary text-primary-foreground"
-								: "border-input text-muted-foreground hover:text-foreground",
+								? "bg-card text-foreground shadow-card"
+								: "text-muted-foreground hover:text-foreground",
 						)}
 					>
 						{option.label}

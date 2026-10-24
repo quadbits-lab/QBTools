@@ -18,7 +18,34 @@ export async function migrateUsers(pg: PGlite) {
 }
 
 export async function createUserDb(path?: string) {
-	const pg = await PGlite.create(path ?? "memory://");
+	const isFileDb = Boolean(path && path !== "memory://" && !path.startsWith("memory://"));
+	if (isFileDb && path) {
+		const fs = await import("node:fs");
+		fs.mkdirSync(path, { recursive: true });
+	}
+
+	let pg: PGlite;
+	try {
+		pg = await PGlite.create(path ?? "memory://");
+	} catch (err) {
+		if (isFileDb && path) {
+			const fs = await import("node:fs");
+			console.error(`[db] PGlite failed to initialize at ${path}, attempting recovery:`, err);
+			const backup = `${path}.corrupt.${Date.now()}`;
+			try {
+				fs.renameSync(path, backup);
+				console.warn(`[db] Moved corrupted database directory ${path} -> ${backup}`);
+				fs.mkdirSync(path, { recursive: true });
+				pg = await PGlite.create(path);
+			} catch (recoveryErr) {
+				console.error("[db] PGlite recovery failed:", recoveryErr);
+				throw err;
+			}
+		} else {
+			throw err;
+		}
+	}
+
 	await migrateUsers(pg);
 	return { pg, db: drizzle(pg, { schema }) };
 }

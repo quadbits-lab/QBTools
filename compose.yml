@@ -78,8 +78,8 @@ services:
         'test -n "$$RUSTFS_ACCESS_KEY" && test -n "$$RUSTFS_SECRET_KEY" || { echo "Set unique RustFS credentials" >&2; exit 1; }; exec /entrypoint.sh /data',
       ]
     ports:
-      - "127.0.0.1:9000:9000"
-      - "127.0.0.1:9001:9001"
+      - "127.0.0.1:8314:9000"
+      - "127.0.0.1:8313:9001"
     volumes:
       - rustfs-data:/data
     restart: unless-stopped

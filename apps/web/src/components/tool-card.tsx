@@ -1,66 +1,92 @@
-import { type Category, type ToolDef, toolsInCategory } from "@qbtools/registry";
-import { Badge } from "@qbtools/ui/badge";
+import { type Category, categoryById, type ToolDef, toolsInCategory } from "@qbtools/registry";
 import { cn } from "@qbtools/ui/utils";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Star } from "lucide-react";
-import { categoryStyles, categoryTone, iconFor } from "#/lib/icons";
+import { ArrowRight, Star } from "lucide-react";
+import { categoryShortName, categoryStyles, iconFor } from "#/lib/icons";
 import { favoriteTools, toggleFavorite } from "#/lib/local-store";
+import { CategoryBadge, ToolFlags } from "./tool-flags";
 
+const TILE_SIZE = {
+	sm: "size-9 rounded-md [&_svg]:size-[18px]",
+	md: "size-10 rounded-md [&_svg]:size-5",
+	xl: "size-12 rounded-lg [&_svg]:size-6",
+	lg: "size-[72px] rounded-xl [&_svg]:size-9",
+} as const;
+
+/** Category-colored icon tile: soft accent fill, hairline, accent icon. */
 export function ToolIcon({
 	tool,
 	size = "md",
 }: {
 	tool: Pick<ToolDef, "icon" | "category">;
-	size?: "sm" | "md" | "lg";
+	size?: keyof typeof TILE_SIZE;
 }) {
 	const Icon = iconFor(tool.icon);
 	return (
 		<span
 			className={cn(
-				"grid shrink-0 place-items-center transition-transform duration-200 group-hover:scale-105",
-				categoryTone[tool.category],
-				size === "sm" && "size-9 [&_svg]:size-4",
-				size === "md" && "size-12 [&_svg]:size-5",
-				size === "lg" && "size-14 [&_svg]:size-6 sm:size-16 sm:[&_svg]:size-7",
+				"grid shrink-0 place-items-center border transition-transform duration-200 group-hover:scale-105",
+				categoryStyles[tool.category].tile,
+				TILE_SIZE[size],
 			)}
 		>
-			<Icon strokeWidth={1.75} />
+			<Icon strokeWidth={2} />
 		</span>
 	);
 }
 
-/** Nina "go" cell: the boxed arrow at the end of a row with smooth interactive hover. */
+/** Boxed "go" arrow at the end of a card; fills on card hover. */
 function GoCell() {
 	return (
 		<span
 			aria-hidden="true"
-			className="grid size-10 shrink-0 place-items-center border border-input transition-all duration-200 group-hover:border-foreground group-hover:bg-primary group-hover:text-primary-foreground group-hover:translate-x-0.5"
+			className="grid size-8 shrink-0 place-items-center rounded-md border border-border text-foreground transition-colors duration-150 group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
 		>
 			<ArrowRight className="size-4" />
 		</span>
 	);
 }
 
+function FavoriteButton({ tool, className }: { tool: ToolDef; className?: string }) {
+	const favorites = favoriteTools.use();
+	const isFavorite = favorites.includes(tool.slug);
+	return (
+		<button
+			type="button"
+			onClick={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				toggleFavorite(tool.slug);
+			}}
+			aria-label={
+				isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`
+			}
+			aria-pressed={isFavorite}
+			className={cn(
+				"grid size-8 shrink-0 cursor-pointer place-items-center rounded-md transition-colors hover:bg-accent",
+				isFavorite ? "text-cat-amber-icon" : "text-muted-foreground hover:text-foreground",
+				className,
+			)}
+		>
+			<Star className={cn("size-4", isFavorite && "fill-current")} />
+		</button>
+	);
+}
+
+/** Tool card. `default` is the directory card; `compact` is a single row. */
 export function ToolCard({
 	tool,
-	index,
 	variant = "default",
 	className,
 }: {
 	tool: ToolDef;
+	/** Kept so older callers compile; the card no longer shows an index. */
 	index?: number;
 	variant?: "default" | "compact";
 	className?: string;
 }) {
-	const favorites = favoriteTools.use();
-	const isFavorite = favorites.includes(tool.slug);
-	const catStyle = categoryStyles[tool.category];
-
-	const handleFavoriteClick = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-		toggleFavorite(tool.slug);
-	};
+	const category = categoryById[tool.category];
+	const style = categoryStyles[tool.category];
 
 	if (variant === "compact") {
 		return (
@@ -68,42 +94,19 @@ export function ToolCard({
 				to="/tools/$slug"
 				params={{ slug: tool.slug }}
 				className={cn(
-					"group relative flex items-center justify-between gap-3 border border-border/80 bg-surface/80 p-3.5 backdrop-blur-sm transition-all duration-150 hover:border-input hover:bg-surface-2",
+					"group relative flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
+					style.borderHover,
 					className,
 				)}
 			>
-				<div className="flex min-w-0 items-center gap-3">
-					<ToolIcon tool={tool} size="sm" />
-					<div className="flex min-w-0 flex-col">
-						<span className="truncate text-base font-medium tracking-tight text-foreground group-hover:text-primary">
-							{tool.name}
-						</span>
-						<span className="truncate text-xs text-muted-foreground">{tool.tagline}</span>
-					</div>
-				</div>
-				<div className="flex items-center gap-2">
-					<button
-						type="button"
-						onClick={handleFavoriteClick}
-						aria-label={
-							isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`
-						}
-						className={cn(
-							"grid size-8 place-items-center rounded-none border border-transparent transition-colors hover:border-border hover:bg-muted",
-							isFavorite ? "text-amber-400" : "text-subtle/60 hover:text-foreground",
-						)}
-					>
-						<Star
-							className={cn(
-								"size-4 transition-transform duration-150 active:scale-125",
-								isFavorite && "fill-current",
-							)}
-						/>
-					</button>
-					<span className="text-subtle group-hover:text-foreground group-hover:translate-x-0.5 transition-all">
-						<ArrowRight className="size-4" />
-					</span>
-				</div>
+				<ToolIcon tool={tool} size="sm" />
+				<span className="flex min-w-0 flex-1 flex-col">
+					<span className="truncate text-sm font-medium text-foreground">{tool.name}</span>
+					<span className="truncate text-sm text-muted-foreground">{tool.tagline}</span>
+				</span>
+				<ToolFlags tool={tool} className="hidden sm:flex" />
+				<FavoriteButton tool={tool} />
+				<GoCell />
 			</Link>
 		);
 	}
@@ -113,149 +116,106 @@ export function ToolCard({
 			to="/tools/$slug"
 			params={{ slug: tool.slug }}
 			className={cn(
-				"interactive-card group relative grid grid-cols-[auto_1fr_auto] items-start gap-4 border border-border/90 bg-surface/80 p-5 backdrop-blur-sm hover:border-input hover:bg-surface-2",
+				"group relative flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
+				style.borderHover,
 				className,
 			)}
 		>
-			<ToolIcon tool={tool} />
-			<span className="flex min-w-0 flex-col gap-1.5">
-				<span className="flex flex-wrap items-center gap-2">
-					{index !== undefined && (
-						<span className="label-mono text-subtle">[{String(index).padStart(2, "0")}]</span>
-					)}
-					{catStyle && (
-						<span
-							className={cn(
-								"inline-flex items-center border px-1.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-wider",
-								catStyle.badge,
-							)}
-						>
-							{catStyle.accent}
-						</span>
-					)}
-					{tool.runtime === "server-ai" ? (
-						<Badge tone="primary" className="text-[0.625rem] py-0.5">
-							<Sparkles className="size-3" /> AI
-						</Badge>
-					) : (
-						<span className="hidden sm:inline-flex items-center gap-1 font-mono text-[0.625rem] uppercase tracking-wider text-subtle">
-							<ShieldCheck className="size-3 text-emerald-500" /> Private
-						</span>
-					)}
-					{tool.popular !== undefined && tool.popular <= 3 && (
-						<span className="hidden md:inline-flex font-mono text-[0.625rem] uppercase tracking-wider text-amber-500">
-							★ Top
-						</span>
-					)}
-				</span>
-
-				<span className="flex items-center gap-2 text-lg leading-tight font-medium tracking-[-0.02em] text-foreground group-hover:text-primary transition-colors">
-					{tool.name}
-				</span>
-				<span className="line-clamp-2 text-[0.875rem] leading-relaxed text-muted-foreground">
-					{tool.tagline}
+			<span className="flex items-center justify-between gap-2">
+				<ToolIcon tool={tool} />
+				<span className="flex items-center gap-2">
+					<ToolFlags tool={tool} />
+					<FavoriteButton tool={tool} />
 				</span>
 			</span>
-
-			<div className="flex flex-col items-end gap-2">
-				<button
-					type="button"
-					onClick={handleFavoriteClick}
-					aria-label={
-						isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`
-					}
-					className={cn(
-						"grid size-8 place-items-center border border-transparent transition-all hover:border-border hover:bg-muted",
-						isFavorite
-							? "text-amber-400"
-							: "text-subtle/50 opacity-0 group-hover:opacity-100 hover:text-foreground",
-					)}
-				>
-					<Star
-						className={cn(
-							"size-4 transition-transform duration-150 active:scale-125",
-							isFavorite && "fill-current opacity-100",
-						)}
-					/>
-				</button>
+			<span className="text-xl leading-7 font-semibold tracking-[-0.025em] text-foreground">
+				{tool.name}
+			</span>
+			<span className="line-clamp-2 flex-1 text-sm leading-5 text-muted-foreground">
+				{tool.tagline}
+			</span>
+			<span className="flex items-center justify-between gap-2">
+				<CategoryBadge
+					category={tool.category}
+					icon={category.icon}
+					label={categoryShortName(category.name)}
+				/>
 				<GoCell />
-			</div>
+			</span>
 		</Link>
 	);
 }
 
+/** Category card: icon tile, tool count, name, tagline, quick links. */
 export function CategoryCard({
 	category,
 	count,
-	index,
 }: {
 	category: Category;
 	count: number;
+	/** Kept so older callers compile; the card no longer shows an index. */
 	index?: number;
 }) {
 	const Icon = iconFor(category.icon);
-	const catStyle = categoryStyles[category.id];
+	const style = categoryStyles[category.id];
 	const sampleTools = toolsInCategory(category.id).slice(0, 3);
 
 	return (
-		<div className="interactive-card group relative flex flex-col justify-between border border-border/80 bg-surface/80 p-6 backdrop-blur-sm hover:border-input hover:bg-surface-2 sm:p-7">
+		<div
+			className={cn(
+				"group relative flex flex-col gap-4 rounded-lg border border-border bg-card p-6 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
+				style.borderHover,
+			)}
+		>
 			<Link
 				to="/categories/$category"
 				params={{ category: category.id }}
-				className="flex flex-col gap-6"
+				className="flex flex-col gap-4"
 			>
-				<div className="flex items-start justify-between gap-4">
+				<span className="flex items-center justify-between gap-4">
 					<span
 						className={cn(
-							"grid size-12 place-items-center transition-transform duration-200 group-hover:scale-105 sm:size-14",
-							catStyle ? catStyle.tile : categoryTone[category.id],
+							"grid size-12 place-items-center rounded-lg border transition-transform duration-200 group-hover:scale-105",
+							style.tile,
 						)}
 					>
-						<Icon className="size-6" strokeWidth={1.75} />
+						<Icon className="size-6" strokeWidth={2} />
 					</span>
-					<div className="flex items-center gap-2">
-						{index !== undefined && (
-							<span className="label-mono text-subtle">[{String(index).padStart(2, "0")}]</span>
-						)}
-						<span
-							className={cn(
-								"border px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-wider",
-								catStyle ? catStyle.badge : "border-border text-subtle",
-							)}
-						>
-							{count} tools
-						</span>
-					</div>
-				</div>
-
-				<div className="flex flex-col gap-2">
-					<span className="text-2xl leading-tight font-medium tracking-[-0.03em] group-hover:text-primary transition-colors">
+					<span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
+						{count} tools
+					</span>
+				</span>
+				<span className="flex flex-col gap-2">
+					<span className="text-2xl leading-[30px] font-semibold tracking-[-0.025em] text-foreground">
 						{category.name}
 					</span>
-					<span className="text-sm leading-relaxed text-muted-foreground">{category.tagline}</span>
-				</div>
+					<span className="text-sm leading-5 text-muted-foreground">{category.tagline}</span>
+				</span>
 			</Link>
 
-			{/* Interactive quick pills for top tools in this category */}
-			<div className="mt-6 flex flex-wrap gap-1.5 border-t border-border/80 pt-4">
+			<div className="flex flex-wrap gap-2">
 				{sampleTools.map((t) => (
 					<Link
 						key={t.slug}
 						to="/tools/$slug"
 						params={{ slug: t.slug }}
-						className="label-mono rounded-none border border-border/70 bg-background/50 px-2 py-1 text-[0.6875rem] text-muted-foreground transition-all hover:border-foreground hover:bg-surface hover:text-foreground"
+						className="rounded-full border border-border px-2 py-0.5 text-xs text-foreground transition-colors hover:bg-accent"
 					>
 						{t.name}
 					</Link>
 				))}
-				<Link
-					to="/categories/$category"
-					params={{ category: category.id }}
-					className="ml-auto flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-foreground hover:underline pt-1"
-				>
-					View all →
-				</Link>
 			</div>
+
+			<Link
+				to="/categories/$category"
+				params={{ category: category.id }}
+				className={cn(
+					"mt-auto inline-flex items-center gap-1.5 text-sm font-medium hover:gap-2.5",
+					style.text,
+				)}
+			>
+				View all <ArrowRight className="size-3.5" />
+			</Link>
 		</div>
 	);
 }

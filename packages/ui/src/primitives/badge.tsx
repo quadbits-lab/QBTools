@@ -2,17 +2,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 import { cn } from "../lib/utils";
 
-/** Mono uppercase tag in a hairline box. Tone changes contrast, not hue. */
-const badgeVariants = cva(
-	"inline-flex items-center gap-1.5 border px-2 py-1 font-mono text-[0.6875rem] uppercase leading-none tracking-[0.12em] [&_svg]:size-3.5",
+/**
+ * Pill badge. Tones: neutral (secondary), primary (default), outline,
+ * positive (success), caution (warning), critical (destructive).
+ * Status tones always pair color with text (and ideally an icon).
+ */
+export const badgeVariants = cva(
+	"inline-flex h-[22px] items-center gap-1.5 whitespace-nowrap rounded-full border px-2 text-xs leading-none [&_svg]:size-3",
 	{
 		variants: {
 			tone: {
-				neutral: "border-input text-muted-foreground",
-				primary: "border-foreground text-foreground",
-				positive: "border-foreground text-foreground",
-				caution: "border-foreground text-foreground",
-				critical: "border-critical text-critical",
+				neutral: "border-transparent bg-secondary text-secondary-foreground",
+				primary: "border-transparent bg-primary text-primary-foreground",
+				outline: "border-border bg-transparent text-foreground",
+				positive: "border-cat-emerald-border bg-cat-emerald-bg text-cat-emerald-fg",
+				caution: "border-cat-amber-border bg-cat-amber-bg text-cat-amber-fg",
+				critical: "border-cat-rose-border bg-cat-rose-bg text-cat-rose-fg",
 			},
 		},
 		defaultVariants: { tone: "neutral" },

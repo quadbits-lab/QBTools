@@ -5,51 +5,42 @@ import type * as React from "react";
 import { cn } from "../lib/utils";
 
 /**
- * Nina boxed button: hairline box, DM Mono uppercase label, square corners,
- * presses to 0.96 over 150ms. `arrow` adds the boxed arrow cell.
+ * ShadCN button. Variants: default (alias primary), secondary, outline, ghost,
+ * destructive (alias critical), link. `arrow` appends a 16px arrow.
+ * Heights: sm 36, md 40, lg 48.
  */
 export const buttonVariants = cva(
-	"inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2.5 whitespace-nowrap border font-mono uppercase tracking-[0.12em] transition-[transform,background-color,border-color,color,opacity] duration-150 ease-out active:scale-[0.96] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+	"inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-[transform,background-color,border-color,color,opacity] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
-				primary: "border-primary bg-primary text-primary-foreground hover:bg-primary/85",
-				secondary: "border-input bg-transparent text-foreground hover:border-foreground",
-				outline: "border-input bg-transparent text-foreground hover:border-foreground",
-				ghost: "border-transparent bg-transparent text-foreground hover:bg-muted",
-				critical:
-					"border-critical bg-transparent text-critical hover:bg-critical hover:text-background",
-				link: "h-auto border-0 border-b border-input px-0 pb-1 text-foreground hover:border-foreground active:scale-100",
+				default: "bg-primary text-primary-foreground hover:bg-primary/90",
+				primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+				secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
+				outline: "border-input bg-background text-foreground hover:bg-accent",
+				ghost: "text-foreground hover:bg-accent",
+				destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+				critical: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+				link: "h-auto rounded-none border-0 border-b border-input px-0 pb-0.5 text-foreground hover:border-foreground active:scale-100",
 			},
 			size: {
-				sm: "h-10 px-3.5 text-[0.6875rem]",
-				md: "h-12 px-5 text-xs",
-				lg: "h-14 px-6 text-[0.8125rem]",
-				icon: "size-12 tracking-normal",
-				"icon-sm": "size-10 tracking-normal",
+				sm: "h-9 px-3",
+				md: "h-10 px-4",
+				lg: "h-12 px-6",
+				icon: "size-10",
+				"icon-sm": "size-9",
 			},
 		},
-		defaultVariants: { variant: "primary", size: "md" },
+		defaultVariants: { variant: "default", size: "md" },
 	},
 );
 
 export type ButtonProps = React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
-		/** Append the boxed → cell (primary calls to action). */
+		/** Append a trailing arrow (primary calls to action). */
 		arrow?: boolean;
 	};
-
-function ArrowCell() {
-	return (
-		<span
-			aria-hidden="true"
-			className="flex w-12 items-center justify-center self-stretch border-l border-current"
-		>
-			<ArrowRight />
-		</span>
-	);
-}
 
 export function Button({
 	className,
@@ -62,18 +53,15 @@ export function Button({
 }: ButtonProps) {
 	const Comp = asChild ? Slot.Root : "button";
 	return (
-		<Comp
-			className={cn(buttonVariants({ variant, size }), arrow && "gap-5 py-0 pr-0", className)}
-			{...props}
-		>
+		<Comp className={cn(buttonVariants({ variant, size }), className)} {...props}>
 			{asChild ? (
 				<Slot.Slottable>{children}</Slot.Slottable>
-			) : arrow ? (
-				<span className="flex items-center gap-2.5">{children}</span>
 			) : (
-				children
+				<>
+					{children}
+					{arrow ? <ArrowRight aria-hidden="true" /> : null}
+				</>
 			)}
-			{arrow ? <ArrowCell /> : null}
 		</Comp>
 	);
 }
