@@ -72,14 +72,14 @@ export function SearchBox({
 					// biome-ignore lint/a11y/noAutofocus: opt-in on the 404 page only
 					autoFocus={autoFocus}
 					value={query}
-					placeholder="What do you want to do?"
+					placeholder="What do you want to do? (e.g. compress, merge, pdf, qr...)"
 					onChange={(event) => {
 						setQuery(event.target.value);
 						setActive(-1);
 						setOpen(true);
 					}}
 					onFocus={() => setOpen(true)}
-					onBlur={() => setTimeout(() => setOpen(false), 120)}
+					onBlur={() => setTimeout(() => setOpen(false), 140)}
 					onKeyDown={(event) => {
 						if (event.key === "ArrowDown") {
 							event.preventDefault();
@@ -92,14 +92,27 @@ export function SearchBox({
 						}
 					}}
 					className={cn(
-						"w-full border border-input bg-transparent pr-16 pl-13 sm:pr-36 outline-none transition-colors placeholder:text-subtle focus:border-foreground [&::-webkit-search-cancel-button]:hidden",
+						"w-full border border-input bg-surface/70 backdrop-blur-sm pr-24 pl-13 sm:pr-36 outline-none transition-all placeholder:text-subtle focus:border-foreground focus:bg-surface [&::-webkit-search-cancel-button]:hidden shadow-sm",
 						size === "lg" ? "h-16 text-lg" : "h-14 text-base",
 					)}
 				/>
+				{query && (
+					<button
+						type="button"
+						onClick={() => {
+							setQuery("");
+							inputRef.current?.focus();
+						}}
+						aria-label="Clear search"
+						className="absolute top-1/2 right-20 sm:right-32 -translate-y-1/2 p-1 text-subtle hover:text-foreground cursor-pointer"
+					>
+						<span className="font-mono text-xs">✕</span>
+					</button>
+				)}
 				<button
 					type="submit"
 					className={cn(
-						"absolute inset-y-0 right-0 flex cursor-pointer items-center gap-3 border border-primary bg-primary px-5 font-mono text-xs uppercase tracking-[0.12em] text-primary-foreground transition-[background-color,transform] duration-150 hover:bg-primary/85 active:scale-[0.96]",
+						"absolute inset-y-0 right-0 flex cursor-pointer items-center gap-2.5 border border-primary bg-primary px-4 sm:px-6 font-mono text-xs uppercase tracking-[0.12em] text-primary-foreground transition-all duration-150 hover:bg-primary/90 active:scale-[0.98]",
 						size === "lg" && "sm:px-6",
 					)}
 				>
@@ -110,10 +123,10 @@ export function SearchBox({
 				<div
 					id={listId}
 					role="listbox"
-					className="absolute top-full right-0 left-0 z-40 mt-2 overflow-hidden border border-border bg-surface p-2 text-left"
+					className="glass-card absolute top-full right-0 left-0 z-40 mt-2 overflow-hidden border border-border shadow-2xl p-2 text-left"
 				>
 					{results.length === 0 ? (
-						<div className="px-4 py-3 text-muted-foreground">
+						<div className="px-4 py-3 text-muted-foreground text-sm">
 							No matching tools — press Enter to search all tools.
 						</div>
 					) : (
@@ -132,8 +145,8 @@ export function SearchBox({
 									}}
 									onMouseEnter={() => setActive(index)}
 									className={cn(
-										"flex min-h-14 cursor-pointer items-center gap-3 px-3",
-										index === active && "bg-muted",
+										"flex min-h-14 cursor-pointer items-center gap-3 px-3 transition-colors",
+										index === active ? "bg-muted text-foreground" : "hover:bg-muted/60",
 									)}
 								>
 									<span
@@ -144,11 +157,14 @@ export function SearchBox({
 									>
 										<Icon className="size-5" />
 									</span>
-									<span className="flex min-w-0 flex-col">
+									<span className="flex min-w-0 flex-1 flex-col">
 										<span className="truncate font-medium">{result.title}</span>
-										<span className="truncate text-sm text-muted-foreground">
+										<span className="truncate text-xs text-muted-foreground">
 											{result.subtitle}
 										</span>
+									</span>
+									<span className="font-mono text-[0.625rem] uppercase text-subtle border border-border px-1.5 py-0.5">
+										{result.tool.category}
 									</span>
 								</div>
 							);
@@ -156,6 +172,7 @@ export function SearchBox({
 					)}
 				</div>
 			)}
+
 		</div>
 	);
 }

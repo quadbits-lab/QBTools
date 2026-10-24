@@ -6,8 +6,9 @@ export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:8310
 	/\/$/,
 	"",
 );
-export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? "hello@qbtools.app";
-/** Matches the dark theme background (oklch 0.09). */
-export const THEME_COLOR = "#0a0a0a";
+export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? "hello@quadbits.io";
+/** Matches the dark theme background (oklch 0.18 monochrome gray). */
+export const THEME_COLOR = "#1f1f1f";
+
 
 export const absoluteUrl = (path: string) => `${SITE_URL}${path === "/" ? "" : path}`;
