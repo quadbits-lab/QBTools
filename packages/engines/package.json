@@ -1,0 +1,36 @@
+{
+	"name": "@qbtools/engines",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./calc": "./src/calc/index.ts",
+		"./text": "./src/text/index.ts",
+		"./generators": "./src/generators/index.ts",
+		"./image": "./src/image/index.ts",
+		"./pdf": "./src/pdf/index.ts",
+		"./media": "./src/media/index.ts",
+		"./files": "./src/files.ts",
+		"./invoice-pdf": "./src/generators/invoice-pdf.ts",
+		"./pdf-render": "./src/pdf/render.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@huggingface/transformers": "^4.3.1",
+		"@mediabunny/mp3-encoder": "^1.62.1",
+		"client-zip": "^2.5.0",
+		"heic2any": "^0.0.4",
+		"mediabunny": "^1.62.1",
+		"pdf-lib": "^1.17.1",
+		"pdfjs-dist": "^6.4.299",
+		"pica": "^10.0.3",
+		"qrcode": "^1.5.4"
+	},
+	"devDependencies": {
+		"@types/pica": "^9.0.5",
+		"@types/qrcode": "^1.5.6",
+		"vite": "^8.3.5"
+	}
+}

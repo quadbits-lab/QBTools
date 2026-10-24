@@ -1,0 +1,30 @@
+{
+	"name": "qbtools",
+	"private": true,
+	"type": "module",
+	"packageManager": "bun@1.4.3",
+	"engines": {
+		"bun": ">=1.4.0"
+	},
+	"workspaces": ["apps/*", "packages/*"],
+	"scripts": {
+		"dev": "turbo run dev --filter=@qbtools/web",
+		"build": "turbo run build --filter=@qbtools/web",
+		"start": "bun run --cwd apps/web start",
+		"typecheck": "turbo run typecheck",
+		"lint": "biome check .",
+		"format": "biome check --write .",
+		"test": "bun test",
+		"db:generate": "bun run --cwd packages/db generate",
+		"db:backup": "bun run --cwd packages/db backup",
+		"docker:build": "docker compose build",
+		"docker:up": "docker compose up -d",
+		"docker:down": "docker compose down"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.6.3",
+		"@types/bun": "^1.4.4",
+		"turbo": "^2.11.10",
+		"typescript": "~6.0.3"
+	}
+}

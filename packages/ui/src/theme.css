@@ -1,0 +1,144 @@
+/*
+ * QBTools design tokens. Apps import this after `@import "tailwindcss"`.
+ * Semantic tokens only — components never use raw palette colors.
+ */
+@import "tw-animate-css";
+@import "@fontsource-variable/plus-jakarta-sans";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+	--radius: 0.875rem;
+
+	--background: oklch(0.985 0.004 260);
+	--foreground: oklch(0.2 0.03 265);
+	--surface: oklch(1 0 0);
+	--surface-2: oklch(0.965 0.008 260);
+	--muted: oklch(0.955 0.01 260);
+	--muted-foreground: oklch(0.48 0.03 265);
+	--border: oklch(0.9 0.012 260);
+	--input: oklch(0.88 0.015 260);
+	--ring: oklch(0.58 0.2 264);
+
+	--primary: oklch(0.55 0.21 264);
+	--primary-foreground: oklch(0.99 0 0);
+	--primary-soft: oklch(0.94 0.04 264);
+	--accent: oklch(0.82 0.16 80);
+	--accent-foreground: oklch(0.25 0.05 70);
+
+	--positive: oklch(0.55 0.15 150);
+	--positive-soft: oklch(0.95 0.05 150);
+	--caution: oklch(0.65 0.15 70);
+	--caution-soft: oklch(0.96 0.05 85);
+	--critical: oklch(0.56 0.21 25);
+	--critical-soft: oklch(0.95 0.04 25);
+
+	/* Category hues (icon tiles only) */
+	--cat-image: oklch(0.62 0.2 350);
+	--cat-pdf: oklch(0.6 0.2 25);
+	--cat-text: oklch(0.58 0.18 250);
+	--cat-calculators: oklch(0.6 0.15 155);
+	--cat-generators: oklch(0.56 0.2 295);
+	--cat-media: oklch(0.66 0.17 55);
+}
+
+.dark {
+	--background: oklch(0.17 0.02 265);
+	--foreground: oklch(0.95 0.01 260);
+	--surface: oklch(0.21 0.025 265);
+	--surface-2: oklch(0.24 0.028 265);
+	--muted: oklch(0.26 0.03 265);
+	--muted-foreground: oklch(0.72 0.03 260);
+	--border: oklch(0.3 0.03 265);
+	--input: oklch(0.34 0.03 265);
+	--ring: oklch(0.7 0.17 264);
+
+	--primary: oklch(0.68 0.18 264);
+	--primary-foreground: oklch(0.16 0.03 265);
+	--primary-soft: oklch(0.3 0.08 264);
+	--accent: oklch(0.82 0.15 80);
+	--accent-foreground: oklch(0.22 0.04 70);
+
+	--positive: oklch(0.72 0.15 150);
+	--positive-soft: oklch(0.3 0.06 150);
+	--caution: oklch(0.8 0.14 80);
+	--caution-soft: oklch(0.32 0.06 80);
+	--critical: oklch(0.7 0.18 25);
+	--critical-soft: oklch(0.32 0.07 25);
+
+	--cat-image: oklch(0.72 0.17 350);
+	--cat-pdf: oklch(0.7 0.17 25);
+	--cat-text: oklch(0.7 0.15 250);
+	--cat-calculators: oklch(0.72 0.14 155);
+	--cat-generators: oklch(0.7 0.16 295);
+	--cat-media: oklch(0.76 0.15 55);
+}
+
+@theme inline {
+	--font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-surface: var(--surface);
+	--color-surface-2: var(--surface-2);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-soft: var(--primary-soft);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-positive: var(--positive);
+	--color-positive-soft: var(--positive-soft);
+	--color-caution: var(--caution);
+	--color-caution-soft: var(--caution-soft);
+	--color-critical: var(--critical);
+	--color-critical-soft: var(--critical-soft);
+	--color-cat-image: var(--cat-image);
+	--color-cat-pdf: var(--cat-pdf);
+	--color-cat-text: var(--cat-text);
+	--color-cat-calculators: var(--cat-calculators);
+	--color-cat-generators: var(--cat-generators);
+	--color-cat-media: var(--cat-media);
+
+	--radius-sm: calc(var(--radius) - 6px);
+	--radius-md: calc(var(--radius) - 3px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 10px);
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	html {
+		font-size: 106.25%; /* 17px base: easier to read for every age */
+		-webkit-text-size-adjust: 100%;
+	}
+	body {
+		@apply bg-background text-foreground font-sans antialiased;
+		text-rendering: optimizeLegibility;
+	}
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-ring;
+	}
+	::selection {
+		@apply bg-primary-soft;
+	}
+	input[type="range"] {
+		accent-color: var(--primary);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}

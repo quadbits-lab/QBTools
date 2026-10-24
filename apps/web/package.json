@@ -1,0 +1,44 @@
+{
+	"name": "@qbtools/web",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun --bun vite dev --port 3000",
+		"build": "bun --bun vite build",
+		"start": "bun run server.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^1.3.0",
+		"@fontsource/anton": "^5.3.0",
+		"@fontsource/bebas-neue": "^5.3.0",
+		"@fontsource/caveat": "^5.3.0",
+		"@fontsource/dancing-script": "^5.3.0",
+		"@fontsource/great-vibes": "^5.3.0",
+		"@fontsource/sacramento": "^5.3.0",
+		"@huggingface/transformers": "^4.3.1",
+		"@qbtools/content": "workspace:*",
+		"@qbtools/db": "workspace:*",
+		"@qbtools/engines": "workspace:*",
+		"@qbtools/registry": "workspace:*",
+		"@qbtools/ui": "workspace:*",
+		"@tanstack/react-router": "^1.170.46",
+		"@tanstack/react-start": "^1.169.4",
+		"lucide-react": "^1.61.0",
+		"qrcode": "^1.5.4",
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1",
+		"wavesurfer.js": "^8.0.3",
+		"zod": "^4.6.7"
+	},
+	"devDependencies": {
+		"@tailwindcss/vite": "^4.3.3",
+		"@types/qrcode": "^1.5.6",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"@vitejs/plugin-react": "^6.1.2",
+		"tailwindcss": "^4.3.3",
+		"vite": "^8.3.5"
+	}
+}
