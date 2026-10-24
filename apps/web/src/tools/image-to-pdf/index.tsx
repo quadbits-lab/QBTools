@@ -79,7 +79,7 @@ export default function ImageToPdf() {
 						{pageSize !== "fit" && (
 							<>
 								<div className="flex flex-col gap-2">
-									<span className="text-sm font-semibold">Orientation</span>
+									<span className="text-sm font-medium">Orientation</span>
 									<Segmented
 										label="Orientation"
 										value={orientation}

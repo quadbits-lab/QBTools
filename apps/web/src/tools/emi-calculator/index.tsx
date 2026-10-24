@@ -146,9 +146,9 @@ export default function EmiCalculator() {
 				<div aria-live="polite">
 					{result ? (
 						<div className="flex h-full flex-col gap-4">
-							<div className="rounded-2xl bg-primary p-6 text-primary-foreground">
-								<p className="font-semibold opacity-90">Monthly EMI</p>
-								<p className="mt-1 font-mono text-4xl font-extrabold tracking-tight sm:text-5xl">
+							<div className="bg-primary p-6 text-primary-foreground">
+								<p className="font-medium opacity-90">Monthly EMI</p>
+								<p className="mt-1 font-mono text-4xl font-medium tracking-[-0.035em] sm:text-5xl">
 									{money(result.emi)}
 								</p>
 								<p className="mt-2 opacity-90">for {months} months</p>
@@ -159,7 +159,7 @@ export default function EmiCalculator() {
 							</div>
 							<div>
 								<div
-									className="flex h-4 overflow-hidden rounded-full"
+									className="flex h-4 overflow-hidden"
 									role="img"
 									aria-label={`Principal ${formatNumber(100 - interestShare, 0)}%, interest ${formatNumber(interestShare, 0)}%`}
 								>
@@ -168,12 +168,11 @@ export default function EmiCalculator() {
 								</div>
 								<div className="mt-2 flex justify-between text-sm">
 									<span className="flex items-center gap-2">
-										<span className="size-3 rounded-full bg-primary" /> Principal{" "}
+										<span className="size-3 bg-primary" /> Principal{" "}
 										{formatNumber(100 - interestShare, 0)}%
 									</span>
 									<span className="flex items-center gap-2">
-										<span className="size-3 rounded-full bg-accent" /> Interest{" "}
-										{formatNumber(interestShare, 0)}%
+										<span className="size-3 bg-accent" /> Interest {formatNumber(interestShare, 0)}%
 									</span>
 								</div>
 							</div>
@@ -189,7 +188,7 @@ export default function EmiCalculator() {
 			{result && (
 				<section aria-labelledby="schedule">
 					<div className="flex flex-wrap items-center justify-between gap-3">
-						<h3 id="schedule" className="text-lg font-bold">
+						<h3 id="schedule" className="text-lg font-medium">
 							Repayment schedule
 						</h3>
 						<Segmented
@@ -202,7 +201,7 @@ export default function EmiCalculator() {
 							]}
 						/>
 					</div>
-					<div className="mt-3 max-h-96 overflow-auto rounded-2xl border border-border">
+					<div className="mt-3 max-h-96 overflow-auto border border-border">
 						<table className="w-full text-right text-sm">
 							<thead className="sticky top-0 bg-muted text-muted-foreground">
 								<tr>

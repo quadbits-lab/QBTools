@@ -11,13 +11,14 @@ import { AdSlot } from "./ad-slot";
 import { Breadcrumbs } from "./breadcrumbs";
 import { FaqList } from "./faq";
 import { Notice } from "./kit/notice";
+import { Kicker } from "./page";
 import { ToolCard, ToolIcon } from "./tool-card";
 
 function WidgetSkeleton() {
 	return (
 		<div className="flex min-h-80 flex-col gap-4 p-1" aria-hidden="true">
-			<div className="h-56 animate-pulse rounded-2xl bg-muted" />
-			<div className="h-12 w-48 animate-pulse rounded-xl bg-muted" />
+			<div className="h-56 animate-pulse bg-muted" />
+			<div className="h-12 w-48 animate-pulse bg-muted" />
 		</div>
 	);
 }
@@ -51,7 +52,7 @@ function FavoriteButton({ slug }: { slug: string }) {
 			onClick={() => toggleFavorite(slug)}
 			aria-pressed={active}
 		>
-			<Star className={cn("size-4", active && "fill-accent text-accent")} />
+			<Star className={cn("size-4", active && "fill-foreground text-foreground")} />
 			{active ? "Saved" : "Save tool"}
 		</Button>
 	);
@@ -65,7 +66,7 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 	useEffect(() => markToolUsed(tool.slug), [tool.slug]);
 
 	return (
-		<div className="container-page pt-6 pb-4 sm:pt-8">
+		<div className="container-page pt-8 pb-4 sm:pt-12">
 			<Breadcrumbs
 				items={[
 					{ name: "Home", href: "/" },
@@ -76,36 +77,36 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				]}
 			/>
 
-			<header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start">
-				<ToolIcon tool={tool} size="lg" />
-				<div className="flex-1">
-					<h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+			<header className="reveal mb-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+				<div className="flex flex-col gap-5">
+					<ToolIcon tool={tool} size="lg" />
+					<h1 className="display max-w-4xl text-[clamp(2.4rem,5.5vw,4.5rem)]">
 						{preset?.title ?? tool.name}
 					</h1>
-					<p className="mt-2 max-w-3xl text-lg text-muted-foreground">
+					<p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
 						{preset?.intro ?? tool.tagline}
 					</p>
-					<div className="mt-3 flex flex-wrap items-center gap-2">
-						{tool.runtime === "browser" ? (
-							<Badge tone="positive">
-								<ShieldCheck /> Private: runs on your device
-							</Badge>
-						) : (
-							<Badge tone="primary">
-								<Sparkles /> AI-powered
-							</Badge>
-						)}
-						<Badge>
-							<Check /> Free, no signup
+				</div>
+				<div className="flex flex-wrap items-center gap-2 lg:justify-end">
+					{tool.runtime === "browser" ? (
+						<Badge tone="positive">
+							<ShieldCheck /> Runs on your device
 						</Badge>
-						<FavoriteButton slug={tool.slug} />
-					</div>
+					) : (
+						<Badge tone="primary">
+							<Sparkles /> AI-powered
+						</Badge>
+					)}
+					<Badge>
+						<Check /> Free · no signup
+					</Badge>
+					<FavoriteButton slug={tool.slug} />
 				</div>
 			</header>
 
 			<section
 				aria-label={`${tool.name} tool`}
-				className="rounded-3xl border border-border bg-surface p-4 shadow-sm sm:p-6"
+				className="border border-input bg-surface p-4 sm:p-8"
 			>
 				<ClientOnly fallback={<WidgetSkeleton />}>
 					<WidgetBoundary>
@@ -118,41 +119,46 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 
 			<AdSlot position="top" />
 
-			<section aria-labelledby="how-to" className="mt-14">
-				<h2 id="how-to" className="text-2xl font-extrabold tracking-tight">
+			<section aria-labelledby="how-to" className="pt-20 sm:pt-24">
+				<Kicker index={1}>How it works</Kicker>
+				<h2 id="how-to" className="mt-4 text-3xl tracking-[-0.035em]">
 					How to use {tool.name}
 				</h2>
-				<ol className="mt-5 grid gap-4 md:grid-cols-3">
+				<ol className="mt-8 grid md:grid-cols-3">
 					{tool.howTo.map((step, index) => (
 						<li
 							key={step.title}
-							className="flex gap-4 rounded-2xl border border-border bg-surface p-5"
+							className="flex flex-col gap-3 border-t border-input pt-5 pr-8 pb-8"
 						>
-							<span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary font-mono text-lg font-bold text-primary-foreground">
-								{index + 1}
+							<span className="label-mono text-subtle">
+								Step {String(index + 1).padStart(2, "0")}
 							</span>
-							<span>
-								<span className="block font-bold">{step.title}</span>
-								<span className="mt-1 block text-muted-foreground">{step.text}</span>
-							</span>
+							<span className="text-xl tracking-[-0.02em]">{step.title}</span>
+							<span className="text-muted-foreground">{step.text}</span>
 						</li>
 					))}
 				</ol>
 			</section>
 
-			<section aria-labelledby="about" className="mt-14 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+			<section aria-labelledby="about" className="grid gap-10 pt-16 lg:grid-cols-[1.4fr_1fr]">
 				<div>
-					<h2 id="about" className="text-2xl font-extrabold tracking-tight">
+					<Kicker index={2}>About</Kicker>
+					<h2 id="about" className="mt-4 text-3xl tracking-[-0.035em]">
 						What is {tool.name}?
 					</h2>
-					<p className="mt-4 text-[1.0625rem] leading-relaxed">{tool.about.what}</p>
+					<p className="mt-5 text-[1.0625rem] leading-relaxed text-muted-foreground">
+						{tool.about.what}
+					</p>
 				</div>
-				<div className="rounded-2xl bg-surface-2 p-6">
-					<h3 className="text-lg font-bold">When to use it</h3>
-					<ul className="mt-3 flex flex-col gap-2.5">
+				<div className="border border-border bg-surface-2 p-6 sm:p-8">
+					<h3 className="label-mono">When to use it</h3>
+					<ul className="mt-4 flex flex-col">
 						{tool.about.when.map((item) => (
-							<li key={item} className="flex gap-2.5">
-								<Check className="mt-1 size-4 shrink-0 text-positive" />
+							<li
+								key={item}
+								className="flex gap-3 border-t border-border py-3 first:border-t-0 first:pt-0"
+							>
+								<Check className="mt-1 size-4 shrink-0" strokeWidth={1.5} />
 								<span>{item}</span>
 							</li>
 						))}
@@ -161,19 +167,22 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 			</section>
 
 			{tool.presets && tool.presets.length > 0 && (
-				<section aria-labelledby="presets" className="mt-14">
-					<h2 id="presets" className="text-xl font-extrabold tracking-tight">
+				<section aria-labelledby="presets" className="pt-16">
+					<Kicker index={3}>Shortcuts</Kicker>
+					<h2 id="presets" className="sr-only">
 						Popular shortcuts
 					</h2>
-					<div className="mt-4 flex flex-wrap gap-2">
+					<div className="mt-5 flex flex-wrap gap-2">
 						{tool.presets.map((p) => (
 							<Link
 								key={p.slug}
 								to="/tools/$slug/$preset"
 								params={{ slug: tool.slug, preset: p.slug }}
 								className={cn(
-									"rounded-full border border-border bg-surface px-4 py-2.5 font-semibold hover:border-primary hover:text-primary",
-									p.slug === preset?.slug && "border-primary bg-primary-soft text-primary",
+									"label-mono border px-3.5 py-3 transition-colors",
+									p.slug === preset?.slug
+										? "border-foreground bg-primary text-primary-foreground"
+										: "border-input text-foreground hover:border-foreground",
 								)}
 							>
 								{p.title}
@@ -183,23 +192,23 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				</section>
 			)}
 
-			<section aria-labelledby="faq" className="mt-14">
-				<h2 id="faq" className="text-2xl font-extrabold tracking-tight">
+			<section aria-labelledby="faq" className="pt-20">
+				<Kicker index={tool.presets?.length ? 4 : 3}>Questions</Kicker>
+				<h2 id="faq" className="mt-4 mb-8 text-3xl tracking-[-0.035em]">
 					Frequently asked questions
 				</h2>
-				<div className="mt-5 max-w-4xl">
-					<FaqList faqs={tool.faqs} />
-				</div>
+				<FaqList faqs={tool.faqs} />
 			</section>
 
 			{related.length > 0 && (
-				<section aria-labelledby="related" className="mt-14">
-					<h2 id="related" className="text-2xl font-extrabold tracking-tight">
+				<section aria-labelledby="related" className="pt-20">
+					<Kicker>Keep going</Kicker>
+					<h2 id="related" className="mt-4 text-3xl tracking-[-0.035em]">
 						Related tools
 					</h2>
-					<div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+					<div className="mt-8 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
 						{related.map((t) => (
-							<ToolCard key={t.slug} tool={t} />
+							<ToolCard key={t.slug} tool={t} className="border-0" />
 						))}
 					</div>
 				</section>

@@ -24,7 +24,7 @@ export const Route = createRootRoute({
 				{ charSet: "utf-8" },
 				{ name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
 				{ name: "theme-color", content: THEME_COLOR },
-				{ name: "color-scheme", content: "light dark" },
+				{ name: "color-scheme", content: "dark light" },
 				{ name: "format-detection", content: "telephone=no" },
 				...base.meta,
 			],
@@ -45,7 +45,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang="en" className="dark" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>

@@ -23,30 +23,30 @@ const COMPANY = [
 
 export function SiteFooter() {
 	return (
-		<footer className="mt-24 border-t border-border bg-surface">
-			<div className="container-page grid gap-10 py-14 md:grid-cols-[1.2fr_3fr]">
+		<footer className="mt-32 border-t border-border">
+			<div className="container-page grid gap-12 py-16 md:grid-cols-[1.2fr_3fr]">
 				<div className="flex flex-col gap-4">
 					<Logo />
 					<p className="max-w-xs text-muted-foreground">
 						Free tools that just work. No signup, no clutter — and your files stay on your device.
 					</p>
-					<p className="flex items-center gap-2 text-sm font-semibold text-positive">
-						<ShieldCheck className="size-5" /> Files processed in your browser
+					<p className="label-mono flex items-center gap-2 text-foreground">
+						<ShieldCheck className="size-4" strokeWidth={1.5} /> Files processed in your browser
 					</p>
 				</div>
 				<div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4">
 					{categories.map((category) => (
 						<div key={category.id}>
-							<h2 className="mb-3 font-bold">
+							<h2 className="label-mono mb-4">
 								<Link
 									to="/categories/$category"
 									params={{ category: category.id }}
-									className="hover:text-primary"
+									className="hover:text-foreground"
 								>
 									{category.name}
 								</Link>
 							</h2>
-							<ul className="flex flex-col gap-2">
+							<ul className="flex flex-col gap-2.5 text-[0.9375rem]">
 								{toolsInCategory(category.id).map((tool) => (
 									<li key={tool.slug}>
 										<Link
@@ -62,8 +62,8 @@ export function SiteFooter() {
 						</div>
 					))}
 					<div>
-						<h2 className="mb-3 font-bold">QBTools</h2>
-						<ul className="flex flex-col gap-2">
+						<h2 className="label-mono mb-4">QBTools</h2>
+						<ul className="flex flex-col gap-2.5 text-[0.9375rem]">
 							{COMPANY.map((item) => (
 								<li key={item.label}>
 									<Link
@@ -78,8 +78,8 @@ export function SiteFooter() {
 						</ul>
 					</div>
 					<div>
-						<h2 className="mb-3 font-bold">Legal</h2>
-						<ul className="flex flex-col gap-2">
+						<h2 className="label-mono mb-4">Legal</h2>
+						<ul className="flex flex-col gap-2.5 text-[0.9375rem]">
 							{LEGAL.map((item) => (
 								<li key={item.to}>
 									<Link to={item.to} className="text-muted-foreground hover:text-foreground">

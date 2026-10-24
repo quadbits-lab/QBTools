@@ -73,7 +73,7 @@ export default function WordCounter() {
 						className="[&>span:nth-child(2)]:text-xl"
 					/>
 				</div>
-				<div className="rounded-xl border border-border p-4">
+				<div className="border border-border p-4">
 					<Field label="Word goal (optional)" htmlFor="wc-target">
 						<Input
 							id="wc-target"
@@ -99,8 +99,8 @@ export default function WordCounter() {
 					)}
 				</div>
 				{stats.topKeywords.length > 0 && (
-					<div className="rounded-xl border border-border p-4">
-						<p className="mb-2 font-semibold">Most used words</p>
+					<div className="border border-border p-4">
+						<p className="mb-2 font-medium">Most used words</p>
 						<ul className="flex flex-col gap-1.5">
 							{stats.topKeywords.map((k) => (
 								<li key={k.word} className="flex items-center justify-between gap-2 text-sm">

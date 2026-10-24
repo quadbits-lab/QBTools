@@ -10,7 +10,7 @@ services:
       dockerfile: docker/Dockerfile
       target: runtime
       args:
-        VITE_SITE_URL: ${SITE_URL:-http://localhost:3000}
+        VITE_SITE_URL: ${SITE_URL:-http://localhost:8310}
         VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
         VITE_ADSENSE_CLIENT: ${VITE_ADSENSE_CLIENT:-}
         VITE_ADSENSE_SLOT_TOP: ${VITE_ADSENSE_SLOT_TOP:-}
@@ -24,9 +24,9 @@ services:
         required: false
     environment:
       DATABASE_PATH: /data/qbtools.db
-      PORT: "3000"
+      PORT: "8310"
     ports:
-      - "${PORT:-3000}:3000"
+      - "${PORT:-8310}:8310"
     volumes:
       - qbtools-data:/data
     restart: unless-stopped
@@ -51,7 +51,7 @@ services:
           "CMD",
           "bun",
           "-e",
-          "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+          "fetch('http://127.0.0.1:8310/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
         ]
       interval: 30s
       timeout: 5s

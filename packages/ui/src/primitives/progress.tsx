@@ -11,11 +11,11 @@ export function Progress({
 }) {
 	const pct = value === null ? null : Math.max(0, Math.min(100, value));
 	return (
-		<div className={cn("flex flex-col gap-1.5", className)}>
-			<div className="flex justify-between text-sm">
-				<span className="font-medium">{label}</span>
+		<div className={cn("flex flex-col gap-2", className)}>
+			<div className="flex justify-between gap-3">
+				<span className="label-mono">{label}</span>
 				{pct !== null ? (
-					<span className="font-mono text-muted-foreground">{pct.toFixed(0)}%</span>
+					<span className="font-mono text-sm text-foreground">{pct.toFixed(0)}%</span>
 				) : null}
 			</div>
 			<div
@@ -24,11 +24,11 @@ export function Progress({
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={pct ?? undefined}
-				className="h-2.5 overflow-hidden rounded-full bg-muted"
+				className="h-1.5 overflow-hidden bg-muted"
 			>
 				<div
 					className={cn(
-						"h-full rounded-full bg-primary transition-[width]",
+						"h-full bg-foreground transition-[width] duration-300",
 						pct === null && "w-1/3 animate-pulse",
 					)}
 					style={pct === null ? undefined : { width: `${pct}%` }}

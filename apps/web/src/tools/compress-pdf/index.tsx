@@ -74,13 +74,11 @@ export default function CompressPdf({ params }: ToolWidgetProps) {
 							setResult(null);
 						}}
 						className={cn(
-							"flex cursor-pointer flex-col items-start rounded-2xl border-2 p-4 text-left",
-							level === key
-								? "border-primary bg-primary-soft/50"
-								: "border-border hover:border-primary/50",
+							"flex cursor-pointer flex-col items-start border-2 p-4 text-left",
+							level === key ? "border-primary bg-muted" : "border-border hover:border-primary/50",
 						)}
 					>
-						<span className="font-bold">{LEVELS[key].label}</span>
+						<span className="font-medium">{LEVELS[key].label}</span>
 						<span className="text-sm text-muted-foreground">{LEVELS[key].hint}</span>
 					</button>
 				))}

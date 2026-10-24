@@ -1,19 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
 
 export function Breadcrumbs({ items }: { items: { name: string; href?: string }[] }) {
 	return (
-		<nav aria-label="Breadcrumb" className="mb-4 text-sm">
-			<ol className="flex flex-wrap items-center gap-1 text-muted-foreground">
+		<nav aria-label="Breadcrumb" className="mb-6">
+			<ol className="label-mono flex flex-wrap items-center gap-x-2 gap-y-1">
 				{items.map((item, index) => (
-					<li key={item.name} className="flex items-center gap-1">
-						{index > 0 && <ChevronRight className="size-4" />}
+					<li key={item.name} className="flex items-center gap-2">
+						{index > 0 && (
+							<span aria-hidden="true" className="text-subtle">
+								/
+							</span>
+						)}
 						{item.href ? (
-							<Link to={item.href} className="hover:text-foreground hover:underline">
+							<Link to={item.href} className="hover:text-foreground">
 								{item.name}
 							</Link>
 						) : (
-							<span aria-current="page" className="font-medium text-foreground">
+							<span aria-current="page" className="text-foreground">
 								{item.name}
 							</span>
 						)}

@@ -32,7 +32,7 @@ export function AiTextInput({
 	const over = value.length > maxChars;
 	return (
 		<div>
-			<label htmlFor="ai-text" className="mb-2 flex items-center justify-between font-semibold">
+			<label htmlFor="ai-text" className="mb-2 flex items-center justify-between font-medium">
 				Your text
 				<span
 					className={
@@ -58,11 +58,11 @@ export function AiUnavailable() {
 	return (
 		<Notice tone="caution">
 			The AI helper isn't switched on for this site yet. In the meantime, try our{" "}
-			<a href="/tools/word-counter" className="font-semibold underline">
+			<a href="/tools/word-counter" className="font-medium underline">
 				Word Counter
 			</a>{" "}
 			or{" "}
-			<a href="/tools/case-converter" className="font-semibold underline">
+			<a href="/tools/case-converter" className="font-medium underline">
 				Case Converter
 			</a>
 			.

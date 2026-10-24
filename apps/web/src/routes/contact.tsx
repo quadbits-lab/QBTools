@@ -38,7 +38,7 @@ function Success({
 	return (
 		<div className="flex flex-col items-center gap-4 py-10 text-center">
 			<CheckCircle2 className="size-14 text-positive" />
-			<p className="max-w-md text-lg font-semibold">{message}</p>
+			<p className="max-w-md text-lg font-medium">{message}</p>
 			<Button variant="secondary" onClick={onAgain}>
 				{again}
 			</Button>
@@ -162,7 +162,7 @@ function ContactPage() {
 				description={
 					<p>
 						Found a bug, have a question, or want a new tool? Use the form below or email{" "}
-						<a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-primary underline">
+						<a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-primary underline">
 							{CONTACT_EMAIL}
 						</a>
 						.
@@ -180,7 +180,7 @@ function ContactPage() {
 						<TabsTrigger value="contact">Send a message</TabsTrigger>
 						<TabsTrigger value="suggest">Suggest a tool</TabsTrigger>
 					</TabsList>
-					<div className="mt-6 max-w-3xl rounded-3xl border border-border bg-surface p-5 sm:p-8">
+					<div className="mt-6 max-w-3xl border border-border bg-surface p-5 sm:p-8">
 						<TabsContent value="contact" className="mt-0">
 							<ContactForm />
 						</TabsContent>

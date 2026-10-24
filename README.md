@@ -34,7 +34,7 @@ compose.yml            production stack (app port only — bring your own proxy/
 ```bash
 bun install
 cp .env.example apps/web/.env        # optional: ADMIN_TOKEN, AI_API_KEY…
-bun run dev                          # http://localhost:3000
+bun run dev                          # http://localhost:8310
 ```
 
 | Command                           | What it does                                                                |
@@ -43,7 +43,7 @@ bun run dev                          # http://localhost:3000
 | `bun test`                        | Unit tests (engines, registry/search, db, rate limiter, widget parity)      |
 | `bun run typecheck`               | TypeScript across all workspaces                                            |
 | `bun run lint` / `bun run format` | Biome                                                                       |
-| `bun run build && bun run start`  | Production build + Bun server on :3000                                      |
+| `bun run build && bun run start`  | Production build + Bun server on :8310                                      |
 | `bun run db:backup`               | Online SQLite backup (`VACUUM INTO`)                                        |
 
 ## Deploy with Docker

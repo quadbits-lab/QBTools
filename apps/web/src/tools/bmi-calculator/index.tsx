@@ -7,10 +7,11 @@ import { useState } from "react";
 import { Notice } from "#/components/kit/notice";
 
 const BANDS = [
-	{ label: "Underweight", max: 18.5, className: "bg-cat-text" },
-	{ label: "Healthy", max: 25, className: "bg-positive" },
-	{ label: "Overweight", max: 30, className: "bg-caution" },
-	{ label: "Obese", max: 40, className: "bg-critical" },
+	// Achromatic steps that differ in lightness; the labels carry the meaning.
+	{ label: "Underweight", max: 18.5, className: "bg-subtle/50" },
+	{ label: "Healthy", max: 25, className: "bg-foreground" },
+	{ label: "Overweight", max: 30, className: "bg-subtle" },
+	{ label: "Obese", max: 40, className: "bg-input" },
 ];
 const MIN = 12;
 const MAX = 40;
@@ -113,21 +114,15 @@ export default function BmiCalculator() {
 			<div aria-live="polite">
 				{result ? (
 					<div className="flex flex-col gap-5">
-						<div className="rounded-2xl bg-primary-soft/60 p-6">
-							<p className="font-semibold text-muted-foreground">Your BMI</p>
-							<p className="mt-1 font-mono text-5xl font-extrabold">
-								{formatNumber(result.bmi, 1)}
-							</p>
+						<div className="border border-input p-6">
+							<p className="label-mono">Your BMI</p>
+							<p className="mt-1 font-mono text-5xl font-medium">{formatNumber(result.bmi, 1)}</p>
 							<p
 								className={cn(
-									"mt-2 text-xl font-bold",
+									"label-mono mt-3 inline-flex border px-2.5 py-1.5",
 									result.category === "healthy"
-										? "text-positive"
-										: result.category === "underweight"
-											? "text-cat-text"
-											: result.category === "overweight"
-												? "text-caution"
-												: "text-critical",
+										? "border-foreground text-foreground"
+										: "border-input",
 								)}
 							>
 								{result.label}
@@ -136,12 +131,12 @@ export default function BmiCalculator() {
 						<div>
 							<div className="relative pt-5">
 								<div
-									className="absolute top-0 -translate-x-1/2 text-xs font-bold"
+									className="absolute top-0 -translate-x-1/2 text-xs font-medium"
 									style={{ left: `${marker}%` }}
 								>
 									▼
 								</div>
-								<div className="flex h-4 overflow-hidden rounded-full">
+								<div className="flex h-4 overflow-hidden">
 									{BANDS.map((band, i) => {
 										const from = i === 0 ? MIN : (BANDS[i - 1]?.max ?? MIN);
 										return (
@@ -160,7 +155,7 @@ export default function BmiCalculator() {
 								))}
 							</div>
 						</div>
-						<p className="rounded-xl border border-border p-4">
+						<p className="border border-border p-4">
 							A healthy weight for your height is about{" "}
 							<strong>{weight(result.healthyMinKg)}</strong> to{" "}
 							<strong>{weight(result.healthyMaxKg)}</strong>.

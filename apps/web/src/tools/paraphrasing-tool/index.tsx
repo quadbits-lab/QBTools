@@ -51,7 +51,7 @@ export default function ParaphrasingTool() {
 				placeholder="Paste the sentence or paragraph you want to rewrite…"
 			/>
 			<div>
-				<p className="mb-2 font-semibold">Style</p>
+				<p className="mb-2 font-medium">Style</p>
 				<Segmented
 					label="Style"
 					value={tone}
@@ -74,8 +74,8 @@ export default function ParaphrasingTool() {
 			{versions.length > 0 && (
 				<section aria-live="polite" className="grid gap-4 md:grid-cols-2">
 					{versions.map((version, i) => (
-						<div key={i} className="flex flex-col gap-3 rounded-2xl border border-border p-5">
-							<p className="text-sm font-bold text-muted-foreground">Version {i + 1}</p>
+						<div key={i} className="flex flex-col gap-3 border border-border p-5">
+							<p className="text-sm font-medium text-muted-foreground">Version {i + 1}</p>
 							<p className="leading-relaxed whitespace-pre-wrap">{version}</p>
 							<CopyButton text={version} size="sm" className="self-start" />
 						</div>

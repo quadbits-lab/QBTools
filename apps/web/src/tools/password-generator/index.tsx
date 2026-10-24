@@ -32,7 +32,7 @@ function Toggle({
 	onChange: (v: boolean) => void;
 }) {
 	return (
-		<label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl border border-border px-4">
+		<label className="flex min-h-12 cursor-pointer items-center justify-between gap-3 border border-border px-4">
 			<span className="font-medium">{label}</span>
 			<Switch checked={checked} onCheckedChange={onChange} />
 		</label>
@@ -88,10 +88,10 @@ export default function PasswordGenerator() {
 						{ value: "passphrase", label: "Passphrase (easy to remember)" },
 					]}
 				/>
-				<div className="rounded-2xl bg-surface-2 p-5">
+				<div className="bg-surface-2 p-5">
 					<output
 						aria-live="polite"
-						className="block min-h-16 font-mono text-2xl leading-snug font-bold break-all select-all sm:text-3xl"
+						className="block min-h-16 font-mono text-2xl leading-snug font-medium break-all select-all sm:text-3xl"
 					>
 						{noSets && mode === "password" ? "Choose at least one character type" : value}
 					</output>
@@ -101,7 +101,7 @@ export default function PasswordGenerator() {
 								<div
 									key={i}
 									className={cn(
-										"h-2 flex-1 rounded-full",
+										"h-2 flex-1",
 										i <= strength.score ? STRENGTH_TONE[strength.score] : "bg-muted",
 									)}
 								/>
@@ -194,8 +194,8 @@ export default function PasswordGenerator() {
 				)}
 				<PrivacyNote text="Created with your browser's secure random generator. Never sent or saved." />
 			</div>
-			<div className="flex flex-col gap-3 rounded-2xl border border-border p-5">
-				<h3 className="font-bold">How strong is my current password?</h3>
+			<div className="flex flex-col gap-3 border border-border p-5">
+				<h3 className="font-medium">How strong is my current password?</h3>
 				<p className="text-sm text-muted-foreground">
 					Type it here to check. It stays on this page and is never sent anywhere.
 				</p>

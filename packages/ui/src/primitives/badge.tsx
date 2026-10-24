@@ -2,16 +2,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
 import { cn } from "../lib/utils";
 
+/** Mono uppercase tag in a hairline box. Tone changes contrast, not hue. */
 const badgeVariants = cva(
-	"inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold [&_svg]:size-3.5",
+	"inline-flex items-center gap-1.5 border px-2 py-1 font-mono text-[0.6875rem] uppercase leading-none tracking-[0.12em] [&_svg]:size-3.5",
 	{
 		variants: {
 			tone: {
-				neutral: "bg-muted text-muted-foreground",
-				primary: "bg-primary-soft text-primary",
-				positive: "bg-positive-soft text-positive",
-				caution: "bg-caution-soft text-caution",
-				critical: "bg-critical-soft text-critical",
+				neutral: "border-input text-muted-foreground",
+				primary: "border-foreground text-foreground",
+				positive: "border-foreground text-foreground",
+				caution: "border-foreground text-foreground",
+				critical: "border-critical text-critical",
 			},
 		},
 		defaultVariants: { tone: "neutral" },

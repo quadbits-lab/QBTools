@@ -129,7 +129,7 @@ export default function RemoveBackground() {
 		<div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
 			<div
 				className={cn(
-					"relative grid min-h-80 place-items-center overflow-hidden rounded-2xl border border-border",
+					"relative grid min-h-80 place-items-center overflow-hidden border border-border",
 					!background && "checker-bg",
 				)}
 				style={background ? { backgroundColor: background } : undefined}
@@ -148,14 +148,14 @@ export default function RemoveBackground() {
 					/>
 				) : null}
 				{busy && (
-					<div className="absolute inset-x-6 bottom-6 rounded-xl bg-surface/95 p-4 shadow-lg">
+					<div className="absolute inset-x-6 bottom-6 bg-surface/95 p-4">
 						{status === "loading" && progress && progress.total > 0 ? (
 							<Progress
 								value={(progress.loaded / progress.total) * 100}
 								label={`Downloading the AI model (one time) · ${formatBytes(progress.loaded)} of ${formatBytes(progress.total)}`}
 							/>
 						) : (
-							<p className="flex items-center gap-2 font-semibold">
+							<p className="flex items-center gap-2 font-medium">
 								<Loader2 className="size-5 animate-spin text-primary" />{" "}
 								{status === "loading" ? "Starting the AI…" : "Removing the background…"}
 							</p>
@@ -165,7 +165,7 @@ export default function RemoveBackground() {
 			</div>
 			<div className="flex flex-col gap-5">
 				<div>
-					<p className="mb-2 font-semibold">Background</p>
+					<p className="mb-2 font-medium">Background</p>
 					<div role="radiogroup" aria-label="Background" className="flex flex-wrap gap-2">
 						{BACKGROUNDS.map((bg) => (
 							<button
@@ -176,8 +176,8 @@ export default function RemoveBackground() {
 								aria-label={bg ?? "Transparent"}
 								onClick={() => setBackground(bg)}
 								className={cn(
-									"size-12 cursor-pointer rounded-xl border-2",
-									background === bg ? "border-primary ring-2 ring-primary/30" : "border-border",
+									"size-12 cursor-pointer border-2",
+									background === bg ? "border-primary" : "border-border",
 									!bg && "checker-bg",
 								)}
 								style={bg ? { backgroundColor: bg } : undefined}

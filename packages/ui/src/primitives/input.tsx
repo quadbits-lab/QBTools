@@ -1,8 +1,9 @@
 import type * as React from "react";
 import { cn } from "../lib/utils";
 
+/** Nina field: transparent, hairline border, 48px tall, square. */
 export const inputClass =
-	"h-12 w-full min-w-0 rounded-lg border border-input bg-surface px-4 text-base placeholder:text-muted-foreground/80 transition-colors focus-visible:border-ring focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/25 disabled:opacity-50 aria-invalid:border-critical";
+	"h-12 w-full min-w-0 border border-input bg-transparent px-4 text-base text-foreground placeholder:text-subtle transition-colors focus-visible:border-foreground focus-visible:outline-none disabled:opacity-40 aria-invalid:border-critical";
 
 export function Input({ className, type = "text", ...props }: React.ComponentProps<"input">) {
 	return <input type={type} className={cn(inputClass, className)} {...props} />;
@@ -22,7 +23,7 @@ export function Select({ className, children, ...props }: React.ComponentProps<"
 		<select
 			className={cn(
 				inputClass,
-				"appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 fill=%22none%22 stroke=%22%23888%22 stroke-width=%222%22 viewBox=%220 0 24 24%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat pr-10",
+				"appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%221.5%22 viewBox=%220 0 24 24%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-[length:1rem] bg-[right_1rem_center] bg-no-repeat pr-10 [&>option]:bg-surface [&>option]:text-foreground",
 				className,
 			)}
 			{...props}

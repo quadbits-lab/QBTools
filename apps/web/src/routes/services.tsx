@@ -64,31 +64,25 @@ function ServicesPage() {
 			<div className="container-page grid gap-12 py-12 lg:grid-cols-[1fr_1.1fr]">
 				<div className="grid content-start gap-4 sm:grid-cols-2 lg:grid-cols-1">
 					{OFFERS.map((offer) => (
-						<div
-							key={offer.title}
-							className="flex gap-4 rounded-2xl border border-border bg-surface p-5"
-						>
-							<span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+						<div key={offer.title} className="flex gap-4 border border-border bg-surface p-5">
+							<span className="grid size-12 shrink-0 place-items-center bg-muted text-primary">
 								<offer.icon className="size-6" />
 							</span>
 							<div>
-								<h2 className="font-bold">{offer.title}</h2>
+								<h2 className="font-medium">{offer.title}</h2>
 								<p className="mt-1 text-muted-foreground">{offer.text}</p>
 							</div>
 						</div>
 					))}
 				</div>
-				<section
-					aria-labelledby="quote"
-					className="rounded-3xl border border-border bg-surface p-5 sm:p-8"
-				>
-					<h2 id="quote" className="text-2xl font-extrabold tracking-tight">
+				<section aria-labelledby="quote" className="border border-border bg-surface p-5 sm:p-8">
+					<h2 id="quote" className="text-2xl font-medium tracking-[-0.035em]">
 						Get a free quote
 					</h2>
 					{done ? (
 						<div className="flex flex-col items-center gap-4 py-10 text-center">
 							<CheckCircle2 className="size-14 text-positive" />
-							<p className="text-lg font-semibold">{done}</p>
+							<p className="text-lg font-medium">{done}</p>
 							<Button variant="secondary" onClick={reset}>
 								Send another request
 							</Button>

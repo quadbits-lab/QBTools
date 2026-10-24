@@ -72,7 +72,7 @@ export function AdSlot({
 					data-full-width-responsive="true"
 				/>
 			) : (
-				<div className="h-[90px] w-full rounded-xl bg-muted/50" />
+				<div className="h-[90px] w-full bg-muted/50" />
 			)}
 		</aside>
 	);

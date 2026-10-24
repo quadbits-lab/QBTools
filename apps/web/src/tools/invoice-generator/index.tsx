@@ -99,8 +99,8 @@ export default function InvoiceGenerator() {
 		<div className="flex flex-col gap-8">
 			<div className="grid gap-5 md:grid-cols-[auto_1fr_1fr_1fr]">
 				<div className="flex flex-col gap-2">
-					<span className="text-sm font-semibold">Logo</span>
-					<label className="grid size-24 cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed border-input bg-surface-2 hover:border-primary">
+					<span className="text-sm font-medium">Logo</span>
+					<label className="grid size-24 cursor-pointer place-items-center overflow-hidden border-2 border-dashed border-input bg-surface-2 hover:border-primary">
 						{invoice.logo ? (
 							<img
 								src={invoice.logo}
@@ -153,8 +153,8 @@ export default function InvoiceGenerator() {
 			</div>
 
 			<div className="grid gap-5 md:grid-cols-2">
-				<fieldset className="flex flex-col gap-3 rounded-2xl border border-border p-5">
-					<legend className="px-1 font-bold">From (you)</legend>
+				<fieldset className="flex flex-col gap-3 border border-border p-5">
+					<legend className="px-1 font-medium">From (you)</legend>
 					<Input
 						aria-label="Your name or business"
 						placeholder="Your name or business"
@@ -169,8 +169,8 @@ export default function InvoiceGenerator() {
 						className="min-h-24"
 					/>
 				</fieldset>
-				<fieldset className="flex flex-col gap-3 rounded-2xl border border-border p-5">
-					<legend className="px-1 font-bold">Bill to (client)</legend>
+				<fieldset className="flex flex-col gap-3 border border-border p-5">
+					<legend className="px-1 font-medium">Bill to (client)</legend>
 					<Input
 						aria-label="Client name"
 						placeholder="Client name"
@@ -189,7 +189,7 @@ export default function InvoiceGenerator() {
 
 			<section aria-labelledby="items-h">
 				<div className="flex flex-wrap items-end justify-between gap-3">
-					<h3 id="items-h" className="text-lg font-bold">
+					<h3 id="items-h" className="text-lg font-medium">
 						Items
 					</h3>
 					<Field label="Currency" htmlFor="inv-cur" className="w-32">
@@ -208,7 +208,7 @@ export default function InvoiceGenerator() {
 					{invoice.items.map((item, i) => (
 						<li
 							key={i}
-							className="grid grid-cols-[1fr_auto] items-center gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_6rem_8rem_8rem_auto] sm:border-0 sm:p-0"
+							className="grid grid-cols-[1fr_auto] items-center gap-2 border border-border p-3 sm:grid-cols-[1fr_6rem_8rem_8rem_auto] sm:border-0 sm:p-0"
 						>
 							<Input
 								aria-label={`Item ${i + 1} description`}
@@ -236,7 +236,7 @@ export default function InvoiceGenerator() {
 								onChange={(e) => setItem(i, { unitPrice: Number(e.target.value) })}
 								className="font-mono"
 							/>
-							<span className="text-right font-mono font-semibold">{money(lineTotal(item))}</span>
+							<span className="text-right font-mono font-medium">{money(lineTotal(item))}</span>
 							<Button
 								variant="ghost"
 								size="icon"
@@ -328,7 +328,7 @@ export default function InvoiceGenerator() {
 					</Field>
 				</div>
 				<div
-					className="flex flex-col gap-2 self-start rounded-2xl bg-surface-2 p-6 font-mono"
+					className="flex flex-col gap-2 self-start bg-surface-2 p-6 font-mono"
 					aria-live="polite"
 				>
 					<p className="flex justify-between">
@@ -349,7 +349,7 @@ export default function InvoiceGenerator() {
 							{money(totals.tax)}
 						</p>
 					)}
-					<p className="mt-2 flex justify-between border-t border-border pt-3 text-2xl font-extrabold">
+					<p className="mt-2 flex justify-between border-t border-border pt-3 text-2xl font-medium">
 						<span className="font-sans">Total</span>
 						{money(totals.total)}
 					</p>

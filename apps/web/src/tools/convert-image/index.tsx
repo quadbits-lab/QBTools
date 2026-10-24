@@ -72,7 +72,7 @@ export default function ConvertImage({ params }: ToolWidgetProps) {
 				/>
 				<div className="flex flex-col gap-5">
 					<div>
-						<p className="mb-2 font-semibold">Convert to</p>
+						<p className="mb-2 font-medium">Convert to</p>
 						<Segmented label="Convert to" value={to} onChange={setTo} options={TARGETS} />
 					</div>
 					{to === "webp" && !webpOk && (

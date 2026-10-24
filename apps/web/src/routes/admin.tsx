@@ -65,12 +65,12 @@ function DataTable({
 					<Download className="size-4" /> Export CSV
 				</Button>
 			</div>
-			<div className="overflow-x-auto rounded-2xl border border-border">
+			<div className="overflow-x-auto border border-border">
 				<table className="w-full min-w-[48rem] text-left text-sm">
 					<thead className="bg-muted text-muted-foreground">
 						<tr>
 							{columns.map((c) => (
-								<th key={c.key} className="px-4 py-3 font-semibold">
+								<th key={c.key} className="px-4 py-3 font-medium">
 									{c.label}
 								</th>
 							))}
@@ -117,7 +117,7 @@ function Login({ enabled }: { enabled: boolean }) {
 	return (
 		<div className="container-page flex justify-center py-20">
 			<form
-				className="flex w-full max-w-md flex-col gap-5 rounded-3xl border border-border bg-surface p-8"
+				className="flex w-full max-w-md flex-col gap-5 border border-border bg-surface p-8"
 				onSubmit={async (event) => {
 					event.preventDefault();
 					setPending(true);
@@ -127,7 +127,7 @@ function Login({ enabled }: { enabled: boolean }) {
 					else toast.error(result.error);
 				}}
 			>
-				<h1 className="text-2xl font-extrabold">Admin sign in</h1>
+				<h1 className="text-2xl font-medium">Admin sign in</h1>
 				{!enabled && (
 					<p className="text-caution">
 						Admin is disabled. Set ADMIN_TOKEN (16+ characters) in your environment.
@@ -161,7 +161,7 @@ function AdminPage() {
 		<div className="container-page py-10">
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
-					<h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
+					<h1 className="text-3xl font-medium tracking-[-0.035em]">Admin</h1>
 					<p className="mt-1 text-muted-foreground">
 						Messages, tool ideas, leads and the Premium waitlist.
 					</p>

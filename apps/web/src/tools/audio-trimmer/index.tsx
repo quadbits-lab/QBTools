@@ -136,11 +136,11 @@ export default function AudioTrimmer() {
 	const length = Math.max(0, range.end - range.start);
 	return (
 		<div className="flex flex-col gap-5">
-			<p className="truncate font-semibold">{file.name}</p>
+			<p className="truncate font-medium">{file.name}</p>
 			<div
 				ref={container}
 				role="group"
-				className="rounded-2xl border border-border bg-surface-2 p-3"
+				className="border border-border bg-surface-2 p-3"
 				aria-label="Audio waveform. Drag the highlighted area or its edges to choose the part to keep."
 			/>
 			<div className="flex flex-wrap items-end gap-4">
@@ -200,7 +200,7 @@ export default function AudioTrimmer() {
 					onChange={(e) => setFadeOut(Number(e.target.value))}
 				/>
 				<div className="flex flex-col gap-2">
-					<span className="text-sm font-semibold">Save as</span>
+					<span className="text-sm font-medium">Save as</span>
 					<Segmented
 						label="Format"
 						value={format}

@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig(({ command }) => ({
 	resolve: { tsconfigPaths: true, dedupe: ["react", "react-dom"] },
-	server: { port: 3000, strictPort: true },
+	server: { port: 8310, strictPort: true },
 	plugins: [tailwindcss(), tanstackStart(), viteReact()],
 	ssr: {
 		// Production: bundle every dependency so the Docker runtime needs no

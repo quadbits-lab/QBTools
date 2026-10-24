@@ -294,7 +294,7 @@ export default function ThumbnailMaker() {
 					ref={canvasRef}
 					width={W}
 					height={H}
-					className="aspect-video w-full rounded-2xl border border-border shadow-sm"
+					className="aspect-video w-full border border-border"
 					role="img"
 					aria-label="Thumbnail preview"
 				/>
@@ -304,10 +304,10 @@ export default function ThumbnailMaker() {
 							key={t.name}
 							type="button"
 							onClick={() => setD((v) => ({ ...v, ...t.design }))}
-							className="flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-3 text-sm font-semibold hover:border-primary"
+							className="flex min-h-10 cursor-pointer items-center gap-2 border border-border px-3 text-sm font-medium hover:border-primary"
 						>
 							<span
-								className="size-4 rounded-full"
+								className="size-4"
 								style={{ background: `linear-gradient(135deg, ${t.design.bg1}, ${t.design.bg2})` }}
 							/>
 							{t.name}
@@ -427,12 +427,12 @@ export default function ThumbnailMaker() {
 						</Field>
 					))}
 				</div>
-				<div className="flex flex-col gap-2 rounded-2xl border border-border p-4">
-					<p className="font-semibold">Background picture</p>
+				<div className="flex flex-col gap-2 border border-border p-4">
+					<p className="font-medium">Background picture</p>
 					<div className="flex flex-wrap gap-2">
 						<label
 							className={cn(
-								"inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted",
+								"inline-flex h-10 cursor-pointer items-center gap-2 border border-input px-3 text-sm font-medium hover:bg-muted",
 							)}
 						>
 							<ImagePlus className="size-4" /> Photo
@@ -443,7 +443,7 @@ export default function ThumbnailMaker() {
 								onChange={(e) => pickImage(e.target.files?.[0], "background")}
 							/>
 						</label>
-						<label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted">
+						<label className="inline-flex h-10 cursor-pointer items-center gap-2 border border-input px-3 text-sm font-medium hover:bg-muted">
 							<Video className="size-4" /> From video
 							<input
 								type="file"
@@ -496,13 +496,13 @@ export default function ThumbnailMaker() {
 						/>
 					)}
 				</div>
-				<div className="flex flex-col gap-2 rounded-2xl border border-border p-4">
-					<p className="font-semibold">Cut-out (e.g. your face, transparent PNG)</p>
+				<div className="flex flex-col gap-2 border border-border p-4">
+					<p className="font-medium">Cut-out (e.g. your face, transparent PNG)</p>
 					<p className="text-sm text-muted-foreground">
 						Tip: make one with our Background Remover.
 					</p>
 					<div className="flex gap-2">
-						<label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted">
+						<label className="inline-flex h-10 cursor-pointer items-center gap-2 border border-input px-3 text-sm font-medium hover:bg-muted">
 							<ImagePlus className="size-4" /> Add cut-out
 							<input
 								type="file"

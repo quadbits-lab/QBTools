@@ -109,7 +109,7 @@ export default function CompressImage({ params }: ToolWidgetProps) {
 										onChange={(e) => setTargetKb(Math.max(5, Number(e.target.value) || 5))}
 										className="w-32 font-mono text-lg"
 									/>
-									<span className="font-semibold">KB</span>
+									<span className="font-medium">KB</span>
 								</div>
 							</Field>
 							<div className="flex flex-wrap gap-2" role="group" aria-label="Quick sizes">
@@ -120,7 +120,7 @@ export default function CompressImage({ params }: ToolWidgetProps) {
 										onClick={() => setTargetKb(kb)}
 										aria-pressed={targetKb === kb}
 										className={cn(
-											"min-h-10 cursor-pointer rounded-full border px-4 font-semibold",
+											"min-h-10 cursor-pointer border px-4 font-medium",
 											targetKb === kb
 												? "border-primary bg-primary text-primary-foreground"
 												: "border-border hover:border-primary",

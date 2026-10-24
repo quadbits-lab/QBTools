@@ -130,13 +130,11 @@ export default function VideoCompressor() {
 						aria-checked={preset === key}
 						onClick={() => setPreset(key)}
 						className={cn(
-							"flex cursor-pointer flex-col items-start rounded-2xl border-2 p-4 text-left",
-							preset === key
-								? "border-primary bg-primary-soft/50"
-								: "border-border hover:border-primary/50",
+							"flex cursor-pointer flex-col items-start border-2 p-4 text-left",
+							preset === key ? "border-primary bg-muted" : "border-border hover:border-primary/50",
 						)}
 					>
-						<span className="font-bold">{PRESETS[key].label}</span>
+						<span className="font-medium">{PRESETS[key].label}</span>
 						<span className="text-sm text-muted-foreground">{PRESETS[key].hint}</span>
 					</button>
 				))}
@@ -178,9 +176,9 @@ export default function VideoCompressor() {
 			{result && resultUrl && (
 				<div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
 					{/* biome-ignore lint/a11y/useMediaCaption: preview of the user's own file; we have no captions to offer */}
-					<video src={resultUrl} controls playsInline className="w-full rounded-2xl bg-black" />
-					<div className="flex flex-col gap-3 rounded-2xl bg-positive-soft/60 p-5">
-						<p className="text-lg font-bold">Done!</p>
+					<video src={resultUrl} controls playsInline className="w-full bg-black" />
+					<div className="flex flex-col gap-3 border border-foreground p-5">
+						<p className="text-lg font-medium">Done!</p>
 						<p>
 							{formatBytes(file.size)} → <strong>{formatBytes(result.size)}</strong>
 							{result.size < file.size && (

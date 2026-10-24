@@ -19,12 +19,12 @@ export function ResultDownload({
 	const saved = before ? 1 - blob.size / before : 0;
 	return (
 		<div
-			className="flex flex-col items-start gap-3 rounded-2xl bg-positive-soft/60 p-5 sm:flex-row sm:items-center"
+			className="flex flex-col items-start gap-4 border border-foreground p-5 sm:flex-row sm:items-center"
 			aria-live="polite"
 		>
-			<CheckCircle2 className="size-8 shrink-0 text-positive" />
+			<CheckCircle2 className="size-7 shrink-0" strokeWidth={1.5} />
 			<div className="flex-1">
-				<p className="font-bold">{title}</p>
+				<p className="text-lg tracking-[-0.02em]">{title}</p>
 				<p className="text-sm text-muted-foreground">
 					{name} · {before ? <>{formatBytes(before)} → </> : null}
 					<strong className="text-foreground">{formatBytes(blob.size)}</strong>
@@ -32,7 +32,7 @@ export function ResultDownload({
 				</p>
 				{extra}
 			</div>
-			<Button size="lg" onClick={() => downloadBlob(blob, name)}>
+			<Button size="lg" arrow onClick={() => downloadBlob(blob, name)}>
 				<Download /> Download
 			</Button>
 		</div>

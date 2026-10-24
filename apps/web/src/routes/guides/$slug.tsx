@@ -68,7 +68,7 @@ function Block({ block }: { block: GuideBlock }) {
 			);
 		case "tip":
 			return (
-				<aside className="not-prose my-6 flex gap-3 rounded-2xl bg-caution-soft p-5">
+				<aside className="not-prose my-8 flex gap-3 border border-input bg-surface-2 p-5">
 					<Lightbulb className="mt-0.5 size-5 shrink-0 text-caution" />
 					<p className="m-0">{block.text}</p>
 				</aside>
@@ -107,7 +107,7 @@ function GuidePage() {
 				]}
 			/>
 			<header className="max-w-3xl">
-				<h1 className="text-3xl leading-tight font-extrabold tracking-tight text-balance sm:text-4xl">
+				<h1 className="text-3xl leading-tight font-medium tracking-[-0.035em] text-balance sm:text-4xl">
 					{guide.title}
 				</h1>
 				<p className="mt-3 text-lg text-muted-foreground">{guide.description}</p>
@@ -128,7 +128,7 @@ function GuidePage() {
 			</div>
 			{tools.length > 0 && (
 				<section aria-labelledby="guide-tools" className="mt-14">
-					<h2 id="guide-tools" className="text-xl font-extrabold">
+					<h2 id="guide-tools" className="text-xl font-medium">
 						Tools in this guide
 					</h2>
 					<div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

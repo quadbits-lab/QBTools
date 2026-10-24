@@ -1,5 +1,25 @@
 import { cn } from "@qbtools/ui/utils";
 
+/** Section kicker: mono label with an optional [01] index. */
+export function Kicker({
+	index,
+	children,
+	className,
+}: {
+	index?: number;
+	children: React.ReactNode;
+	className?: string;
+}) {
+	return (
+		<p className={cn("label-mono flex items-center gap-3", className)}>
+			{index !== undefined && (
+				<span className="text-subtle">[{String(index).padStart(2, "0")}]</span>
+			)}
+			<span>{children}</span>
+		</p>
+	);
+}
+
 export function PageHero({
 	eyebrow,
 	title,
@@ -12,14 +32,14 @@ export function PageHero({
 	className?: string;
 }) {
 	return (
-		<header className={cn("border-b border-border bg-surface", className)}>
-			<div className="container-page py-12 sm:py-16">
-				{eyebrow && <p className="font-semibold text-primary">{eyebrow}</p>}
-				<h1 className="mt-1 max-w-3xl text-3xl font-extrabold tracking-tight text-balance sm:text-5xl">
-					{title}
-				</h1>
+		<header className={cn("border-b border-border", className)}>
+			<div className="container-page py-16 sm:py-24">
+				{eyebrow && <Kicker>{eyebrow}</Kicker>}
+				<h1 className="display mt-5 max-w-4xl text-4xl text-balance sm:text-6xl">{title}</h1>
 				{description && (
-					<div className="mt-4 max-w-2xl text-lg text-muted-foreground">{description}</div>
+					<div className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+						{description}
+					</div>
 				)}
 			</div>
 		</header>
@@ -37,8 +57,12 @@ export function LegalPage({
 }) {
 	return (
 		<>
-			<PageHero title={title} description={<p>Last updated: {updated}</p>} />
-			<article className="container-page py-10">
+			<PageHero
+				eyebrow="Legal"
+				title={title}
+				description={<p className="label-mono">Last updated · {updated}</p>}
+			/>
+			<article className="container-page py-12">
 				<div className="prose-qb">{children}</div>
 			</article>
 		</>

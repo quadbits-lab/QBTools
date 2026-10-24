@@ -26,7 +26,7 @@ export const makeJob = (file: File): FileJob => ({
 function Thumb({ blob }: { blob?: Blob }) {
 	const url = useObjectUrl(blob?.type.startsWith("image/") ? blob : undefined);
 	return (
-		<span className="checker-bg grid size-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-border">
+		<span className="checker-bg grid size-16 shrink-0 place-items-center overflow-hidden border border-border">
 			{url ? <img src={url} alt="" className="max-h-full max-w-full object-contain" /> : null}
 		</span>
 	);
@@ -53,17 +53,17 @@ export function FileResults({
 					return (
 						<li
 							key={job.id}
-							className="flex flex-wrap items-center gap-3 rounded-2xl border border-border p-3 sm:flex-nowrap"
+							className="flex flex-wrap items-center gap-3 border border-border p-3 sm:flex-nowrap"
 						>
 							<Thumb blob={job.result?.blob ?? job.file} />
 							<div className="min-w-0 flex-1">
-								<p className="truncate font-semibold">{job.result?.name ?? job.file.name}</p>
+								<p className="truncate font-medium">{job.result?.name ?? job.file.name}</p>
 								<p className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
 									<span className="font-mono">{formatBytes(job.file.size)}</span>
 									{job.result && (
 										<>
 											<ArrowRight className="size-3.5" />
-											<span className="font-mono font-semibold text-foreground">
+											<span className="font-mono font-medium text-foreground">
 												{formatBytes(job.result.blob.size)}
 											</span>
 											{saved > 0.005 ? (
@@ -112,7 +112,7 @@ export function FileResults({
 				})}
 			</ul>
 			{done.length > 1 && (
-				<div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-positive-soft/60 p-4">
+				<div className="flex flex-wrap items-center justify-between gap-3 border border-foreground p-4">
 					<p>
 						<strong>{done.length} files</strong> · {formatBytes(totalBefore)} →{" "}
 						<strong>{formatBytes(totalAfter)}</strong>

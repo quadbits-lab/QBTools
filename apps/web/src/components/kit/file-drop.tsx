@@ -73,20 +73,20 @@ export function FileDrop({
 				take(event.dataTransfer.files);
 			}}
 			className={cn(
-				"flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-input bg-surface-2 text-center transition-colors hover:border-primary hover:bg-primary-soft/40",
-				dragging && "border-primary bg-primary-soft/60",
+				"flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed border-input bg-surface-2 text-center transition-colors duration-150 hover:border-foreground",
+				dragging && "border-solid border-foreground bg-muted",
 				compact ? "px-4 py-6" : "min-h-64 px-6 py-10",
 				className,
 			)}
 		>
-			<span className="grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground">
-				<Upload className="size-7" />
+			<span className="grid size-14 place-items-center border border-input text-foreground">
+				<Upload className="size-6" strokeWidth={1.5} />
 			</span>
-			<span className="text-lg font-bold">
+			<span className="text-xl tracking-[-0.02em]">
 				{title ?? (multiple ? "Choose files or drop them here" : "Choose a file or drop it here")}
 			</span>
 			{hint ? <span className="text-sm text-muted-foreground">{hint}</span> : null}
-			<span className="hidden text-xs text-muted-foreground sm:block">
+			<span className="label-mono hidden text-subtle sm:block">
 				You can also paste with Ctrl+V / ⌘V
 			</span>
 			<input

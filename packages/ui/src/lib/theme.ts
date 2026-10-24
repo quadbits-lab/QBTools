@@ -3,18 +3,21 @@ export type ThemeMode = "light" | "dark" | "system";
 export const THEME_STORAGE_KEY = "qbtools.theme";
 const THEME_EVENT = "qbtools:theme";
 
+/** Dark is the design system's default theme. */
+export const DEFAULT_THEME: ThemeMode = "dark";
+
 /**
  * Inline script for <head>: applies the stored theme before first paint so
  * there is no light/dark flash. System preference is read in JS only.
  */
-export const THEME_INIT_SCRIPT = `(function(){try{var m=localStorage.getItem('${THEME_STORAGE_KEY}');if(m!=='light'&&m!=='dark')m='system';var d=m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.toggle('dark',d);r.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var m=localStorage.getItem('${THEME_STORAGE_KEY}');if(m!=='light'&&m!=='dark'&&m!=='system')m='${DEFAULT_THEME}';var d=m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.classList.toggle('dark',d);r.classList.toggle('light',!d);}catch(e){}})();`;
 
 export function readThemeMode(): ThemeMode {
 	try {
 		const stored = localStorage.getItem(THEME_STORAGE_KEY);
-		return stored === "light" || stored === "dark" ? stored : "system";
+		return stored === "light" || stored === "dark" || stored === "system" ? stored : DEFAULT_THEME;
 	} catch {
-		return "system";
+		return DEFAULT_THEME;
 	}
 }
 
@@ -24,13 +27,12 @@ export function applyThemeMode(mode: ThemeMode) {
 		(mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 	const root = document.documentElement;
 	root.classList.toggle("dark", dark);
-	root.style.colorScheme = dark ? "dark" : "light";
+	root.classList.toggle("light", !dark);
 }
 
 export function setThemeMode(mode: ThemeMode) {
 	try {
-		if (mode === "system") localStorage.removeItem(THEME_STORAGE_KEY);
-		else localStorage.setItem(THEME_STORAGE_KEY, mode);
+		localStorage.setItem(THEME_STORAGE_KEY, mode);
 	} catch {
 		// Storage blocked: still apply for this page view.
 	}

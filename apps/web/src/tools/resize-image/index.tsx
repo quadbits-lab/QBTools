@@ -204,7 +204,7 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 										setHeight(p.h);
 										setFit("cover");
 									}}
-									className="min-h-10 cursor-pointer rounded-full border border-border px-3 text-sm font-semibold hover:border-primary"
+									className="min-h-10 cursor-pointer border border-border px-3 text-sm font-medium hover:border-primary"
 								>
 									{p.label}
 								</button>
@@ -257,7 +257,7 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 				{error && <Notice tone="critical">{error}</Notice>}
 			</div>
 			<div className="flex flex-col gap-3">
-				<div className="checker-bg grid min-h-64 place-items-center overflow-hidden rounded-2xl border border-border">
+				<div className="checker-bg grid min-h-64 place-items-center overflow-hidden border border-border">
 					{preview ? (
 						<img
 							src={preview}

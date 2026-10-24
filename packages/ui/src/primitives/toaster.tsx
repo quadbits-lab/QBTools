@@ -9,7 +9,7 @@ export function Toaster() {
 			toastOptions={{
 				classNames: {
 					toast:
-						"!rounded-xl !border !border-border !bg-surface !text-foreground !text-base !shadow-lg",
+						"!rounded-none !border !border-input !bg-surface !text-foreground !text-[0.95rem] !shadow-none !font-sans",
 					description: "!text-muted-foreground",
 				},
 			}}

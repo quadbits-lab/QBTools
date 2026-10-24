@@ -98,7 +98,7 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 													onSelect={() => go(`/categories/${category.id}`)}
 												>
 													<span
-														className={`grid size-8 place-items-center rounded-lg ${categoryTone[category.id]}`}
+														className={`grid size-8 place-items-center ${categoryTone[category.id]}`}
 													>
 														<Icon className="size-4" />
 													</span>
@@ -133,12 +133,12 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 												onSelect={() => go(result.href)}
 											>
 												<span
-													className={`grid size-8 place-items-center rounded-lg ${categoryTone[result.tool.category]}`}
+													className={`grid size-8 place-items-center ${categoryTone[result.tool.category]}`}
 												>
 													<Icon className="size-4" />
 												</span>
 												<span className="flex min-w-0 flex-col">
-													<span className="truncate font-semibold">{result.title}</span>
+													<span className="truncate font-medium">{result.title}</span>
 													<span className="truncate text-sm text-muted-foreground">
 														{result.subtitle}
 													</span>

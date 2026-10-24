@@ -45,9 +45,9 @@ export default function AgeCalculator() {
 			<div aria-live="polite">
 				{result ? (
 					<div className="flex flex-col gap-4">
-						<div className="rounded-2xl bg-primary-soft/60 p-6">
-							<p className="text-sm font-semibold text-muted-foreground">Your age</p>
-							<p className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">
+						<div className="border border-input p-6">
+							<p className="text-sm font-medium text-muted-foreground">Your age</p>
+							<p className="mt-1 text-3xl font-medium tracking-[-0.035em] sm:text-4xl">
 								{plural(result.years, "year")}, {plural(result.months, "month")},{" "}
 								{plural(result.days, "day")}
 							</p>
@@ -58,11 +58,11 @@ export default function AgeCalculator() {
 							<Stat label="Total weeks" value={result.totalWeeks.toLocaleString("en")} />
 							<Stat label="Total days" value={result.totalDays.toLocaleString("en")} />
 						</div>
-						<div className="flex items-center gap-4 rounded-2xl border border-border p-5">
+						<div className="flex items-center gap-4 border border-border p-5">
 							{result.daysToNextBirthday === 365 || result.daysToNextBirthday === 366 ? (
-								<PartyPopper className="size-8 shrink-0 text-accent" />
+								<PartyPopper className="size-7 shrink-0" strokeWidth={1.5} />
 							) : (
-								<Cake className="size-8 shrink-0 text-cat-image" />
+								<Cake className="size-7 shrink-0" strokeWidth={1.5} />
 							)}
 							<p>
 								Next birthday:{" "}

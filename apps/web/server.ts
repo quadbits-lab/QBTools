@@ -16,7 +16,7 @@
  *
  * PORT (number)
  *   - Server port number
- *   - Default: 3000
+ *   - Default: 8310
  *
  * HOST (string)
  *   - Interface to bind. Default: 0.0.0.0 (all interfaces, needed in Docker)
@@ -79,7 +79,7 @@
 import path from "node:path";
 
 // Configuration
-const SERVER_PORT = Number(process.env.PORT ?? 3000);
+const SERVER_PORT = Number(process.env.PORT ?? 8310);
 const SERVER_HOST = process.env.HOST ?? "0.0.0.0";
 const TRUST_PROXY = process.env.TRUST_PROXY === "true";
 const ENABLE_HSTS = process.env.HSTS === "true";

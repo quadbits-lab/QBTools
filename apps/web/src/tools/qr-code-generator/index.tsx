@@ -288,7 +288,7 @@ export default function QrCodeGenerator() {
 				)}
 			</div>
 			<div className="flex flex-col items-center gap-4">
-				<div className="rounded-3xl border border-border bg-white p-4">
+				<div className="border border-border bg-white p-4">
 					<canvas
 						ref={canvasRef}
 						width={320}

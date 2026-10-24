@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 # ---------- build: bundle the app (server bundle is fully self-contained) ----------
 FROM deps AS build
 # Public, build-time values (inlined into the browser bundle).
-ARG VITE_SITE_URL=http://localhost:3000
+ARG VITE_SITE_URL=http://localhost:8310
 ARG VITE_CONTACT_EMAIL=
 ARG VITE_ADSENSE_CLIENT=
 ARG VITE_ADSENSE_SLOT_TOP=
@@ -45,7 +45,7 @@ FROM oven/bun:${BUN_VERSION}-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
-    PORT=3000 \
+    PORT=8310 \
     DATABASE_PATH=/data/qbtools.db \
     BUN_RUNTIME_TRANSPILER_CACHE_PATH=0
 RUN mkdir -p /data && chown bun:bun /data
@@ -54,7 +54,7 @@ COPY --from=build --chown=bun:bun /repo/apps/web/server.ts ./server.ts
 COPY --from=build --chown=bun:bun /repo/packages/db/src/backup.ts ./scripts/backup.ts
 USER bun
 VOLUME ["/data"]
-EXPOSE 3000
+EXPOSE 8310
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD ["bun", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+  CMD ["bun", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 8310) + '/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
 CMD ["bun", "server.ts"]

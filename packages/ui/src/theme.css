@@ -1,82 +1,82 @@
 /*
- * QBTools design tokens. Apps import this after `@import "tailwindcss"`.
- * Semantic tokens only — components never use raw palette colors.
+ * QBTools design tokens — Nina design language.
+ * Achromatic OKLCH, hairline borders, square corners, no shadows or gradients.
+ * Google Sans for text, DM Mono for uppercase labels. Dark is the default
+ * theme; `.light` on <html> switches to the "drafting paper" theme.
+ * Apps import this after `@import "tailwindcss"`.
  */
 @import "tw-animate-css";
-@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/google-sans";
+@import "@fontsource/dm-mono/400.css";
+@import "@fontsource/dm-mono/500.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-	--radius: 0.875rem;
+/* Dark (default) */
+:root,
+.dark {
+	--background: oklch(0.09 0 0);
+	--foreground: oklch(1 0 0);
+	--surface: oklch(0.12 0 0); /* card */
+	--surface-2: oklch(0.14 0 0); /* panel */
+	--muted: oklch(0.18 0 0); /* secondary fill */
+	--muted-foreground: oklch(0.76 0 0); /* text-2: readable secondary text */
+	--subtle: oklch(0.64 0 0); /* labels only — fails 4.5:1 for body copy */
+	--border: oklch(0.19 0 0); /* border-soft: dividers, cards */
+	--input: oklch(0.24 0 0); /* border: controls, boxed buttons */
+	--ring: oklch(1 0 0);
+	--veil: oklch(0.09 0 0 / 0.78);
 
-	--background: oklch(0.985 0.004 260);
-	--foreground: oklch(0.2 0.03 265);
-	--surface: oklch(1 0 0);
-	--surface-2: oklch(0.965 0.008 260);
-	--muted: oklch(0.955 0.01 260);
-	--muted-foreground: oklch(0.48 0.03 265);
-	--border: oklch(0.9 0.012 260);
-	--input: oklch(0.88 0.015 260);
-	--ring: oklch(0.58 0.2 264);
+	--primary: oklch(1 0 0);
+	--primary-foreground: oklch(0.09 0 0);
+	--primary-soft: oklch(0.18 0 0);
+	--accent: oklch(0.22 0 0);
+	--accent-foreground: oklch(1 0 0);
 
-	--primary: oklch(0.55 0.21 264);
-	--primary-foreground: oklch(0.99 0 0);
-	--primary-soft: oklch(0.94 0.04 264);
-	--accent: oklch(0.82 0.16 80);
-	--accent-foreground: oklch(0.25 0.05 70);
+	/* Status: achromatic except errors, always paired with an icon + text label. */
+	--positive: oklch(1 0 0);
+	--positive-soft: oklch(0.14 0 0);
+	--caution: oklch(1 0 0);
+	--caution-soft: oklch(0.14 0 0);
+	--critical: oklch(0.72 0.14 25);
+	--critical-soft: oklch(0.14 0 0);
 
-	--positive: oklch(0.55 0.15 150);
-	--positive-soft: oklch(0.95 0.05 150);
-	--caution: oklch(0.65 0.15 70);
-	--caution-soft: oklch(0.96 0.05 85);
-	--critical: oklch(0.56 0.21 25);
-	--critical-soft: oklch(0.95 0.04 25);
-
-	/* Category hues (icon tiles only) */
-	--cat-image: oklch(0.62 0.2 350);
-	--cat-pdf: oklch(0.6 0.2 25);
-	--cat-text: oklch(0.58 0.18 250);
-	--cat-calculators: oklch(0.6 0.15 155);
-	--cat-generators: oklch(0.56 0.2 295);
-	--cat-media: oklch(0.66 0.17 55);
+	color-scheme: dark;
 }
 
-.dark {
-	--background: oklch(0.17 0.02 265);
-	--foreground: oklch(0.95 0.01 260);
-	--surface: oklch(0.21 0.025 265);
-	--surface-2: oklch(0.24 0.028 265);
-	--muted: oklch(0.26 0.03 265);
-	--muted-foreground: oklch(0.72 0.03 260);
-	--border: oklch(0.3 0.03 265);
-	--input: oklch(0.34 0.03 265);
-	--ring: oklch(0.7 0.17 264);
+/* Light — drafting paper */
+.light {
+	--background: oklch(1 0 0);
+	--foreground: oklch(0.16 0 0);
+	--surface: oklch(1 0 0);
+	--surface-2: oklch(0.98 0 0);
+	--muted: oklch(0.96 0 0);
+	--muted-foreground: oklch(0.45 0 0);
+	--subtle: oklch(0.5 0 0);
+	--border: oklch(0.95 0 0);
+	--input: oklch(0.89 0 0);
+	--ring: oklch(0.16 0 0);
+	--veil: oklch(1 0 0 / 0.82);
 
-	--primary: oklch(0.68 0.18 264);
-	--primary-foreground: oklch(0.16 0.03 265);
-	--primary-soft: oklch(0.3 0.08 264);
-	--accent: oklch(0.82 0.15 80);
-	--accent-foreground: oklch(0.22 0.04 70);
+	--primary: oklch(0.16 0 0);
+	--primary-foreground: oklch(1 0 0);
+	--primary-soft: oklch(0.96 0 0);
+	--accent: oklch(0.89 0 0);
+	--accent-foreground: oklch(0.16 0 0);
 
-	--positive: oklch(0.72 0.15 150);
-	--positive-soft: oklch(0.3 0.06 150);
-	--caution: oklch(0.8 0.14 80);
-	--caution-soft: oklch(0.32 0.06 80);
-	--critical: oklch(0.7 0.18 25);
-	--critical-soft: oklch(0.32 0.07 25);
+	--positive: oklch(0.16 0 0);
+	--positive-soft: oklch(0.98 0 0);
+	--caution: oklch(0.16 0 0);
+	--caution-soft: oklch(0.98 0 0);
+	--critical: oklch(0.5 0.17 25);
+	--critical-soft: oklch(0.98 0 0);
 
-	--cat-image: oklch(0.72 0.17 350);
-	--cat-pdf: oklch(0.7 0.17 25);
-	--cat-text: oklch(0.7 0.15 250);
-	--cat-calculators: oklch(0.72 0.14 155);
-	--cat-generators: oklch(0.7 0.16 295);
-	--cat-media: oklch(0.76 0.15 55);
+	color-scheme: light;
 }
 
 @theme inline {
-	--font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
-	--font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+	--font-sans: "Google Sans Variable", "Google Sans", system-ui, sans-serif;
+	--font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -84,9 +84,11 @@
 	--color-surface-2: var(--surface-2);
 	--color-muted: var(--muted);
 	--color-muted-foreground: var(--muted-foreground);
+	--color-subtle: var(--subtle);
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-veil: var(--veil);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
 	--color-primary-soft: var(--primary-soft);
@@ -98,18 +100,18 @@
 	--color-caution-soft: var(--caution-soft);
 	--color-critical: var(--critical);
 	--color-critical-soft: var(--critical-soft);
-	--color-cat-image: var(--cat-image);
-	--color-cat-pdf: var(--cat-pdf);
-	--color-cat-text: var(--cat-text);
-	--color-cat-calculators: var(--cat-calculators);
-	--color-cat-generators: var(--cat-generators);
-	--color-cat-media: var(--cat-media);
 
-	--radius-sm: calc(var(--radius) - 6px);
-	--radius-md: calc(var(--radius) - 3px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--radius-2xl: calc(var(--radius) + 10px);
+	/* Square corners everywhere. */
+	--radius-xs: 0;
+	--radius-sm: 0;
+	--radius-md: 0;
+	--radius-lg: 0;
+	--radius-xl: 0;
+	--radius-2xl: 0;
+	--radius-3xl: 0;
+	--radius-4xl: 0;
+
+	--ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
@@ -117,21 +119,31 @@
 		@apply border-border;
 	}
 	html {
-		font-size: 106.25%; /* 17px base: easier to read for every age */
+		font-size: 100%;
 		-webkit-text-size-adjust: 100%;
 	}
 	body {
 		@apply bg-background text-foreground font-sans antialiased;
-		text-rendering: optimizeLegibility;
+		font-size: 1rem;
+		line-height: 1.55;
+	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-weight: 500;
+		letter-spacing: -0.03em;
+		line-height: 1.1;
 	}
 	:focus-visible {
-		@apply outline-2 outline-offset-2 outline-ring;
+		@apply outline-2 outline-offset-3 outline-ring;
 	}
 	::selection {
-		@apply bg-primary-soft;
+		background: var(--foreground);
+		color: var(--background);
 	}
 	input[type="range"] {
-		accent-color: var(--primary);
+		accent-color: var(--foreground);
 	}
 	@media (prefers-reduced-motion: reduce) {
 		*,
@@ -140,5 +152,41 @@
 			animation-duration: 0.01ms !important;
 			transition-duration: 0.01ms !important;
 		}
+	}
+}
+
+/* Mono uppercase label: section kickers, form labels, indices like [01]. */
+@utility label-mono {
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	font-weight: 400;
+	line-height: 1.3;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--muted-foreground);
+}
+
+/* Display headline: tight tracking, 500 weight. */
+@utility display {
+	font-weight: 500;
+	letter-spacing: -0.045em;
+	line-height: 0.95;
+}
+
+/* Reveal: 12px rise + 4px blur over 300ms (Nina motion). */
+@utility reveal {
+	animation: qb-reveal 300ms var(--ease-out-soft) both;
+}
+
+@keyframes qb-reveal {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+		filter: blur(4px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+		filter: none;
 	}
 }

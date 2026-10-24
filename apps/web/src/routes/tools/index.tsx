@@ -55,7 +55,7 @@ function AllToolsPage() {
 
 	return (
 		<div className="container-page py-10 sm:py-14">
-			<h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">All tools</h1>
+			<h1 className="text-3xl font-medium tracking-[-0.035em] sm:text-4xl">All tools</h1>
 			<p className="mt-2 text-lg text-muted-foreground">
 				{tools.length} free tools. Search or pick a category.
 			</p>
@@ -78,7 +78,7 @@ function AllToolsPage() {
 					onClick={() => setSearch({ category: undefined })}
 					aria-pressed={!activeCategory}
 					className={cn(
-						"min-h-11 cursor-pointer rounded-full border px-4 font-semibold",
+						"min-h-11 cursor-pointer border px-4 font-medium",
 						!activeCategory
 							? "border-primary bg-primary text-primary-foreground"
 							: "border-border bg-surface hover:border-primary",
@@ -93,7 +93,7 @@ function AllToolsPage() {
 						onClick={() => setSearch({ category: c.id })}
 						aria-pressed={activeCategory === c.id}
 						className={cn(
-							"min-h-11 cursor-pointer rounded-full border px-4 font-semibold",
+							"min-h-11 cursor-pointer border px-4 font-medium",
 							activeCategory === c.id
 								? "border-primary bg-primary text-primary-foreground"
 								: "border-border bg-surface hover:border-primary",
@@ -106,7 +106,7 @@ function AllToolsPage() {
 
 			{results ? (
 				<section className="mt-10" aria-live="polite">
-					<h2 className="text-xl font-bold">
+					<h2 className="text-xl font-medium">
 						{results.length} {results.length === 1 ? "result" : "results"} for “{q}”
 					</h2>
 					{results.length === 0 ? (
@@ -115,7 +115,7 @@ function AllToolsPage() {
 							<Link
 								to="/contact"
 								search={{ tab: "suggest" }}
-								className="font-semibold text-primary underline"
+								className="font-medium text-primary underline"
 							>
 								Suggest it
 							</Link>{" "}
@@ -132,7 +132,7 @@ function AllToolsPage() {
 			) : (
 				visibleCategories.map((c) => (
 					<section key={c.id} aria-labelledby={`cat-${c.id}`} className="mt-12">
-						<h2 id={`cat-${c.id}`} className="text-2xl font-extrabold tracking-tight">
+						<h2 id={`cat-${c.id}`} className="text-2xl font-medium tracking-[-0.035em]">
 							<Link
 								to="/categories/$category"
 								params={{ category: c.id }}

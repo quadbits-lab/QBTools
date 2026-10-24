@@ -125,8 +125,8 @@ export default function SplitPdf() {
 				<ResultDownload blob={results[0].blob} name={results[0].name} />
 			)}
 			{results.length > 1 && (
-				<div className="flex flex-wrap items-center gap-3 rounded-2xl bg-positive-soft/60 p-5">
-					<p className="flex-1 font-bold">{results.length} PDFs ready</p>
+				<div className="flex flex-wrap items-center gap-3 border border-foreground p-5">
+					<p className="flex-1 font-medium">{results.length} PDFs ready</p>
 					<Button
 						size="lg"
 						onClick={async () =>

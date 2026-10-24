@@ -55,7 +55,7 @@ export function SearchBox({
 				</label>
 				<Search
 					className={cn(
-						"pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted-foreground",
+						"pointer-events-none absolute top-1/2 left-4.5 -translate-y-1/2 text-subtle",
 						size === "lg" ? "size-6" : "size-5",
 					)}
 				/>
@@ -92,25 +92,25 @@ export function SearchBox({
 						}
 					}}
 					className={cn(
-						"w-full rounded-2xl border-2 border-border bg-surface pr-32 pl-14 shadow-sm outline-none transition-colors placeholder:text-muted-foreground/80 focus:border-primary",
-						size === "lg" ? "h-16 text-lg sm:h-[4.5rem] sm:text-xl" : "h-14 text-base",
+						"w-full border border-input bg-transparent pr-16 pl-13 sm:pr-36 outline-none transition-colors placeholder:text-subtle focus:border-foreground [&::-webkit-search-cancel-button]:hidden",
+						size === "lg" ? "h-16 text-lg" : "h-14 text-base",
 					)}
 				/>
 				<button
 					type="submit"
 					className={cn(
-						"absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer rounded-xl bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90",
-						size === "lg" ? "h-12 sm:h-14 sm:px-6 sm:text-lg" : "h-10",
+						"absolute inset-y-0 right-0 flex cursor-pointer items-center gap-3 border border-primary bg-primary px-5 font-mono text-xs uppercase tracking-[0.12em] text-primary-foreground transition-[background-color,transform] duration-150 hover:bg-primary/85 active:scale-[0.96]",
+						size === "lg" && "sm:px-6",
 					)}
 				>
-					Search
+					<span className="sr-only sm:not-sr-only">Search</span> <span aria-hidden="true">→</span>
 				</button>
 			</form>
 			{showList && (
 				<div
 					id={listId}
 					role="listbox"
-					className="absolute top-full right-0 left-0 z-40 mt-2 overflow-hidden rounded-2xl border border-border bg-surface p-2 text-left shadow-xl"
+					className="absolute top-full right-0 left-0 z-40 mt-2 overflow-hidden border border-border bg-surface p-2 text-left"
 				>
 					{results.length === 0 ? (
 						<div className="px-4 py-3 text-muted-foreground">
@@ -132,20 +132,20 @@ export function SearchBox({
 									}}
 									onMouseEnter={() => setActive(index)}
 									className={cn(
-										"flex min-h-14 cursor-pointer items-center gap-3 rounded-xl px-3",
+										"flex min-h-14 cursor-pointer items-center gap-3 px-3",
 										index === active && "bg-muted",
 									)}
 								>
 									<span
 										className={cn(
-											"grid size-10 shrink-0 place-items-center rounded-xl",
+											"grid size-10 shrink-0 place-items-center",
 											categoryTone[result.tool.category],
 										)}
 									>
 										<Icon className="size-5" />
 									</span>
 									<span className="flex min-w-0 flex-col">
-										<span className="truncate font-semibold">{result.title}</span>
+										<span className="truncate font-medium">{result.title}</span>
 										<span className="truncate text-sm text-muted-foreground">
 											{result.subtitle}
 										</span>

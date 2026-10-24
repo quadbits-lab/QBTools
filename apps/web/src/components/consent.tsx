@@ -38,14 +38,14 @@ export function ConsentBanner() {
 	return (
 		<section
 			aria-label="Cookie consent"
-			className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl rounded-2xl border border-border bg-surface p-5 shadow-2xl sm:inset-x-6 sm:bottom-6"
+			className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl border border-input bg-surface p-5 sm:inset-x-6 sm:bottom-6"
 		>
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-				<Cookie className="hidden size-8 shrink-0 text-primary sm:block" />
+				<Cookie className="hidden size-7 shrink-0 sm:block" strokeWidth={1.5} />
 				<p className="text-[0.95rem] leading-relaxed">
 					We use cookies only to show ads that keep QBTools free. Your files are never involved. You
 					can say no — every tool still works.{" "}
-					<Link to="/cookies" className="font-semibold text-primary underline">
+					<Link to="/cookies" className="text-foreground underline underline-offset-4">
 						Learn more
 					</Link>
 				</p>

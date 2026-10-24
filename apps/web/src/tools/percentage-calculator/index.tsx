@@ -38,16 +38,13 @@ function Card({
 	working: string | null;
 }) {
 	return (
-		<section className="flex flex-col gap-4 rounded-2xl border border-border p-5">
-			<h3 className="font-bold">{title}</h3>
+		<section className="flex flex-col gap-4 border border-border p-5">
+			<h3 className="font-medium">{title}</h3>
 			<div className="flex flex-wrap items-center gap-3 text-lg">{children}</div>
-			<div
-				aria-live="polite"
-				className={cn("rounded-xl p-4", answer ? "bg-primary-soft/60" : "bg-muted")}
-			>
+			<div aria-live="polite" className={cn("p-4", answer ? "bg-muted" : "bg-muted")}>
 				{answer ? (
 					<>
-						<p className="font-mono text-3xl font-extrabold text-primary">{answer}</p>
+						<p className="font-mono text-3xl font-medium text-primary">{answer}</p>
 						{working && <p className="mt-1 text-sm text-muted-foreground">{working}</p>}
 					</>
 				) : (

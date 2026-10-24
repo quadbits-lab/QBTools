@@ -12,11 +12,11 @@ export function CommandInput({
 	...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
 	return (
-		<div className="flex items-center gap-3 border-b border-border px-4">
+		<div className="flex items-center gap-3 border-b border-input px-4">
 			<SearchIcon className="size-5 text-muted-foreground" />
 			<CommandPrimitive.Input
 				className={cn(
-					"h-14 w-full bg-transparent text-lg outline-none placeholder:text-muted-foreground",
+					"h-14 w-full bg-transparent text-lg outline-none placeholder:text-subtle",
 					className,
 				)}
 				{...props}
@@ -48,7 +48,7 @@ export function CommandGroup({
 	return (
 		<CommandPrimitive.Group
 			className={cn(
-				"[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-bold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-muted-foreground",
+				"[&_[cmdk-group-heading]]:label-mono [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2.5",
 				className,
 			)}
 			{...props}
@@ -63,7 +63,7 @@ export function CommandItem({
 	return (
 		<CommandPrimitive.Item
 			className={cn(
-				"flex min-h-12 cursor-pointer items-center gap-3 rounded-lg px-3 text-base data-[selected=true]:bg-muted",
+				"flex min-h-12 cursor-pointer items-center gap-3 px-3 text-base data-[selected=true]:bg-muted",
 				className,
 			)}
 			{...props}

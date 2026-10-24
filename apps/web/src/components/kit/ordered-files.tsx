@@ -15,11 +15,11 @@ function Preview({ item }: { item: OrderedFile }) {
 	const url = useObjectUrl(item.file.type.startsWith("image/") ? item.file : undefined);
 	const src = item.thumb ?? url;
 	return (
-		<span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-white">
+		<span className="grid size-14 shrink-0 place-items-center overflow-hidden border border-border bg-white">
 			{src ? (
 				<img src={src} alt="" className="max-h-full max-w-full object-contain" />
 			) : (
-				<FileText className="size-6 text-cat-pdf" />
+				<FileText className="size-6" strokeWidth={1.5} />
 			)}
 		</span>
 	);
@@ -42,16 +42,13 @@ export function OrderedFiles({
 	return (
 		<ol className="flex flex-col gap-2">
 			{items.map((item, index) => (
-				<li
-					key={item.id}
-					className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-2.5"
-				>
-					<span className="w-6 text-center font-mono font-bold text-muted-foreground">
+				<li key={item.id} className="flex items-center gap-3 border border-border bg-surface p-2.5">
+					<span className="w-6 text-center font-mono font-medium text-muted-foreground">
 						{index + 1}
 					</span>
 					<Preview item={item} />
 					<span className="min-w-0 flex-1">
-						<span className="block truncate font-semibold">{item.file.name}</span>
+						<span className="block truncate font-medium">{item.file.name}</span>
 						<span className="block text-sm text-muted-foreground">
 							{formatBytes(item.file.size)}
 							{item.meta ? ` · ${item.meta}` : ""}

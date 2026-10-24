@@ -178,10 +178,8 @@ export default function SignatureGenerator() {
 								aria-checked={font === i}
 								onClick={() => setFont(i)}
 								className={cn(
-									"h-12 cursor-pointer rounded-xl border px-4 text-2xl",
-									font === i
-										? "border-primary bg-primary-soft"
-										: "border-border hover:border-primary",
+									"h-12 cursor-pointer border px-4 text-2xl",
+									font === i ? "border-primary bg-muted" : "border-border hover:border-primary",
 								)}
 								style={{ fontFamily: `"${f.family}"`, fontWeight: f.weight }}
 							>
@@ -191,7 +189,7 @@ export default function SignatureGenerator() {
 					</div>
 				</div>
 			)}
-			<div className="relative overflow-hidden rounded-2xl border-2 border-dashed border-input">
+			<div className="relative overflow-hidden border-2 border-dashed border-input">
 				<canvas
 					ref={canvasRef}
 					width={W * scale}
@@ -238,7 +236,7 @@ export default function SignatureGenerator() {
 							aria-label={c.label}
 							onClick={() => setInk(c.value)}
 							className={cn(
-								"size-11 cursor-pointer rounded-full border-4",
+								"size-11 cursor-pointer border-4",
 								ink === c.value ? "border-primary" : "border-transparent",
 							)}
 							style={{ backgroundColor: c.value }}

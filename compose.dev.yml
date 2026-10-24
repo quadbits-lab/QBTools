@@ -13,7 +13,7 @@ services:
     environment:
       DATABASE_PATH: /repo/apps/web/data/qbtools.db
     ports:
-      - "3000:3000"
+      - "8310:8310"
     volumes:
       - .:/repo
       - dev-node-modules:/repo/node_modules

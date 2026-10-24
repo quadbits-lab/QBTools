@@ -29,7 +29,7 @@ function GuidesPage() {
 						key={guide.slug}
 						to="/guides/$slug"
 						params={{ slug: guide.slug }}
-						className="group flex flex-col rounded-2xl border border-border bg-surface p-6 hover:border-primary/50 hover:shadow-lg"
+						className="group flex flex-col border border-border bg-surface p-6 hover:border-primary/50"
 					>
 						<span className="flex items-center gap-2 text-sm text-muted-foreground">
 							<Clock className="size-4" /> {guide.readMinutes} min read ·{" "}
@@ -40,7 +40,7 @@ function GuidesPage() {
 								timeZone: "UTC",
 							})}
 						</span>
-						<h2 className="mt-3 text-xl leading-snug font-bold group-hover:text-primary">
+						<h2 className="mt-3 text-xl leading-snug font-medium group-hover:text-primary">
 							{guide.title}
 						</h2>
 						<p className="mt-2 text-muted-foreground">{guide.description}</p>

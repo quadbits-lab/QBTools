@@ -70,12 +70,16 @@ export function iconFor(name: string): LucideIcon {
 	return icons[name] ?? Wrench;
 }
 
-/** Tailwind classes for each category's icon tile. Literal strings so Tailwind sees them. */
+/**
+ * Icon tile classes per category. The design system has no accent hues, so
+ * every category shares the same hairline tile; kept as a map for future use.
+ */
+const TILE = "border border-input text-foreground";
 export const categoryTone: Record<string, string> = {
-	image: "bg-cat-image/12 text-cat-image",
-	pdf: "bg-cat-pdf/12 text-cat-pdf",
-	text: "bg-cat-text/12 text-cat-text",
-	calculators: "bg-cat-calculators/12 text-cat-calculators",
-	generators: "bg-cat-generators/12 text-cat-generators",
-	media: "bg-cat-media/12 text-cat-media",
+	image: TILE,
+	pdf: TILE,
+	text: TILE,
+	calculators: TILE,
+	generators: TILE,
+	media: TILE,
 };

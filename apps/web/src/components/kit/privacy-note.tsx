@@ -6,8 +6,8 @@ export function PrivacyNote({
 	text?: string;
 }) {
 	return (
-		<p className="flex items-center gap-2 text-sm font-semibold text-positive">
-			<ShieldCheck className="size-4 shrink-0" />
+		<p className="label-mono flex items-center gap-2 text-foreground">
+			<ShieldCheck className="size-4 shrink-0" strokeWidth={1.5} />
 			{text}
 		</p>
 	);

@@ -79,18 +79,16 @@ function PremiumPage() {
 						<div
 							key={plan.name}
 							className={cn(
-								"flex flex-col rounded-3xl border bg-surface p-7",
-								plan.highlight
-									? "border-primary shadow-xl ring-4 ring-primary/10"
-									: "border-border",
+								"flex flex-col border bg-surface p-7",
+								plan.highlight ? "border-primary" : "border-border",
 							)}
 						>
-							<h2 className="flex items-center gap-2 text-xl font-extrabold">
-								{plan.highlight && <Crown className="size-5 text-accent" />}
+							<h2 className="flex items-center gap-2 text-xl font-medium">
+								{plan.highlight && <Crown className="size-5 text-foreground" />}
 								{plan.name}
 							</h2>
 							<p className="mt-4">
-								<span className="text-4xl font-extrabold">{plan.price}</span>{" "}
+								<span className="text-4xl font-medium">{plan.price}</span>{" "}
 								<span className="text-muted-foreground">{plan.note}</span>
 							</p>
 							<ul className="mt-6 flex flex-col gap-3">
@@ -106,16 +104,16 @@ function PremiumPage() {
 				</div>
 				<section
 					aria-labelledby="waitlist"
-					className="mx-auto mt-14 max-w-2xl rounded-3xl bg-primary-soft/60 p-6 text-center sm:p-10"
+					className="mx-auto mt-14 max-w-2xl bg-muted p-6 text-center sm:p-10"
 				>
-					<h2 id="waitlist" className="text-2xl font-extrabold tracking-tight">
+					<h2 id="waitlist" className="text-2xl font-medium tracking-[-0.035em]">
 						Join the waitlist
 					</h2>
 					<p className="mt-2 text-muted-foreground">
 						Be first in line and lock in early-bird pricing. No spam, ever.
 					</p>
 					{done ? (
-						<p className="mt-6 flex items-center justify-center gap-2 text-lg font-semibold text-positive">
+						<p className="mt-6 flex items-center justify-center gap-2 text-lg font-medium text-positive">
 							<CheckCircle2 /> {done}
 						</p>
 					) : (

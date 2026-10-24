@@ -14,7 +14,7 @@ export default function CaseConverter() {
 	return (
 		<div className="flex flex-col gap-5">
 			<div>
-				<label htmlFor="cc-in" className="mb-2 block font-semibold">
+				<label htmlFor="cc-in" className="mb-2 block font-medium">
 					Your text
 				</label>
 				<Textarea
@@ -37,13 +37,13 @@ export default function CaseConverter() {
 						aria-pressed={mode === m.mode}
 						onClick={() => setMode(m.mode)}
 						className={cn(
-							"flex min-h-14 cursor-pointer flex-col items-start justify-center rounded-xl border px-4 py-2 text-left transition-colors",
+							"flex min-h-14 cursor-pointer flex-col items-start justify-center border px-4 py-2 text-left transition-colors",
 							mode === m.mode
 								? "border-primary bg-primary text-primary-foreground"
 								: "border-border bg-surface hover:border-primary",
 						)}
 					>
-						<span className="font-bold">{m.label}</span>
+						<span className="font-medium">{m.label}</span>
 						<span
 							className={cn(
 								"truncate text-xs",
@@ -56,7 +56,7 @@ export default function CaseConverter() {
 				))}
 			</div>
 			<div>
-				<label htmlFor="cc-out" className="mb-2 block font-semibold">
+				<label htmlFor="cc-out" className="mb-2 block font-medium">
 					Result
 				</label>
 				<Textarea id="cc-out" readOnly value={output} className="min-h-40 bg-surface-2" />

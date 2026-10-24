@@ -58,7 +58,7 @@ export default function GrammarChecker() {
 			{result && (
 				<section aria-live="polite" className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
 					<div>
-						<label htmlFor="gc-out" className="mb-2 block font-semibold">
+						<label htmlFor="gc-out" className="mb-2 block font-medium">
 							Corrected text
 						</label>
 						<Textarea
@@ -71,8 +71,8 @@ export default function GrammarChecker() {
 							<CopyButton text={result.corrected} label="Copy corrected text" variant="primary" />
 						</div>
 					</div>
-					<div className="rounded-2xl border border-border p-5">
-						<h3 className="font-bold">
+					<div className="border border-border p-5">
+						<h3 className="font-medium">
 							{result.changes.length === 0
 								? "Looks good!"
 								: `${result.changes.length} ${result.changes.length === 1 ? "fix" : "fixes"}`}
@@ -84,11 +84,11 @@ export default function GrammarChecker() {
 						) : (
 							<ul className="mt-3 flex max-h-80 flex-col gap-3 overflow-y-auto">
 								{result.changes.map((c, i) => (
-									<li key={i} className="rounded-xl bg-muted p-3 text-sm">
+									<li key={i} className="bg-muted p-3 text-sm">
 										<p className="flex flex-wrap items-center gap-2">
 											<span className="text-critical line-through">{c.original}</span>
 											<ArrowRight className="size-4 text-muted-foreground" />
-											<span className="font-semibold text-positive">{c.corrected}</span>
+											<span className="font-medium text-positive">{c.corrected}</span>
 										</p>
 										<p className="mt-1 text-muted-foreground">{c.reason}</p>
 									</li>

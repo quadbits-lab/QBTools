@@ -131,16 +131,16 @@ export default function GpaCalculator() {
 				</Button>
 			</div>
 			<div className="flex flex-col gap-4" aria-live="polite">
-				<div className="rounded-2xl bg-primary p-6 text-primary-foreground">
-					<p className="font-semibold opacity-90">Semester GPA</p>
-					<p className="mt-1 font-mono text-5xl font-extrabold">
+				<div className="bg-primary p-6 text-primary-foreground">
+					<p className="font-medium opacity-90">Semester GPA</p>
+					<p className="mt-1 font-mono text-5xl font-medium">
 						{gpa ? formatNumber(gpa.gpa, 2) : "—"}
 					</p>
 					<p className="mt-1 opacity-90">out of {scale.max}</p>
 				</div>
 				<Stat label="Total credits" value={gpa ? formatNumber(gpa.totalCredits, 1) : "0"} />
-				<div className="rounded-2xl border border-border p-5">
-					<p className="font-bold">Cumulative CGPA (optional)</p>
+				<div className="border border-border p-5">
+					<p className="font-medium">Cumulative CGPA (optional)</p>
 					<div className="mt-3 grid grid-cols-2 gap-3">
 						<Field label="Previous CGPA" htmlFor="prev-cgpa">
 							<Input
