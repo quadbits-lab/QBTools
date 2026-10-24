@@ -172,7 +172,9 @@ export default function HashGenerator() {
 				)
 			) : (
 				<div className="flex flex-col gap-2">
-					<label htmlFor="hash-text-input" className="label-mono">Enter text to hash</label>
+					<label htmlFor="hash-text-input" className="label-mono">
+						Enter text to hash
+					</label>
 					<textarea
 						id="hash-text-input"
 						value={text}
@@ -203,7 +205,11 @@ export default function HashGenerator() {
 								onClick={() => copyToClipboard(hashes.sha256, "sha256")}
 								className="flex items-center gap-1 hover:text-foreground cursor-pointer"
 							>
-								{copiedKey === "sha256" ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+								{copiedKey === "sha256" ? (
+									<Check className="size-3 text-emerald-400" />
+								) : (
+									<Copy className="size-3" />
+								)}
 								<span>{copiedKey === "sha256" ? "Copied" : "Copy"}</span>
 							</button>
 						</div>
@@ -221,7 +227,11 @@ export default function HashGenerator() {
 								onClick={() => copyToClipboard(hashes.sha512, "sha512")}
 								className="flex items-center gap-1 hover:text-foreground cursor-pointer"
 							>
-								{copiedKey === "sha512" ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+								{copiedKey === "sha512" ? (
+									<Check className="size-3 text-emerald-400" />
+								) : (
+									<Copy className="size-3" />
+								)}
 								<span>{copiedKey === "sha512" ? "Copied" : "Copy"}</span>
 							</button>
 						</div>
@@ -239,7 +249,11 @@ export default function HashGenerator() {
 								onClick={() => copyToClipboard(hashes.sha1, "sha1")}
 								className="flex items-center gap-1 hover:text-foreground cursor-pointer"
 							>
-								{copiedKey === "sha1" ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+								{copiedKey === "sha1" ? (
+									<Check className="size-3 text-emerald-400" />
+								) : (
+									<Copy className="size-3" />
+								)}
 								<span>{copiedKey === "sha1" ? "Copied" : "Copy"}</span>
 							</button>
 						</div>
@@ -284,10 +298,7 @@ export default function HashGenerator() {
 				</div>
 			)}
 
-			<PrivacyNote
-				summary="Hardware-Accelerated Client Hashing"
-				detail="Hash digests are calculated locally on your CPU using browser native SHA crypto algorithms. No files or strings are transmitted over the network."
-			/>
+			<PrivacyNote text="Hardware-Accelerated Client Hashing — SHA algorithms executed locally in your browser. 0 bytes uploaded." />
 		</div>
 	);
 }

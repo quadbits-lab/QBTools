@@ -143,5 +143,3 @@ export const categoryTone: Record<CategoryId, string> = {
 	media: categoryStyles.media.tile,
 	security: categoryStyles.security.tile,
 };
-
-

@@ -307,7 +307,7 @@ export async function extractAudioFromVideo(
 	return blob;
 }
 
-import { GIFEncoder, applyPalette, quantize } from "gifenc";
+import { applyPalette, GIFEncoder, quantize } from "gifenc";
 
 export interface VideoToGifOptions {
 	start: number;
@@ -344,7 +344,9 @@ export async function videoToGif(file: File, options: VideoToGifOptions): Promis
 
 		const origWidth = video.videoWidth || 640;
 		const origHeight = video.videoHeight || 360;
-		const targetWidth = options.width ? Math.min(options.width, origWidth) : Math.min(480, origWidth);
+		const targetWidth = options.width
+			? Math.min(options.width, origWidth)
+			: Math.min(480, origWidth);
 		const targetHeight = Math.round((origHeight / origWidth) * targetWidth);
 
 		const canvas = document.createElement("canvas");
@@ -380,4 +382,3 @@ export async function videoToGif(file: File, options: VideoToGifOptions): Promis
 		URL.revokeObjectURL(url);
 	}
 }
-

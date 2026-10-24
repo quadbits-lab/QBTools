@@ -10,5 +10,4 @@ export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? "hello@quadbi
 /** Matches the dark theme background (oklch 0.18 monochrome gray). */
 export const THEME_COLOR = "#1f1f1f";
 
-
 export const absoluteUrl = (path: string) => `${SITE_URL}${path === "/" ? "" : path}`;

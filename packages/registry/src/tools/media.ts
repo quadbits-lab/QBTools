@@ -144,13 +144,7 @@ export const mediaTools: ToolDef[] = [
 		description:
 			"Cut the exact part of a video you need right in your browser. Visual timeline with start and end handles — fast, private, and no watermark.",
 		icon: "scissors",
-		keywords: [
-			"video trimmer",
-			"cut video online",
-			"trim mp4",
-			"video cutter",
-			"shorten video",
-		],
+		keywords: ["video trimmer", "cut video online", "trim mp4", "video cutter", "shorten video"],
 		howTo: [
 			{ title: "Upload video", text: "Drop an MP4, WebM or MOV video file." },
 			{
@@ -270,4 +264,3 @@ export const mediaTools: ToolDef[] = [
 		isNew: true,
 	},
 ];
-

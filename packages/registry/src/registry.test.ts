@@ -11,8 +11,8 @@ import {
 const index = buildSearchIndex(tools);
 
 describe("registry", () => {
-	test("has 24 tools with unique slugs", () => {
-		expect(tools).toHaveLength(24);
+	test("has 30 tools with unique slugs", () => {
+		expect(tools).toHaveLength(30);
 		expect(new Set(tools.map((t) => t.slug)).size).toBe(tools.length);
 	});
 

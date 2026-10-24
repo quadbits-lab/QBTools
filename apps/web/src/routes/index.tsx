@@ -1,7 +1,7 @@
 import { latestGuides } from "@qbtools/content";
 import {
-	categories,
 	type CategoryId,
+	categories,
 	getTool,
 	popularTools,
 	tools,
@@ -154,8 +154,7 @@ function PersonalShelf() {
 	if (!mounted) return null;
 
 	const allSlugs = [...new Set([...favorites, ...recent])];
-	const filteredSlugs =
-		tab === "favorites" ? favorites : tab === "recent" ? recent : allSlugs;
+	const filteredSlugs = tab === "favorites" ? favorites : tab === "recent" ? recent : allSlugs;
 	const activeList = filteredSlugs.map(getTool).filter((t) => t !== undefined);
 
 	// Onboarding state when user hasn't starred or used tools yet
@@ -216,7 +215,9 @@ function PersonalShelf() {
 							onClick={() => setTab("all")}
 							className={cn(
 								"cursor-pointer px-3 py-1 font-mono uppercase tracking-wider transition-colors",
-								tab === "all" ? "bg-primary text-primary-foreground font-medium" : "text-muted-foreground hover:text-foreground",
+								tab === "all"
+									? "bg-primary text-primary-foreground font-medium"
+									: "text-muted-foreground hover:text-foreground",
 							)}
 						>
 							All ({allSlugs.length})
@@ -226,7 +227,9 @@ function PersonalShelf() {
 							onClick={() => setTab("favorites")}
 							className={cn(
 								"cursor-pointer px-3 py-1 font-mono uppercase tracking-wider transition-colors",
-								tab === "favorites" ? "bg-primary text-primary-foreground font-medium" : "text-muted-foreground hover:text-foreground",
+								tab === "favorites"
+									? "bg-primary text-primary-foreground font-medium"
+									: "text-muted-foreground hover:text-foreground",
 							)}
 						>
 							★ Saved ({favorites.length})
@@ -236,7 +239,9 @@ function PersonalShelf() {
 							onClick={() => setTab("recent")}
 							className={cn(
 								"cursor-pointer px-3 py-1 font-mono uppercase tracking-wider transition-colors",
-								tab === "recent" ? "bg-primary text-primary-foreground font-medium" : "text-muted-foreground hover:text-foreground",
+								tab === "recent"
+									? "bg-primary text-primary-foreground font-medium"
+									: "text-muted-foreground hover:text-foreground",
 							)}
 						>
 							Recent ({recent.length})
@@ -326,7 +331,11 @@ function InteractiveToolsExplorer() {
 			/>
 
 			{/* Interactive Category Tabs */}
-			<div className="mt-8 flex flex-wrap gap-2 border-b border-border/80 pb-4" role="tablist" aria-label="Tool Categories">
+			<div
+				className="mt-8 flex flex-wrap gap-2 border-b border-border/80 pb-4"
+				role="tablist"
+				aria-label="Tool Categories"
+			>
 				<button
 					type="button"
 					role="tab"
@@ -340,10 +349,14 @@ function InteractiveToolsExplorer() {
 					)}
 				>
 					<span>All tools</span>
-					<span className={cn(
-						"px-1.5 py-0.5 text-[0.625rem]",
-						activeCategory === "all" ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-subtle",
-					)}>
+					<span
+						className={cn(
+							"px-1.5 py-0.5 text-[0.625rem]",
+							activeCategory === "all"
+								? "bg-primary-foreground/20 text-primary-foreground"
+								: "bg-muted text-subtle",
+						)}
+					>
 						{tools.length}
 					</span>
 				</button>
@@ -375,7 +388,9 @@ function InteractiveToolsExplorer() {
 									"px-1.5 py-0.5 text-[0.625rem]",
 									isSelected
 										? "bg-primary-foreground/20 text-primary-foreground"
-										: style ? style.badge : "bg-muted text-subtle",
+										: style
+											? style.badge
+											: "bg-muted text-subtle",
 								)}
 							>
 								{count}
@@ -415,7 +430,9 @@ function InteractiveToolsExplorer() {
 						onClick={() => setTagFilter("all")}
 						className={cn(
 							"cursor-pointer border px-2.5 py-1.5 font-mono text-[0.6875rem] uppercase tracking-wider transition-colors",
-							tagFilter === "all" ? "border-foreground bg-foreground text-background font-medium" : "border-border bg-surface text-muted-foreground hover:text-foreground",
+							tagFilter === "all"
+								? "border-foreground bg-foreground text-background font-medium"
+								: "border-border bg-surface text-muted-foreground hover:text-foreground",
 						)}
 					>
 						All tags
@@ -425,7 +442,9 @@ function InteractiveToolsExplorer() {
 						onClick={() => setTagFilter("popular")}
 						className={cn(
 							"flex cursor-pointer items-center gap-1 border px-2.5 py-1.5 font-mono text-[0.6875rem] uppercase tracking-wider transition-colors",
-							tagFilter === "popular" ? "border-amber-400 bg-amber-400 text-black font-medium" : "border-border bg-surface text-muted-foreground hover:text-foreground",
+							tagFilter === "popular"
+								? "border-amber-400 bg-amber-400 text-black font-medium"
+								: "border-border bg-surface text-muted-foreground hover:text-foreground",
 						)}
 					>
 						<Star className="size-3 fill-current" /> Popular
@@ -435,7 +454,9 @@ function InteractiveToolsExplorer() {
 						onClick={() => setTagFilter("browser")}
 						className={cn(
 							"flex cursor-pointer items-center gap-1 border px-2.5 py-1.5 font-mono text-[0.6875rem] uppercase tracking-wider transition-colors",
-							tagFilter === "browser" ? "border-emerald-400 bg-emerald-400 text-black font-medium" : "border-border bg-surface text-muted-foreground hover:text-foreground",
+							tagFilter === "browser"
+								? "border-emerald-400 bg-emerald-400 text-black font-medium"
+								: "border-border bg-surface text-muted-foreground hover:text-foreground",
 						)}
 					>
 						<ShieldCheck className="size-3" /> 100% Private
@@ -445,7 +466,9 @@ function InteractiveToolsExplorer() {
 						onClick={() => setTagFilter("ai")}
 						className={cn(
 							"flex cursor-pointer items-center gap-1 border px-2.5 py-1.5 font-mono text-[0.6875rem] uppercase tracking-wider transition-colors",
-							tagFilter === "ai" ? "border-violet-400 bg-violet-400 text-black font-medium" : "border-border bg-surface text-muted-foreground hover:text-foreground",
+							tagFilter === "ai"
+								? "border-violet-400 bg-violet-400 text-black font-medium"
+								: "border-border bg-surface text-muted-foreground hover:text-foreground",
 						)}
 					>
 						<Sparkles className="size-3" /> AI
@@ -471,7 +494,9 @@ function InteractiveToolsExplorer() {
 							aria-label="Grid card view"
 							className={cn(
 								"grid size-8 place-items-center transition-colors cursor-pointer",
-								viewMode === "grid" ? "bg-muted text-foreground" : "text-subtle hover:text-foreground",
+								viewMode === "grid"
+									? "bg-muted text-foreground"
+									: "text-subtle hover:text-foreground",
 							)}
 						>
 							<Grid className="size-4" />
@@ -482,7 +507,9 @@ function InteractiveToolsExplorer() {
 							aria-label="Compact list view"
 							className={cn(
 								"grid size-8 place-items-center transition-colors cursor-pointer",
-								viewMode === "compact" ? "bg-muted text-foreground" : "text-subtle hover:text-foreground",
+								viewMode === "compact"
+									? "bg-muted text-foreground"
+									: "text-subtle hover:text-foreground",
 							)}
 						>
 							<List className="size-4" />
@@ -494,8 +521,10 @@ function InteractiveToolsExplorer() {
 			{/* Status count indicator */}
 			<div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
 				<span>
-					Showing <strong className="text-foreground">{filteredTools.length}</strong> of {tools.length} tools
-					{activeCategory !== "all" && ` in ${categories.find((c) => c.id === activeCategory)?.name}`}
+					Showing <strong className="text-foreground">{filteredTools.length}</strong> of{" "}
+					{tools.length} tools
+					{activeCategory !== "all" &&
+						` in ${categories.find((c) => c.id === activeCategory)?.name}`}
 					{searchQuery && ` matching "${searchQuery}"`}
 				</span>
 				{(searchQuery || tagFilter !== "all" || activeCategory !== "all") && (
@@ -596,21 +625,24 @@ function ArchitectureComparison() {
 							<span className="label-mono text-emerald-400">Step 1 · In-Memory Read</span>
 							<h4 className="text-base font-medium">Your Local Device</h4>
 							<p className="text-sm text-muted-foreground">
-								You select an image or PDF. It loads directly into browser memory (RAM) as an ArrayBuffer.
+								You select an image or PDF. It loads directly into browser memory (RAM) as an
+								ArrayBuffer.
 							</p>
 						</div>
 						<div className="flex flex-col gap-2 border-l-2 border-emerald-500 pl-4">
 							<span className="label-mono text-emerald-400">Step 2 · Wasm / Canvas Processing</span>
 							<h4 className="text-base font-medium">Hardware Acceleration</h4>
 							<p className="text-sm text-muted-foreground">
-								Your device CPU/GPU compresses, edits, or converts the file locally. 0 bytes are transmitted across the internet.
+								Your device CPU/GPU compresses, edits, or converts the file locally. 0 bytes are
+								transmitted across the internet.
 							</p>
 						</div>
 						<div className="flex flex-col gap-2 border-l-2 border-emerald-500 pl-4">
 							<span className="label-mono text-emerald-400">Step 3 · Instant Local Save</span>
 							<h4 className="text-base font-medium">100% Private Result</h4>
 							<p className="text-sm text-muted-foreground">
-								A native blob URL triggers an immediate browser download. No traces, zero cloud storage, absolute privacy.
+								A native blob URL triggers an immediate browser download. No traces, zero cloud
+								storage, absolute privacy.
 							</p>
 						</div>
 					</div>
@@ -620,21 +652,24 @@ function ArchitectureComparison() {
 							<span className="label-mono text-rose-400">Step 1 · Cloud Upload</span>
 							<h4 className="text-base font-medium">Public Internet Transfer</h4>
 							<p className="text-sm text-muted-foreground">
-								Your sensitive document or photo is uploaded over the network to an unknown remote server.
+								Your sensitive document or photo is uploaded over the network to an unknown remote
+								server.
 							</p>
 						</div>
 						<div className="flex flex-col gap-2 border-l-2 border-rose-500 pl-4">
 							<span className="label-mono text-rose-400">Step 2 · Remote Storage & Queue</span>
 							<h4 className="text-base font-medium">Server File System</h4>
 							<p className="text-sm text-muted-foreground">
-								The file waits in a server queue, written to remote disks, subject to data retention policies and potential leaks.
+								The file waits in a server queue, written to remote disks, subject to data retention
+								policies and potential leaks.
 							</p>
 						</div>
 						<div className="flex flex-col gap-2 border-l-2 border-rose-500 pl-4">
 							<span className="label-mono text-rose-400">Step 3 · Slow Download</span>
 							<h4 className="text-base font-medium">Bandwidth Dependent</h4>
 							<p className="text-sm text-muted-foreground">
-								You must wait for the remote server to process and stream the file back to you, often blocked by paywalls or captchas.
+								You must wait for the remote server to process and stream the file back to you,
+								often blocked by paywalls or captchas.
 							</p>
 						</div>
 					</div>

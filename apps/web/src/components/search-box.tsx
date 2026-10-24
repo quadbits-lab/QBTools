@@ -172,7 +172,6 @@ export function SearchBox({
 					)}
 				</div>
 			)}
-
 		</div>
 	);
 }

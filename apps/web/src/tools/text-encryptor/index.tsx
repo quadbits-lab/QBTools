@@ -40,7 +40,11 @@ export default function TextEncryptor() {
 
 	const run = async () => {
 		if (!input.trim()) {
-			setError(mode === "encrypt" ? "Please enter text to encrypt." : "Please paste ciphertext to decrypt.");
+			setError(
+				mode === "encrypt"
+					? "Please enter text to encrypt."
+					: "Please paste ciphertext to decrypt.",
+			);
 			return;
 		}
 		if (!password.trim()) {
@@ -136,7 +140,10 @@ export default function TextEncryptor() {
 
 				{/* Passphrase Input */}
 				<div className="flex flex-col gap-2">
-					<label htmlFor="secret-passphrase" className="flex items-center justify-between font-mono text-xs uppercase text-subtle">
+					<label
+						htmlFor="secret-passphrase"
+						className="flex items-center justify-between font-mono text-xs uppercase text-subtle"
+					>
 						<span>Passphrase</span>
 					</label>
 					<div className="relative">
@@ -198,7 +205,11 @@ export default function TextEncryptor() {
 								onClick={handleCopy}
 								className="flex items-center gap-1.5 text-xs font-mono text-foreground hover:underline cursor-pointer"
 							>
-								{copied ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+								{copied ? (
+									<Check className="size-3.5 text-emerald-400" />
+								) : (
+									<Copy className="size-3.5" />
+								)}
 								<span>{copied ? "Copied!" : "Copy to Clipboard"}</span>
 							</button>
 						</div>
@@ -213,10 +224,7 @@ export default function TextEncryptor() {
 				)}
 			</div>
 
-			<PrivacyNote
-				summary="Client-Side Scrambling"
-				detail="Text is encrypted in browser memory with AES-256-GCM. The derived key and ciphertext are never transmitted across any network connection."
-			/>
+			<PrivacyNote text="Client-Side Encryption — Text encrypted in browser memory with AES-256-GCM. 0 bytes uploaded." />
 		</div>
 	);
 }

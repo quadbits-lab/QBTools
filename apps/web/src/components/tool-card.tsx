@@ -85,14 +85,19 @@ export function ToolCard({
 					<button
 						type="button"
 						onClick={handleFavoriteClick}
-						aria-label={isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`}
+						aria-label={
+							isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`
+						}
 						className={cn(
 							"grid size-8 place-items-center rounded-none border border-transparent transition-colors hover:border-border hover:bg-muted",
 							isFavorite ? "text-amber-400" : "text-subtle/60 hover:text-foreground",
 						)}
 					>
 						<Star
-							className={cn("size-4 transition-transform duration-150 active:scale-125", isFavorite && "fill-current")}
+							className={cn(
+								"size-4 transition-transform duration-150 active:scale-125",
+								isFavorite && "fill-current",
+							)}
 						/>
 					</button>
 					<span className="text-subtle group-hover:text-foreground group-hover:translate-x-0.5 transition-all">
@@ -156,14 +161,21 @@ export function ToolCard({
 				<button
 					type="button"
 					onClick={handleFavoriteClick}
-					aria-label={isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`}
+					aria-label={
+						isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`
+					}
 					className={cn(
 						"grid size-8 place-items-center border border-transparent transition-all hover:border-border hover:bg-muted",
-						isFavorite ? "text-amber-400" : "text-subtle/50 opacity-0 group-hover:opacity-100 hover:text-foreground",
+						isFavorite
+							? "text-amber-400"
+							: "text-subtle/50 opacity-0 group-hover:opacity-100 hover:text-foreground",
 					)}
 				>
 					<Star
-						className={cn("size-4 transition-transform duration-150 active:scale-125", isFavorite && "fill-current opacity-100")}
+						className={cn(
+							"size-4 transition-transform duration-150 active:scale-125",
+							isFavorite && "fill-current opacity-100",
+						)}
 					/>
 				</button>
 				<GoCell />
@@ -247,4 +259,3 @@ export function CategoryCard({
 		</div>
 	);
 }
-

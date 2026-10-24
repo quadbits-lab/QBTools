@@ -94,7 +94,9 @@ export async function encryptFile(
 	onProgress?.(0.9);
 
 	// Final container: [MAGIC 4b] + [SALT 16b] + [IV 12b] + [CIPHERTEXT + TAG]
-	const container = new Uint8Array(MAGIC.length + SALT_LENGTH + IV_LENGTH + encryptedContent.byteLength);
+	const container = new Uint8Array(
+		MAGIC.length + SALT_LENGTH + IV_LENGTH + encryptedContent.byteLength,
+	);
 	container.set(MAGIC, 0);
 	container.set(salt, MAGIC.length);
 	container.set(iv, MAGIC.length + SALT_LENGTH);
@@ -113,7 +115,7 @@ export async function encryptFile(
  * Throws an Error if password is wrong or file is corrupted.
  */
 export async function decryptFile(
-	file: File,
+	file: File | Blob,
 	password: string,
 	onProgress?: (progress: number) => void,
 ): Promise<DecryptedFileResult> {
@@ -142,11 +144,7 @@ export async function decryptFile(
 	onProgress?.(0.5);
 	let decryptedBuffer: ArrayBuffer;
 	try {
-		decryptedBuffer = await crypto.subtle.decrypt(
-			{ name: "AES-GCM", iv },
-			key,
-			ciphertext,
-		);
+		decryptedBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
 	} catch {
 		throw new Error("Incorrect password or corrupted file. Verification failed.");
 	}
@@ -169,7 +167,7 @@ export async function decryptFile(
 	onProgress?.(1.0);
 	return {
 		blob: new Blob([originalData], { type: type || "application/octet-stream" }),
-		filename: name || file.name.replace(/\.enc$/i, ""),
+		filename: name || (file instanceof File ? file.name.replace(/\.enc$/i, "") : "decrypted_file"),
 		type,
 		size: originalData.byteLength,
 	};

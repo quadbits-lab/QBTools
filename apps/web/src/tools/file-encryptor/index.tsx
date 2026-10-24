@@ -149,7 +149,11 @@ export default function FileEncryptor() {
 					<div className="flex items-center justify-between border-b border-border pb-4">
 						<div className="flex items-center gap-3">
 							<span className="grid size-10 place-items-center border border-teal-500/30 bg-teal-500/10 text-teal-400">
-								{mode === "encrypt" ? <FileUp className="size-5" /> : <FileDown className="size-5" />}
+								{mode === "encrypt" ? (
+									<FileUp className="size-5" />
+								) : (
+									<FileDown className="size-5" />
+								)}
 							</span>
 							<div>
 								<p className="font-medium text-foreground">{file.name}</p>
@@ -164,8 +168,13 @@ export default function FileEncryptor() {
 
 					{/* Passphrase Input */}
 					<div className="flex flex-col gap-2">
-						<label htmlFor="passphrase" className="flex items-center justify-between font-mono text-xs uppercase text-subtle">
-							<span>{mode === "encrypt" ? "Set Encryption Passphrase" : "Enter Decryption Passphrase"}</span>
+						<label
+							htmlFor="passphrase"
+							className="flex items-center justify-between font-mono text-xs uppercase text-subtle"
+						>
+							<span>
+								{mode === "encrypt" ? "Set Encryption Passphrase" : "Enter Decryption Passphrase"}
+							</span>
 							{mode === "encrypt" && password.length > 0 && (
 								<span
 									className={cn(
@@ -214,13 +223,10 @@ export default function FileEncryptor() {
 
 					{/* Progress Indicator */}
 					{progress !== null && (
-						<div className="flex flex-col gap-2">
-							<div className="flex justify-between text-xs font-mono text-subtle">
-								<span>{mode === "encrypt" ? "Encrypting..." : "Decrypting..."}</span>
-								<span>{Math.round(progress * 100)}%</span>
-							</div>
-							<Progress value={progress * 100} />
-						</div>
+						<Progress
+							value={progress * 100}
+							label={mode === "encrypt" ? "Encrypting file" : "Decrypting file"}
+						/>
 					)}
 
 					{/* Error Alert */}
@@ -261,7 +267,9 @@ export default function FileEncryptor() {
 							<div className="flex items-center gap-2.5 text-emerald-400">
 								<CheckCircle2 className="size-5" />
 								<span className="font-medium text-sm">
-									{mode === "encrypt" ? "File successfully encrypted!" : "File successfully decrypted!"}
+									{mode === "encrypt"
+										? "File successfully encrypted!"
+										: "File successfully decrypted!"}
 								</span>
 							</div>
 
@@ -282,10 +290,7 @@ export default function FileEncryptor() {
 				</div>
 			)}
 
-			<PrivacyNote
-				summary="100% Zero-Knowledge Encryption"
-				detail="All encryption and decryption runs inside your browser using the native Web Crypto API with AES-GCM (256-bit) and PBKDF2 key derivation. Your files and passwords never leave your device."
-			/>
+			<PrivacyNote text="100% Zero-Knowledge Encryption — AES-256-GCM and PBKDF2 executed on your device. 0 bytes uploaded." />
 		</div>
 	);
 }

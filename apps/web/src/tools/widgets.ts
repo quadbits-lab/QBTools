@@ -33,4 +33,10 @@ export const widgets: Record<string, Widget> = {
 	"video-compressor": lazy(() => import("./video-compressor")),
 	"audio-trimmer": lazy(() => import("./audio-trimmer")),
 	"thumbnail-maker": lazy(() => import("./thumbnail-maker")),
+	"video-trimmer": lazy(() => import("./video-trimmer")),
+	"video-to-audio": lazy(() => import("./video-to-audio")),
+	"video-to-gif": lazy(() => import("./video-to-gif")),
+	"file-encryptor": lazy(() => import("./file-encryptor")),
+	"hash-generator": lazy(() => import("./hash-generator")),
+	"text-encryptor": lazy(() => import("./text-encryptor")),
 };

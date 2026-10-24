@@ -3,7 +3,7 @@ import { Input } from "@qbtools/ui/input";
 import { cn } from "@qbtools/ui/utils";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Grid, List, Search } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import { ToolCard } from "#/components/tool-card";
 import { categoryStyles, iconFor } from "#/lib/icons";
@@ -74,7 +74,9 @@ function AllToolsPage() {
 						aria-label="Grid view"
 						className={cn(
 							"grid size-9 place-items-center cursor-pointer transition-colors",
-							viewMode === "grid" ? "bg-muted text-foreground" : "text-subtle hover:text-foreground",
+							viewMode === "grid"
+								? "bg-muted text-foreground"
+								: "text-subtle hover:text-foreground",
 						)}
 					>
 						<Grid className="size-4" />
@@ -85,7 +87,9 @@ function AllToolsPage() {
 						aria-label="Compact view"
 						className={cn(
 							"grid size-9 place-items-center cursor-pointer transition-colors",
-							viewMode === "compact" ? "bg-muted text-foreground" : "text-subtle hover:text-foreground",
+							viewMode === "compact"
+								? "bg-muted text-foreground"
+								: "text-subtle hover:text-foreground",
 						)}
 					>
 						<List className="size-4" />
@@ -129,10 +133,14 @@ function AllToolsPage() {
 					)}
 				>
 					<span>All</span>
-					<span className={cn(
-						"px-1.5 py-0.5 text-[0.625rem]",
-						!activeCategory ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-subtle",
-					)}>
+					<span
+						className={cn(
+							"px-1.5 py-0.5 text-[0.625rem]",
+							!activeCategory
+								? "bg-primary-foreground/20 text-primary-foreground"
+								: "bg-muted text-subtle",
+						)}
+					>
 						{tools.length}
 					</span>
 				</button>
@@ -162,7 +170,9 @@ function AllToolsPage() {
 									"px-1.5 py-0.5 text-[0.625rem]",
 									isSelected
 										? "bg-primary-foreground/20 text-primary-foreground"
-										: style ? style.badge : "bg-muted text-subtle",
+										: style
+											? style.badge
+											: "bg-muted text-subtle",
 								)}
 							>
 								{count}
@@ -212,7 +222,11 @@ function AllToolsPage() {
 							)}
 						>
 							{results.map((tool) => (
-								<ToolCard key={tool.slug} tool={tool} variant={viewMode === "compact" ? "compact" : "default"} />
+								<ToolCard
+									key={tool.slug}
+									tool={tool}
+									variant={viewMode === "compact" ? "compact" : "default"}
+								/>
 							))}
 						</div>
 					)}
@@ -230,9 +244,7 @@ function AllToolsPage() {
 									{c.name}
 								</Link>
 							</h2>
-							<span className="label-mono text-subtle">
-								{toolsInCategory(c.id).length} tools
-							</span>
+							<span className="label-mono text-subtle">{toolsInCategory(c.id).length} tools</span>
 						</div>
 						<p className="mt-2 text-sm text-muted-foreground">{c.tagline}</p>
 						<div
@@ -244,7 +256,11 @@ function AllToolsPage() {
 							)}
 						>
 							{toolsInCategory(c.id).map((tool) => (
-								<ToolCard key={tool.slug} tool={tool} variant={viewMode === "compact" ? "compact" : "default"} />
+								<ToolCard
+									key={tool.slug}
+									tool={tool}
+									variant={viewMode === "compact" ? "compact" : "default"}
+								/>
 							))}
 						</div>
 					</section>
@@ -253,4 +269,3 @@ function AllToolsPage() {
 		</div>
 	);
 }
-
