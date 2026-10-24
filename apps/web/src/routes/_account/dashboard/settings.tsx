@@ -23,10 +23,23 @@ function Settings() {
 	return (
 		<div className="grid max-w-3xl gap-8">
 			<section className="grid gap-3 border border-input p-5">
-				<h2 className="text-xl">GitHub profile</h2>
-				<p>{user?.name}</p>
-				<p className="text-muted-foreground">{user?.email}</p>
-				<p className="text-sm">Your identity is managed through GitHub.</p>
+				<h2 className="text-xl">Profile</h2>
+				<p>
+					<span className="text-muted-foreground text-sm">Name:</span> {user?.name}
+				</p>
+				<p>
+					<span className="text-muted-foreground text-sm">Email:</span> {user?.email}
+				</p>
+				{user?.username && (
+					<p>
+						<span className="text-muted-foreground text-sm">Username:</span> @{user.username}
+					</p>
+				)}
+				{user?.phone && (
+					<p>
+						<span className="text-muted-foreground text-sm">Phone:</span> {user.phone}
+					</p>
+				)}
 			</section>
 			<section className="grid gap-4 border border-input p-5">
 				<h2 className="text-xl">Preferences</h2>

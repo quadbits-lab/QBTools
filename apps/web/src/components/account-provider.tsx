@@ -14,7 +14,14 @@ import { authClient } from "#/lib/auth-client";
 import { setAccountTools } from "#/lib/local-store";
 import type { PersonalData } from "#/lib/media-contract";
 
-type User = { id: string; name: string; email: string; image?: string | null };
+type User = {
+	id: string;
+	name: string;
+	email: string;
+	image?: string | null;
+	username?: string | null;
+	phone?: string | null;
+};
 const AccountContext = createContext<{
 	user: User | null;
 	data: PersonalData | null;

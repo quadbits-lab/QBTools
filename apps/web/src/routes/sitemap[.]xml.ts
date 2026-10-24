@@ -1,4 +1,3 @@
-import { guides } from "@qbtools/content";
 import { registryPaths } from "@qbtools/registry";
 import { createFileRoute } from "@tanstack/react-router";
 import { runtimeSiteUrl } from "#/server/site-url";
@@ -6,9 +5,6 @@ import { runtimeSiteUrl } from "#/server/site-url";
 const STATIC_PATHS = [
 	"/",
 	"/tools",
-	"/guides",
-	"/services",
-	"/premium",
 	"/about",
 	"/contact",
 	"/privacy",
@@ -22,11 +18,7 @@ export const Route = createFileRoute("/sitemap.xml")({
 		handlers: {
 			GET: () => {
 				const origin = runtimeSiteUrl();
-				const paths = [
-					...STATIC_PATHS,
-					...registryPaths(),
-					...guides.map((g) => `/guides/${g.slug}`),
-				];
+				const paths = [...STATIC_PATHS, ...registryPaths()];
 				const urls = paths
 					.map((path) => {
 						const priority = path === "/" ? "1.0" : path.startsWith("/tools/") ? "0.9" : "0.6";

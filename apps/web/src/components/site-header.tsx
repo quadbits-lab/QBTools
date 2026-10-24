@@ -9,12 +9,7 @@ import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 
-const NAV = [
-	{ to: "/tools", label: "All tools" },
-	{ to: "/guides", label: "Guides" },
-	{ to: "/services", label: "Services" },
-	{ to: "/premium", label: "Premium" },
-] as const;
+const NAV = [{ to: "/tools", label: "All tools" }] as const;
 
 export function SiteHeader() {
 	const { open } = useCommandPalette();

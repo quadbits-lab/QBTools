@@ -15,9 +15,6 @@ const LEGAL = [
 const COMPANY = [
 	{ to: "/about", label: "About" },
 	{ to: "/contact", label: "Contact" },
-	{ to: "/services", label: "Services" },
-	{ to: "/premium", label: "Premium" },
-	{ to: "/guides", label: "Guides" },
 ] as const;
 
 export function SiteFooter() {

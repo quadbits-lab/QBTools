@@ -4,7 +4,7 @@ import { authConfigured, getAuth } from "#/server/auth";
 async function handler({ request }: { request: Request }) {
 	if (!authConfigured())
 		return Response.json(
-			{ error: "AUTH_UNAVAILABLE", message: "GitHub sign-in is not configured yet." },
+			{ error: "AUTH_UNAVAILABLE", message: "Authentication is not configured yet." },
 			{ status: 503, headers: { "Cache-Control": "private, no-store" } },
 		);
 	const response = await (await getAuth()).handler(request);

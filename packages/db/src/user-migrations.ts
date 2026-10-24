@@ -42,4 +42,12 @@ CREATE INDEX media_asset_owner_idx ON media_asset(user_id,state,created_at DESC,
 CREATE INDEX media_asset_cleanup_idx ON media_asset(state,expires_at);
 `,
 	},
+	{
+		id: "0002_user_username_phone",
+		sql: `
+ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS username text UNIQUE;
+ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS display_username text;
+ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS phone text;
+`,
+	},
 ];

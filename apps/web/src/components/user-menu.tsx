@@ -1,7 +1,6 @@
 import { Button } from "@qbtools/ui/button";
 import { Link } from "@tanstack/react-router";
 import { LogOut, UserRound } from "lucide-react";
-import { GitHubIcon } from "#/components/github-icon";
 import { authClient } from "#/lib/auth-client";
 import { useAccount } from "./account-provider";
 
@@ -18,10 +17,9 @@ export function UserMenu() {
 	if (!user)
 		return (
 			<Button asChild variant="secondary" size="sm">
-				<a href="/login">
-					<GitHubIcon className="size-4" />
-					<span className="hidden sm:inline">Sign in with GitHub</span>
-					<span className="sm:hidden">Sign in</span>
+				<a href="/login" className="flex items-center gap-2">
+					<UserRound className="size-4" />
+					<span>Sign in</span>
 				</a>
 			</Button>
 		);

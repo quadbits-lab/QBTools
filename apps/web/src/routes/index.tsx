@@ -1,10 +1,8 @@
-import { latestGuides } from "@qbtools/content";
 import { type CategoryId, categories, getTool, tools, toolsInCategory } from "@qbtools/registry";
 import { Button } from "@qbtools/ui/button";
 import { cn } from "@qbtools/ui/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-	ArrowRight,
 	CheckCircle2,
 	Cpu,
 	Grid,
@@ -78,21 +76,6 @@ const WHY = [
 		title: "Works Everywhere & Offline",
 		text: "Fully responsive on mobile and desktop. Once loaded, client-side tools continue to work without internet.",
 		icon: CheckCircle2,
-	},
-];
-
-const SERVICES = [
-	{
-		title: "Custom tools & calculators",
-		text: "Bespoke converters, engines, and interactive calculators built for your business.",
-	},
-	{
-		title: "Design & web development",
-		text: "Blazing-fast responsive websites and web applications built with modern web standards.",
-	},
-	{
-		title: "Technical SEO & performance",
-		text: "Optimized architectures engineered to achieve 100 Core Web Vitals and rank on Google.",
 	},
 ];
 
@@ -667,8 +650,6 @@ function ArchitectureComparison() {
 }
 
 function HomePage() {
-	const guides = latestGuides(3);
-
 	return (
 		<>
 			{/* 1. Hero Section with Modern Visual Guidance Patterns */}
@@ -765,7 +746,7 @@ function HomePage() {
 			</section>
 
 			{/* 5. Privacy & Architecture Showcase */}
-			<section aria-labelledby="why" className="container-page pt-24 sm:pt-32">
+			<section aria-labelledby="why" className="container-page pt-24 sm:pt-32 pb-20">
 				<SectionHead
 					index={3}
 					kicker="Privacy Architecture"
@@ -795,79 +776,6 @@ function HomePage() {
 							</div>
 						);
 					})}
-				</div>
-			</section>
-
-			{/* 6. Services Studio Teaser */}
-			<section aria-labelledby="services" className="container-page pt-24 sm:pt-32">
-				<div className="interactive-card relative overflow-hidden border border-primary bg-primary p-8 text-primary-foreground sm:p-14 lg:grid lg:grid-cols-[1.1fr_1.3fr] lg:items-end lg:gap-14">
-					<div>
-						<p className="label-mono text-primary-foreground/75">[04] · QBTools Studio</p>
-						<h2 id="services" className="display mt-4 text-3xl sm:text-5xl">
-							Need custom software built just for you?
-						</h2>
-						<p className="mt-4 max-w-md text-base leading-relaxed text-primary-foreground/80 sm:text-lg">
-							The engineering team behind QBTools designs and builds custom calculators, web tools,
-							and high-performance websites for businesses worldwide.
-						</p>
-						<Button
-							asChild
-							size="lg"
-							arrow
-							className="mt-8 border-primary-foreground bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-medium"
-						>
-							<Link to="/services">Get a free quote</Link>
-						</Button>
-					</div>
-
-					<div className="mt-8 grid gap-4 border-t border-primary-foreground/20 pt-8 sm:grid-cols-3 lg:mt-0 lg:border-t-0 lg:pt-0">
-						{SERVICES.map((item, i) => (
-							<div
-								key={item.title}
-								className="flex flex-col gap-2 border-t border-primary-foreground/25 pt-4"
-							>
-								<span className="label-mono text-primary-foreground/60">0{i + 1}</span>
-								<h3 className="text-base font-medium tracking-tight">{item.title}</h3>
-								<p className="text-xs leading-relaxed text-primary-foreground/75">{item.text}</p>
-							</div>
-						))}
-					</div>
-				</div>
-			</section>
-
-			{/* 7. Practical Guides & Tutorials */}
-			<section aria-labelledby="guides" className="container-page pt-24 sm:pt-32 pb-20">
-				<SectionHead
-					index={5}
-					kicker="Engineering Guides"
-					title="Latest articles & tutorials"
-					id="guides"
-					description="Practical step-by-step guides for image optimization, PDF editing, and productivity workflows."
-					link={{ to: "/guides", label: "View all guides" }}
-				/>
-				<div className="mt-8 grid gap-4 md:grid-cols-3">
-					{guides.map((guide) => (
-						<Link
-							key={guide.slug}
-							to="/guides/$slug"
-							params={{ slug: guide.slug }}
-							className="interactive-card group flex flex-col justify-between border border-border/80 bg-surface/80 p-6 backdrop-blur-sm hover:border-input hover:bg-surface-2 sm:p-7"
-						>
-							<div className="flex flex-col gap-3">
-								<span className="label-mono text-subtle">{guide.readMinutes} min read</span>
-								<h3 className="text-xl leading-snug font-medium tracking-tight group-hover:text-primary transition-colors">
-									{guide.title}
-								</h3>
-								<p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-									{guide.description}
-								</p>
-							</div>
-							<span className="mt-6 flex items-center gap-2 label-mono text-foreground pt-3 border-t border-border/60">
-								Read guide{" "}
-								<ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-1" />
-							</span>
-						</Link>
-					))}
 				</div>
 			</section>
 		</>

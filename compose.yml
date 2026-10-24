@@ -84,7 +84,68 @@ services:
       - rustfs-data:/data
     restart: unless-stopped
 
+  ollama:
+    profiles: ["ollama"]
+    image: ollama/ollama:latest
+    networks: [ollama]
+    volumes:
+      - qbtools-ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+  ollama-proxy:
+    profiles: ["ollama"]
+    image: caddy:2-alpine
+    networks: [ollama]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+    ports:
+      - "${OLLAMA_PORT:-8172}:8080"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$$OLLAMA_API_KEY" ]; then
+          echo "OLLAMA_API_KEY is required" >&2
+          exit 1
+        fi
+        case "$$OLLAMA_API_KEY" in
+          *[!A-Za-z0-9_-]*)
+            echo "OLLAMA_API_KEY must contain only letters, digits, hyphens, and underscores" >&2
+            exit 1
+            ;;
+        esac
+        cat > /etc/caddy/Caddyfile <<'EOF'
+        :8080 {
+        	@denied not header Authorization "Bearer {$$OLLAMA_API_KEY}"
+        	respond @denied "Unauthorized" 401
+        	reverse_proxy ollama:11434
+        }
+        EOF
+        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'wget -q -O /dev/null --header="Authorization: Bearer $$OLLAMA_API_KEY" http://127.0.0.1:8080/api/tags',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+networks:
+  ollama:
+
 volumes:
   qbtools-data:
-
   rustfs-data:
+  qbtools-ollama-data:

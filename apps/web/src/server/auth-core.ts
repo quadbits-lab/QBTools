@@ -3,29 +3,47 @@ import * as schema from "@qbtools/db/user-schema";
 import type { UserDb } from "@qbtools/db/users";
 import { type BetterAuthPlugin, betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
+import { username } from "better-auth/plugins";
 
 export function createAuth(options: {
 	database: UserDb;
 	secret: string;
 	baseURL: string;
-	clientId: string;
-	clientSecret: string;
+	clientId?: string;
+	clientSecret?: string;
+	emailPasswordEnabled?: boolean;
 	plugins?: BetterAuthPlugin[];
 }) {
+	const socialProviders: Record<string, unknown> = {};
+	if (options.clientId && options.clientSecret) {
+		socialProviders.github = {
+			clientId: options.clientId,
+			clientSecret: options.clientSecret,
+			scope: ["read:user", "user:email"],
+		};
+	}
+
 	return betterAuth({
 		appName: "QBTools",
 		baseURL: options.baseURL,
 		secret: options.secret,
 		database: drizzleAdapter(options.database.db, { provider: "pg", schema, transaction: true }),
 		trustedOrigins: [new URL(options.baseURL).origin],
-		emailAndPassword: { enabled: false },
-		socialProviders: {
-			github: {
-				clientId: options.clientId,
-				clientSecret: options.clientSecret,
-				scope: ["read:user", "user:email"],
+		emailAndPassword: {
+			enabled: options.emailPasswordEnabled ?? false,
+			requireEmailVerification: false,
+		},
+		user: {
+			additionalFields: {
+				phone: {
+					type: "string",
+					required: false,
+					input: true,
+					returned: true,
+				},
 			},
 		},
+		socialProviders,
 		session: { expiresIn: 604800, updateAge: 86400, cookieCache: { enabled: false } },
 		account: {
 			encryptOAuthTokens: true,
@@ -51,6 +69,6 @@ export function createAuth(options: {
 			},
 		},
 		onAPIError: { errorURL: `${options.baseURL}/login` },
-		plugins: options.plugins ?? [],
+		plugins: [username(), ...(options.plugins ?? [])],
 	});
 }

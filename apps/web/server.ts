@@ -78,6 +78,24 @@
 
 import path from "node:path";
 
+// Load root .env if running locally outside Docker
+const rootEnvFile = Bun.file(path.resolve(import.meta.dir, "../../.env"));
+if (await rootEnvFile.exists()) {
+	const content = await rootEnvFile.text();
+	for (const line of content.split("\n")) {
+		const trimmed = line.trim();
+		if (!trimmed || trimmed.startsWith("#")) continue;
+		const eq = trimmed.indexOf("=");
+		if (eq > 0) {
+			const k = trimmed.slice(0, eq).trim();
+			const v = trimmed.slice(eq + 1).trim();
+			if (process.env[k] === undefined || process.env[k] === "") {
+				process.env[k] = v;
+			}
+		}
+	}
+}
+
 // Configuration
 const SERVER_PORT = Number(process.env.PORT ?? 8310);
 const SERVER_HOST = process.env.HOST ?? "0.0.0.0";

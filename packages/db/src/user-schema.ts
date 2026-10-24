@@ -6,6 +6,9 @@ export const user = pgTable("auth_user", {
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").notNull().default(false),
 	image: text("image"),
+	username: text("username").unique(),
+	displayUsername: text("display_username"),
+	phone: text("phone"),
 	createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
 	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });

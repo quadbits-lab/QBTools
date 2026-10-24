@@ -18,17 +18,13 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AccountDashboardRouteImport } from './routes/_account/dashboard'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as CategoriesCategoryRouteImport } from './routes/categories/$category'
-import { Route as GuidesIndexRouteImport } from './routes/guides/index'
-import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
 import { Route as ToolsIndexRouteImport } from './routes/tools/index'
 import { Route as AccountDashboardIndexRouteImport } from './routes/_account/dashboard/index'
 import { Route as AccountDashboardFavoritesRouteImport } from './routes/_account/dashboard/favorites'
@@ -84,11 +80,6 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PremiumRoute = PremiumRouteImport.update({
-  id: '/premium',
-  path: '/premium',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -97,11 +88,6 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -127,16 +113,6 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
 const CategoriesCategoryRoute = CategoriesCategoryRouteImport.update({
   id: '/categories/$category',
   path: '/categories/$category',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuidesIndexRoute = GuidesIndexRouteImport.update({
-  id: '/guides/',
-  path: '/guides/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuidesSlugRoute = GuidesSlugRouteImport.update({
-  id: '/guides/$slug',
-  path: '/guides/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ToolsIndexRoute = ToolsIndexRouteImport.update({
@@ -201,17 +177,13 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
   '/login': typeof LoginRoute
-  '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
-  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AccountDashboardRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/categories/$category': typeof CategoriesCategoryRoute
-  '/guides/$slug': typeof GuidesSlugRoute
-  '/guides/': typeof GuidesIndexRoute
   '/tools/': typeof ToolsIndexRoute
   '/dashboard/favorites': typeof AccountDashboardFavoritesRoute
   '/dashboard/media': typeof AccountDashboardMediaRoute
@@ -232,16 +204,12 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
   '/login': typeof LoginRoute
-  '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
-  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/api/health': typeof ApiHealthRoute
   '/categories/$category': typeof CategoriesCategoryRoute
-  '/guides/$slug': typeof GuidesSlugRoute
-  '/guides': typeof GuidesIndexRoute
   '/tools': typeof ToolsIndexRoute
   '/dashboard/favorites': typeof AccountDashboardFavoritesRoute
   '/dashboard/media': typeof AccountDashboardMediaRoute
@@ -264,17 +232,13 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
   '/login': typeof LoginRoute
-  '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
-  '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_account/dashboard': typeof AccountDashboardRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/categories/$category': typeof CategoriesCategoryRoute
-  '/guides/$slug': typeof GuidesSlugRoute
-  '/guides/': typeof GuidesIndexRoute
   '/tools/': typeof ToolsIndexRoute
   '/_account/dashboard/favorites': typeof AccountDashboardFavoritesRoute
   '/_account/dashboard/media': typeof AccountDashboardMediaRoute
@@ -297,17 +261,13 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/disclaimer'
     | '/login'
-    | '/premium'
     | '/privacy'
     | '/robots.txt'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/dashboard'
     | '/api/health'
     | '/categories/$category'
-    | '/guides/$slug'
-    | '/guides/'
     | '/tools/'
     | '/dashboard/favorites'
     | '/dashboard/media'
@@ -328,16 +288,12 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/disclaimer'
     | '/login'
-    | '/premium'
     | '/privacy'
     | '/robots.txt'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/api/health'
     | '/categories/$category'
-    | '/guides/$slug'
-    | '/guides'
     | '/tools'
     | '/dashboard/favorites'
     | '/dashboard/media'
@@ -359,17 +315,13 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/disclaimer'
     | '/login'
-    | '/premium'
     | '/privacy'
     | '/robots.txt'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/_account/dashboard'
     | '/api/health'
     | '/categories/$category'
-    | '/guides/$slug'
-    | '/guides/'
     | '/tools/'
     | '/_account/dashboard/favorites'
     | '/_account/dashboard/media'
@@ -392,16 +344,12 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   DisclaimerRoute: typeof DisclaimerRoute
   LoginRoute: typeof LoginRoute
-  PremiumRoute: typeof PremiumRoute
   PrivacyRoute: typeof PrivacyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
-  ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiHealthRoute: typeof ApiHealthRoute
   CategoriesCategoryRoute: typeof CategoriesCategoryRoute
-  GuidesSlugRoute: typeof GuidesSlugRoute
-  GuidesIndexRoute: typeof GuidesIndexRoute
   ToolsIndexRoute: typeof ToolsIndexRoute
   ApiAccountSplatRoute: typeof ApiAccountSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -475,13 +423,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/premium': {
-      id: '/premium'
-      path: '/premium'
-      fullPath: '/premium'
-      preLoaderRoute: typeof PremiumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -494,13 +435,6 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -536,20 +470,6 @@ declare module '@tanstack/react-router' {
       path: '/categories/$category'
       fullPath: '/categories/$category'
       preLoaderRoute: typeof CategoriesCategoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guides/': {
-      id: '/guides/'
-      path: '/guides'
-      fullPath: '/guides/'
-      preLoaderRoute: typeof GuidesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guides/$slug': {
-      id: '/guides/$slug'
-      path: '/guides/$slug'
-      fullPath: '/guides/$slug'
-      preLoaderRoute: typeof GuidesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tools/': {
@@ -663,16 +583,12 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   DisclaimerRoute: DisclaimerRoute,
   LoginRoute: LoginRoute,
-  PremiumRoute: PremiumRoute,
   PrivacyRoute: PrivacyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
-  ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiHealthRoute: ApiHealthRoute,
   CategoriesCategoryRoute: CategoriesCategoryRoute,
-  GuidesSlugRoute: GuidesSlugRoute,
-  GuidesIndexRoute: GuidesIndexRoute,
   ToolsIndexRoute: ToolsIndexRoute,
   ApiAccountSplatRoute: ApiAccountSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
