@@ -17,6 +17,7 @@ export const widgets: Record<string, Widget> = {
 	"split-pdf": lazy(() => import("./split-pdf")),
 	"compress-pdf": lazy(() => import("./compress-pdf")),
 	"image-to-pdf": lazy(() => import("./image-to-pdf")),
+	"extract-text": lazy(() => import("./extract-text")),
 	"word-counter": lazy(() => import("./word-counter")),
 	"case-converter": lazy(() => import("./case-converter")),
 	"grammar-checker": lazy(() => import("./grammar-checker")),

@@ -5,6 +5,7 @@ import {
 	BufferTarget,
 	Conversion,
 	canEncodeAudio,
+	FlacOutputFormat,
 	Input,
 	Mp3OutputFormat,
 	Mp4OutputFormat,
@@ -13,7 +14,10 @@ import {
 	QUALITY_LOW,
 	QUALITY_MEDIUM,
 	QUALITY_VERY_LOW,
+	WavOutputFormat,
+	WebMOutputFormat,
 } from "mediabunny";
+import { checkAbort, type ProcessingOptions } from "../processing";
 
 export const VIDEO_PRESETS = {
 	high: { label: "High quality", hint: "Smaller, looks the same", quality: QUALITY_HIGH },
@@ -33,7 +37,7 @@ export const RESOLUTIONS = {
 export type Resolution = keyof typeof RESOLUTIONS;
 
 export function supportsWebCodecs(): boolean {
-	return typeof window !== "undefined" && "VideoEncoder" in window && "AudioEncoder" in window;
+	return typeof window !== "undefined" && "VideoEncoder" in window;
 }
 
 export interface VideoInfo {
@@ -43,7 +47,30 @@ export interface VideoInfo {
 	hasAudio: boolean;
 }
 
-export async function probeVideo(file: File): Promise<VideoInfo> {
+export interface MediaBackendOptions {
+	backend?: "native" | "compatibility";
+	ffmpeg?: import("./ffmpeg").FFmpegSession;
+	signal?: AbortSignal;
+	onStatus?: ProcessingOptions["onProgress"];
+}
+async function compatibility<T>(
+	options: MediaBackendOptions,
+	work: (session: import("./ffmpeg").FFmpegSession, job: ProcessingOptions) => Promise<T>,
+) {
+	const session = options.ffmpeg ?? new (await import("./ffmpeg")).FFmpegSession();
+	try {
+		return await work(session, { signal: options.signal, onProgress: options.onStatus });
+	} finally {
+		if (!options.ffmpeg) session.dispose();
+	}
+}
+export async function probeVideo(
+	file: File,
+	options: MediaBackendOptions = {},
+): Promise<VideoInfo> {
+	if (options.backend === "compatibility")
+		return compatibility(options, (session, job) => session.probe(file, job));
+	checkAbort(options.signal);
 	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
 	try {
 		const video = await input.getPrimaryVideoTrack();
@@ -60,7 +87,8 @@ export async function probeVideo(file: File): Promise<VideoInfo> {
 	}
 }
 
-export interface CompressVideoOptions {
+export interface CompressVideoOptions extends MediaBackendOptions {
+	format?: "mp4" | "webm";
 	preset: VideoPreset;
 	resolution: Resolution;
 	removeAudio: boolean;
@@ -70,43 +98,65 @@ export interface CompressVideoOptions {
 
 /** Re-encode to H.264/AAC MP4 with WebCodecs (hardware accelerated where available). */
 export async function compressVideo(file: File, options: CompressVideoOptions): Promise<Blob> {
-	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
-	const output = new Output({
-		format: new Mp4OutputFormat({ fastStart: "in-memory" }),
-		target: new BufferTarget(),
-	});
-	const maxSide = RESOLUTIONS[options.resolution];
-	const videoTrack = await input.getPrimaryVideoTrack();
-	if (!videoTrack) throw new Error("No video found in this file.");
-	const landscape = videoTrack.displayWidth >= videoTrack.displayHeight;
-	const shortSide = Math.min(videoTrack.displayWidth, videoTrack.displayHeight);
-	const resize =
-		maxSide && shortSide > maxSide ? (landscape ? { height: maxSide } : { width: maxSide }) : {};
-
-	const conversion = await Conversion.init({
-		input,
-		output,
-		tracks: "primary",
-		video: {
-			codec: "avc",
-			quality: VIDEO_PRESETS[options.preset].quality,
-			forceTranscode: true,
-			...resize,
-		},
-		audio: options.removeAudio ? { discard: true } : { codec: "aac", quality: QUALITY_MEDIUM },
-		showWarnings: false,
-	});
-	if (!conversion.isValid) {
-		throw new Error(
-			"Your browser can't convert this video. Try the latest Chrome, Edge or Safari, or a different file.",
+	if (options.backend === "compatibility")
+		return compatibility(options, (session, job) =>
+			session.video(file, { ...options, ...job, onProgress: job.onProgress }),
 		);
+	checkAbort(options.signal);
+	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+	try {
+		const output = new Output({
+			format:
+				options.format === "webm"
+					? new WebMOutputFormat()
+					: new Mp4OutputFormat({ fastStart: "in-memory" }),
+			target: new BufferTarget(),
+		});
+		const maxSide = RESOLUTIONS[options.resolution];
+		const videoTrack = await input.getPrimaryVideoTrack();
+		if (!videoTrack) throw new Error("No video found in this file.");
+		const landscape = videoTrack.displayWidth >= videoTrack.displayHeight;
+		const shortSide = Math.min(videoTrack.displayWidth, videoTrack.displayHeight);
+		const resize =
+			maxSide && shortSide > maxSide ? (landscape ? { height: maxSide } : { width: maxSide }) : {};
+
+		await ensureAudioEncoder(options.format === "webm" ? "opus" : "aac");
+		const conversion = await Conversion.init({
+			input,
+			output,
+			tracks: "primary",
+			video: {
+				codec: options.format === "webm" ? "vp9" : "avc",
+				quality: VIDEO_PRESETS[options.preset].quality,
+				forceTranscode: true,
+				...resize,
+			},
+			audio: options.removeAudio
+				? { discard: true }
+				: { codec: options.format === "webm" ? "opus" : "aac", quality: QUALITY_MEDIUM },
+			showWarnings: false,
+		});
+		if (
+			!conversion.isValid ||
+			conversion.discardedTracks.some((track) => track.reason !== "discarded_by_user")
+		) {
+			throw new Error(
+				"Your browser can't convert this video. Try the latest Chrome, Edge or Safari, or a different file.",
+			);
+		}
+		await executeConversion(conversion, input, {
+			...options,
+			onProgress: (fraction) => {
+				options.onProgress?.(fraction);
+				options.onStatus?.({ stage: "processing", fraction, label: "Processing video…" });
+			},
+		});
+		const buffer = output.target.buffer;
+		if (!buffer) throw new Error("Compression failed.");
+		return new Blob([buffer], { type: options.format === "webm" ? "video/webm" : "video/mp4" });
+	} finally {
+		input.dispose();
 	}
-	conversion.onProgress = (p) => options.onProgress?.(p);
-	options.signal?.addEventListener("abort", () => void conversion.cancel());
-	await conversion.execute();
-	const buffer = output.target.buffer;
-	if (!buffer) throw new Error("Compression failed.");
-	return new Blob([buffer], { type: "video/mp4" });
 }
 
 /** Capture one frame as a canvas (used by the thumbnail maker). */
@@ -216,20 +266,32 @@ export function encodeWav(buffer: AudioBuffer): Blob {
 	return new Blob([view.buffer], { type: "audio/wav" });
 }
 
-export async function encodeMp3(buffer: AudioBuffer, bitrate = 192_000): Promise<Blob> {
-	if (!(await canEncodeAudio("mp3"))) {
-		const { registerMp3Encoder } = await import("@mediabunny/mp3-encoder");
-		registerMp3Encoder();
-	}
+export async function encodeMp3(
+	buffer: AudioBuffer,
+	bitrate = 192_000,
+	options: ProcessingOptions = {},
+): Promise<Blob> {
+	checkAbort(options.signal);
+	await ensureAudioEncoder("mp3");
 	const output = new Output({ format: new Mp3OutputFormat(), target: new BufferTarget() });
 	const source = new AudioBufferSource({ codec: "mp3", bitrate });
 	output.addAudioTrack(source);
-	await output.start();
-	await source.add(buffer);
-	await output.finalize();
-	const data = output.target.buffer;
-	if (!data) throw new Error("MP3 encoding failed.");
-	return new Blob([data], { type: "audio/mpeg" });
+	const abort = () => {
+		void output.cancel().catch(() => {});
+	};
+	options.signal?.addEventListener("abort", abort, { once: true });
+	try {
+		checkAbort(options.signal);
+		await output.start();
+		await source.add(buffer);
+		await output.finalize();
+		checkAbort(options.signal);
+		const data = output.target.buffer;
+		if (!data) throw new Error("MP3 encoding failed.");
+		return new Blob([data], { type: "audio/mpeg" });
+	} finally {
+		options.signal?.removeEventListener("abort", abort);
+	}
 }
 
 export function formatTime(seconds: number): string {
@@ -239,7 +301,7 @@ export function formatTime(seconds: number): string {
 	return `${m}:${s.toFixed(1).padStart(4, "0")}`;
 }
 
-export interface TrimVideoOptions {
+export interface TrimVideoOptions extends MediaBackendOptions {
 	start: number;
 	end: number;
 	onProgress?: (fraction: number) => void;
@@ -250,66 +312,193 @@ export interface TrimVideoOptions {
  * Trims a video file between start and end timestamps.
  */
 export async function trimVideo(file: File, options: TrimVideoOptions): Promise<Blob> {
+	if (options.backend === "compatibility")
+		return compatibility(options, (session, job) =>
+			session.video(file, { ...job, start: options.start, end: options.end, preset: "high" }),
+		);
+	checkAbort(options.signal);
 	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
-	const output = new Output({
-		format: new Mp4OutputFormat({ fastStart: "in-memory" }),
-		target: new BufferTarget(),
-	});
+	try {
+		const output = new Output({
+			format: new Mp4OutputFormat({ fastStart: "in-memory" }),
+			target: new BufferTarget(),
+		});
 
-	const conversion = await Conversion.init({
-		input,
-		output,
-		tracks: "primary",
-		trim: {
-			start: options.start,
-			end: options.end,
-		},
-		video: {
-			codec: "avc",
-			quality: QUALITY_HIGH,
-		},
-		audio: { codec: "aac", quality: QUALITY_MEDIUM },
-		showWarnings: false,
-	});
+		await ensureAudioEncoder("aac");
+		const conversion = await Conversion.init({
+			input,
+			output,
+			tracks: "primary",
+			trim: {
+				start: options.start,
+				end: options.end,
+			},
+			video: {
+				codec: "avc",
+				quality: QUALITY_HIGH,
+			},
+			audio: { codec: "aac", quality: QUALITY_MEDIUM },
+			showWarnings: false,
+		});
 
-	if (!conversion.isValid) {
-		throw new Error("Unable to trim this video in your browser. Please try another file.");
+		if (
+			!conversion.isValid ||
+			conversion.discardedTracks.some((track) => track.reason !== "discarded_by_user")
+		) {
+			throw new Error("Unable to trim this video in your browser. Please try another file.");
+		}
+
+		await executeConversion(conversion, input, {
+			...options,
+			onProgress: (fraction) => {
+				options.onProgress?.(fraction);
+				options.onStatus?.({ stage: "processing", fraction, label: "Processing video…" });
+			},
+		});
+		const buffer = output.target.buffer;
+		if (!buffer) throw new Error("Video trimming failed.");
+		return new Blob([buffer], { type: "video/mp4" });
+	} finally {
+		input.dispose();
 	}
-
-	conversion.onProgress = (p) => options.onProgress?.(p);
-	options.signal?.addEventListener("abort", () => void conversion.cancel());
-	await conversion.execute();
-	const buffer = output.target.buffer;
-	if (!buffer) throw new Error("Video trimming failed.");
-	return new Blob([buffer], { type: "video/mp4" });
 }
 
 /**
  * Extracts audio track from any video file to MP3 or uncompressed WAV.
  */
+export type AudioFormat = "mp3" | "wav" | "flac";
 export async function extractAudioFromVideo(
 	file: File,
-	format: "mp3" | "wav" = "mp3",
+	format: AudioFormat = "mp3",
 	onProgress?: (fraction: number) => void,
+	options: ProcessingOptions & MediaBackendOptions = {},
 ): Promise<Blob> {
-	onProgress?.(0.1);
-	const audioBuffer = await decodeAudio(file);
-	onProgress?.(0.5);
-
-	if (format === "wav") {
-		const blob = encodeWav(audioBuffer);
-		onProgress?.(1.0);
-		return blob;
+	if (options.backend === "compatibility")
+		return compatibility({ ...options, onStatus: options.onProgress }, (session, job) =>
+			session.audio(file, format, job),
+		);
+	checkAbort(options.signal);
+	await ensureAudioEncoder(format === "wav" ? "pcm-s16" : format);
+	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+	try {
+		if (!(await input.getPrimaryAudioTrack())) throw new Error("This video has no audio track.");
+		const output = new Output({
+			format:
+				format === "wav"
+					? new WavOutputFormat()
+					: format === "flac"
+						? new FlacOutputFormat()
+						: new Mp3OutputFormat(),
+			target: new BufferTarget(),
+		});
+		const conversion = await Conversion.init({
+			input,
+			output,
+			tracks: "primary",
+			video: { discard: true },
+			audio: {
+				codec: format === "wav" ? "pcm-s16" : format,
+				...(format === "mp3" ? { bitrate: 192_000 } : {}),
+			},
+			showWarnings: false,
+		});
+		if (
+			!conversion.isValid ||
+			conversion.discardedTracks.some((track) => track.track.type === "audio")
+		)
+			throw new Error("Your browser cannot decode this audio codec. Try Compatibility mode.");
+		await executeConversion(conversion, input, {
+			signal: options.signal,
+			onProgress: (fraction) => {
+				onProgress?.(fraction);
+				options.onProgress?.({ stage: "processing", fraction, label: "Extracting audio…" });
+			},
+		});
+		const data = output.target.buffer;
+		if (!data) throw new Error("Audio extraction failed.");
+		return new Blob([data], { type: format === "mp3" ? "audio/mpeg" : `audio/${format}` });
+	} finally {
+		input.dispose();
 	}
-
-	const blob = await encodeMp3(audioBuffer, 192_000);
-	onProgress?.(1.0);
-	return blob;
+}
+export async function encodeFlac(
+	buffer: AudioBuffer,
+	options: ProcessingOptions = {},
+): Promise<Blob> {
+	checkAbort(options.signal);
+	await ensureAudioEncoder("flac");
+	const output = new Output({ format: new FlacOutputFormat(), target: new BufferTarget() });
+	const source = new AudioBufferSource({ codec: "flac" });
+	output.addAudioTrack(source);
+	const abort = () => {
+		void output.cancel().catch(() => {});
+	};
+	options.signal?.addEventListener("abort", abort, { once: true });
+	try {
+		checkAbort(options.signal);
+		await output.start();
+		await source.add(buffer);
+		await output.finalize();
+		checkAbort(options.signal);
+		const data = output.target.buffer;
+		if (!data) throw new Error("FLAC encoding failed.");
+		return new Blob([data], { type: "audio/flac" });
+	} finally {
+		options.signal?.removeEventListener("abort", abort);
+	}
+}
+const encoders = new Map<string, Promise<void>>();
+export async function ensureAudioEncoder(codec: "mp3" | "aac" | "flac" | "opus" | "pcm-s16") {
+	if (await canEncodeAudio(codec)) return;
+	if (codec === "opus" || codec === "pcm-s16") return;
+	if (!encoders.has(codec))
+		encoders.set(
+			codec,
+			(async () => {
+				if (codec === "aac") (await import("@mediabunny/aac-encoder")).registerAacEncoder();
+				else if (codec === "flac") (await import("@mediabunny/flac-encoder")).registerFlacEncoder();
+				else (await import("@mediabunny/mp3-encoder")).registerMp3Encoder();
+			})().catch((e) => {
+				encoders.delete(codec);
+				throw e;
+			}),
+		);
+	await encoders.get(codec);
+}
+async function executeConversion(
+	conversion: Conversion,
+	input: Input,
+	options: { signal?: AbortSignal; onProgress?: (fraction: number) => void },
+) {
+	const abort = () => {
+		void conversion.cancel().catch(() => {});
+	};
+	options.signal?.addEventListener("abort", abort, { once: true });
+	conversion.onProgress = (p) => {
+		if (!options.signal?.aborted) options.onProgress?.(p);
+	};
+	try {
+		checkAbort(options.signal);
+		await conversion.execute();
+		checkAbort(options.signal);
+	} finally {
+		options.signal?.removeEventListener("abort", abort);
+		input.dispose();
+	}
 }
 
 import { applyPalette, GIFEncoder, quantize } from "gifenc";
 
-export interface VideoToGifOptions {
+export interface VideoToGifOptions extends MediaBackendOptions {
+	mode?: "fast" | "optimized";
+	worker?: {
+		run<T>(
+			operation: string,
+			payload: unknown,
+			options?: ProcessingOptions,
+			transfer?: Transferable[],
+		): Promise<T>;
+	};
 	start: number;
 	end: number;
 	fps?: number;
@@ -322,6 +511,25 @@ export interface VideoToGifOptions {
  * Converts a segment of video into an animated GIF client-side.
  */
 export async function videoToGif(file: File, options: VideoToGifOptions): Promise<Blob> {
+	if (options.mode === "optimized" || options.backend === "compatibility")
+		return compatibility(options, (session, job) =>
+			session.gif(file, {
+				...job,
+				start: options.start,
+				end: options.end,
+				fps: options.fps ?? 12,
+				width: options.width ?? 480,
+			}),
+		);
+	if (
+		options.end - options.start > 15 ||
+		options.end <= options.start ||
+		options.start < 0 ||
+		(options.width ?? 480) > 720 ||
+		(options.fps ?? 12) > 24
+	)
+		throw new Error("Choose a GIF up to 15 seconds, 720 pixels wide and 24 FPS.");
+	checkAbort(options.signal);
 	const fps = options.fps || 12;
 	const delay = Math.round(1000 / fps);
 	const start = Math.max(0, options.start);
@@ -355,26 +563,56 @@ export async function videoToGif(file: File, options: VideoToGifOptions): Promis
 		const ctx = canvas.getContext("2d", { willReadFrequently: true });
 		if (!ctx) throw new Error("Could not create canvas context.");
 
-		const gif = GIFEncoder();
+		const gif = options.worker ? null : GIFEncoder();
+		if (options.worker) await options.worker.run("gif-start", null, { signal: options.signal });
 
 		for (let i = 0; i < totalFrames; i++) {
-			if (options.signal?.aborted) throw new Error("Cancelled by user.");
+			checkAbort(options.signal);
 			const time = start + i / fps;
 			video.currentTime = Math.min(time, video.duration - 0.05);
 
-			await new Promise<void>((resolve) => {
-				video.onseeked = () => resolve();
+			await new Promise<void>((resolve, reject) => {
+				if (Math.abs(video.currentTime - time) < 0.001 && !video.seeking) {
+					resolve();
+					return;
+				}
+				const abort = () => {
+					clearTimeout(timer);
+					reject(new DOMException("Cancelled", "AbortError"));
+				};
+				const timer = setTimeout(() => {
+					options.signal?.removeEventListener("abort", abort);
+					reject(new Error("Unable to seek this video."));
+				}, 15_000);
+				options.signal?.addEventListener("abort", abort, { once: true });
+				video.onseeked = () => {
+					clearTimeout(timer);
+					options.signal?.removeEventListener("abort", abort);
+					resolve();
+				};
 			});
 
 			ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
 			const imgData = ctx.getImageData(0, 0, targetWidth, targetHeight);
-			const palette = quantize(imgData.data, 256);
-			const index = applyPalette(imgData.data, palette);
-			gif.writeFrame(index, targetWidth, targetHeight, { palette, delay });
+			if (options.worker)
+				await options.worker.run(
+					"gif-frame",
+					{ data: imgData.data, width: targetWidth, height: targetHeight, delay },
+					{ signal: options.signal },
+					[imgData.data.buffer as ArrayBuffer],
+				);
+			else if (gif) {
+				const palette = quantize(imgData.data, 256);
+				const index = applyPalette(imgData.data, palette);
+				gif.writeFrame(index, targetWidth, targetHeight, { palette, delay });
+			}
 
 			options.onProgress?.((i + 1) / totalFrames);
 		}
 
+		if (options.worker)
+			return await options.worker.run<Blob>("gif-finish", null, { signal: options.signal });
+		if (!gif) throw new Error("GIF encoder unavailable.");
 		gif.finish();
 		const bytes = gif.bytes();
 		return new Blob([bytes as unknown as BlobPart], { type: "image/gif" });

@@ -4,13 +4,16 @@
 	"private": true,
 	"type": "module",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./users": "./src/users.ts",
+		"./user-schema": "./src/user-schema.ts"
 	},
 	"scripts": {
 		"typecheck": "tsc --noEmit",
 		"backup": "bun src/backup.ts"
 	},
 	"dependencies": {
+		"@electric-sql/pglite": "0.5.11",
 		"drizzle-orm": "^0.45.4"
 	}
 }

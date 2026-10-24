@@ -32,11 +32,13 @@ export function FileDrop({
 		const name = file.name.toLowerCase();
 		const type = file.type.toLowerCase();
 		return rules.some((rule) =>
-			rule.startsWith(".")
-				? name.endsWith(rule)
-				: rule.endsWith("/*")
-					? type.startsWith(rule.slice(0, -1))
-					: type === rule,
+			rule === "*/*"
+				? true
+				: rule.startsWith(".")
+					? name.endsWith(rule)
+					: rule.endsWith("/*")
+						? type.startsWith(rule.slice(0, -1))
+						: type === rule,
 		);
 	};
 

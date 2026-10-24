@@ -20,9 +20,9 @@ export const imageTools: ToolDef[] = [
 		category: "image",
 		name: "Compress Image",
 		title: "Compress Image Online — Reduce Photo Size to Any KB",
-		tagline: "Make photos smaller without making them look worse.",
+		tagline: "Reduce image size with control over quality and format.",
 		description:
-			"Compress JPG, PNG and WebP images to an exact size like 100KB or 50KB. Free, fast and private — images are processed in your browser, never uploaded.",
+			"Compress JPG, WebP and AVIF toward a target size, or optimize PNG losslessly. Choose Fast or Optimized mode. Your images stay on your device.",
 		icon: "minimize-2",
 		keywords: [
 			"compress image",
@@ -62,7 +62,7 @@ export const imageTools: ToolDef[] = [
 			},
 			{
 				q: "Can I compress a PNG?",
-				a: "Yes. PNGs with photos compress best when saved as JPG or WebP. For logos with transparency, keep WebP to preserve the see-through parts.",
+				a: "Yes. Choose PNG for lossless compression that keeps transparency, or use WebP/AVIF for lossy output. PNG has no target-size guarantee.",
 			},
 			{
 				q: "What if my image is still too big?",
@@ -178,7 +178,7 @@ export const imageTools: ToolDef[] = [
 		category: "image",
 		name: "Convert Image",
 		title: "Image Converter — JPG, PNG, WebP & HEIC Online",
-		tagline: "Change photos between JPG, PNG, WebP and HEIC.",
+		tagline: "Convert photos to JPG, PNG, WebP or AVIF, including HEIC input.",
 		description:
 			"Convert images between JPG, PNG and WebP, and turn iPhone HEIC photos into JPG. Free, batch-friendly and processed on your device.",
 		icon: "repeat",
@@ -193,7 +193,10 @@ export const imageTools: ToolDef[] = [
 		],
 		howTo: [
 			{ title: "Add images", text: "Drop one or many images — JPG, PNG, WebP, GIF or HEIC." },
-			{ title: "Choose a format", text: "Pick JPG, PNG or WebP as the output." },
+			{
+				title: "Choose a format",
+				text: "Pick JPG, PNG, WebP or AVIF; choose Optimized for additional encoders.",
+			},
 			{ title: "Download", text: "Save each file, or download all of them at once." },
 		],
 		about: {

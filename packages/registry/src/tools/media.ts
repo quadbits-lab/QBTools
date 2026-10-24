@@ -8,7 +8,7 @@ export const mediaTools: ToolDef[] = [
 		title: "Video Compressor — Reduce Video Size Online",
 		tagline: "Shrink videos for WhatsApp, email and uploads.",
 		description:
-			"Compress MP4, MOV and WebM videos to a smaller size right in your browser. Choose quality and resolution — no upload, no watermark.",
+			"Compress videos locally to MP4 or native WebM. Choose quality and resolution, with an optional MP4 compatibility mode. No upload or watermark.",
 		icon: "file-play",
 		keywords: [
 			"video compressor",
@@ -26,7 +26,7 @@ export const mediaTools: ToolDef[] = [
 			},
 		],
 		about: {
-			what: "Video compression re-encodes your video with modern settings and an optional smaller resolution. It uses your device's built-in video encoder, so it's fast and private.",
+			what: "Video compression re-encodes with native codecs where available. Compatibility mode supports MP4 conversion for files up to 128 MiB. WebM uses native VP9/Opus support.",
 			when: [
 				"A video is too big to send on WhatsApp or email.",
 				"A website limits video uploads to a certain size.",
@@ -40,11 +40,11 @@ export const mediaTools: ToolDef[] = [
 			},
 			{
 				q: "Which browsers are supported?",
-				a: "Recent Chrome, Edge, Safari and Firefox. Very old browsers can't encode video and will show a message.",
+				a: "Recent Chrome, Edge, Safari and Firefox support different codecs. Native mode checks capabilities; try Compatibility mode for MP4 conversion.",
 			},
 			{
 				q: "How long does it take?",
-				a: "It depends on video length and your device. A one-minute phone video usually takes under a minute.",
+				a: "It depends on file contents, codec, processing mode and device. Compatibility mode may take longer than native processing.",
 			},
 		],
 		related: ["audio-trimmer", "thumbnail-maker", "compress-image"],
@@ -58,7 +58,7 @@ export const mediaTools: ToolDef[] = [
 		title: "Audio Trimmer — Cut MP3 & Make Ringtones Online",
 		tagline: "Cut the part of a song or recording you want.",
 		description:
-			"Trim MP3, WAV and M4A audio online with a visual waveform. Add fade in/out and save as MP3 or WAV — perfect for ringtones. Free and private.",
+			"Trim MP3, WAV and M4A audio online with a visual waveform. Add fade in/out and save as MP3, WAV or FLAC — perfect for ringtones. Free and private.",
 		icon: "audio-waveform",
 		keywords: ["audio trimmer", "cut mp3", "trim audio", "ringtone maker", "audio cutter"],
 		howTo: [
@@ -67,7 +67,7 @@ export const mediaTools: ToolDef[] = [
 				title: "Select the part",
 				text: "Drag the handles on the waveform and press play to check.",
 			},
-			{ title: "Save", text: "Add fades if you like, then download MP3 or WAV." },
+			{ title: "Save", text: "Add fades if you like, then download MP3, WAV or FLAC." },
 		],
 		about: {
 			what: "The audio trimmer shows your sound as a waveform so you can see quiet and loud parts, then cuts exactly the section you choose.",
@@ -151,7 +151,10 @@ export const mediaTools: ToolDef[] = [
 				title: "Set start & end",
 				text: "Drag the timeline handles or adjust timestamps to frame-accuracy.",
 			},
-			{ title: "Trim & save", text: "Export the trimmed MP4 video with no quality loss." },
+			{
+				title: "Trim & save",
+				text: "Export the selected clip as MP4. Re-encoding may change quality.",
+			},
 		],
 		about: {
 			what: "The Video Trimmer extracts precisely the section of video you select using your device's native WebCodecs acceleration. It runs 100% locally with zero server lag.",
@@ -168,7 +171,7 @@ export const mediaTools: ToolDef[] = [
 			},
 			{
 				q: "Does trimming degrade video quality?",
-				a: "No. The engine retains high-bitrate video encoding for crisp visuals.",
+				a: "The tool may re-encode video to export the selected range. Quality depends on the source and encoder; keep the original.",
 			},
 		],
 		related: ["video-compressor", "video-to-audio", "video-to-gif"],
@@ -181,9 +184,9 @@ export const mediaTools: ToolDef[] = [
 		category: "media",
 		name: "Video to Audio",
 		title: "Video to Audio Extractor — Convert MP4 to MP3 Online",
-		tagline: "Extract soundtrack or speech from any video file.",
+		tagline: "Extract soundtrack or speech from supported videos.",
 		description:
-			"Extract high-quality MP3 or WAV audio from MP4, WebM, MOV, and MKV videos. Processed locally in your browser with no upload limits.",
+			"Extract MP3, WAV or FLAC audio from supported videos on your device. Optional compatibility mode supports files up to 128 MiB.",
 		icon: "audio-waveform",
 		keywords: [
 			"video to audio",
@@ -193,12 +196,15 @@ export const mediaTools: ToolDef[] = [
 			"convert video to mp3",
 		],
 		howTo: [
-			{ title: "Select video", text: "Drop any video file containing audio." },
-			{ title: "Choose format", text: "Pick MP3 (high-quality) or lossless WAV." },
+			{
+				title: "Select video",
+				text: "Drop an MP4, WebM, MOV or MKV file containing a supported audio track.",
+			},
+			{ title: "Choose format", text: "Pick MP3, uncompressed WAV or losslessly compressed FLAC." },
 			{ title: "Download audio", text: "Save the soundtrack directly to your device." },
 		],
 		about: {
-			what: "Video to Audio demuxes the sound stream directly from your video file without re-encoding the video track, giving you crystal-clear audio in seconds.",
+			what: "Video to Audio reads the selected audio track and converts it without processing video frames. WAV and FLAC preserve decoded audio without restoring quality lost in the source.",
 			when: [
 				"Saving music or dialogue from a video recording.",
 				"Creating podcasts from recorded video lectures or interviews.",
@@ -208,11 +214,11 @@ export const mediaTools: ToolDef[] = [
 		faqs: [
 			{
 				q: "How fast is audio extraction?",
-				a: "Because video is processed locally without uploading, most extractions complete in seconds.",
+				a: "There is no upload wait. Processing time depends on the file, selected format, browser and device.",
 			},
 			{
 				q: "Which audio formats are supported?",
-				a: "MP3 (universal compatibility) and WAV (lossless studio quality).",
+				a: "MP3, 16-bit PCM WAV, and FLAC. WAV and FLAC avoid additional lossy compression.",
 			},
 		],
 		related: ["audio-trimmer", "video-trimmer", "video-compressor"],

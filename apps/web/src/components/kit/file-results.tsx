@@ -6,22 +6,10 @@ import { AlertCircle, ArrowRight, Download, FileArchive, Loader2, X } from "luci
 import { useState } from "react";
 import { useObjectUrl } from "./use-object-url";
 
-export type JobStatus = "queued" | "working" | "done" | "error";
+export type { FileJob } from "../../lib/processing/file-jobs";
+export { makeJob } from "../../lib/processing/file-jobs";
 
-export interface FileJob {
-	id: string;
-	file: File;
-	status: JobStatus;
-	result?: { blob: Blob; name: string; note?: string };
-	error?: string;
-}
-
-let jobCounter = 0;
-export const makeJob = (file: File): FileJob => ({
-	id: `job-${++jobCounter}`,
-	file,
-	status: "queued",
-});
+import type { FileJob } from "../../lib/processing/file-jobs";
 
 function Thumb({ blob }: { blob?: Blob }) {
 	const url = useObjectUrl(blob?.type.startsWith("image/") ? blob : undefined);
@@ -84,10 +72,10 @@ export function FileResults({
 								)}
 							</div>
 							<div className="flex items-center gap-1">
-								{job.status === "working" || job.status === "queued" ? (
+								{["working", "queued", "loading", "processing"].includes(job.status) ? (
 									<span className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
 										<Loader2 className="size-4 animate-spin" />{" "}
-										{job.status === "working" ? "Working…" : "Waiting…"}
+										{job.progress?.label ?? (job.status === "queued" ? "Waiting…" : "Working…")}
 									</span>
 								) : job.result ? (
 									<Button

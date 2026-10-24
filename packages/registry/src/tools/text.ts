@@ -2,6 +2,50 @@ import type { ToolDef } from "../types";
 
 export const textTools: ToolDef[] = [
 	{
+		slug: "extract-text",
+		category: "text",
+		name: "Image & PDF to Text",
+		title: "Image & PDF to Text — Private OCR Online",
+		tagline: "Read text from images and scanned documents.",
+		description:
+			"Extract English and Arabic text from images and PDFs on your device. Read scanned pages with OCR, edit the result and download a text file.",
+		icon: "scan-text",
+		keywords: ["OCR", "image to text", "PDF to text", "Arabic OCR", "scanned PDF"],
+		howTo: [
+			{ title: "Choose a file", text: "Add an image or PDF up to 50 MiB and 50 pages." },
+			{ title: "Choose language", text: "Select English, Arabic or both, then extract text." },
+			{
+				title: "Review and save",
+				text: "Check recognition results, edit them, copy or download TXT.",
+			},
+		],
+		about: {
+			what: "Existing PDF text is extracted directly. Scanned pages and images use local OCR without uploading document contents.",
+			when: [
+				"Copying text from a scan.",
+				"Reading Arabic and English documents.",
+				"Turning a photo into editable text.",
+			],
+		},
+		faqs: [
+			{
+				q: "Is my document uploaded?",
+				a: "No. The engine and language files download to your browser; your document stays on your device.",
+			},
+			{
+				q: "Can OCR make mistakes?",
+				a: "Yes. Review the result, especially with small text, handwriting or low-quality scans.",
+			},
+			{
+				q: "Which limits apply?",
+				a: "Files up to 50 MiB, PDFs up to 50 pages and images up to 24 megapixels. Device memory may impose lower limits.",
+			},
+		],
+		related: ["word-counter", "compress-pdf", "image-to-pdf"],
+		runtime: "browser",
+		isNew: true,
+	},
+	{
 		slug: "word-counter",
 		category: "text",
 		name: "Word Counter",

@@ -86,19 +86,19 @@ export const pdfTools: ToolDef[] = [
 		title: "Compress PDF Online — Reduce PDF File Size",
 		tagline: "Shrink big PDFs so they fit email and upload limits.",
 		description:
-			"Reduce PDF file size for email and online forms. Choose a quality level and see the new size instantly — free and processed on your device.",
+			"Optimize PDF structure while preserving text, or compress scans as images. Compare file sizes and download locally without uploading your document.",
 		icon: "file-down",
 		keywords: ["compress pdf", "reduce pdf size", "pdf compressor", "shrink pdf", "pdf under 1mb"],
 		howTo: [
 			{ title: "Add a PDF", text: "Drop a PDF or tap to choose it." },
 			{
-				title: "Pick a level",
-				text: "Choose Light, Recommended or Strong compression.",
+				title: "Choose a mode",
+				text: "Preserve text, or choose Compress scans with Light, Recommended or Strong settings.",
 			},
 			{ title: "Download", text: "Compare sizes and save the smaller PDF." },
 		],
 		about: {
-			what: "Scanned and photo-heavy PDFs are often huge. Compression re-saves each page as an optimized image, which can shrink files by 50–90%. Text in the result can't be selected, so keep the original for editing.",
+			what: "Preserve text mode optimizes document structure and retains selectable text. Compress scans converts pages into images for larger reductions on scans. Savings depend on the document; keep the original.",
 			when: [
 				"An email bounces because the attachment is too big.",
 				"A government or exam portal limits PDFs to 1MB or 2MB.",
@@ -108,7 +108,7 @@ export const pdfTools: ToolDef[] = [
 		faqs: [
 			{
 				q: "Why can't I select text after compressing?",
-				a: "To get big savings, pages are turned into optimized images. Use Light compression to keep more detail.",
+				a: "Compress scans turns pages into images. Choose Preserve text to retain selectable text, links, bookmarks and forms.",
 			},
 			{
 				q: "Is my document private?",
@@ -130,7 +130,7 @@ export const pdfTools: ToolDef[] = [
 				intro:
 					"Many forms limit uploads to 1MB. Strong compression is selected for you — drop your PDF to see if it fits.",
 				keywords: ["compress pdf to 1mb", "pdf under 1mb", "reduce pdf to 1mb"],
-				params: { level: "strong" },
+				params: { level: "strong", mode: "scans" },
 			},
 		],
 	},

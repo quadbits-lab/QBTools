@@ -1,4 +1,5 @@
 import { isHeic } from "../files";
+import { checkAbort, type ProcessingOptions } from "../processing";
 
 export type ImageFormat = "jpeg" | "png" | "webp";
 
@@ -118,7 +119,13 @@ export function encodeCanvas(
 ): Promise<Blob> {
 	return new Promise((resolve, reject) =>
 		canvas.toBlob(
-			(blob) => (blob ? resolve(blob) : reject(new Error("Couldn't save the image."))),
+			(blob) => {
+				if (!blob || blob.type !== FORMAT_MIME[format])
+					reject(
+						new Error(`Your browser cannot encode ${format.toUpperCase()}. Try Optimized mode.`),
+					);
+				else resolve(blob);
+			},
 			FORMAT_MIME[format],
 			format === "png" ? undefined : quality,
 		),
@@ -140,18 +147,27 @@ export interface CompressResult {
  */
 export async function compressToTarget(
 	bitmap: ImageBitmap,
-	options: {
+	options: ProcessingOptions & {
+		optimized?: boolean;
+		encode?: (canvas: HTMLCanvasElement, quality: number) => Promise<Blob>;
 		targetBytes: number;
-		format: Exclude<ImageFormat, "png">;
+		format: Exclude<ImageFormat, "png"> | "avif";
 		allowResize: boolean;
 		background?: string;
 	},
 ): Promise<CompressResult> {
 	const { targetBytes, format, allowResize, background = "#ffffff" } = options;
+	const encode =
+		options.encode ??
+		((canvas, q) => {
+			if (format === "avif") throw new Error("AVIF needs Optimized mode.");
+			return encodeCanvas(canvas, format, q);
+		});
 	let width = bitmap.width;
 	let height = bitmap.height;
-
-	for (let attempt = 0; attempt < 6; attempt++) {
+	const sizes = options.optimized ? 4 : 6;
+	for (let attempt = 0; attempt < sizes; attempt++) {
+		checkAbort(options.signal);
 		const canvas = await drawToCanvas(bitmap, {
 			width,
 			height,
@@ -161,37 +177,30 @@ export async function compressToTarget(
 		let hi = 0.95;
 		let best: Blob | null = null;
 		let bestQ = lo;
-		for (let i = 0; i < 8; i++) {
+		// The floor is included in the eight evaluations, limiting WASM work.
+		const floor = await encode(canvas, lo);
+		if (floor.size <= targetBytes) {
+			best = floor;
+		}
+		for (let i = 1; i < 8 && best; i++) {
+			checkAbort(options.signal);
 			const q = (lo + hi) / 2;
-			const blob = await encodeCanvas(canvas, format, q);
+			const blob = await encode(canvas, q);
 			if (blob.size <= targetBytes) {
 				best = blob;
 				bestQ = q;
 				lo = q;
-			} else {
-				hi = q;
-			}
+			} else hi = q;
 		}
-		if (!best) {
-			const floor = await encodeCanvas(canvas, format, 0.05);
-			if (floor.size <= targetBytes) {
-				best = floor;
-				bestQ = 0.05;
-			} else if (!allowResize || Math.max(width, height) < 64) {
-				return { blob: floor, quality: 0.05, width, height, reachedTarget: false };
-			} else {
-				// Size scales roughly with pixel count; aim a little under.
-				const factor = Math.max(0.3, Math.sqrt(targetBytes / floor.size) * 0.9);
-				width = Math.round(width * factor);
-				height = Math.round(height * factor);
-				continue;
-			}
+		if (best) return { blob: best, quality: bestQ, width, height, reachedTarget: true };
+		if (!allowResize || Math.max(width, height) < 64 || attempt === sizes - 1) {
+			return { blob: floor, quality: 0.05, width, height, reachedTarget: false };
 		}
-		return { blob: best, quality: bestQ, width, height, reachedTarget: true };
+		const factor = Math.max(0.3, Math.sqrt(targetBytes / floor.size) * 0.9);
+		width = Math.max(1, Math.round(width * factor));
+		height = Math.max(1, Math.round(height * factor));
 	}
-	const canvas = await drawToCanvas(bitmap, { width, height, background });
-	const blob = await encodeCanvas(canvas, format, 0.05);
-	return { blob, quality: 0.05, width, height, reachedTarget: blob.size <= targetBytes };
+	throw new Error("Image compression failed.");
 }
 
 /** Shrink (never enlarge) to fit within maxW × maxH, keeping aspect ratio. */

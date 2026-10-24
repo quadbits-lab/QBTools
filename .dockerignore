@@ -12,3 +12,7 @@
 .claude
 **/.DS_Store
 coverage
+
+apps/web/public/wasm
+playwright-report
+test-results*

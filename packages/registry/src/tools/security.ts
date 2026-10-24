@@ -74,7 +74,7 @@ export const securityTools: ToolDef[] = [
 			{ title: "Choose input", text: "Upload a file or enter text to hash." },
 			{
 				title: "View hashes",
-				text: "Instant calculation of SHA-256, SHA-512, and SHA-1 fingerprints.",
+				text: "Calculate SHA-256, SHA-512 and SHA-1, with optional BLAKE3 and SHA3-256.",
 			},
 			{
 				title: "Verify checksum",
@@ -92,7 +92,7 @@ export const securityTools: ToolDef[] = [
 		faqs: [
 			{
 				q: "Is my file uploaded to calculate the hash?",
-				a: "No. The calculation runs in your browser's WebAssembly/Web Crypto engine.",
+				a: "No. Hashing runs locally in a worker and reads files in small chunks. SHA-256, SHA-512, SHA-1, BLAKE3 and SHA3-256 are available.",
 			},
 			{
 				q: "Which hash algorithm should I use?",

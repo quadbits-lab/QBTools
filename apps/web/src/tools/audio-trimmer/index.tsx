@@ -1,4 +1,5 @@
 import { downloadBlob, replaceExtension } from "@qbtools/engines/files";
+import { checkAbort } from "@qbtools/engines/processing";
 import { Button } from "@qbtools/ui/button";
 import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
@@ -11,6 +12,8 @@ import type { Region } from "wavesurfer.js/plugins/regions";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { TaskProgress } from "#/components/kit/task-progress";
+import { useTask } from "#/lib/processing/use-task";
 
 type Media = typeof import("@qbtools/engines/media");
 
@@ -30,9 +33,10 @@ export default function AudioTrimmer() {
 	const [range, setRange] = useState({ start: 0, end: 0 });
 	const [fadeIn, setFadeIn] = useState(0);
 	const [fadeOut, setFadeOut] = useState(1);
-	const [format, setFormat] = useState<"mp3" | "wav">("mp3");
+	const [format, setFormat] = useState<"mp3" | "wav" | "flac">("mp3");
 	const [playing, setPlaying] = useState(false);
-	const [pending, setPending] = useState(false);
+	const exportTask = useTask<Blob>();
+	const pending = exportTask.busy;
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -83,9 +87,10 @@ export default function AudioTrimmer() {
 				setError("This audio file couldn't be opened. Try MP3, WAV, M4A or OGG."),
 			);
 			try {
-				setBuffer(await engine.decodeAudio(file));
+				const decoded = await engine.decodeAudio(file);
+				if (!disposed) setBuffer(decoded);
 			} catch (e) {
-				setError(e instanceof Error ? e.message : "Couldn't read this audio.");
+				if (!disposed) setError(e instanceof Error ? e.message : "Couldn't read this audio.");
 			}
 		})();
 		return () => {
@@ -104,20 +109,23 @@ export default function AudioTrimmer() {
 		setRange({ start: s, end: e });
 	};
 
-	const exportClip = async () => {
+	const exportClip = () => {
 		if (!buffer || !media.current || !file) return;
-		setPending(true);
+		const engine = media.current;
 		setError(null);
-		try {
-			const clip = media.current.trimAudioBuffer(buffer, range.start, range.end, fadeIn, fadeOut);
+		void exportTask.run(async (options) => {
+			options.onProgress?.({ stage: "processing", fraction: null, label: "Encoding audio clip…" });
+			const clip = engine.trimAudioBuffer(buffer, range.start, range.end, fadeIn, fadeOut);
 			const blob =
-				format === "wav" ? media.current.encodeWav(clip) : await media.current.encodeMp3(clip);
+				format === "wav"
+					? engine.encodeWav(clip)
+					: format === "flac"
+						? await engine.encodeFlac(clip, options)
+						: await engine.encodeMp3(clip, 192_000, options);
+			checkAbort(options.signal);
 			downloadBlob(blob, replaceExtension(file.name, format).replace(/(\.\w+)$/, "-trimmed$1"));
-		} catch (e) {
-			setError(e instanceof Error ? e.message : "Couldn't save the clip.");
-		} finally {
-			setPending(false);
-		}
+			return blob;
+		});
 	};
 
 	if (!file) {
@@ -208,6 +216,7 @@ export default function AudioTrimmer() {
 						options={[
 							{ value: "mp3", label: "MP3" },
 							{ value: "wav", label: "WAV" },
+							{ value: "flac", label: "FLAC" },
 						]}
 					/>
 				</div>
@@ -221,6 +230,7 @@ export default function AudioTrimmer() {
 					size="lg"
 					variant="ghost"
 					onClick={() => {
+						exportTask.reset();
 						setFile(null);
 						setBuffer(null);
 					}}
@@ -228,7 +238,12 @@ export default function AudioTrimmer() {
 					<RotateCcw /> Another file
 				</Button>
 			</div>
-			{error && <Notice tone="critical">{error}</Notice>}
+			<TaskProgress busy={pending} progress={exportTask.progress} cancel={exportTask.cancel} />
+			{(error || exportTask.error) && <Notice tone="critical">{error || exportTask.error}</Notice>}
+			<p className="text-sm text-muted-foreground">
+				WAV and FLAC preserve decoded audio without further lossy compression. They do not restore
+				quality lost in the source.
+			</p>
 			<PrivacyNote />
 		</div>
 	);

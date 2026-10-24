@@ -1,304 +1,148 @@
+import {
+	DEFAULT_HASH_ALGORITHMS,
+	type DigestAlgorithm,
+	HASH_ALGORITHMS,
+	type Hashes,
+} from "@qbtools/engines/hash";
 import { Button } from "@qbtools/ui/button";
 import { Input } from "@qbtools/ui/input";
-import { cn, formatBytes } from "@qbtools/ui/utils";
-import {
-	Check,
-	CheckCircle2,
-	Copy,
-	FileText,
-	Hash,
-	RotateCcw,
-	ShieldCheck,
-	XCircle,
-} from "lucide-react";
 import { useEffect, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
+import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
-
+import { TaskProgress } from "#/components/kit/task-progress";
+import { useTask } from "#/lib/processing/use-task";
+import { ProcessingWorker } from "#/lib/processing/worker-client";
 export default function HashGenerator() {
-	const [inputMode, setInputMode] = useState<"file" | "text">("file");
+	const [mode, setMode] = useState<"file" | "text">("file");
 	const [file, setFile] = useState<File | null>(null);
 	const [text, setText] = useState("");
-	const [hashes, setHashes] = useState<{
-		sha256: string;
-		sha512: string;
-		sha1: string;
-	} | null>(null);
-	const [loading, setLoading] = useState(false);
-	const [verifyHash, setVerifyHash] = useState("");
-	const [copiedKey, setCopiedKey] = useState<string | null>(null);
-
-	const copyToClipboard = async (val: string, key: string) => {
-		try {
-			await navigator.clipboard.writeText(val);
-			setCopiedKey(key);
-			setTimeout(() => setCopiedKey(null), 1500);
-		} catch {
-			// Clipboard API blocked
-		}
-	};
-
-	// Calculate hashes for file
+	const [algorithms, setAlgorithms] = useState<DigestAlgorithm[]>(DEFAULT_HASH_ALGORITHMS);
+	const [verify, setVerify] = useState("");
+	const [copyMessage, setCopyMessage] = useState("");
+	const [worker] = useState(() => new ProcessingWorker());
+	const task = useTask<Hashes>();
+	const { reset, run } = task;
+	useEffect(() => () => worker.dispose(), [worker]);
 	useEffect(() => {
-		if (inputMode !== "file" || !file) return;
-		let active = true;
-		setLoading(true);
-
-		void import("@qbtools/engines/crypto").then(async (cryptoEngine) => {
-			try {
-				const res = await cryptoEngine.computeAllHashes(file);
-				if (active) setHashes(res);
-			} catch {
-				if (active) setHashes(null);
-			} finally {
-				if (active) setLoading(false);
-			}
-		});
-
+		reset();
+		setCopyMessage("");
+		const input = mode === "file" ? file : text;
+		if (input === null || !algorithms.length) return;
+		const timer = setTimeout(
+			() => void run((options) => worker.run<Hashes>("hash", { input, algorithms }, options)),
+			mode === "text" ? 300 : 0,
+		);
 		return () => {
-			active = false;
+			clearTimeout(timer);
+			reset();
 		};
-	}, [file, inputMode]);
-
-	// Calculate hashes for text
-	useEffect(() => {
-		if (inputMode !== "text") return;
-		if (!text.trim()) {
-			setHashes(null);
-			return;
-		}
-
-		let active = true;
-		void import("@qbtools/engines/crypto").then(async (cryptoEngine) => {
-			try {
-				const [sha256, sha512, sha1] = await Promise.all([
-					cryptoEngine.computeFileHash(text, "SHA-256"),
-					cryptoEngine.computeFileHash(text, "SHA-512"),
-					cryptoEngine.computeFileHash(text, "SHA-1"),
-				]);
-				if (active) setHashes({ sha256, sha512, sha1 });
-			} catch {
-				if (active) setHashes(null);
-			}
-		});
-
-		return () => {
-			active = false;
-		};
-	}, [text, inputMode]);
-
-	const cleanVerify = verifyHash.trim().toLowerCase();
-	const matchAlgorithm = hashes
-		? cleanVerify === hashes.sha256.toLowerCase()
-			? "SHA-256"
-			: cleanVerify === hashes.sha512.toLowerCase()
-				? "SHA-512"
-				: cleanVerify === hashes.sha1.toLowerCase()
-					? "SHA-1"
-					: null
-		: null;
-
-	const isMismatch = cleanVerify.length >= 8 && hashes && !matchAlgorithm;
-
+	}, [mode, file, text, algorithms, reset, run, worker]);
+	const match =
+		task.result &&
+		Object.entries(task.result).find(([, hash]) => hash === verify.trim().toLowerCase())?.[0];
 	return (
-		<div className="flex flex-col gap-6">
-			{/* Mode Switcher */}
-			<div className="flex border border-border bg-surface p-1">
-				<button
-					type="button"
-					onClick={() => {
-						setInputMode("file");
-						setHashes(null);
-					}}
-					className={cn(
-						"flex flex-1 cursor-pointer items-center justify-center gap-2 py-2.5 font-mono text-xs uppercase tracking-wider transition-all",
-						inputMode === "file"
-							? "bg-foreground text-background font-semibold shadow-sm"
-							: "text-muted-foreground hover:text-foreground",
-					)}
-				>
-					<Hash className="size-3.5" />
-					<span>File Checksum</span>
-				</button>
-				<button
-					type="button"
-					onClick={() => {
-						setInputMode("text");
-						setHashes(null);
-					}}
-					className={cn(
-						"flex flex-1 cursor-pointer items-center justify-center gap-2 py-2.5 font-mono text-xs uppercase tracking-wider transition-all",
-						inputMode === "text"
-							? "bg-foreground text-background font-semibold shadow-sm"
-							: "text-muted-foreground hover:text-foreground",
-					)}
-				>
-					<FileText className="size-3.5" />
-					<span>Text Hash</span>
-				</button>
+		<div className="flex flex-col gap-5">
+			<div className="flex gap-2">
+				<Button variant={mode === "file" ? "primary" : "outline"} onClick={() => setMode("file")}>
+					File Checksum
+				</Button>
+				<Button variant={mode === "text" ? "primary" : "outline"} onClick={() => setMode("text")}>
+					Text Hash
+				</Button>
 			</div>
-
-			{inputMode === "file" ? (
-				!file ? (
+			{mode === "file" ? (
+				<>
 					<FileDrop
 						accept="*/*"
 						title="Drop any file to calculate its hash"
-						hint="Installers, archives, documents, images — zero upload"
+						hint="Files are read in 4 MiB chunks · no upload"
 						onFiles={(files) => setFile(files[0] ?? null)}
 					/>
-				) : (
-					<div className="flex items-center justify-between border border-border bg-surface p-4">
-						<div className="flex items-center gap-3">
-							<span className="grid size-10 place-items-center border border-teal-500/30 bg-teal-500/10 text-teal-400">
-								<Hash className="size-5" />
-							</span>
-							<div>
-								<p className="font-medium text-foreground">{file.name}</p>
-								<p className="text-xs text-muted-foreground">{formatBytes(file.size)}</p>
-							</div>
-						</div>
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => {
-								setFile(null);
-								setHashes(null);
-							}}
-						>
-							<RotateCcw className="size-3.5" />
-							<span>Change</span>
-						</Button>
-					</div>
-				)
+					{file && (
+						<p>
+							{file.name}{" "}
+							<Button variant="ghost" onClick={() => setFile(null)}>
+								Clear
+							</Button>
+						</p>
+					)}
+				</>
 			) : (
-				<div className="flex flex-col gap-2">
-					<label htmlFor="hash-text-input" className="label-mono">
-						Enter text to hash
-					</label>
+				<label className="flex flex-col gap-2">
+					Enter exact text to hash
 					<textarea
-						id="hash-text-input"
+						aria-label="Enter text to hash"
 						value={text}
 						onChange={(e) => setText(e.target.value)}
-						placeholder="Paste or type any string, token, or secret..."
 						rows={4}
-						className="w-full border border-input bg-surface p-3 font-mono text-sm outline-none focus:border-foreground"
+						className="border border-input p-3 font-mono"
 					/>
+				</label>
+			)}
+			<fieldset className="flex flex-wrap gap-4">
+				<legend className="mb-2">Algorithms</legend>
+				{HASH_ALGORITHMS.map((algorithm) => (
+					<label key={algorithm} className="flex gap-2">
+						<input
+							type="checkbox"
+							checked={algorithms.includes(algorithm)}
+							onChange={(e) =>
+								setAlgorithms((list) =>
+									e.target.checked ? [...list, algorithm] : list.filter((a) => a !== algorithm),
+								)
+							}
+						/>
+						{algorithm}
+					</label>
+				))}
+			</fieldset>
+			<TaskProgress busy={task.busy} progress={task.progress} cancel={task.cancel} />
+			{task.error && <Notice tone="critical">{task.error}</Notice>}
+			{task.status === "cancelled" && <p>Hashing cancelled.</p>}
+			{task.result && (
+				<div className="flex flex-col gap-4">
+					{Object.entries(task.result).map(([algorithm, hash]) => (
+						<div key={algorithm} className="border border-border p-3">
+							<div className="flex justify-between gap-3">
+								<strong>{algorithm}</strong>
+								<Button
+									variant="ghost"
+									onClick={async () => {
+										try {
+											await navigator.clipboard.writeText(hash ?? "");
+											setCopyMessage(`${algorithm} copied`);
+										} catch {
+											setCopyMessage("Clipboard unavailable. Select and copy the hash.");
+										}
+									}}
+								>
+									Copy
+								</Button>
+							</div>
+							<p className="break-all font-mono text-sm">{hash}</p>
+						</div>
+					))}
 				</div>
 			)}
-
-			{/* Hashes Display Panel */}
-			{hashes && (
-				<div className="flex flex-col gap-4 border border-border bg-surface p-6">
-					<div className="flex items-center justify-between border-b border-border pb-3">
-						<h3 className="font-medium text-base">Cryptographic Digests</h3>
-						<span className="font-mono text-[0.6875rem] uppercase text-subtle">
-							{loading ? "Computing..." : "Computed locally"}
-						</span>
-					</div>
-
-					{/* SHA-256 */}
-					<div className="flex flex-col gap-1.5">
-						<div className="flex items-center justify-between text-xs font-mono text-subtle">
-							<span className="font-semibold text-foreground">SHA-256 (Industry Standard)</span>
-							<button
-								type="button"
-								onClick={() => copyToClipboard(hashes.sha256, "sha256")}
-								className="flex items-center gap-1 hover:text-foreground cursor-pointer"
-							>
-								{copiedKey === "sha256" ? (
-									<Check className="size-3 text-emerald-400" />
-								) : (
-									<Copy className="size-3" />
-								)}
-								<span>{copiedKey === "sha256" ? "Copied" : "Copy"}</span>
-							</button>
-						</div>
-						<div className="break-all border border-input bg-background/80 p-2.5 font-mono text-xs select-all">
-							{hashes.sha256}
-						</div>
-					</div>
-
-					{/* SHA-512 */}
-					<div className="flex flex-col gap-1.5">
-						<div className="flex items-center justify-between text-xs font-mono text-subtle">
-							<span className="font-semibold text-foreground">SHA-512 (High Security)</span>
-							<button
-								type="button"
-								onClick={() => copyToClipboard(hashes.sha512, "sha512")}
-								className="flex items-center gap-1 hover:text-foreground cursor-pointer"
-							>
-								{copiedKey === "sha512" ? (
-									<Check className="size-3 text-emerald-400" />
-								) : (
-									<Copy className="size-3" />
-								)}
-								<span>{copiedKey === "sha512" ? "Copied" : "Copy"}</span>
-							</button>
-						</div>
-						<div className="break-all border border-input bg-background/80 p-2.5 font-mono text-xs select-all">
-							{hashes.sha512}
-						</div>
-					</div>
-
-					{/* SHA-1 */}
-					<div className="flex flex-col gap-1.5">
-						<div className="flex items-center justify-between text-xs font-mono text-subtle">
-							<span className="font-semibold text-foreground">SHA-1 (Legacy / Git)</span>
-							<button
-								type="button"
-								onClick={() => copyToClipboard(hashes.sha1, "sha1")}
-								className="flex items-center gap-1 hover:text-foreground cursor-pointer"
-							>
-								{copiedKey === "sha1" ? (
-									<Check className="size-3 text-emerald-400" />
-								) : (
-									<Copy className="size-3" />
-								)}
-								<span>{copiedKey === "sha1" ? "Copied" : "Copy"}</span>
-							</button>
-						</div>
-						<div className="break-all border border-input bg-background/80 p-2.5 font-mono text-xs select-all">
-							{hashes.sha1}
-						</div>
-					</div>
-
-					{/* Checksum Comparison Box */}
-					<div className="mt-4 border-t border-border pt-4">
-						<label htmlFor="verify-checksum" className="label-mono block mb-2">
-							Verify against expected checksum
-						</label>
-						<div className="relative">
-							<Input
-								id="verify-checksum"
-								type="text"
-								value={verifyHash}
-								onChange={(e) => setVerifyHash(e.target.value)}
-								placeholder="Paste expected SHA-256 or SHA-512 checksum to verify..."
-								className={cn(
-									"pr-24 font-mono text-xs",
-									matchAlgorithm && "border-emerald-500 focus:border-emerald-500",
-									isMismatch && "border-rose-500 focus:border-rose-500",
-								)}
-							/>
-							{cleanVerify && (
-								<div className="absolute top-1/2 right-3 -translate-y-1/2 flex items-center gap-1.5 text-xs font-mono">
-									{matchAlgorithm ? (
-										<span className="flex items-center gap-1 text-emerald-400 font-medium">
-											<CheckCircle2 className="size-3.5" /> {matchAlgorithm} Match
-										</span>
-									) : isMismatch ? (
-										<span className="flex items-center gap-1 text-rose-400 font-medium">
-											<XCircle className="size-3.5" /> Mismatch
-										</span>
-									) : null}
-								</div>
-							)}
-						</div>
-					</div>
-				</div>
+			<p aria-live="polite">{copyMessage}</p>
+			<label className="flex flex-col gap-2">
+				Compare a checksum
+				<Input
+					value={verify}
+					onChange={(e) => setVerify(e.target.value)}
+					placeholder="Paste an expected checksum"
+				/>
+			</label>
+			{verify.trim() && task.result && (
+				<Notice tone={match ? "info" : "caution"}>
+					{match ? `${match} Match` : "Mismatch — none of the selected algorithms match."}
+				</Notice>
 			)}
-
-			<PrivacyNote text="Hardware-Accelerated Client Hashing — SHA algorithms executed locally in your browser. 0 bytes uploaded." />
+			<p className="text-sm text-muted-foreground">
+				SHA-1 is provided for legacy checksum comparisons.
+			</p>
+			<PrivacyNote />
 		</div>
 	);
 }

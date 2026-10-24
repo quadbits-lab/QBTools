@@ -1,6 +1,6 @@
 # QBTools — Free tools that just work
 
-A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 24 tools across image, PDF, text, calculators, generators and media. Files are processed **in the browser**, so they are never uploaded or stored.
+A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 31 tools across image, PDF, text, calculators, generators, media and security. Files are processed **in the browser**, so they are never uploaded or stored.
 
 **Stack:** Bun 1.4 · TanStack Start (React 19, SSR, server functions) · Vite 8 · Tailwind CSS 4 · SQLite (`bun:sqlite` + Drizzle) · Turborepo · Biome · Docker / Compose.
 
@@ -45,6 +45,30 @@ bun run dev                          # http://localhost:8310
 | `bun run lint` / `bun run format` | Biome                                                                       |
 | `bun run build && bun run start`  | Production build + Bun server on :8310                                      |
 | `bun run db:backup`               | Online SQLite backup (`VACUUM INTO`)                                        |
+
+## Browser processing upgrades
+
+Image compression/conversion offers Fast native encoding and Optimized WASM encoding (JPEG,
+WebP, PNG, AVIF). Hashing reads files in 4 MiB chunks. Audio tools support MP3/WAV/FLAC, and
+AAC encoding falls back to WASM where necessary. Image & PDF to Text supports English and Arabic
+OCR. PDF compression defaults to preserving text; scan compression remains available separately.
+
+Media Compatibility mode provides MP4 conversion and optimized GIF export using single-threaded
+FFmpeg. WebM uses native VP9/Opus: the pinned FFmpeg core cannot reliably encode it. Resource
+safeguards and device codec support apply; files always stay local.
+
+`bun run assets:prepare` prepares versioned, same-origin assets automatically during development
+and builds. To run browser integration tests:
+
+```sh
+bunx playwright install chromium firefox webkit
+bun run test:browser
+# Against an already running production/Docker instance:
+QBTOOLS_TEST_URL=http://localhost:8312 bun run test:browser
+```
+
+See [the processing development guide](docs/WASM.md) and [third-party notices](THIRD_PARTY_NOTICES.md)
+for architecture, limits, codec licenses, benchmarks, and browser validation.
 
 ## Deploy with Docker
 

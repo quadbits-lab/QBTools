@@ -237,53 +237,28 @@ export async function decryptText(cipherTextBase64: string, password: string): P
 	return new TextDecoder().decode(decrypted);
 }
 
+export { computeHashes } from "./hash";
 export type HashAlgorithm = "SHA-256" | "SHA-512" | "SHA-1";
-
-/**
- * Computes cryptographic hash digest for a File or string using native crypto.subtle.
- */
 export async function computeFileHash(
 	file: File | string,
 	algorithm: HashAlgorithm = "SHA-256",
 ): Promise<string> {
-	let data: BufferSource;
-	if (typeof file === "string") {
-		data = new TextEncoder().encode(file);
-	} else {
-		data = await file.arrayBuffer();
-	}
-
-	const hashBuffer = await crypto.subtle.digest(algorithm, data);
-	const hashArray = Array.from(new Uint8Array(hashBuffer));
-	return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+	const { computeHashes } = await import("./hash");
+	return (await computeHashes(file, [algorithm]))[algorithm] as string;
 }
-
-/**
- * Computes multiple common hashes simultaneously for a File.
- */
 export async function computeAllHashes(
 	file: File,
 	onProgress?: (progress: number) => void,
 ): Promise<{ sha256: string; sha512: string; sha1: string }> {
-	onProgress?.(0.2);
-	const buffer = await file.arrayBuffer();
-	onProgress?.(0.5);
-
-	const [sha256Buf, sha512Buf, sha1Buf] = await Promise.all([
-		crypto.subtle.digest("SHA-256", buffer),
-		crypto.subtle.digest("SHA-512", buffer),
-		crypto.subtle.digest("SHA-1", buffer),
-	]);
-
-	const toHex = (buf: ArrayBuffer) =>
-		Array.from(new Uint8Array(buf))
-			.map((b) => b.toString(16).padStart(2, "0"))
-			.join("");
-
-	onProgress?.(1.0);
+	const { computeHashes } = await import("./hash");
+	const result = await computeHashes(file, undefined, {
+		onProgress: (p) => {
+			if (p.stage === "processing" && p.fraction !== null) onProgress?.(p.fraction);
+		},
+	});
 	return {
-		sha256: toHex(sha256Buf),
-		sha512: toHex(sha512Buf),
-		sha1: toHex(sha1Buf),
+		sha256: result["SHA-256"] as string,
+		sha512: result["SHA-512"] as string,
+		sha1: result["SHA-1"] as string,
 	};
 }

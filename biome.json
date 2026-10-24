@@ -12,7 +12,8 @@
 			"!**/dist",
 			"!**/routeTree.gen.ts",
 			"!**/drizzle/meta",
-			"!**/*.css"
+			"!**/*.css",
+			"!apps/web/public/js/script.js"
 		]
 	},
 	"formatter": {
