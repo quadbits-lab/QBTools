@@ -48,20 +48,16 @@ function AboutPage() {
 						</li>
 						<li>
 							<strong>Private.</strong> Image, PDF, video and audio tools run inside your browser —
-							your files are never uploaded or stored. Only the AI text helpers send text to our AI
-							provider, and we say so clearly on those pages.
+							files upload only when you explicitly save them to Media Storage. The AI text helpers
+							send text to our AI provider, and we say so clearly on those pages.
 						</li>
 						<li>
 							<strong>Simple.</strong> Plain words, big buttons, and pages that work on any phone.
 						</li>
 					</ul>
-					<h2>Ideas welcome</h2>
+					<h2>Your workspace</h2>
 					<p>
-						Many of our tools started as suggestions. If there's something you wish existed,{" "}
-						<Link to="/contact" search={{ tab: "suggest" }}>
-							suggest a tool
-						</Link>
-						.
+						Sign in with GitHub to sync favorite tools and save assets to private Media Storage.
 					</p>
 				</div>
 				<Button asChild size="lg" className="mt-8">

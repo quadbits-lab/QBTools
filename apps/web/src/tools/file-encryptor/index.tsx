@@ -21,6 +21,7 @@ import { useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 
 type CryptoEngine = typeof import("@qbtools/engines/crypto");
 
@@ -290,6 +291,7 @@ export default function FileEncryptor() {
 				</div>
 			)}
 
+			{result && <SaveToMedia blob={result.blob} name={result.filename} />}
 			<PrivacyNote text="100% Zero-Knowledge Encryption — AES-256-GCM and PBKDF2 executed on your device. 0 bytes uploaded." />
 		</div>
 	);

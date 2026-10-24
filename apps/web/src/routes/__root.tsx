@@ -1,18 +1,25 @@
 import { THEME_INIT_SCRIPT } from "@qbtools/ui/theme";
 import { Toaster } from "@qbtools/ui/toaster";
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { AccountProvider } from "#/components/account-provider";
 import { analyticsScripts } from "#/components/analytics";
 import { CommandPaletteProvider } from "#/components/command-palette";
 import { ConsentBanner } from "#/components/consent";
 import { NotFound } from "#/components/not-found";
+import { RouteLoading } from "#/components/route-loading";
 import { SiteFooter } from "#/components/site-footer";
 import { SiteHeader } from "#/components/site-header";
 import { seo } from "#/lib/seo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, THEME_COLOR } from "#/lib/site";
+import { sessionFn } from "#/server/auth.functions";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
-	head: () => {
+	loader: () => sessionFn(),
+	head: ({ loaderData, matches }) => {
+		const privatePage =
+			Boolean(loaderData?.user) ||
+			matches.some((match) => /^\/(dashboard|login|admin)(\/|$)/.test(match.pathname));
 		const base = seo({
 			title: `${SITE_NAME} — ${SITE_TAGLINE}`,
 			rawTitle: true,
@@ -37,7 +44,7 @@ export const Route = createRootRoute({
 				{ rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
 				{ rel: "manifest", href: "/manifest.webmanifest" },
 			],
-			scripts: [{ children: THEME_INIT_SCRIPT }, ...analyticsScripts()],
+			scripts: [{ children: THEME_INIT_SCRIPT }, ...(privatePage ? [] : analyticsScripts())],
 		};
 	},
 	component: RootComponent,
@@ -51,15 +58,18 @@ function RootComponent() {
 				<HeadContent />
 			</head>
 			<body>
-				<CommandPaletteProvider>
-					<div className="flex min-h-dvh flex-col">
-						<SiteHeader />
-						<main id="main" className="flex-1">
-							<Outlet />
-						</main>
-						<SiteFooter />
-					</div>
-				</CommandPaletteProvider>
+				<AccountProvider>
+					<RouteLoading />
+					<CommandPaletteProvider>
+						<div className="flex min-h-dvh flex-col">
+							<SiteHeader />
+							<main id="main" className="flex-1">
+								<Outlet />
+							</main>
+							<SiteFooter />
+						</div>
+					</CommandPaletteProvider>
+				</AccountProvider>
 				<ConsentBanner />
 				<Toaster />
 				<Scripts />

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useCommandPalette } from "./command-palette";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
+import { UserMenu } from "./user-menu";
 
 const NAV = [
 	{ to: "/tools", label: "All tools" },
@@ -27,8 +28,8 @@ export function SiteHeader() {
 			>
 				Skip to content
 			</a>
-			<div className="container-page flex h-16 items-center gap-6">
-				<Logo />
+			<div className="container-page flex h-16 items-center gap-2 sm:gap-6">
+				<Logo className="max-sm:[&_img]:h-5 max-sm:[&_img]:max-w-28 max-sm:[&_img]:object-contain" />
 				<nav aria-label="Main" className="hidden items-center gap-8 lg:flex">
 					{NAV.map((item) => (
 						<Link
@@ -61,11 +62,7 @@ export function SiteHeader() {
 						<Search strokeWidth={1.5} />
 					</Button>
 					<ThemeToggle />
-					<Button asChild size="sm" arrow className="hidden xl:inline-flex">
-						<Link to="/contact" search={{ tab: "suggest" }}>
-							Suggest a tool
-						</Link>
-					</Button>
+					<UserMenu />
 					<Button
 						variant="ghost"
 						size="icon-sm"

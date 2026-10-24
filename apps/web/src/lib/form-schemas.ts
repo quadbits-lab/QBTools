@@ -16,14 +16,6 @@ export const contactSchema = z.object({
 	website: honeypot,
 });
 
-export const suggestionSchema = z.object({
-	title: z.string().trim().min(3, "What tool would you like?").max(120),
-	details: z.string().trim().max(2000).optional(),
-	category: z.string().trim().max(40).optional(),
-	email: z.union([email, z.literal("")]).optional(),
-	website: honeypot,
-});
-
 export const SERVICES = [
 	"Custom tool or calculator",
 	"Website",

@@ -13,6 +13,7 @@ import { toast } from "@qbtools/ui/toaster";
 import { Download, ImagePlus, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 
 const DRAFT_KEY = "qbtools.invoice.draft";
 const today = () => new Date().toISOString().slice(0, 10);
@@ -356,6 +357,15 @@ export default function InvoiceGenerator() {
 					<Button size="lg" className="mt-4 font-sans" onClick={download} disabled={pending}>
 						{pending ? <Loader2 className="animate-spin" /> : <Download />} Download PDF
 					</Button>
+					<SaveToMedia
+						name={`${invoice.number || "invoice"}.pdf`}
+						prepare={async () => {
+							const { renderInvoicePdf } = await import("@qbtools/engines/invoice-pdf");
+							return new Blob([(await renderInvoicePdf(invoice)) as BlobPart], {
+								type: "application/pdf",
+							});
+						}}
+					/>
 					<Button
 						variant="ghost"
 						className="font-sans"

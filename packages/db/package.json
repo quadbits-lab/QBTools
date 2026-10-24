@@ -10,7 +10,9 @@
 	},
 	"scripts": {
 		"typecheck": "tsc --noEmit",
-		"backup": "bun src/backup.ts"
+		"backup": "bun src/backup.ts",
+		"users:backup": "bun src/user-backup.ts backup",
+		"users:restore": "bun src/user-backup.ts restore"
 	},
 	"dependencies": {
 		"@electric-sql/pglite": "0.5.11",

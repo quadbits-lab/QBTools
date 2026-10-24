@@ -11,6 +11,7 @@ import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
 import { ResultDownload } from "#/components/kit/result-download";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 
 export default function SplitPdf() {
 	const [file, setFile] = useState<File | null>(null);
@@ -135,6 +136,10 @@ export default function SplitPdf() {
 					>
 						<FileArchive /> Download all (ZIP)
 					</Button>
+					<SaveToMedia
+						name={file.name.replace(/\.pdf$/i, "-pages.zip")}
+						prepare={() => zipFiles(results)}
+					/>
 				</div>
 			)}
 			<Button

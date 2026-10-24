@@ -10,29 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/_account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AdsDottxtRouteImport } from './routes/ads[.]txt'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AccountDashboardRouteImport } from './routes/_account/dashboard'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as CategoriesCategoryRouteImport } from './routes/categories/$category'
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
 import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
 import { Route as ToolsIndexRouteImport } from './routes/tools/index'
+import { Route as AccountDashboardIndexRouteImport } from './routes/_account/dashboard/index'
+import { Route as AccountDashboardFavoritesRouteImport } from './routes/_account/dashboard/favorites'
+import { Route as AccountDashboardMediaRouteImport } from './routes/_account/dashboard/media'
+import { Route as AccountDashboardSettingsRouteImport } from './routes/_account/dashboard/settings'
+import { Route as ApiAccountSplatRouteImport } from './routes/api/account/$'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiMediaSplatRouteImport } from './routes/api/media/$'
 import { Route as ToolsSlugIndexRouteImport } from './routes/tools/$slug/index'
 import { Route as ToolsSlugPresetRouteImport } from './routes/tools/$slug/$preset'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/_account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -65,6 +79,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
   path: '/disclaimer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
@@ -95,6 +114,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountDashboardRoute = AccountDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AccountRoute,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -120,6 +144,43 @@ const ToolsIndexRoute = ToolsIndexRouteImport.update({
   path: '/tools/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountDashboardIndexRoute = AccountDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountDashboardRoute,
+} as any)
+const AccountDashboardFavoritesRoute =
+  AccountDashboardFavoritesRouteImport.update({
+    id: '/favorites',
+    path: '/favorites',
+    getParentRoute: () => AccountDashboardRoute,
+  } as any)
+const AccountDashboardMediaRoute = AccountDashboardMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AccountDashboardRoute,
+} as any)
+const AccountDashboardSettingsRoute =
+  AccountDashboardSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AccountDashboardRoute,
+  } as any)
+const ApiAccountSplatRoute = ApiAccountSplatRouteImport.update({
+  id: '/api/account/$',
+  path: '/api/account/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
+  id: '/api/media/$',
+  path: '/api/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ToolsSlugIndexRoute = ToolsSlugIndexRouteImport.update({
   id: '/tools/$slug/',
   path: '/tools/$slug/',
@@ -139,18 +200,27 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/dashboard': typeof AccountDashboardRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/categories/$category': typeof CategoriesCategoryRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/guides/': typeof GuidesIndexRoute
   '/tools/': typeof ToolsIndexRoute
+  '/dashboard/favorites': typeof AccountDashboardFavoritesRoute
+  '/dashboard/media': typeof AccountDashboardMediaRoute
+  '/dashboard/settings': typeof AccountDashboardSettingsRoute
+  '/api/account/$': typeof ApiAccountSplatRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/media/$': typeof ApiMediaSplatRoute
   '/tools/$slug/$preset': typeof ToolsSlugPresetRoute
+  '/dashboard/': typeof AccountDashboardIndexRoute
   '/tools/$slug/': typeof ToolsSlugIndexRoute
 }
 export interface FileRoutesByTo {
@@ -161,6 +231,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -172,30 +243,47 @@ export interface FileRoutesByTo {
   '/guides/$slug': typeof GuidesSlugRoute
   '/guides': typeof GuidesIndexRoute
   '/tools': typeof ToolsIndexRoute
+  '/dashboard/favorites': typeof AccountDashboardFavoritesRoute
+  '/dashboard/media': typeof AccountDashboardMediaRoute
+  '/dashboard/settings': typeof AccountDashboardSettingsRoute
+  '/api/account/$': typeof ApiAccountSplatRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/media/$': typeof ApiMediaSplatRoute
   '/tools/$slug/$preset': typeof ToolsSlugPresetRoute
+  '/dashboard': typeof AccountDashboardIndexRoute
   '/tools/$slug': typeof ToolsSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_account': typeof AccountRouteWithChildren
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/ads.txt': typeof AdsDottxtRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/disclaimer': typeof DisclaimerRoute
+  '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/privacy': typeof PrivacyRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/_account/dashboard': typeof AccountDashboardRouteWithChildren
   '/api/health': typeof ApiHealthRoute
   '/categories/$category': typeof CategoriesCategoryRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/guides/': typeof GuidesIndexRoute
   '/tools/': typeof ToolsIndexRoute
+  '/_account/dashboard/favorites': typeof AccountDashboardFavoritesRoute
+  '/_account/dashboard/media': typeof AccountDashboardMediaRoute
+  '/_account/dashboard/settings': typeof AccountDashboardSettingsRoute
+  '/api/account/$': typeof ApiAccountSplatRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/media/$': typeof ApiMediaSplatRoute
   '/tools/$slug/$preset': typeof ToolsSlugPresetRoute
+  '/_account/dashboard/': typeof AccountDashboardIndexRoute
   '/tools/$slug/': typeof ToolsSlugIndexRoute
 }
 export interface FileRouteTypes {
@@ -208,18 +296,27 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/login'
     | '/premium'
     | '/privacy'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/terms'
+    | '/dashboard'
     | '/api/health'
     | '/categories/$category'
     | '/guides/$slug'
     | '/guides/'
     | '/tools/'
+    | '/dashboard/favorites'
+    | '/dashboard/media'
+    | '/dashboard/settings'
+    | '/api/account/$'
+    | '/api/auth/$'
+    | '/api/media/$'
     | '/tools/$slug/$preset'
+    | '/dashboard/'
     | '/tools/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -230,6 +327,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/login'
     | '/premium'
     | '/privacy'
     | '/robots.txt'
@@ -241,40 +339,59 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/guides'
     | '/tools'
+    | '/dashboard/favorites'
+    | '/dashboard/media'
+    | '/dashboard/settings'
+    | '/api/account/$'
+    | '/api/auth/$'
+    | '/api/media/$'
     | '/tools/$slug/$preset'
+    | '/dashboard'
     | '/tools/$slug'
   id:
     | '__root__'
     | '/'
+    | '/_account'
     | '/about'
     | '/admin'
     | '/ads.txt'
     | '/contact'
     | '/cookies'
     | '/disclaimer'
+    | '/login'
     | '/premium'
     | '/privacy'
     | '/robots.txt'
     | '/services'
     | '/sitemap.xml'
     | '/terms'
+    | '/_account/dashboard'
     | '/api/health'
     | '/categories/$category'
     | '/guides/$slug'
     | '/guides/'
     | '/tools/'
+    | '/_account/dashboard/favorites'
+    | '/_account/dashboard/media'
+    | '/_account/dashboard/settings'
+    | '/api/account/$'
+    | '/api/auth/$'
+    | '/api/media/$'
     | '/tools/$slug/$preset'
+    | '/_account/dashboard/'
     | '/tools/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRouteWithChildren
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   AdsDottxtRoute: typeof AdsDottxtRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   DisclaimerRoute: typeof DisclaimerRoute
+  LoginRoute: typeof LoginRoute
   PremiumRoute: typeof PremiumRoute
   PrivacyRoute: typeof PrivacyRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -286,6 +403,9 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   ToolsIndexRoute: typeof ToolsIndexRoute
+  ApiAccountSplatRoute: typeof ApiAccountSplatRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiMediaSplatRoute: typeof ApiMediaSplatRoute
   ToolsSlugPresetRoute: typeof ToolsSlugPresetRoute
   ToolsSlugIndexRoute: typeof ToolsSlugIndexRoute
 }
@@ -297,6 +417,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_account': {
+      id: '/_account'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -341,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DisclaimerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/premium': {
       id: '/premium'
       path: '/premium'
@@ -383,6 +517,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_account/dashboard': {
+      id: '/_account/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AccountDashboardRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -418,6 +559,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ToolsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_account/dashboard/': {
+      id: '/_account/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AccountDashboardIndexRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/_account/dashboard/favorites': {
+      id: '/_account/dashboard/favorites'
+      path: '/favorites'
+      fullPath: '/dashboard/favorites'
+      preLoaderRoute: typeof AccountDashboardFavoritesRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/_account/dashboard/media': {
+      id: '/_account/dashboard/media'
+      path: '/media'
+      fullPath: '/dashboard/media'
+      preLoaderRoute: typeof AccountDashboardMediaRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/_account/dashboard/settings': {
+      id: '/_account/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof AccountDashboardSettingsRouteImport
+      parentRoute: typeof AccountDashboardRoute
+    }
+    '/api/account/$': {
+      id: '/api/account/$'
+      path: '/api/account/$'
+      fullPath: '/api/account/$'
+      preLoaderRoute: typeof ApiAccountSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/$': {
+      id: '/api/media/$'
+      path: '/api/media/$'
+      fullPath: '/api/media/$'
+      preLoaderRoute: typeof ApiMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tools/$slug/': {
       id: '/tools/$slug/'
       path: '/tools/$slug'
@@ -435,14 +625,44 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AccountDashboardRouteChildren {
+  AccountDashboardFavoritesRoute: typeof AccountDashboardFavoritesRoute
+  AccountDashboardMediaRoute: typeof AccountDashboardMediaRoute
+  AccountDashboardSettingsRoute: typeof AccountDashboardSettingsRoute
+  AccountDashboardIndexRoute: typeof AccountDashboardIndexRoute
+}
+
+const AccountDashboardRouteChildren: AccountDashboardRouteChildren = {
+  AccountDashboardFavoritesRoute: AccountDashboardFavoritesRoute,
+  AccountDashboardMediaRoute: AccountDashboardMediaRoute,
+  AccountDashboardSettingsRoute: AccountDashboardSettingsRoute,
+  AccountDashboardIndexRoute: AccountDashboardIndexRoute,
+}
+
+const AccountDashboardRouteWithChildren =
+  AccountDashboardRoute._addFileChildren(AccountDashboardRouteChildren)
+
+interface AccountRouteChildren {
+  AccountDashboardRoute: typeof AccountDashboardRouteWithChildren
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountDashboardRoute: AccountDashboardRouteWithChildren,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRouteWithChildren,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   AdsDottxtRoute: AdsDottxtRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   DisclaimerRoute: DisclaimerRoute,
+  LoginRoute: LoginRoute,
   PremiumRoute: PremiumRoute,
   PrivacyRoute: PrivacyRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
@@ -454,6 +674,9 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   ToolsIndexRoute: ToolsIndexRoute,
+  ApiAccountSplatRoute: ApiAccountSplatRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiMediaSplatRoute: ApiMediaSplatRoute,
   ToolsSlugPresetRoute: ToolsSlugPresetRoute,
   ToolsSlugIndexRoute: ToolsSlugIndexRoute,
 }

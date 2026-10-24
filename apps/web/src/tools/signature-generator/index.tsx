@@ -1,3 +1,4 @@
+import { SaveToMedia } from "#/components/kit/save-to-media";
 import "@fontsource/dancing-script/600.css";
 import "@fontsource/great-vibes/400.css";
 import "@fontsource/caveat/600.css";
@@ -260,6 +261,10 @@ export default function SignatureGenerator() {
 				<Button size="lg" onClick={save} disabled={isEmpty}>
 					<Download /> Download PNG
 				</Button>
+				<SaveToMedia
+					name="signature.png"
+					prepare={async () => (canvasRef.current ? trimmedBlob(canvasRef.current) : null)}
+				/>
 				{mode === "draw" && (
 					<>
 						<Button

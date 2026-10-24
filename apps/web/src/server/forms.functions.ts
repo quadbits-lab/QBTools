@@ -1,13 +1,6 @@
-import {
-	contactMessages,
-	getDb,
-	premiumWaitlist,
-	serviceLeads,
-	sql,
-	toolSuggestions,
-} from "@qbtools/db";
+import { contactMessages, getDb, premiumWaitlist, serviceLeads } from "@qbtools/db";
 import { createServerFn } from "@tanstack/react-start";
-import { contactSchema, leadSchema, suggestionSchema, waitlistSchema } from "#/lib/form-schemas";
+import { contactSchema, leadSchema, waitlistSchema } from "#/lib/form-schemas";
 import { getEnv } from "./env";
 import { createRateLimiter } from "./rate-limit";
 import { clientKey } from "./request";
@@ -40,37 +33,6 @@ export const submitContact = createServerFn({ method: "POST" })
 			ok: true,
 			message: "Thanks! Your message has been sent. We usually reply within 2 working days.",
 		};
-	});
-
-export const submitSuggestion = createServerFn({ method: "POST" })
-	.validator(suggestionSchema)
-	.handler(async ({ data }): Promise<FormResult> => {
-		const blocked = guard("suggest", data.website);
-		if (blocked) return blocked;
-		const db = getDb();
-		// Same idea suggested again (case-insensitive)? Count it as a vote.
-		const existing = await db
-			.select({ id: toolSuggestions.id })
-			.from(toolSuggestions)
-			.where(sql`lower(${toolSuggestions.title}) = lower(${data.title})`)
-			.limit(1);
-		if (existing[0]) {
-			await db
-				.update(toolSuggestions)
-				.set({ votes: sql`${toolSuggestions.votes} + 1` })
-				.where(sql`${toolSuggestions.id} = ${existing[0].id}`);
-			return {
-				ok: true,
-				message: "Great minds! Someone suggested this too — we've added your vote.",
-			};
-		}
-		await db.insert(toolSuggestions).values({
-			title: data.title,
-			details: data.details ?? "",
-			category: data.category || null,
-			email: data.email || null,
-		});
-		return { ok: true, message: "Thank you! Your idea has been added to our list." };
 	});
 
 export const submitLead = createServerFn({ method: "POST" })

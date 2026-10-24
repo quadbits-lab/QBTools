@@ -27,6 +27,11 @@ function CookiesPage() {
 					drafts, and your cookie choice. Stays on your device.
 				</li>
 				<li>
+					<strong>Account sessions</strong> (essential cookies): keep you signed in with GitHub.
+					These cookies are required for dashboard and Media Storage access and do not require
+					advertising consent.
+				</li>
+				<li>
 					<strong>Admin session</strong> (cookie, site owner only): keeps the site administrator
 					signed in.
 				</li>

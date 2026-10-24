@@ -4,6 +4,7 @@ import { Button } from "@qbtools/ui/button";
 import { formatBytes } from "@qbtools/ui/utils";
 import { AlertCircle, ArrowRight, Download, FileArchive, Loader2, X } from "lucide-react";
 import { useState } from "react";
+import { SaveToMedia } from "./save-to-media";
 import { useObjectUrl } from "./use-object-url";
 
 export type { FileJob } from "../../lib/processing/file-jobs";
@@ -78,11 +79,14 @@ export function FileResults({
 										{job.progress?.label ?? (job.status === "queued" ? "Waiting…" : "Working…")}
 									</span>
 								) : job.result ? (
-									<Button
-										onClick={() => job.result && downloadBlob(job.result.blob, job.result.name)}
-									>
-										<Download /> Download
-									</Button>
+									<>
+										<SaveToMedia blob={job.result.blob} name={job.result.name} />
+										<Button
+											onClick={() => job.result && downloadBlob(job.result.blob, job.result.name)}
+										>
+											<Download /> Download
+										</Button>
+									</>
 								) : null}
 								{onRemove && (
 									<Button

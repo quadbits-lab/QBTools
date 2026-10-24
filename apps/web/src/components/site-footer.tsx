@@ -15,7 +15,6 @@ const LEGAL = [
 const COMPANY = [
 	{ to: "/about", label: "About" },
 	{ to: "/contact", label: "Contact" },
-	{ to: "/contact", label: "Suggest a tool", search: { tab: "suggest" } },
 	{ to: "/services", label: "Services" },
 	{ to: "/premium", label: "Premium" },
 	{ to: "/guides", label: "Guides" },
@@ -28,7 +27,8 @@ export function SiteFooter() {
 				<div className="flex flex-col gap-4">
 					<Logo />
 					<p className="max-w-xs text-muted-foreground">
-						Free tools that just work. No signup, no clutter — and your files stay on your device.
+						Free tools that just work. No signup, no clutter — with local processing and optional
+						private storage.
 					</p>
 					<p className="label-mono flex items-center gap-2 text-foreground">
 						<ShieldCheck className="size-4" strokeWidth={1.5} /> Files processed in your browser
@@ -66,11 +66,7 @@ export function SiteFooter() {
 						<ul className="flex flex-col gap-2.5 text-[0.9375rem]">
 							{COMPANY.map((item) => (
 								<li key={item.label}>
-									<Link
-										to={item.to}
-										search={"search" in item ? item.search : undefined}
-										className="text-muted-foreground hover:text-foreground"
-									>
+									<Link to={item.to} className="text-muted-foreground hover:text-foreground">
 										{item.label}
 									</Link>
 								</li>

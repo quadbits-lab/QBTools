@@ -1,3 +1,4 @@
+import { SaveToMedia } from "#/components/kit/save-to-media";
 import "@fontsource/anton/400.css";
 import "@fontsource/bebas-neue/400.css";
 import { downloadBlob } from "@qbtools/engines/files";
@@ -329,6 +330,20 @@ export default function ThumbnailMaker() {
 					</Button>
 				</div>
 				{error && <Notice tone="caution">{error}</Notice>}
+				<SaveToMedia
+					name={`thumbnail.${format === "png" ? "png" : "jpg"}`}
+					prepare={async () => {
+						const canvas = canvasRef.current;
+						if (!canvas) return null;
+						for (const q of [0.92, 0.85, 0.75, 0.65, 0.5]) {
+							const blob = await new Promise<Blob | null>((resolve) =>
+								canvas.toBlob(resolve, format === "png" ? "image/png" : "image/jpeg", q),
+							);
+							if (blob && (format === "png" || blob.size <= MAX_BYTES || q === 0.5)) return blob;
+						}
+						return null;
+					}}
+				/>
 				<PrivacyNote />
 			</div>
 			<div className="flex flex-col gap-4">

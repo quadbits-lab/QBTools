@@ -1,26 +1,23 @@
-import { categories } from "@qbtools/registry";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select, Textarea } from "@qbtools/ui/input";
+import { Input, Textarea } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbtools/ui/tabs";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, Lightbulb, Mail } from "lucide-react";
+import { CheckCircle2, Mail } from "lucide-react";
 import { z } from "zod";
 import { HONEYPOT_PROPS, useFormSubmit } from "#/components/kit/use-form-submit";
 import { PageHero } from "#/components/page";
-import { contactSchema, suggestionSchema } from "#/lib/form-schemas";
+import { contactSchema } from "#/lib/form-schemas";
 import { seo } from "#/lib/seo";
 import { CONTACT_EMAIL } from "#/lib/site";
-import { submitContact, submitSuggestion } from "#/server/forms.functions";
+import { submitContact } from "#/server/forms.functions";
 
 export const Route = createFileRoute("/contact")({
-	validateSearch: z.object({ tab: z.enum(["contact", "suggest"]).optional().catch(undefined) }),
+	validateSearch: z.object({}),
 	head: () =>
 		seo({
-			title: "Contact Us & Suggest a Tool",
-			description:
-				"Questions, feedback or an idea for a new free tool? Send us a message or suggest a tool — we read everything.",
+			title: "Contact Us",
+			description: "Questions or feedback? Send us a message — we read everything.",
 			path: "/contact",
 		}),
 	component: ContactPage,
@@ -95,100 +92,23 @@ function ContactForm() {
 	);
 }
 
-function SuggestForm() {
-	const { errors, pending, done, onSubmit, reset } = useFormSubmit(
-		suggestionSchema,
-		useServerFn(submitSuggestion),
-	);
-	if (done) return <Success message={done} onAgain={reset} again="Suggest another tool" />;
-	return (
-		<form onSubmit={onSubmit} noValidate className="relative grid gap-5 sm:grid-cols-2">
-			<input {...HONEYPOT_PROPS} />
-			<Field
-				label="What tool should we build?"
-				htmlFor="s-title"
-				error={errors.title}
-				hint="For example: “JSON formatter” or “Unit converter”"
-				className="sm:col-span-2"
-			>
-				<Input id="s-title" name="title" required aria-invalid={Boolean(errors.title)} />
-			</Field>
-			<Field label="Category (optional)" htmlFor="s-category">
-				<Select id="s-category" name="category" defaultValue="">
-					<option value="">Not sure</option>
-					{categories.map((c) => (
-						<option key={c.id} value={c.id}>
-							{c.name}
-						</option>
-					))}
-					<option value="developer">Developer tools</option>
-					<option value="other">Something else</option>
-				</Select>
-			</Field>
-			<Field
-				label="Email (optional)"
-				htmlFor="s-email"
-				error={errors.email}
-				hint="We'll tell you when it's ready."
-			>
-				<Input
-					id="s-email"
-					name="email"
-					type="email"
-					autoComplete="email"
-					aria-invalid={Boolean(errors.email)}
-				/>
-			</Field>
-			<Field label="How would you use it? (optional)" htmlFor="s-details" className="sm:col-span-2">
-				<Textarea id="s-details" name="details" rows={4} />
-			</Field>
-			<div className="sm:col-span-2">
-				<Button type="submit" size="lg" disabled={pending}>
-					<Lightbulb /> {pending ? "Sending…" : "Suggest this tool"}
-				</Button>
-			</div>
-		</form>
-	);
-}
-
 function ContactPage() {
-	const { tab = "contact" } = Route.useSearch();
-	const navigate = useNavigate({ from: Route.fullPath });
 	return (
 		<>
 			<PageHero
 				eyebrow="We read every message"
-				title="Contact us & suggest a tool"
+				title="Contact us"
 				description={
 					<p>
-						Found a bug, have a question, or want a new tool? Use the form below or email{" "}
-						<a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-primary underline">
-							{CONTACT_EMAIL}
-						</a>
-						.
+						Found a bug or have a question? Send a message or email{" "}
+						<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 					</p>
 				}
 			/>
 			<div className="container-page py-10">
-				<Tabs
-					value={tab}
-					onValueChange={(value) =>
-						navigate({ search: { tab: value as "contact" | "suggest" }, replace: true })
-					}
-				>
-					<TabsList>
-						<TabsTrigger value="contact">Send a message</TabsTrigger>
-						<TabsTrigger value="suggest">Suggest a tool</TabsTrigger>
-					</TabsList>
-					<div className="mt-6 max-w-3xl border border-border bg-surface p-5 sm:p-8">
-						<TabsContent value="contact" className="mt-0">
-							<ContactForm />
-						</TabsContent>
-						<TabsContent value="suggest" className="mt-0">
-							<SuggestForm />
-						</TabsContent>
-					</div>
-				</Tabs>
+				<div className="max-w-3xl border border-border bg-surface p-5 sm:p-8">
+					<ContactForm />
+				</div>
 			</div>
 		</>
 	);

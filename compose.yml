@@ -24,6 +24,7 @@ services:
         required: false
     environment:
       DATABASE_PATH: /data/qbtools.db
+      PGLITE_DATA_DIR: /data/users
       PORT: "8310"
     ports:
       - "${PORT:-8310}:8310"
@@ -42,7 +43,7 @@ services:
       resources:
         limits:
           cpus: "1.0"
-          memory: 512M
+          memory: 1G
         reservations:
           memory: 128M
     healthcheck:
@@ -63,5 +64,24 @@ services:
         max-size: "10m"
         max-file: "3"
 
+# Optional, isolated local object storage. Production may use an existing RustFS.
+  rustfs:
+    profiles: [storage]
+    image: rustfs/rustfs:1.0.1
+    environment:
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-}
+      RUSTFS_CONSOLE_ENABLE: "true"
+    entrypoint: ["/bin/sh", "-ec"]
+    command: ['test -n "$$RUSTFS_ACCESS_KEY" && test -n "$$RUSTFS_SECRET_KEY" || { echo "Set unique RustFS credentials" >&2; exit 1; }; exec /entrypoint.sh /data']
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - rustfs-data:/data
+    restart: unless-stopped
+
 volumes:
   qbtools-data:
+
+  rustfs-data:

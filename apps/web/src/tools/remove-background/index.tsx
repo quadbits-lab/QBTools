@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 import { useObjectUrl } from "#/components/kit/use-object-url";
 import type { WorkerRequest, WorkerResponse } from "./worker";
 
@@ -228,6 +229,13 @@ export default function RemoveBackground() {
 					<RotateCcw /> Try another photo
 				</Button>
 				{error && <Notice tone="critical">{error}</Notice>}
+				<SaveToMedia
+					blob={result ?? undefined}
+					name={replaceExtension(file.name, background ? "jpg" : "png").replace(
+						/(\.\w+)$/,
+						"-no-bg$1",
+					)}
+				/>
 				<PrivacyNote text="The AI runs on your device — your photo is never uploaded." />
 			</div>
 		</div>

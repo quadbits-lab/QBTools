@@ -1,6 +1,7 @@
-export const userMigrations = [{
-	id: "0001_accounts_media",
-	sql: `
+export const userMigrations = [
+	{
+		id: "0001_accounts_media",
+		sql: `
 CREATE TABLE auth_user (id text PRIMARY KEY, name text NOT NULL, email text NOT NULL UNIQUE,
  email_verified boolean NOT NULL DEFAULT false, image text, created_at timestamptz NOT NULL, updated_at timestamptz NOT NULL);
 CREATE TABLE auth_session (id text PRIMARY KEY, token text NOT NULL UNIQUE, expires_at timestamptz NOT NULL,
@@ -40,4 +41,5 @@ CREATE TABLE media_asset (id uuid PRIMARY KEY, user_id text NOT NULL REFERENCES 
 CREATE INDEX media_asset_owner_idx ON media_asset(user_id,state,created_at DESC,id);
 CREATE INDEX media_asset_cleanup_idx ON media_asset(state,expires_at);
 `,
-}];
+	},
+];

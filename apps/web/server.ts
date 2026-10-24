@@ -556,6 +556,8 @@ async function initializeServer() {
 	const server = Bun.serve({
 		port: SERVER_PORT,
 		hostname: SERVER_HOST,
+		maxRequestBodySize: 100_000_000,
+		idleTimeout: 120,
 
 		routes: {
 			// Serve static assets (preloaded or on-demand)
@@ -572,6 +574,11 @@ async function initializeServer() {
 					const headers = new Headers(req.headers);
 					headers.set("x-qb-client-ip", ip);
 					const response = await handler.fetch(new Request(req, { headers }));
+					if (
+						/^\/(dashboard|login|api\/(auth|media|account))(\/|$)/.test(new URL(req.url).pathname)
+					) {
+						response.headers.set("Cache-Control", "private, no-store");
+					}
 					return withSecurityHeaders(compressDynamic(req, response));
 				} catch (error) {
 					log.error(`Server handler error: ${String(error)}`);

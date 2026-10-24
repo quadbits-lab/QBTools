@@ -1,6 +1,6 @@
 # QBTools — Free tools that just work
 
-A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 31 tools across image, PDF, text, calculators, generators, media and security. Files are processed **in the browser**, so they are never uploaded or stored.
+A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 31 tools across image, PDF, text, calculators, generators, media and security. Files are processed **in the browser**, with optional, explicit uploads to private account storage.
 
 **Stack:** Bun 1.4 · TanStack Start (React 19, SSR, server functions) · Vite 8 · Tailwind CSS 4 · SQLite (`bun:sqlite` + Drizzle) · Turborepo · Biome · Docker / Compose.
 
@@ -98,7 +98,7 @@ Every option is documented in [.env.example](.env.example). The important ones:
 
 ## Privacy and security
 
-- **Browser-only processing.** Image, PDF, media, calculator and generator tools run entirely in the browser. Each tool page shows a "0 bytes uploaded" badge.
+- **Browser-only processing.** Image, PDF, media, calculator and generator tools run entirely in the browser. Saving outputs to Media Storage is an explicit, authenticated action.
 - **AI text helpers.** These are the only tools that send content to a server, and both the page and the Privacy Policy say so. Input is capped (5,000 characters by default) and rate-limited per IP.
 - **Forms.** Every form is validated with zod on the client and again on the server, and has a honeypot field and per-IP rate limits.
 - **Admin.** The admin cookie is an HMAC of the token (HttpOnly, SameSite=Strict). Every admin server function checks it.
@@ -119,3 +119,7 @@ Every option is documented in [.env.example](.env.example). The important ones:
 - **Background remover.** Uses [ormbg](https://huggingface.co/onnx-community/ormbg-ONNX) (Apache-2.0) through transformers.js on WASM. The ~44MB model downloads once from Hugging Face, then the browser caches it.
 - **Passphrases.** Use the EFF Short Wordlist (CC BY 3.0 US).
 - **Fonts.** Plus Jakarta Sans, Anton, Bebas Neue, Dancing Script, Great Vibes, Sacramento and Caveat (all OFL) are self-hosted via Fontsource.
+
+## GitHub accounts and private storage
+
+See [account and RustFS setup](docs/AUTH-STORAGE.md) for OAuth, PGlite persistence, quotas, backups, and integration tests. Public tools remain available without signing in.

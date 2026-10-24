@@ -7,7 +7,7 @@ export const Route = createFileRoute("/privacy")({
 	head: () =>
 		seo({
 			title: "Privacy Policy",
-			description: `How ${SITE_NAME} handles your data: files stay on your device, minimal data collection, and your choices.`,
+			description: `How ${SITE_NAME} handles your data: local processing, optional private Media Storage, and your choices.`,
 			path: "/privacy",
 		}),
 	component: () => (
@@ -15,14 +15,24 @@ export const Route = createFileRoute("/privacy")({
 			<p>
 				This policy explains what information {SITE_NAME} (“we”, “us”) collects when you use our
 				website, and how we use it. The short version:{" "}
-				<strong>your files stay on your device, and we collect as little as possible.</strong>
+				<strong>processing stays on your device; uploading to your account is optional.</strong>
 			</p>
 			<h2>1. Files you process</h2>
 			<p>
 				Our image, PDF, media, calculator and generator tools run entirely in your web browser.
-				Files you choose are read by your own device and are{" "}
-				<strong>never uploaded to or stored on our servers</strong>. When you close the page, they
-				are gone.
+				Files you choose are processed by your device. Choosing Upload or Save to Media sends the
+				selected file to our private object storage; it remains in your account until you delete it.
+				Local processing inputs are not automatically uploaded.
+			</p>
+			<h2>Accounts and Media Storage</h2>
+			<p>
+				GitHub sign-in provides your name, email, avatar, and provider identifier. We store your
+				account and sessions in PGlite and selected assets in private RustFS storage. Storage is
+				limited to 10 GB per account and 100 MB per file. Tool input contents, passwords, and hashes
+				are not added to recent history. You can clear history, delete saved assets, and revoke
+				sessions in your dashboard. Deletion retries may temporarily retain files and quota while
+				storage is unavailable. Backups follow the site operator’s retention schedule. Contact us to
+				request account deletion.
 			</p>
 			<h2>2. AI text helpers</h2>
 			<p>
@@ -33,14 +43,15 @@ export const Route = createFileRoute("/privacy")({
 			</p>
 			<h2>3. Information you send us</h2>
 			<p>
-				When you use the contact form, suggest a tool, request a quote or join the Premium waitlist,
-				we store the details you enter (such as your name, email and message) so we can reply. We
-				keep messages for up to 24 months and never sell them.
+				When you use the contact form, request a quote or join the Premium waitlist, we store the
+				details you enter (such as your name, email and message) so we can reply. We keep messages
+				for up to 24 months and never sell them.
 			</p>
 			<h2>4. Information stored on your device</h2>
 			<p>
 				We use your browser's local storage for features you control: your theme choice, recently
-				used and saved tools, invoice drafts and your cookie choice. This data never leaves your
+				used and saved tools, invoice drafts and your cookie choice. When signed in, favorites,
+				recent tool names, and preferences sync to your account. Anonymous settings remain on this
 				device. You can clear it at any time in your browser settings.
 			</p>
 			<h2>5. Analytics</h2>

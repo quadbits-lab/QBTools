@@ -1,13 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
-import {
-	contactMessages,
-	count,
-	desc,
-	getDb,
-	premiumWaitlist,
-	serviceLeads,
-	toolSuggestions,
-} from "@qbtools/db";
+import { contactMessages, count, desc, getDb, premiumWaitlist, serviceLeads } from "@qbtools/db";
 import { createServerFn } from "@tanstack/react-start";
 import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
@@ -67,13 +59,8 @@ export const adminLogoutFn = createServerFn({ method: "POST" }).handler(async ()
 export const adminDataFn = createServerFn({ method: "GET" }).handler(async () => {
 	if (!isAdmin()) return { authorized: false as const, enabled: Boolean(getEnv().ADMIN_TOKEN) };
 	const db = getDb();
-	const [contacts, suggestions, leads, waitlist, waitlistCount] = await Promise.all([
+	const [contacts, leads, waitlist, waitlistCount] = await Promise.all([
 		db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt)).limit(200),
-		db
-			.select()
-			.from(toolSuggestions)
-			.orderBy(desc(toolSuggestions.votes), desc(toolSuggestions.createdAt))
-			.limit(200),
 		db.select().from(serviceLeads).orderBy(desc(serviceLeads.createdAt)).limit(200),
 		db.select().from(premiumWaitlist).orderBy(desc(premiumWaitlist.createdAt)).limit(200),
 		db.select({ n: count() }).from(premiumWaitlist),
@@ -83,7 +70,6 @@ export const adminDataFn = createServerFn({ method: "GET" }).handler(async () =>
 	return {
 		authorized: true as const,
 		contacts: iso(contacts),
-		suggestions: iso(suggestions),
 		leads: iso(leads),
 		waitlist: iso(waitlist),
 		waitlistTotal: waitlistCount[0]?.n ?? 0,

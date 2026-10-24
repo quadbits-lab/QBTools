@@ -201,15 +201,7 @@ function AllToolsPage() {
 						<div className="mt-8 border border-dashed border-border p-12 text-center">
 							<p className="text-lg font-medium text-foreground">No tool matches found</p>
 							<p className="mt-2 text-muted-foreground">
-								Can't find what you need?{" "}
-								<Link
-									to="/contact"
-									search={{ tab: "suggest" }}
-									className="font-medium text-primary underline"
-								>
-									Suggest a new tool
-								</Link>{" "}
-								and we will prioritize building it.
+								Try another search term or browse a different category.
 							</p>
 						</div>
 					) : (

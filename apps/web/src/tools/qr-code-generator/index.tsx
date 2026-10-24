@@ -10,6 +10,7 @@ import QRCode from "qrcode";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 
 const KINDS: { value: QrKind; label: string }[] = [
 	{ value: "url", label: "Link" },
@@ -321,6 +322,34 @@ export default function QrCodeGenerator() {
 						<Download /> SVG
 					</Button>
 				</div>
+				<SaveToMedia
+					name="qr-code.png"
+					prepare={async () => {
+						const url = await QRCode.toDataURL(payload, {
+							width: 1024,
+							margin: 2,
+							errorCorrectionLevel: ecl,
+							color: { dark: fg, light: bg },
+						});
+						return (await fetch(url)).blob();
+					}}
+				/>
+				<SaveToMedia
+					name="qr-code.svg"
+					prepare={async () =>
+						new Blob(
+							[
+								await QRCode.toString(payload, {
+									type: "svg",
+									margin: 2,
+									errorCorrectionLevel: ecl,
+									color: { dark: fg, light: bg },
+								}),
+							],
+							{ type: "image/svg+xml" },
+						)
+					}
+				/>
 				<PrivacyNote text="Made on your device. Never expires, no tracking." />
 			</div>
 		</div>

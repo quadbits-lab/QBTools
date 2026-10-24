@@ -162,9 +162,7 @@ function AdminPage() {
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<h1 className="text-3xl font-medium tracking-[-0.035em]">Admin</h1>
-					<p className="mt-1 text-muted-foreground">
-						Messages, tool ideas, leads and the Premium waitlist.
-					</p>
+					<p className="mt-1 text-muted-foreground">Messages, leads and the Premium waitlist.</p>
 				</div>
 				<Button
 					variant="secondary"
@@ -176,11 +174,8 @@ function AdminPage() {
 					<LogOut className="size-4" /> Sign out
 				</Button>
 			</div>
-			<Tabs defaultValue="suggestions" className="mt-8">
+			<Tabs defaultValue="contacts" className="mt-8">
 				<TabsList>
-					<TabsTrigger value="suggestions">
-						Tool ideas <Badge className="ml-1">{data.suggestions.length}</Badge>
-					</TabsTrigger>
 					<TabsTrigger value="contacts">
 						Messages <Badge className="ml-1">{data.contacts.length}</Badge>
 					</TabsTrigger>
@@ -191,20 +186,6 @@ function AdminPage() {
 						Waitlist <Badge className="ml-1">{data.waitlistTotal}</Badge>
 					</TabsTrigger>
 				</TabsList>
-				<TabsContent value="suggestions">
-					<DataTable
-						name="tool-ideas"
-						rows={data.suggestions}
-						columns={[
-							{ key: "votes", label: "Votes", mono: true },
-							{ key: "title", label: "Tool" },
-							{ key: "category", label: "Category" },
-							{ key: "details", label: "Details" },
-							{ key: "email", label: "Email" },
-							{ key: "createdAt", label: "Date" },
-						]}
-					/>
-				</TabsContent>
 				<TabsContent value="contacts">
 					<DataTable
 						name="messages"

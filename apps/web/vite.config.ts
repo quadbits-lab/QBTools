@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => ({
 		// node_modules. Dev keeps Vite's defaults (CJS deps can't be inlined there).
 		// Bun's built-in sqlite module always stays external.
 		...(command === "build" ? { noExternal: true } : {}),
-		external: ["bun:sqlite"],
+		external: ["bun:sqlite", "@electric-sql/pglite"],
 	},
 	optimizeDeps: {
 		// Workers and WASM inside these load relative to their own module URL.

@@ -2,6 +2,7 @@ import { downloadBlob } from "@qbtools/engines/files";
 import { Button } from "@qbtools/ui/button";
 import { formatBytes } from "@qbtools/ui/utils";
 import { CheckCircle2, Download } from "lucide-react";
+import { SaveToMedia } from "./save-to-media";
 
 export function ResultDownload({
 	blob,
@@ -32,6 +33,7 @@ export function ResultDownload({
 				</p>
 				{extra}
 			</div>
+			<SaveToMedia blob={blob} name={name} />
 			<Button size="lg" arrow onClick={() => downloadBlob(blob, name)}>
 				<Download /> Download
 			</Button>

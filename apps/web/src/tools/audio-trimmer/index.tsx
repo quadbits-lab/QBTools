@@ -12,6 +12,7 @@ import type { Region } from "wavesurfer.js/plugins/regions";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 import { TaskProgress } from "#/components/kit/task-progress";
 import { useTask } from "#/lib/processing/use-task";
 
@@ -244,6 +245,10 @@ export default function AudioTrimmer() {
 				WAV and FLAC preserve decoded audio without further lossy compression. They do not restore
 				quality lost in the source.
 			</p>
+			<SaveToMedia
+				blob={exportTask.result ?? undefined}
+				name={replaceExtension(file.name, format).replace(/(\.\w+)$/, "-trimmed$1")}
+			/>
 			<PrivacyNote />
 		</div>
 	);

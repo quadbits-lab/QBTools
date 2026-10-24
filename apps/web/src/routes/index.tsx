@@ -561,11 +561,6 @@ function InteractiveToolsExplorer() {
 						>
 							Clear filters
 						</Button>
-						<Button asChild size="sm">
-							<Link to="/contact" search={{ tab: "suggest" }}>
-								Suggest this tool
-							</Link>
-						</Button>
 					</div>
 				</div>
 			) : viewMode === "compact" ? (
@@ -642,7 +637,7 @@ function ArchitectureComparison() {
 							<h4 className="text-base font-medium">100% Private Result</h4>
 							<p className="text-sm text-muted-foreground">
 								A native blob URL triggers an immediate browser download. No traces, zero cloud
-								storage, absolute privacy.
+								storage unless you choose Save to Media.
 							</p>
 						</div>
 					</div>
@@ -711,7 +706,8 @@ function HomePage() {
 						<div className="flex flex-col gap-4">
 							<p className="max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
 								Compress photos, merge PDFs, generate QR codes, count words, and calculate EMI —
-								processed 100% locally in your browser with zero server uploads and total privacy.
+								processed locally in your browser. Signed-in users can optionally save files to
+								private Media Storage.
 							</p>
 							{/* Quick trust metrics */}
 							<div className="flex flex-wrap items-center gap-4 pt-2 text-xs font-mono text-subtle">
@@ -783,7 +779,7 @@ function HomePage() {
 					kicker="Privacy Architecture"
 					title={`Why people choose ${SITE_NAME}`}
 					id="why"
-					description="See how our local in-browser architecture guarantees your privacy and eliminates latency."
+					description="See how our local in-browser architecture keeps processing local and lets you choose what to save."
 				/>
 
 				<ArchitectureComparison />

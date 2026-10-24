@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 import { TaskProgress } from "#/components/kit/task-progress";
 import { useTask } from "#/lib/processing/use-task";
 import { ProcessingWorker } from "#/lib/processing/worker-client";
@@ -164,6 +165,10 @@ function OcrResults({
 				>
 					Download TXT
 				</Button>
+				<SaveToMedia
+					name={replaceExtension(file?.name ?? "extracted", "txt")}
+					prepare={async () => new Blob([text], { type: "text/plain;charset=utf-8" })}
+				/>
 			</div>
 			<p aria-live="polite">{copyMessage}</p>
 		</div>

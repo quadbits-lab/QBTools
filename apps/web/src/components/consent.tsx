@@ -43,7 +43,7 @@ export function ConsentBanner() {
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center">
 				<Cookie className="hidden size-7 shrink-0 sm:block" strokeWidth={1.5} />
 				<p className="text-[0.95rem] leading-relaxed">
-					We use cookies only to show ads that keep QBTools free. Your files are never involved. You
+					Optional advertising cookies support QBTools. Essential sign-in cookies are separate. You
 					can say no — every tool still works.{" "}
 					<Link to="/cookies" className="text-foreground underline underline-offset-4">
 						Learn more

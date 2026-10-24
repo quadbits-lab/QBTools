@@ -57,15 +57,58 @@ export function createLocalStore<T>(key: string, fallback: T) {
 }
 
 const MAX_RECENT = 8;
-export const recentTools = createLocalStore<string[]>("qbtools.recent", []);
-export const favoriteTools = createLocalStore<string[]>("qbtools.favorites", []);
+export const guestRecentTools = createLocalStore<string[]>("qbtools.recent", []);
+export const guestFavoriteTools = createLocalStore<string[]>("qbtools.favorites", []);
+let account: {
+	favorites: string[];
+	recent: string[];
+	save: (kind: "favorite" | "recent" | "clear", slug: string, saved?: boolean) => void;
+} | null = null;
+const personalListeners = new Set<() => void>();
+export function setAccountTools(next: typeof account) {
+	account = next;
+	for (const listener of personalListeners) listener();
+}
+function toolStore(kind: "favorites" | "recent", guest: typeof guestFavoriteTools) {
+	const read = () => account?.[kind] ?? guest.read();
+	const subscribe = (listener: () => void) => {
+		personalListeners.add(listener);
+		const onStorage = () => listener();
+		window.addEventListener("storage", onStorage);
+		return () => {
+			personalListeners.delete(listener);
+			window.removeEventListener("storage", onStorage);
+		};
+	};
+	const write = (next: string[]) => {
+		if (account && kind === "recent") account.save("clear", "");
+		else {
+			guest.write(next);
+			for (const listener of personalListeners) listener();
+		}
+	};
+	return { read, write, use: () => useSyncExternalStore(subscribe, read, () => EMPTY_TOOLS) };
+}
+const EMPTY_TOOLS: string[] = [];
+export const recentTools = toolStore("recent", guestRecentTools);
+export const favoriteTools = toolStore("favorites", guestFavoriteTools);
 
 export function markToolUsed(slug: string) {
-	recentTools.update((list) => [slug, ...list.filter((s) => s !== slug)].slice(0, MAX_RECENT));
+	if (account) {
+		account.save("recent", slug);
+		return;
+	}
+	guestRecentTools.update((list) => [slug, ...list.filter((s) => s !== slug)].slice(0, MAX_RECENT));
+	for (const listener of personalListeners) listener();
 }
 
 export function toggleFavorite(slug: string) {
-	favoriteTools.update((list) =>
+	if (account) {
+		account.save("favorite", slug, !account.favorites.includes(slug));
+		return;
+	}
+	guestFavoriteTools.update((list) =>
 		list.includes(slug) ? list.filter((s) => s !== slug) : [slug, ...list],
 	);
+	for (const listener of personalListeners) listener();
 }

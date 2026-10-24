@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
+import { SaveToMedia } from "#/components/kit/save-to-media";
 import { useObjectUrl } from "#/components/kit/use-object-url";
 import { boolParam, numParam, strParam, type ToolWidgetProps } from "../types";
 
@@ -278,6 +279,10 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 						<Download /> Download ({formatBytes(result.size)})
 					</Button>
 				)}
+				<SaveToMedia
+					blob={result ?? undefined}
+					name={suffixFilename(file.name, `${target.w}x${target.h}`, ext)}
+				/>
 				<PrivacyNote />
 			</div>
 		</div>

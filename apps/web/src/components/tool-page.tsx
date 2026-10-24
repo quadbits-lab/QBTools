@@ -7,6 +7,7 @@ import { Check, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { Component, type ReactNode, Suspense, useEffect } from "react";
 import { favoriteTools, markToolUsed, toggleFavorite } from "#/lib/local-store";
 import { widgets } from "#/tools/widgets";
+import { useAccount } from "./account-provider";
 import { AdSlot } from "./ad-slot";
 import { Breadcrumbs } from "./breadcrumbs";
 import { FaqList } from "./faq";
@@ -59,11 +60,14 @@ function FavoriteButton({ slug }: { slug: string }) {
 }
 
 export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset }) {
+	const { pending } = useAccount();
 	const category = categoryById[tool.category];
 	const Widget = widgets[tool.slug];
 	const related = relatedTools(tool);
 
-	useEffect(() => markToolUsed(tool.slug), [tool.slug]);
+	useEffect(() => {
+		if (!pending) markToolUsed(tool.slug);
+	}, [tool.slug, pending]);
 
 	return (
 		<div className="container-page pt-8 pb-4 sm:pt-12">

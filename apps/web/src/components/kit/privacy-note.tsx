@@ -1,7 +1,7 @@
 import { ShieldCheck } from "lucide-react";
 
 export function PrivacyNote({
-	text = "Processed on your device — 0 bytes uploaded",
+	text = "Processed on your device. Uploads happen only when you choose Save to Media.",
 }: {
 	text?: string;
 }) {
