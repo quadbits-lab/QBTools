@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Star } from "lucide-react";
 import { categoryShortName, categoryStyles, iconFor } from "#/lib/icons";
 import { favoriteTools, toggleFavorite } from "#/lib/local-store";
+import { useAccount } from "./account-provider";
 import { CategoryBadge, ToolFlags } from "./tool-flags";
 
 const TILE_SIZE = {
@@ -48,7 +49,9 @@ function GoCell() {
 }
 
 export function FavoriteButton({ tool, className }: { tool: ToolDef; className?: string }) {
+	const { user } = useAccount();
 	const favorites = favoriteTools.use();
+	if (!user) return null;
 	const isFavorite = favorites.includes(tool.slug);
 	return (
 		<button

@@ -1,7 +1,8 @@
 import { type CategoryId, categoryById, isCategoryId, tools } from "@qbtools/registry";
 import { Badge } from "@qbtools/ui/badge";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@qbtools/ui/table";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, ChevronLeft, ChevronRight, Search } from "lucide-react";
@@ -94,40 +95,40 @@ export function ToolsTable() {
 					/>
 				</div>
 				<Select
-					aria-label="Category"
 					value={category}
-					onChange={(e) => {
-						const v = e.target.value;
-						onFilter(setCategory)(isCategoryId(v) ? v : "all");
-					}}
-					className="w-44"
+					onValueChange={(v) => onFilter(setCategory)(isCategoryId(v) ? v : "all")}
 				>
-					<option value="all">All categories</option>
-					{categoriesWithTools.map((id) => (
-						<option key={id} value={id}>
-							{categoryById[id].name}
-						</option>
-					))}
+					<SelectTrigger aria-label="Category" className="w-44">
+						<SelectValue placeholder="All categories" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All categories</SelectItem>
+						{categoriesWithTools.map((id) => (
+							<SelectItem key={id} value={id}>
+								{categoryById[id].name}
+							</SelectItem>
+						))}
+					</SelectContent>
 				</Select>
-				<Select
-					aria-label="Runtime"
-					value={runtime}
-					onChange={(e) => onFilter(setRuntime)(e.target.value as Runtime)}
-					className="w-40"
-				>
-					<option value="all">All runtimes</option>
-					<option value="browser">Private (browser)</option>
-					<option value="server-ai">AI (server)</option>
+				<Select value={runtime} onValueChange={(v) => onFilter(setRuntime)(v as Runtime)}>
+					<SelectTrigger aria-label="Runtime" className="w-40">
+						<SelectValue placeholder="All runtimes" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All runtimes</SelectItem>
+						<SelectItem value="browser">Private (browser)</SelectItem>
+						<SelectItem value="server-ai">AI (server)</SelectItem>
+					</SelectContent>
 				</Select>
-				<Select
-					aria-label="Sort"
-					value={sort}
-					onChange={(e) => onFilter(setSort)(e.target.value as Sort)}
-					className="ml-auto w-48"
-				>
-					<option value="name">Sort: Name (A–Z)</option>
-					<option value="popular">Sort: Popular</option>
-					<option value="category">Sort: Category</option>
+				<Select value={sort} onValueChange={(v) => onFilter(setSort)(v as Sort)}>
+					<SelectTrigger aria-label="Sort" className="ml-auto w-48">
+						<SelectValue placeholder="Sort by" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="name">Sort: Name (A–Z)</SelectItem>
+						<SelectItem value="popular">Sort: Popular</SelectItem>
+						<SelectItem value="category">Sort: Category</SelectItem>
+					</SelectContent>
 				</Select>
 			</div>
 

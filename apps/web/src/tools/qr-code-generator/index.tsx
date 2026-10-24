@@ -1,9 +1,10 @@
 import { downloadBlob } from "@qbtools/engines/files";
 import { normalizeUrl, type QrKind, vcardPayload, wifiPayload } from "@qbtools/engines/generators";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select, Textarea } from "@qbtools/ui/input";
+import { Input, Textarea } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Switch } from "@qbtools/ui/switch";
 import { Download } from "lucide-react";
 import QRCode from "qrcode";
@@ -162,15 +163,19 @@ export default function QrCodeGenerator() {
 						</Field>
 						<Field label="Security" htmlFor="qr-enc">
 							<Select
-								id="qr-enc"
 								value={wifi.encryption}
-								onChange={(e) =>
-									setWifi({ ...wifi, encryption: e.target.value as typeof wifi.encryption })
+								onValueChange={(val) =>
+									setWifi({ ...wifi, encryption: val as typeof wifi.encryption })
 								}
 							>
-								<option value="WPA">WPA / WPA2 / WPA3</option>
-								<option value="WEP">WEP</option>
-								<option value="nopass">No password</option>
+								<SelectTrigger id="qr-enc" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="WPA">WPA / WPA2 / WPA3</SelectItem>
+									<SelectItem value="WEP">WEP</SelectItem>
+									<SelectItem value="nopass">No password</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 						{wifi.encryption !== "nopass" && (
@@ -274,11 +279,16 @@ export default function QrCodeGenerator() {
 						/>
 					</Field>
 					<Field label="Error correction" htmlFor="qr-ecl" className="col-span-2 sm:col-span-1">
-						<Select id="qr-ecl" value={ecl} onChange={(e) => setEcl(e.target.value as typeof ecl)}>
-							<option value="L">Low (7%)</option>
-							<option value="M">Medium (15%)</option>
-							<option value="Q">High (25%)</option>
-							<option value="H">Max (30%)</option>
+						<Select value={ecl} onValueChange={(val) => setEcl(val as typeof ecl)}>
+							<SelectTrigger id="qr-ecl" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="L">Low (7%)</SelectItem>
+								<SelectItem value="M">Medium (15%)</SelectItem>
+								<SelectItem value="Q">High (25%)</SelectItem>
+								<SelectItem value="H">Max (30%)</SelectItem>
+							</SelectContent>
 						</Select>
 					</Field>
 				</div>

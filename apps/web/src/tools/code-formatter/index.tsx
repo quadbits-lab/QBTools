@@ -9,9 +9,10 @@ import {
 	type SqlDialect,
 } from "@qbtools/engines/format";
 import { Button } from "@qbtools/ui/button";
-import { Select, Textarea } from "@qbtools/ui/input";
+import { Textarea } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { useState } from "react";
 import { CopyButton } from "#/components/kit/copy-button";
 import { FileDrop } from "#/components/kit/file-drop";
@@ -66,43 +67,55 @@ export default function CodeFormatter() {
 			<div className="grid gap-4 sm:grid-cols-2">
 				<Field label="Language" htmlFor="fmt-language">
 					<Select
-						id="fmt-language"
 						value={settings.language}
-						onChange={(e) => update({ language: e.target.value as LanguageId })}
+						onValueChange={(val) => update({ language: val as LanguageId })}
 					>
-						{LANGUAGES.map((item) => (
-							<option key={item.id} value={item.id}>
-								{item.label}
-							</option>
-						))}
+						<SelectTrigger id="fmt-language" className="w-full">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{LANGUAGES.map((item) => (
+								<SelectItem key={item.id} value={item.id}>
+									{item.label}
+								</SelectItem>
+							))}
+						</SelectContent>
 					</Select>
 				</Field>
 				{settings.language === "sql" ? (
 					<Field label="SQL dialect" htmlFor="fmt-dialect">
 						<Select
-							id="fmt-dialect"
 							value={settings.sqlDialect}
-							onChange={(e) => update({ sqlDialect: e.target.value as SqlDialect })}
+							onValueChange={(val) => update({ sqlDialect: val as SqlDialect })}
 						>
-							{SQL_DIALECTS.map((item) => (
-								<option key={item.id} value={item.id}>
-									{item.label}
-								</option>
-							))}
+							<SelectTrigger id="fmt-dialect" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{SQL_DIALECTS.map((item) => (
+									<SelectItem key={item.id} value={item.id}>
+										{item.label}
+									</SelectItem>
+								))}
+							</SelectContent>
 						</Select>
 					</Field>
 				) : (
 					<Field label="Line width" htmlFor="fmt-width">
 						<Select
-							id="fmt-width"
-							value={settings.printWidth}
-							onChange={(e) => update({ printWidth: Number(e.target.value) })}
+							value={String(settings.printWidth)}
+							onValueChange={(val) => update({ printWidth: Number(val) })}
 						>
-							{[60, 80, 100, 120].map((width) => (
-								<option key={width} value={width}>
-									{width} characters
-								</option>
-							))}
+							<SelectTrigger id="fmt-width" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{[60, 80, 100, 120].map((width) => (
+									<SelectItem key={width} value={String(width)}>
+										{width} characters
+									</SelectItem>
+								))}
+							</SelectContent>
 						</Select>
 					</Field>
 				)}

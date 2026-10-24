@@ -3,9 +3,10 @@ import { decodeImage, drawToCanvas } from "@qbtools/engines/image";
 import type { EncodingMode, OptimizedFormat } from "@qbtools/engines/image-codecs";
 import { checkAbort, checkImageSize } from "@qbtools/engines/processing";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Slider } from "@qbtools/ui/slider";
 import { useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
@@ -65,19 +66,23 @@ export default function ConvertImage({ params }: ToolWidgetProps) {
 			/>
 			<Field label="Convert to" htmlFor="convert-to">
 				<Select
-					id="convert-to"
 					value={to}
-					onChange={(e) => {
-						const value = e.target.value as OptimizedFormat;
-						setTo(value);
-						if (value === "avif") setMode("optimized");
+					onValueChange={(value) => {
+						const next = value as OptimizedFormat;
+						setTo(next);
+						if (next === "avif") setMode("optimized");
 					}}
 				>
-					{Object.entries(OUTPUT_EXT).map(([format, ext]) => (
-						<option key={format} value={format}>
-							{ext.toUpperCase()}
-						</option>
-					))}
+					<SelectTrigger id="convert-to" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{Object.entries(OUTPUT_EXT).map(([format, ext]) => (
+							<SelectItem key={format} value={format}>
+								{ext.toUpperCase()}
+							</SelectItem>
+						))}
+					</SelectContent>
 				</Select>
 			</Field>
 			{to !== "png" && (

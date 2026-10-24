@@ -3,6 +3,7 @@ import { Badge } from "@qbtools/ui/badge";
 import { Button } from "@qbtools/ui/button";
 import { Input } from "@qbtools/ui/input";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { cn } from "@qbtools/ui/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -19,6 +20,7 @@ import {
 	Zap,
 } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useAccount } from "#/components/account-provider";
 import { CategoryCard } from "#/components/category-card";
 import { FilterChip } from "#/components/filter-chip";
 import { HeroHologram } from "#/components/hero-hologram";
@@ -159,14 +161,16 @@ function SectionHead({
 
 /** Favorites and recent tools, shown only once there is something to show. */
 function PersonalShelf() {
+	const { user } = useAccount();
 	const recent = recentTools.use();
-	const favorites = favoriteTools.use();
+	const rawFavorites = favoriteTools.use();
+	const favorites = user ? rawFavorites : [];
 	const [tab, setTab] = useState<"all" | "favorites" | "recent">("all");
 	const [mounted, setMounted] = useState(false);
 	useEffect(() => setMounted(true), []);
 
 	const allSlugs = [...new Set([...favorites, ...recent])];
-	const slugs = tab === "favorites" ? favorites : tab === "recent" ? recent : allSlugs;
+	const slugs = tab === "favorites" && user ? favorites : tab === "recent" ? recent : allSlugs;
 	const list = slugs.map(getTool).filter((t) => t !== undefined);
 	if (!mounted || allSlugs.length === 0) return null;
 
@@ -177,21 +181,23 @@ function PersonalShelf() {
 					<div>
 						<p className="label-mono !text-subtle">Your workspace</p>
 						<h2 id="your-tools" className="mt-1 text-xl font-semibold tracking-[-0.02em]">
-							Pinned &amp; recent tools
+							{user ? "Pinned & recent tools" : "Recent tools"}
 						</h2>
 					</div>
 					<div className="flex w-full items-center gap-2 sm:w-auto">
-						<Segmented
-							label="Show"
-							value={tab}
-							onChange={setTab}
-							options={[
-								{ value: "all", label: `All ${allSlugs.length}` },
-								{ value: "favorites", label: `Saved ${favorites.length}` },
-								{ value: "recent", label: `Recent ${recent.length}` },
-							]}
-							className="min-w-0 flex-1 sm:flex-none"
-						/>
+						{user && (
+							<Segmented
+								label="Show"
+								value={tab}
+								onChange={setTab}
+								options={[
+									{ value: "all", label: `All ${allSlugs.length}` },
+									{ value: "favorites", label: `Saved ${favorites.length}` },
+									{ value: "recent", label: `Recent ${recent.length}` },
+								]}
+								className="min-w-0 flex-1 sm:flex-none"
+							/>
+						)}
 						{recent.length > 0 && (
 							<Button
 								variant="outline"
@@ -210,7 +216,7 @@ function PersonalShelf() {
 				<div className="mt-4">
 					{list.length === 0 ? (
 						<p className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
-							{tab === "favorites"
+							{tab === "favorites" && user
 								? "No saved tools yet. Star a tool to pin it here."
 								: "No recent tools yet. Open a tool and it will appear here."}
 						</p>
@@ -313,16 +319,16 @@ function ToolsDirectory() {
 							</button>
 						)}
 					</div>
-					<select
-						aria-label="Sort tools"
-						value={sortBy}
-						onChange={(e) => setSortBy(e.target.value as SortBy)}
-						className="h-10 w-full cursor-pointer rounded-lg border border-input bg-background px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:w-auto"
-					>
-						<option value="popular">Sort: Popular</option>
-						<option value="name">Sort: Name (A–Z)</option>
-						<option value="category">Sort: Category</option>
-					</select>
+					<Select value={sortBy} onValueChange={(val) => setSortBy(val as SortBy)}>
+						<SelectTrigger aria-label="Sort tools" className="h-10 w-full sm:w-[170px]">
+							<SelectValue placeholder="Sort: Popular" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="popular">Sort: Popular</SelectItem>
+							<SelectItem value="name">Sort: Name (A–Z)</SelectItem>
+							<SelectItem value="category">Sort: Category</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
 
 				<div className="mt-4 flex flex-col gap-3 border-t border-border/70 pt-4">

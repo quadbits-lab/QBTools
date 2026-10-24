@@ -1,8 +1,9 @@
 import { suffixFilename } from "@qbtools/engines/files";
 import type { AudioFormat, Resolution, VideoInfo, VideoPreset } from "@qbtools/engines/media";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { useEffect, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
@@ -123,17 +124,21 @@ export function MediaTool({ kind }: { kind: Kind }) {
 			/>
 			<Field label="Processing mode" htmlFor="media-backend">
 				<Select
-					id="media-backend"
 					value={backend}
 					disabled={busy}
-					onChange={(e) => {
-						const value = e.target.value as typeof backend;
+					onValueChange={(val) => {
+						const value = val as typeof backend;
 						setBackend(value);
 						if (value === "compatibility") setFormat("mp4");
 					}}
 				>
-					<option value="native">Fast — native codecs</option>
-					<option value="compatibility">Compatibility mode — up to 128 MiB</option>
+					<SelectTrigger id="media-backend" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="native">Fast — native codecs</SelectItem>
+						<SelectItem value="compatibility">Compatibility mode — up to 128 MiB</SelectItem>
+					</SelectContent>
 				</Select>
 			</Field>
 			{backend === "compatibility" && (
@@ -183,49 +188,61 @@ export function MediaTool({ kind }: { kind: Kind }) {
 					<>
 						<Field label="Output format" htmlFor="media-format">
 							<Select
-								id="media-format"
 								value={format}
-								onChange={(e) => {
+								onValueChange={(val) => {
 									reset();
-									setFormat(e.target.value as typeof format);
+									setFormat(val as typeof format);
 								}}
 							>
-								<option value="mp4">MP4 — H.264 / AAC</option>
-								<option value="webm" disabled={backend === "compatibility"}>
-									WebM — VP9 / Opus (native mode)
-								</option>
+								<SelectTrigger id="media-format" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="mp4">MP4 — H.264 / AAC</SelectItem>
+									<SelectItem value="webm" disabled={backend === "compatibility"}>
+										WebM — VP9 / Opus (native mode)
+									</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 						<Field label="Quality" htmlFor="video-quality">
 							<Select
-								id="video-quality"
 								value={preset}
-								onChange={(e) => {
+								onValueChange={(val) => {
 									reset();
-									setPreset(e.target.value as VideoPreset);
+									setPreset(val as VideoPreset);
 								}}
 							>
-								<option value="high">High quality</option>
-								<option value="balanced">Balanced</option>
-								<option value="small">Small</option>
-								<option value="tiny">Tiny</option>
+								<SelectTrigger id="video-quality" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="high">High quality</SelectItem>
+									<SelectItem value="balanced">Balanced</SelectItem>
+									<SelectItem value="small">Small</SelectItem>
+									<SelectItem value="tiny">Tiny</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 						<Field label="Resolution" htmlFor="video-resolution">
 							<Select
-								id="video-resolution"
 								value={resolution}
-								onChange={(e) => {
+								onValueChange={(val) => {
 									reset();
-									setResolution(e.target.value as Resolution);
+									setResolution(val as Resolution);
 								}}
 							>
-								<option value="original">Keep original</option>
-								{["1080", "720", "480", "360"].map((v) => (
-									<option key={v} value={v}>
-										{v}p
-									</option>
-								))}
+								<SelectTrigger id="video-resolution" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="original">Keep original</SelectItem>
+									{["1080", "720", "480", "360"].map((v) => (
+										<SelectItem key={v} value={v}>
+											{v}p
+										</SelectItem>
+									))}
+								</SelectContent>
 							</Select>
 						</Field>
 						<label className="flex gap-2">
@@ -277,47 +294,59 @@ export function MediaTool({ kind }: { kind: Kind }) {
 					<>
 						<Field label="GIF encoding" htmlFor="gif-mode">
 							<Select
-								id="gif-mode"
 								value={gifMode}
-								onChange={(e) => {
+								onValueChange={(val) => {
 									reset();
-									setGifMode(e.target.value as typeof gifMode);
+									setGifMode(val as typeof gifMode);
 								}}
 							>
-								<option value="fast">Fast</option>
-								<option value="optimized">Optimized — up to 128 MiB</option>
+								<SelectTrigger id="gif-mode" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="fast">Fast</SelectItem>
+									<SelectItem value="optimized">Optimized — up to 128 MiB</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 						<Field label="Frames per second" htmlFor="gif-fps">
 							<Select
-								id="gif-fps"
-								value={fps}
-								onChange={(e) => {
+								value={String(fps)}
+								onValueChange={(val) => {
 									reset();
-									setFps(Number(e.target.value));
+									setFps(Number(val));
 								}}
 							>
-								{[10, 12, 18, 24].map((v) => (
-									<option key={v} value={v}>
-										{v} FPS
-									</option>
-								))}
+								<SelectTrigger id="gif-fps" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{[10, 12, 18, 24].map((v) => (
+										<SelectItem key={v} value={String(v)}>
+											{v} FPS
+										</SelectItem>
+									))}
+								</SelectContent>
 							</Select>
 						</Field>
 						<Field label="GIF width" htmlFor="gif-width">
 							<Select
-								id="gif-width"
-								value={width}
-								onChange={(e) => {
+								value={String(width)}
+								onValueChange={(val) => {
 									reset();
-									setWidth(Number(e.target.value));
+									setWidth(Number(val));
 								}}
 							>
-								{[320, 480, 640, 720].map((v) => (
-									<option key={v} value={v}>
-										{v} pixels
-									</option>
-								))}
+								<SelectTrigger id="gif-width" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{[320, 480, 640, 720].map((v) => (
+										<SelectItem key={v} value={String(v)}>
+											{v} pixels
+										</SelectItem>
+									))}
+								</SelectContent>
 							</Select>
 						</Field>
 						<p>Choose up to 15 seconds. GIFs loop continuously.</p>
@@ -327,16 +356,20 @@ export function MediaTool({ kind }: { kind: Kind }) {
 					<>
 						<Field label="Audio output format" htmlFor="audio-format">
 							<Select
-								id="audio-format"
 								value={audioFormat}
-								onChange={(e) => {
+								onValueChange={(val) => {
 									reset();
-									setAudioFormat(e.target.value as AudioFormat);
+									setAudioFormat(val as AudioFormat);
 								}}
 							>
-								<option value="mp3">MP3 — 192 kbps</option>
-								<option value="wav">WAV — 16-bit PCM</option>
-								<option value="flac">FLAC — lossless compression</option>
+								<SelectTrigger id="audio-format" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="mp3">MP3 — 192 kbps</SelectItem>
+									<SelectItem value="wav">WAV — 16-bit PCM</SelectItem>
+									<SelectItem value="flac">FLAC — lossless compression</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 						<p>

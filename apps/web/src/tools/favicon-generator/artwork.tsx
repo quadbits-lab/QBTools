@@ -12,9 +12,10 @@ import {
 	normalizeSvgArtwork,
 } from "@qbtools/engines/graphic-design";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Slider } from "@qbtools/ui/slider";
 import { cn } from "@qbtools/ui/utils";
 import { Search, Trash2 } from "lucide-react";
@@ -245,15 +246,22 @@ export function ArtworkEditor({
 					<Field label="Font">
 						<Select
 							value={initialsFont}
-							onChange={(e) => {
-								const font = e.target.value as TextFont;
+							onValueChange={(val) => {
+								const font = val as TextFont;
 								setInitialsFont(font);
 								if (initials) void buildInitials(initials);
 							}}
 						>
-							{FONT_FAMILIES.map((font) => (
-								<option key={font}>{font}</option>
-							))}
+							<SelectTrigger className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{FONT_FAMILIES.map((font) => (
+									<SelectItem key={font} value={font}>
+										{font}
+									</SelectItem>
+								))}
+							</SelectContent>
 						</Select>
 					</Field>
 				</div>

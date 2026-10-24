@@ -1,8 +1,8 @@
 import { downloadBlob, replaceExtension } from "@qbtools/engines/files";
 import type { ExtractedText, OcrLanguage, OcrSession } from "@qbtools/engines/ocr";
 import { Button } from "@qbtools/ui/button";
-import { Select } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { useEffect, useRef, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
@@ -35,18 +35,22 @@ export default function ExtractText() {
 			{file && <p>{file.name}</p>}
 			<Field label="Text language" htmlFor="ocr-language">
 				<Select
-					id="ocr-language"
 					value={language}
 					disabled={task.busy}
-					onChange={(e) => {
+					onValueChange={(val) => {
 						task.reset();
 						setText("");
-						setLanguage(e.target.value as OcrLanguage);
+						setLanguage(val as OcrLanguage);
 					}}
 				>
-					<option value="eng">English</option>
-					<option value="ara">Arabic</option>
-					<option value="eng+ara">English + Arabic</option>
+					<SelectTrigger id="ocr-language" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="eng">English</SelectItem>
+						<SelectItem value="ara">Arabic</SelectItem>
+						<SelectItem value="eng+ara">English + Arabic</SelectItem>
+					</SelectContent>
 				</Select>
 			</Field>
 			<label className="flex gap-2">

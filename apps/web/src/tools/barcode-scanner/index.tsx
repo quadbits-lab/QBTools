@@ -2,9 +2,10 @@ import type { BarcodeHit, BarcodeImage, WriteFormat } from "@qbtools/engines/bar
 import { WRITE_FORMATS } from "@qbtools/engines/barcode";
 import { downloadBlob } from "@qbtools/engines/files";
 import { Button } from "@qbtools/ui/button";
-import { Select, Textarea } from "@qbtools/ui/input";
+import { Textarea } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Slider } from "@qbtools/ui/slider";
 import { Camera, CameraOff } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -186,19 +187,23 @@ function Create() {
 		<div className="flex flex-col gap-5">
 			<Field label="Barcode type" htmlFor="bc-format">
 				<Select
-					id="bc-format"
 					value={format}
 					disabled={task.busy}
-					onChange={(e) => {
+					onValueChange={(val) => {
 						reset();
-						setFormat(e.target.value as WriteFormat);
+						setFormat(val as WriteFormat);
 					}}
 				>
-					{WRITE_FORMATS.map((item) => (
-						<option key={item.value} value={item.value}>
-							{item.label}
-						</option>
-					))}
+					<SelectTrigger id="bc-format" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{WRITE_FORMATS.map((item) => (
+							<SelectItem key={item.value} value={item.value}>
+								{item.label}
+							</SelectItem>
+						))}
+					</SelectContent>
 				</Select>
 				{current && <p className="text-sm text-muted-foreground">{current.hint}</p>}
 			</Field>

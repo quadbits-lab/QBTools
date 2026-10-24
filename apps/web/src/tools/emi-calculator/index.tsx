@@ -1,7 +1,8 @@
 import { calculateEmi, formatNumber, yearlySchedule } from "@qbtools/engines/calc";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { useMemo, useState } from "react";
 import { Notice } from "#/components/kit/notice";
 import { Stat } from "#/components/kit/stat";
@@ -85,13 +86,19 @@ export default function EmiCalculator() {
 					<div className="flex items-end gap-3">
 						<Field label="Currency" htmlFor="emi-cur" className="w-36">
 							<Select
-								id="emi-cur"
 								value={currency}
-								onChange={(e) => setCurrency(e.target.value as keyof typeof CURRENCIES)}
+								onValueChange={(val) => setCurrency(val as keyof typeof CURRENCIES)}
 							>
-								{Object.keys(CURRENCIES).map((c) => (
-									<option key={c}>{c}</option>
-								))}
+								<SelectTrigger id="emi-cur" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.keys(CURRENCIES).map((c) => (
+										<SelectItem key={c} value={c}>
+											{c}
+										</SelectItem>
+									))}
+								</SelectContent>
 							</Select>
 						</Field>
 					</div>

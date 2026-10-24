@@ -7,8 +7,9 @@ import {
 	lineTotal,
 } from "@qbtools/engines/generators";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select, Textarea } from "@qbtools/ui/input";
+import { Input, Textarea } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { toast } from "@qbtools/ui/toaster";
 import { Download, ImagePlus, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -196,14 +197,17 @@ export default function InvoiceGenerator() {
 						Items
 					</h3>
 					<Field label="Currency" htmlFor="inv-cur" className="w-32">
-						<Select
-							id="inv-cur"
-							value={invoice.currency}
-							onChange={(e) => set("currency", e.target.value)}
-						>
-							{CURRENCIES.map((c) => (
-								<option key={c}>{c}</option>
-							))}
+						<Select value={invoice.currency} onValueChange={(val) => set("currency", val)}>
+							<SelectTrigger id="inv-cur" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{CURRENCIES.map((c) => (
+									<SelectItem key={c} value={c}>
+										{c}
+									</SelectItem>
+								))}
+							</SelectContent>
 						</Select>
 					</Field>
 				</div>
@@ -303,12 +307,16 @@ export default function InvoiceGenerator() {
 						</Field>
 						<Field label="Discount type" htmlFor="inv-dtype">
 							<Select
-								id="inv-dtype"
 								value={invoice.discountType}
-								onChange={(e) => set("discountType", e.target.value as Invoice["discountType"])}
+								onValueChange={(val) => set("discountType", val as Invoice["discountType"])}
 							>
-								<option value="percent">%</option>
-								<option value="amount">{invoice.currency}</option>
+								<SelectTrigger id="inv-dtype" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="percent">%</SelectItem>
+									<SelectItem value="amount">{invoice.currency}</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 					</div>

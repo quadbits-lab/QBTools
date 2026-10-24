@@ -1,9 +1,9 @@
 import { imagesToPdf, type PageSize } from "@qbtools/engines/pdf";
 import { Button } from "@qbtools/ui/button";
-import { Select } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Progress } from "@qbtools/ui/progress";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { FileImage, Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
@@ -64,16 +64,20 @@ export default function ImageToPdf() {
 					<div className="grid gap-4 sm:grid-cols-3">
 						<Field label="Page size" htmlFor="ip-size">
 							<Select
-								id="ip-size"
 								value={pageSize}
-								onChange={(e) => {
-									setPageSize(e.target.value as PageSize);
+								onValueChange={(val) => {
+									setPageSize(val as PageSize);
 									setResult(null);
 								}}
 							>
-								<option value="a4">A4</option>
-								<option value="letter">US Letter</option>
-								<option value="fit">Same as image</option>
+								<SelectTrigger id="ip-size" className="w-full">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="a4">A4</SelectItem>
+									<SelectItem value="letter">US Letter</SelectItem>
+									<SelectItem value="fit">Same as image</SelectItem>
+								</SelectContent>
 							</Select>
 						</Field>
 						{pageSize !== "fit" && (
@@ -96,16 +100,20 @@ export default function ImageToPdf() {
 								</div>
 								<Field label="Margin" htmlFor="ip-margin">
 									<Select
-										id="ip-margin"
-										value={margin}
-										onChange={(e) => {
-											setMargin(Number(e.target.value));
+										value={String(margin)}
+										onValueChange={(val) => {
+											setMargin(Number(val));
 											setResult(null);
 										}}
 									>
-										<option value={0}>None</option>
-										<option value={24}>Small</option>
-										<option value={48}>Large</option>
+										<SelectTrigger id="ip-margin" className="w-full">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="0">None</SelectItem>
+											<SelectItem value="24">Small</SelectItem>
+											<SelectItem value="48">Large</SelectItem>
+										</SelectContent>
 									</Select>
 								</Field>
 							</>

@@ -45,7 +45,9 @@ class WidgetBoundary extends Component<{ children: ReactNode }, { error: Error |
 }
 
 function FavoriteButton({ slug }: { slug: string }) {
+	const { user } = useAccount();
 	const favorites = favoriteTools.use();
+	if (!user) return null;
 	const active = favorites.includes(slug);
 	return (
 		<Button variant="outline" size="lg" onClick={() => toggleFavorite(slug)} aria-pressed={active}>

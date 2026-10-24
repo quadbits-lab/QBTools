@@ -1,9 +1,9 @@
 import { suffixFilename } from "@qbtools/engines/files";
 import type { OptimizedPdf } from "@qbtools/engines/pdf-optimize";
 import { Button } from "@qbtools/ui/button";
-import { Select } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { formatBytes } from "@qbtools/ui/utils";
 import { useEffect, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
@@ -68,17 +68,21 @@ export default function CompressPdf({ params }: ToolWidgetProps) {
 					</Notice>
 					<Field label="Compression level" htmlFor="pdf-level">
 						<Select
-							id="pdf-level"
 							value={level}
 							disabled={task.busy}
-							onChange={(e) => {
+							onValueChange={(val) => {
 								task.reset();
-								setLevel(e.target.value as Level);
+								setLevel(val as Level);
 							}}
 						>
-							<option value="light">Light — best quality</option>
-							<option value="recommended">Recommended</option>
-							<option value="strong">Strong — smallest file</option>
+							<SelectTrigger id="pdf-level" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="light">Light — best quality</SelectItem>
+								<SelectItem value="recommended">Recommended</SelectItem>
+								<SelectItem value="strong">Strong — smallest file</SelectItem>
+							</SelectContent>
 						</Select>
 					</Field>
 				</>

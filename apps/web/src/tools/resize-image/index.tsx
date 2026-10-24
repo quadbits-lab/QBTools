@@ -9,9 +9,10 @@ import {
 	type ImageFormat,
 } from "@qbtools/engines/image";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Switch } from "@qbtools/ui/switch";
 import { formatBytes } from "@qbtools/ui/utils";
 import { Download, Loader2, Lock, RotateCcw, Unlock } from "lucide-react";
@@ -187,10 +188,15 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 						</label>
 						{!keepRatio && (
 							<Field label="If the shape changes" htmlFor="rs-fit">
-								<Select id="rs-fit" value={fit} onChange={(e) => setFit(e.target.value as Fit)}>
-									<option value="cover">Crop to fill (recommended)</option>
-									<option value="contain">Fit inside with borders</option>
-									<option value="stretch">Stretch</option>
+								<Select value={fit} onValueChange={(val) => setFit(val as Fit)}>
+									<SelectTrigger id="rs-fit" className="w-full">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="cover">Crop to fill (recommended)</SelectItem>
+										<SelectItem value="contain">Fit inside with borders</SelectItem>
+										<SelectItem value="stretch">Stretch</SelectItem>
+									</SelectContent>
 								</Select>
 							</Field>
 						)}
@@ -227,16 +233,16 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 					</Field>
 				)}
 				<Field label="Save as" htmlFor="rs-format">
-					<Select
-						id="rs-format"
-						value={format}
-						onChange={(e) => setFormat(e.target.value as ImageFormat | "same")}
-						className="max-w-xs"
-					>
-						<option value="same">Same as original</option>
-						<option value="jpeg">JPG</option>
-						<option value="png">PNG</option>
-						<option value="webp">WebP</option>
+					<Select value={format} onValueChange={(val) => setFormat(val as ImageFormat | "same")}>
+						<SelectTrigger id="rs-format" className="max-w-xs">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="same">Same as original</SelectItem>
+							<SelectItem value="jpeg">JPG</SelectItem>
+							<SelectItem value="png">PNG</SelectItem>
+							<SelectItem value="webp">WebP</SelectItem>
+						</SelectContent>
 					</Select>
 				</Field>
 				<div className="flex flex-wrap gap-2">

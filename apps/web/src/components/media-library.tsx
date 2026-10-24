@@ -1,6 +1,7 @@
 import { Button } from "@qbtools/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@qbtools/ui/dialog";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { toast } from "@qbtools/ui/toaster";
 import { CloudUpload, Download, File, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -175,29 +176,34 @@ export function MediaLibrary({
 					onChange={(event) => setSearch(event.target.value)}
 				/>
 				<Select
-					aria-label="Filter media"
 					value={kind}
-					onChange={(event) => {
-						setKind(event.target.value);
+					onValueChange={(value) => {
+						setKind(value);
 						setPage(0);
 					}}
 				>
-					{["all", "image", "audio", "video", "document"].map((value) => (
-						<option key={value} value={value}>
-							{value}
-						</option>
-					))}
+					<SelectTrigger aria-label="Filter media" className="w-[140px]">
+						<SelectValue placeholder="All kinds" />
+					</SelectTrigger>
+					<SelectContent>
+						{["all", "image", "audio", "video", "document"].map((value) => (
+							<SelectItem key={value} value={value}>
+								{value}
+							</SelectItem>
+						))}
+					</SelectContent>
 				</Select>
-				<Select
-					aria-label="Sort media"
-					value={sort}
-					onChange={(event) => void changePreference("media_sort", event.target.value)}
-				>
-					{["newest", "oldest", "name", "size"].map((value) => (
-						<option key={value} value={value}>
-							{value}
-						</option>
-					))}
+				<Select value={sort} onValueChange={(value) => void changePreference("media_sort", value)}>
+					<SelectTrigger aria-label="Sort media" className="w-[140px]">
+						<SelectValue placeholder="Sort media" />
+					</SelectTrigger>
+					<SelectContent>
+						{["newest", "oldest", "name", "size"].map((value) => (
+							<SelectItem key={value} value={value}>
+								{value}
+							</SelectItem>
+						))}
+					</SelectContent>
 				</Select>
 				<Button
 					variant="secondary"

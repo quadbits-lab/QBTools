@@ -7,6 +7,7 @@ import {
 	Scripts,
 	useRouterState,
 } from "@tanstack/react-router";
+import { GoogleAnalytics } from "tanstack-router-ga4";
 import { AccountProvider } from "#/components/account-provider";
 import { analyticsScripts } from "#/components/analytics";
 import { CommandPaletteProvider } from "#/components/command-palette";
@@ -19,7 +20,6 @@ import { seo } from "#/lib/seo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, THEME_COLOR } from "#/lib/site";
 import { sessionFn } from "#/server/auth.functions";
 import appCss from "../styles.css?url";
-import { GoogleAnalytics } from 'tanstack-router-ga4';
 
 export const Route = createRootRoute({
 	loader: () => sessionFn(),

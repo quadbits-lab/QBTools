@@ -6,9 +6,10 @@ import {
 	gradeScales,
 } from "@qbtools/engines/calc";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Stat } from "#/components/kit/stat";
@@ -98,16 +99,17 @@ export default function GpaCalculator() {
 								label={index === 0 ? "Grade" : <span className="sr-only">Grade</span>}
 								htmlFor={`g-${row.id}`}
 							>
-								<Select
-									id={`g-${row.id}`}
-									value={row.grade}
-									onChange={(e) => update(row.id, { grade: e.target.value })}
-								>
-									{scale.grades.map((g) => (
-										<option key={g.grade} value={g.grade}>
-											{g.grade} ({g.points})
-										</option>
-									))}
+								<Select value={row.grade} onValueChange={(val) => update(row.id, { grade: val })}>
+									<SelectTrigger id={`g-${row.id}`} className="w-full">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{scale.grades.map((g) => (
+											<SelectItem key={g.grade} value={g.grade}>
+												{g.grade} ({g.points})
+											</SelectItem>
+										))}
+									</SelectContent>
 								</Select>
 							</Field>
 							<Button

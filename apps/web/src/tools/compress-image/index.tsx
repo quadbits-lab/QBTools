@@ -8,9 +8,10 @@ import {
 import type { EncodingMode, OptimizedFormat } from "@qbtools/engines/image-codecs";
 import { checkAbort, checkImageSize } from "@qbtools/engines/processing";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Slider } from "@qbtools/ui/slider";
 import { Switch } from "@qbtools/ui/switch";
 import { useState } from "react";
@@ -92,19 +93,23 @@ export default function CompressImage({ params }: ToolWidgetProps) {
 			/>
 			<Field label="Save as" htmlFor="compress-format">
 				<Select
-					id="compress-format"
 					value={format}
-					onChange={(e) => {
-						const value = e.target.value as typeof format;
-						setFormat(value);
-						if (value === "avif") setEncoding("optimized");
+					onValueChange={(value) => {
+						const next = value as typeof format;
+						setFormat(next);
+						if (next === "avif") setEncoding("optimized");
 					}}
 				>
-					<option value="auto">Best for photos (JPG, keeps WebP)</option>
-					<option value="jpeg">JPG</option>
-					<option value="webp">WebP</option>
-					<option value="png">PNG (lossless)</option>
-					<option value="avif">AVIF (optimized)</option>
+					<SelectTrigger id="compress-format" className="w-full">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="auto">Best for photos (JPG, keeps WebP)</SelectItem>
+						<SelectItem value="jpeg">JPG</SelectItem>
+						<SelectItem value="webp">WebP</SelectItem>
+						<SelectItem value="png">PNG (lossless)</SelectItem>
+						<SelectItem value="avif">AVIF (optimized)</SelectItem>
+					</SelectContent>
 				</Select>
 			</Field>
 			{format === "png" ? (

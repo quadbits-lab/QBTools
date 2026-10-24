@@ -26,9 +26,10 @@ import {
 } from "@qbtools/engines/graphic";
 import { normalizeRasterArtwork } from "@qbtools/engines/graphic-design";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Slider } from "@qbtools/ui/slider";
 import { cn, formatBytes } from "@qbtools/ui/utils";
 import { Download, Eraser, Grab, Loader2, Redo2, Undo2 } from "lucide-react";
@@ -480,8 +481,8 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 					<Field label="Template">
 						<Select
 							value={design.template}
-							onChange={(e) => {
-								const template = e.target.value as OgTemplate;
+							onValueChange={(val) => {
+								const template = val as OgTemplate;
 								const next = defaultOgDesign(template);
 								commit({
 									...next,
@@ -494,11 +495,16 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 								});
 							}}
 						>
-							{OG_TEMPLATES.map((t) => (
-								<option key={t} value={t}>
-									{TEMPLATE_LABELS[t]}
-								</option>
-							))}
+							<SelectTrigger className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{OG_TEMPLATES.map((t) => (
+									<SelectItem key={t} value={t}>
+										{TEMPLATE_LABELS[t]}
+									</SelectItem>
+								))}
+							</SelectContent>
 						</Select>
 					</Field>
 
@@ -512,20 +518,23 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 									? `${design.canvas.width}x${design.canvas.height}`
 									: "custom"
 							}
-							onChange={(e) => {
-								const found = OG_CANVAS_PRESETS.find(
-									(p) => `${p.width}x${p.height}` === e.target.value,
-								);
+							onValueChange={(val) => {
+								const found = OG_CANVAS_PRESETS.find((p) => `${p.width}x${p.height}` === val);
 								if (found)
 									commit({ ...design, canvas: { width: found.width, height: found.height } });
 							}}
 						>
-							{OG_CANVAS_PRESETS.map((p) => (
-								<option key={p.slug} value={`${p.width}x${p.height}`}>
-									{p.label}
-								</option>
-							))}
-							<option value="custom">Custom…</option>
+							<SelectTrigger className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{OG_CANVAS_PRESETS.map((p) => (
+									<SelectItem key={p.slug} value={`${p.width}x${p.height}`}>
+										{p.label}
+									</SelectItem>
+								))}
+								<SelectItem value="custom">Custom…</SelectItem>
+							</SelectContent>
 						</Select>
 					</Field>
 					<div className="grid grid-cols-2 gap-3">
@@ -679,20 +688,32 @@ function TextControls({
 				<Field label="Font">
 					<Select
 						value={style.font}
-						onChange={(e) => onChange({ ...style, font: e.target.value as TextFont })}
+						onValueChange={(val) => onChange({ ...style, font: val as TextFont })}
 					>
-						{FONTS.map((font) => (
-							<option key={font}>{font}</option>
-						))}
+						<SelectTrigger className="w-full">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{FONTS.map((font) => (
+								<SelectItem key={font} value={font}>
+									{font}
+								</SelectItem>
+							))}
+						</SelectContent>
 					</Select>
 				</Field>
 				<Field label="Weight">
 					<Select
 						value={String(style.fontWeight)}
-						onChange={(e) => onChange({ ...style, fontWeight: Number(e.target.value) })}
+						onValueChange={(val) => onChange({ ...style, fontWeight: Number(val) })}
 					>
-						<option value="400">Regular</option>
-						<option value="700">Bold</option>
+						<SelectTrigger className="w-full">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="400">Regular</SelectItem>
+							<SelectItem value="700">Bold</SelectItem>
+						</SelectContent>
 					</Select>
 				</Field>
 			</div>

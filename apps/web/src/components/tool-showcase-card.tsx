@@ -3,6 +3,7 @@ import { cn } from "@qbtools/ui/utils";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { categoryShortName, categoryStyles } from "#/lib/icons";
+import { useAccount } from "./account-provider";
 import { FavoriteButton, ToolIcon } from "./tool-card";
 import { ToolFlags } from "./tool-flags";
 
@@ -12,6 +13,7 @@ const SURFACE =
 
 /** Rich tool card for the landing directory. */
 export function ShowcaseToolCard({ tool, className }: { tool: ToolDef; className?: string }) {
+	const { user } = useAccount();
 	const category = categoryById[tool.category];
 	const style = categoryStyles[tool.category];
 
@@ -35,7 +37,7 @@ export function ShowcaseToolCard({ tool, className }: { tool: ToolDef; className
 						style.dot,
 					)}
 				/>
-				<span className="flex items-start justify-between gap-3 pr-12">
+				<span className={cn("flex items-start justify-between gap-3", user && "pr-12")}>
 					<ToolIcon tool={tool} size="xl" />
 					<ToolFlags tool={tool} className="flex-wrap justify-end" />
 				</span>
@@ -69,13 +71,16 @@ export function ShowcaseToolCard({ tool, className }: { tool: ToolDef; className
 					</span>
 				</span>
 			</Link>
-			<FavoriteButton tool={tool} className="absolute top-5 right-5 z-10 size-9 rounded-full" />
+			{user && (
+				<FavoriteButton tool={tool} className="absolute top-5 right-5 z-10 size-9 rounded-full" />
+			)}
 		</article>
 	);
 }
 
 /** Compact shelf row for pinned and recently used tools. */
 export function ShelfToolCard({ tool, className }: { tool: ToolDef; className?: string }) {
+	const { user } = useAccount();
 	return (
 		<article
 			className={cn(
@@ -87,7 +92,7 @@ export function ShelfToolCard({ tool, className }: { tool: ToolDef; className?: 
 				to="/tools/$slug"
 				params={{ slug: tool.slug }}
 				aria-label={`${tool.name}. Open tool.`}
-				className={cn(SURFACE, "items-center gap-3 p-3 pr-14")}
+				className={cn(SURFACE, "items-center gap-3 p-3", user ? "pr-14" : "pr-3")}
 			>
 				<ToolIcon tool={tool} size="md" />
 				<span className="min-w-0 flex-1">
@@ -103,10 +108,12 @@ export function ShelfToolCard({ tool, className }: { tool: ToolDef; className?: 
 					<ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-focus-within:translate-x-0.5" />
 				</span>
 			</Link>
-			<FavoriteButton
-				tool={tool}
-				className="absolute top-1/2 right-3 z-10 size-9 -translate-y-1/2 rounded-full"
-			/>
+			{user && (
+				<FavoriteButton
+					tool={tool}
+					className="absolute top-1/2 right-3 z-10 size-9 -translate-y-1/2 rounded-full"
+				/>
+			)}
 		</article>
 	);
 }

@@ -1,5 +1,5 @@
 import { Button } from "@qbtools/ui/button";
-import { Select } from "@qbtools/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { setThemeMode } from "@qbtools/ui/theme";
 import { toast } from "@qbtools/ui/toaster";
 import { createFileRoute } from "@tanstack/react-router";
@@ -43,17 +43,22 @@ function Settings() {
 			</section>
 			<section className="grid gap-4 border border-input p-5">
 				<h2 className="text-xl">Preferences</h2>
-				<label className="grid gap-2">
-					Theme
+				<div className="grid gap-2">
+					<span className="text-sm font-medium">Theme</span>
 					<Select
 						value={data?.preferences.theme ?? "dark"}
-						onChange={(e) => setThemeMode(e.target.value as "light" | "dark" | "system")}
+						onValueChange={(val) => setThemeMode(val as "light" | "dark" | "system")}
 					>
-						<option value="dark">Dark</option>
-						<option value="light">Light</option>
-						<option value="system">System</option>
+						<SelectTrigger className="w-full sm:w-60">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="dark">Dark</SelectItem>
+							<SelectItem value="light">Light</SelectItem>
+							<SelectItem value="system">System</SelectItem>
+						</SelectContent>
 					</Select>
-				</label>
+				</div>
 				<label className="flex gap-3">
 					<input
 						type="checkbox"

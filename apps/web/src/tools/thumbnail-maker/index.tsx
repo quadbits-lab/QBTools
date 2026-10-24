@@ -5,9 +5,10 @@ import "@fontsource/bebas-neue/400.css";
 import { downloadBlob } from "@qbtools/engines/files";
 import { decodeImage } from "@qbtools/engines/image";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select, Textarea } from "@qbtools/ui/input";
+import { Input, Textarea } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { Slider } from "@qbtools/ui/slider";
 import { cn, formatBytes } from "@qbtools/ui/utils";
 import { Download, ImagePlus, Loader2, Video, X } from "lucide-react";
@@ -375,27 +376,32 @@ export default function ThumbnailMaker() {
 				</div>
 				<div className="grid grid-cols-2 gap-3">
 					<Field label="Font" htmlFor="tm-font">
-						<Select
-							id="tm-font"
-							value={d.font}
-							onChange={(e) => set("font", e.target.value as Design["font"])}
-						>
-							{FONTS.map((f) => (
-								<option key={f} value={f}>
-									{f.replace(" Variable", "")}
-								</option>
-							))}
+						<Select value={d.font} onValueChange={(val) => set("font", val as Design["font"])}>
+							<SelectTrigger id="tm-font" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{FONTS.map((f) => (
+									<SelectItem key={f} value={f}>
+										{f.replace(" Variable", "")}
+									</SelectItem>
+								))}
+							</SelectContent>
 						</Select>
 					</Field>
 					<Field label="Position" htmlFor="tm-pos">
 						<Select
-							id="tm-pos"
 							value={d.position}
-							onChange={(e) => set("position", e.target.value as Design["position"])}
+							onValueChange={(val) => set("position", val as Design["position"])}
 						>
-							<option value="top">Top</option>
-							<option value="center">Middle</option>
-							<option value="bottom">Bottom</option>
+							<SelectTrigger id="tm-pos" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="top">Top</SelectItem>
+								<SelectItem value="center">Middle</SelectItem>
+								<SelectItem value="bottom">Bottom</SelectItem>
+							</SelectContent>
 						</Select>
 					</Field>
 				</div>
