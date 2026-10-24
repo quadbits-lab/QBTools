@@ -30,7 +30,7 @@ async function loadFont(key: FontKey, assets?: GraphicAssets): Promise<import("o
 		const buffer = await (await fetch(url)).arrayBuffer();
 		const lib = await getOpentype();
 		return { key, font: lib.parse(buffer) };
-	})().catch((error) => {
+	})().catch(() => {
 		fontCache.delete(key);
 		throw new Error("The font for text conversion could not be loaded.");
 	});

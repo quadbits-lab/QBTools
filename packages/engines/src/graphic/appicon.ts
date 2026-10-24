@@ -1,6 +1,5 @@
 /** iOS and Android app icon development kits: asset catalogs, adaptive XML, launcher PNGs. */
 import { downloadZip } from "client-zip";
-import { encodeImage } from "../image/codecs";
 import { checkAbort, type ProcessingOptions, progress } from "../processing";
 import { composeIconSvg } from "./compose";
 import type { GraphicAssets } from "./fonts";
@@ -236,10 +235,8 @@ export async function generateAppIconSet(
 	options: AppIconExportOptions,
 	processing: ProcessingOptions & { assets?: GraphicAssets } = {},
 ): Promise<GeneratedAssetSet> {
-	const { assets } = processing;
 	const warnings: DesignWarning[] = [];
-	const files: Array<{ name: string; blob: Blob; mimeType: string }> = [];
-	const io = { platforms: options.platforms };
+	const files: GeneratedAsset[] = [];
 	const prefixIos = options.platforms.includes("android") ? "ios/" : "";
 	const prefixAndroid = options.platforms.includes("ios") ? "android/" : "";
 
@@ -449,7 +446,14 @@ export async function generateAppIconSet(
 
 	checkAbort(processing.signal);
 	progress(processing, "Packing ZIP…");
-	const zipBlob = await downloadZip(files.map((f) => ({ name: f.name, input: f.blob }))).blob();
+	const unique = new Map<string, GeneratedAsset>();
+	for (const file of files) if (!unique.has(file.name)) unique.set(file.name, file);
+	const zipFiles = [...unique.values()];
+	if (zipFiles.length !== files.length) {
+		// Shared pixel sizes appear in several Contents.json slots; keep one zip entry.
+		files.splice(0, files.length, ...zipFiles);
+	}
+	const zipBlob = await downloadZip(zipFiles.map((f) => ({ name: f.name, input: f.blob }))).blob();
 	const platforms = options.platforms.join("-and-");
 	return {
 		files,

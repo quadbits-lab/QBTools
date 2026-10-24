@@ -53,6 +53,11 @@ WebP, PNG, AVIF). Hashing reads files in 4 MiB chunks. Audio tools support MP3/W
 AAC encoding falls back to WASM where necessary. Image & PDF to Text supports English and Arabic
 OCR. PDF compression defaults to preserving text; scan compression remains available separately.
 
+The graphic editors (OG Banner Maker, Favicon Generator, App Icon Generator) compose SVG designs
+and rasterize them with resvg-wasm inside tool-owned workers: SVG inputs are sanitized with
+DOMPurify, text renders through bundled Inter/Anton/DM Mono buffers, and favicon or app-icon
+kits are zipped without any network round trip.
+
 Media Compatibility mode provides MP4 conversion and optimized GIF export using single-threaded
 FFmpeg. WebM uses native VP9/Opus: the pinned FFmpeg core cannot reliably encode it. Resource
 safeguards and device codec support apply; files always stay local.

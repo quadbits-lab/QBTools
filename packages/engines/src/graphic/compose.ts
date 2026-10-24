@@ -5,7 +5,7 @@
  * size in width/height attributes and resvg's fitTo scales the canvas, so
  * preview and export share one computation. Worker-safe: no DOM globals.
  */
-import { measureTextEmWidth, measureTextWidth } from "./fonts";
+import { measureTextWidth } from "./fonts";
 import type {
 	ArtworkData,
 	ArtworkPlacement,
@@ -424,7 +424,6 @@ export function composeOgSvg(design: OgDesign): { svg: string; warnings: DesignW
 	const H = design.canvas.height;
 	const frame = contentFrame(W, H, design.padding);
 	const parts: string[] = [];
-	const defs: GradientDef[] = [];
 	const warnings: DesignWarning[] = [];
 
 	// 1. Hero layer per template.

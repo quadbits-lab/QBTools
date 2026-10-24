@@ -80,7 +80,7 @@ export default function AppIconGenerator({ params: _params }: ToolWidgetProps) {
 					quality: 0.9,
 					optimize: false,
 				},
-				assets: graphicAssets(),
+				assets: await graphicAssets(),
 			});
 			return { blob: result.blob, warnings: result.warnings ?? [] };
 		},
@@ -108,7 +108,7 @@ export default function AppIconGenerator({ params: _params }: ToolWidgetProps) {
 			const result = await exportWorker.run<GeneratedAssetSet>("graphic-appicon", {
 				design: { ...design, tool: "app-icon" },
 				options: exportOptions,
-				assets: graphicAssets(),
+				assets: await graphicAssets(),
 			});
 			setAssets(result);
 		} catch (e) {
@@ -412,7 +412,10 @@ export default function AppIconGenerator({ params: _params }: ToolWidgetProps) {
 								<Button
 									size="sm"
 									className="mt-2"
-									onClick={() => downloadBlob(assets.zip!.blob, assets.zip!.name)}
+									onClick={() => {
+										const zip = assets.zip;
+										if (zip) downloadBlob(zip.blob, zip.name);
+									}}
 								>
 									<Download /> Download ZIP
 								</Button>

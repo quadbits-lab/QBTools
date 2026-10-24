@@ -33,6 +33,7 @@ await copyPackage("jpeg", "@jsquash/jpeg", "codec/enc", (n) => n === "mozjpeg_en
 await copyPackage("webp", "@jsquash/webp", "codec/enc", (n) => n.endsWith(".wasm"));
 await copyPackage("avif", "@jsquash/avif", "codec/enc", (n) => n === "avif_enc.wasm");
 await copyPackage("png", "@jsquash/oxipng", "codec/pkg", (n) => n.endsWith(".wasm"));
+await copyPackage("resvg", "@resvg/resvg-wasm", ".", (n) => n === "index_bg.wasm");
 await copyPackage("pdfjs", "pdfjs-dist", ".", (n) =>
 	["wasm", "cmaps", "standard_fonts"].includes(n),
 );
@@ -67,9 +68,28 @@ for (const name of [
 	"@mediabunny/flac-encoder",
 	"@mediabunny/mp3-encoder",
 	"hash-wasm",
+	"@resvg/resvg-wasm",
+	"dompurify",
+	"opentype.js",
+	"upng-js",
 ]) {
 	await copyPackage(`notices-${name.replace(/[@/]/g, "-")}`, name, ".", (entry) =>
 		/^(license|copying|notice)/i.test(entry),
+	);
+}
+// Graphic-editor UI assets (icons and fonts) live outside the engines workspace.
+for (const [key, name] of [
+	["notices-lucide-static", "lucide-static"],
+	["notices-fontsource-inter", "@fontsource/inter"],
+	["notices-fontsource-anton", "@fontsource/anton"],
+	["notices-fontsource-dm-mono", "@fontsource/dm-mono"],
+] as const) {
+	await copyPackage(
+		key,
+		name,
+		".",
+		(entry) => /^(license|copying|notice)/i.test(entry),
+		join(root, "apps/web/node_modules", name),
 	);
 }
 await cp(join(root, "THIRD_PARTY_NOTICES.md"), join(output, "THIRD_PARTY_NOTICES.md"));

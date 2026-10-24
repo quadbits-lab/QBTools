@@ -65,7 +65,7 @@ export function useGraphicPreview<D>(
 	useEffect(() => {
 		const timer = setTimeout(() => void rerun(), debounceMs);
 		return () => clearTimeout(timer);
-	}, [design, rerun, debounceMs]);
+	}, [rerun, debounceMs]);
 
 	return state;
 }

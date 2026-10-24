@@ -3,7 +3,7 @@
 import type { OptimizedFormat } from "../image/codecs";
 import { checkAbort, type ProcessingOptions, progress } from "../processing";
 import type { FontKey, GraphicAssets } from "./fonts";
-import { FONT_RECORD, gatherFontBuffers, loadFontBuffer } from "./fonts";
+import { gatherFontBuffers } from "./fonts";
 
 type ResvgModule = typeof import("@resvg/resvg-wasm");
 

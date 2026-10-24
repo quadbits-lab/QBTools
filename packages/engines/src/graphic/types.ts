@@ -165,6 +165,8 @@ export interface RenderOptions {
 	preview: boolean;
 	format: "png" | "jpeg" | "webp";
 	quality: number;
+	/** Extra OxiPNG compression for the output bytes. */
+	optimize?: boolean;
 }
 
 export interface RenderedDesign {

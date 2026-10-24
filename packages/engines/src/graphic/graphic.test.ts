@@ -17,7 +17,7 @@ import { buildIco, validateIco } from "./ico";
 import { parseDesign, projectFileName, QBDESIGN_VERSION, serializeDesign } from "./projects";
 import type { ArtworkData, DesignProject, IconDesign, OgDesign } from "./types";
 
-const repoRoot = import.meta.dir + "/../../../..";
+const repoRoot = `${import.meta.dir}/../../../..`;
 const TEST_ASSETS = {
 	fontUrls: {
 		"inter-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2`,
@@ -32,9 +32,15 @@ const TEST_ASSETS = {
 	wasmUrl: `file://${Bun.resolveSync("@resvg/resvg-wasm/index_bg.wasm", import.meta.dir)}`,
 };
 
+/** Narrow a possibly-missing generated file with a clear failure. */
+function must<T>(value: T | null | undefined, label: string): T {
+	if (value == null) throw new Error(`${label} missing from the generated set`);
+	return value;
+}
+
 describe("ico", () => {
 	test("round-trips frames with valid offsets", () => {
-		const frame = (n: number, size: number) =>
+		const frame = (n: number, _size: number) =>
 			new Uint8Array(n).map((_, i) => i % 255) &&
 			new Uint8Array([
 				0x89,
@@ -261,23 +267,32 @@ describe("favicon generation", () => {
 			"README.md",
 		])
 			expect(names).toContain(required);
-		const ico = result.files.find((f) => f.name === "favicon.ico");
-		const bytes = new Uint8Array(await ico!.blob.arrayBuffer());
-		const validated = validateIco(bytes);
-		expect(validated?.frames).toBe(3);
-		const manifest = result.files.find((f) => f.name === "site.webmanifest");
-		const parsedManifest = JSON.parse(await manifest!.blob.text());
-		expect(parsedManifest.icons.length).toBeGreaterThanOrEqual(5);
-		const sources = new Set(
-			parsedManifest.icons.map((icon: { src: string }) => icon.src.split("/").pop()),
+		const ico = must(
+			result.files.find((f) => f.name === "favicon.ico"),
+			"favicon.ico",
 		);
-		for (const icon of parsedManifest.icons) expect(names).toContain(icon.src.split("/").pop());
-		expect(result.zip).toBeDefined();
-		const zipBlob = result.zip!.blob;
-		expect(zipBlob.size).toBeGreaterThan(1000);
-		// PWA distinction: README explains service worker requirement.
-		const readme = result.files.find((f) => f.name === "README.md");
-		expect(await readme!.blob.text()).toContain("service worker");
+		const validated = validateIco(new Uint8Array(await ico.blob.arrayBuffer()));
+		expect(validated?.frames).toBe(3);
+		const manifestJson = JSON.parse(
+			await must(
+				result.files.find((f) => f.name === "site.webmanifest"),
+				"site.webmanifest",
+			).blob.text(),
+		) as { icons: Array<{ src: string }> };
+		expect(manifestJson.icons.length).toBeGreaterThanOrEqual(5);
+		for (const icon of manifestJson.icons) {
+			const fileName = icon.src.split("/").pop();
+			expect(fileName).toBeDefined();
+			if (fileName) expect(names).toContain(fileName);
+		}
+		const zip = must(result.zip, "favicon zip");
+		expect(zip.blob.size).toBeGreaterThan(1000);
+		// PWA distinction: README explains the service worker requirement.
+		const readme = must(
+			result.files.find((f) => f.name === "README.md"),
+			"README.md",
+		);
+		expect(await readme.blob.text()).toContain("service worker");
 	}, 30000);
 
 	test("initials artwork converts text to paths in svg", async () => {
@@ -307,8 +322,10 @@ describe("favicon generation", () => {
 			},
 			{ assets: TEST_ASSETS },
 		);
-		const svgFile = result.files.find((f) => f.name === "favicon.svg");
-		const svg = await svgFile!.blob.text();
+		const svg = await must(
+			result.files.find((f) => f.name === "favicon.svg"),
+			"favicon.svg",
+		).blob.text();
 		expect(svg).toContain("<path d=");
 		// Text elements must not leak into the standalone svg.
 		expect(svg).not.toContain("<text");
@@ -383,10 +400,11 @@ describe("app icon generation end to end", () => {
 			expect(names).toContain(required);
 		// Contents.json references only filenames that exist.
 		const modern = JSON.parse(
-			await result.files
-				.find((f) => f.name === "ios/AppIcon.appiconset/Contents.json")!
-				.blob.text(),
-		);
+			await must(
+				result.files.find((f) => f.name === "ios/AppIcon.appiconset/Contents.json"),
+				"modern Contents.json",
+			).blob.text(),
+		) as { images: Array<{ filename: string; idiom: string; platform: string; size: string }> };
 		for (const image of modern.images) {
 			expect(names.some((n) => n.endsWith(`AppIcon.appiconset/${image.filename}`))).toBe(true);
 			expect(image.idiom).toBe("universal");
@@ -394,10 +412,11 @@ describe("app icon generation end to end", () => {
 			expect(image.size).toBe("1024x1024");
 		}
 		const legacy = JSON.parse(
-			await result.files
-				.find((f) => f.name === "ios/AppIconLegacy.appiconset/Contents.json")!
-				.blob.text(),
-		);
+			await must(
+				result.files.find((f) => f.name === "ios/AppIconLegacy.appiconset/Contents.json"),
+				"legacy Contents.json",
+			).blob.text(),
+		) as { images: Array<{ filename: string }> };
 		for (const image of legacy.images) {
 			expect(names.some((n) => n.endsWith(`AppIconLegacy.appiconset/${image.filename}`))).toBe(
 				true,
@@ -406,15 +425,17 @@ describe("app icon generation end to end", () => {
 		// 167px slot exists for iPad 83.5pt @2x.
 		expect(names).toContain("ios/AppIconLegacy.appiconset/icon-167x167.png");
 		// Android v33 XML references the monochrome drawable.
-		const v33 = await result.files
-			.find((f) => f.name === "android/res/mipmap-anydpi-v33/ic_launcher.xml")!
-			.blob.text();
+		const v33 = await must(
+			result.files.find((f) => f.name === "android/res/mipmap-anydpi-v33/ic_launcher.xml"),
+			"v33 adaptive xml",
+		).blob.text();
 		expect(v33).toContain(`<monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>`);
-		const manifest = await result.files
-			.find((f) => f.name.endsWith("play-icon-512.png"))!
-			.blob.arrayBuffer();
-		expect(manifest.byteLength).toBeGreaterThan(200);
-		expect(manifest.byteLength).toBeLessThan(1024 * 1024);
+		const play = await must(
+			result.files.find((f) => f.name.endsWith("play-icon-512.png")),
+			"play icon",
+		).blob.arrayBuffer();
+		expect(play.byteLength).toBeGreaterThan(200);
+		expect(play.byteLength).toBeLessThan(1024 * 1024);
 		expect(result.zip).toBeDefined();
 	}, 60000);
 

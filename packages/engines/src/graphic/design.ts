@@ -146,8 +146,6 @@ export function iconArtworkFromSource(
 	});
 	if (svg.getAttribute("stroke") === "currentColor") svg.setAttribute("stroke", color);
 	if (svg.getAttribute("fill") === "currentColor") svg.setAttribute("fill", color);
-	const w = svg.getAttribute("width") ?? "";
-	const h = svg.getAttribute("height") ?? "";
 	svg.setAttribute("width", String(Math.round(viewBox.w)));
 	svg.setAttribute("height", String(Math.round(viewBox.h)));
 	const src = new XMLSerializer().serializeToString(svg);

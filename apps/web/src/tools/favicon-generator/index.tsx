@@ -12,20 +12,17 @@ import type {
 	RenderedDesign,
 } from "@qbtools/engines/graphic";
 import {
-	composeIconSvg,
 	defaultIconDesign,
 	parseDesign,
 	projectFileName,
-	renderDesign,
 	serializeDesign,
 } from "@qbtools/engines/graphic";
 import { Button } from "@qbtools/ui/button";
-import { Input, Select } from "@qbtools/ui/input";
+import { Input } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
-import { Slider } from "@qbtools/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbtools/ui/tabs";
 import { cn, formatBytes } from "@qbtools/ui/utils";
-import { Download, FileArchive, Loader2, MoonStar, Sun } from "lucide-react";
+import { Download, FileArchive, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { CopyButton } from "#/components/kit/copy-button";
 import { Notice } from "#/components/kit/notice";
@@ -77,7 +74,7 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 					quality: 0.9,
 					optimize: false,
 				},
-				assets: graphicAssets(),
+				assets: await graphicAssets(),
 			});
 			return { blob: result.blob, warnings: result.warnings ?? [] };
 		},
@@ -103,7 +100,7 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 			const result = await exportWorker.run<GeneratedAssetSet>("graphic-favicon", {
 				design: { ...design, tool: "favicon" },
 				options,
-				assets: graphicAssets(),
+				assets: await graphicAssets(),
 			});
 			setAssets(result);
 			setWarnings(result.warnings ?? []);
@@ -174,15 +171,14 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 					<div className="grid grid-cols-2 gap-3">
 						{(
 							[
-								{ tone: "light", label: "Light", Icon: Sun, className: "bg-white text-zinc-900" },
+								{ tone: "light", label: "Light", className: "bg-white text-zinc-900" },
 								{
 									tone: "dark",
 									label: "Dark",
-									Icon: MoonStar,
 									className: "bg-zinc-900 text-zinc-100",
 								},
 							] as const
-						).map(({ tone, label, Icon, className }) => (
+						).map(({ tone, label, className }) => (
 							<div key={tone}>
 								<span className="label-mono text-subtle">{label} home screen</span>
 								<div
@@ -382,7 +378,13 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 								{assets.files.length} files
 							</p>
 							<div className="mt-2 flex flex-wrap gap-2">
-								<Button size="sm" onClick={() => downloadBlob(assets.zip!.blob, assets.zip!.name)}>
+								<Button
+									size="sm"
+									onClick={() => {
+										const zip = assets.zip;
+										if (zip) downloadBlob(zip.blob, zip.name);
+									}}
+								>
 									<Download /> Download ZIP
 								</Button>
 								<Button

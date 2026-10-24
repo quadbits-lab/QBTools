@@ -7,7 +7,6 @@ import { buildIco, type IcoFrame } from "./ico";
 import { renderSvg } from "./resvg";
 import { textToPathSvg } from "./textpaths";
 import type {
-	ArtworkData,
 	BackgroundSpec,
 	Box,
 	DesignWarning,
@@ -56,7 +55,6 @@ interface Resolved {
 /** Resolve artwork to favicon.svg inner content, converting text to paths. */
 export async function faviconArtworkInner(
 	design: IconDesign,
-	background: BackgroundSpec,
 	assets: GraphicAssets | undefined,
 	options: ProcessingOptions,
 ): Promise<Resolved> {
@@ -249,8 +247,8 @@ export async function generateFaviconSet(
 	progress(processingOptions, "Building favicon artwork…");
 	const opaqueBg = opaqueFallback(design.background);
 	const browserBg = options.transparentBrowserIcon ? ({ type: "none" } as const) : opaqueBg;
-	const standard = await faviconArtworkInner(design, browserBg, assets, processingOptions);
-	const opaqueInner = await faviconArtworkInner(design, opaqueBg, assets, processingOptions);
+	const standard = await faviconArtworkInner(design, assets, processingOptions);
+	const opaqueInner = await faviconArtworkInner(design, assets, processingOptions);
 	const faviconSvg = iconSvg(design.canvas, browserBg, standard);
 
 	progress(processingOptions, "Rendering browser icons…");
@@ -310,7 +308,6 @@ export async function generateFaviconSet(
 						padding: Math.max(design.artwork.padding, 0.26),
 					},
 				},
-				opaqueBg,
 				assets,
 				processingOptions,
 			),

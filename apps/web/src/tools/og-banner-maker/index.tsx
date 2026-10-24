@@ -5,7 +5,6 @@
  */
 import { downloadBlob } from "@qbtools/engines/files";
 import type {
-	BackgroundSpec,
 	BadgeShape,
 	DesignProject,
 	DesignSettings,
@@ -23,7 +22,6 @@ import {
 	ogElementBoxes,
 	parseDesign,
 	projectFileName,
-	renderDesign,
 	serializeDesign,
 } from "@qbtools/engines/graphic";
 import { normalizeRasterArtwork } from "@qbtools/engines/graphic-design";
@@ -142,7 +140,7 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 					quality: 0.9,
 					optimize: false,
 				},
-				assets: graphicAssets(),
+				assets: await graphicAssets(),
 			});
 			return { blob: result.blob, warnings: result.warnings ?? [] };
 		},
@@ -170,7 +168,7 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 					quality: format === "png" ? 1 : 0.92,
 					optimize,
 				},
-				assets: graphicAssets(),
+				assets: await graphicAssets(),
 			});
 			setExportName(
 				`og-banner-${Math.round(width)}x${Math.round(height)}.${format === "jpeg" ? "jpg" : format}`,
@@ -235,8 +233,8 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 		const fr = ogContentFrame(current);
 		const b = ogElementBoxes(current)[kind];
 		if (!b) return;
-		const maxX = Math.max(1, fr.w - b.w);
-		const maxY = Math.max(1, fr.h - b.h);
+		const _maxX = Math.max(1, fr.w - b.w);
+		const _maxY = Math.max(1, fr.h - b.h);
 		const snap = (styleX: number, styleY: number) => ({
 			x: clamp01(styleX + dx),
 			y: clamp01(styleY + dy),
@@ -283,7 +281,7 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 			if (!bDrag) return;
 			const current = designRef.current;
 			const fr = ogContentFrame(current);
-			const b = ogElementBoxes(current)[kind];
+			const _b = ogElementBoxes(current)[kind];
 			const px = fracX * current.canvas.width;
 			const py = fracY * current.canvas.height;
 			const toXBlock = clamp01((px - fr.x) / Math.max(1, fr.w - bDrag.w));
@@ -396,6 +394,11 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 									role="button"
 									aria-label={`Select ${kind}`}
 									onClick={() => setSelected(kind)}
+									onKeyDown={(e) => {
+										if (e.key !== " " && e.key !== "Enter") return;
+										e.preventDefault();
+										setSelected(kind);
+									}}
 									className={cn(
 										"absolute cursor-grab border border-dashed transition-colors active:cursor-grabbing focus:outline-2 focus:outline-offset-4",
 										selected === kind
@@ -562,7 +565,7 @@ export default function OgBannerMaker({ params }: ToolWidgetProps) {
 						</Field>
 					</div>
 
-					<ElementControls kind={selected} design={design} commit={commit} onSelect={setSelected} />
+					<ElementControls kind={selected} design={design} commit={commit} />
 
 					<BackgroundSection design={design} commit={commit} />
 
@@ -778,12 +781,10 @@ export function ElementControls({
 	kind,
 	design,
 	commit,
-	onSelect,
 }: {
 	kind: ElementKind | null;
 	design: OgDesign;
 	commit: (design: OgDesign) => void;
-	onSelect: (element: ElementKind | null) => void;
 }) {
 	const [logoError, setLogoError] = useState<string | null>(null);
 	const [heroError, setHeroError] = useState<string | null>(null);

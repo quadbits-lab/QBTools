@@ -133,7 +133,7 @@ export function ArtworkEditor({
 					color: design.foreground,
 					letterSpacing: 4,
 				},
-				graphicAssets(),
+				await graphicAssets(),
 			);
 			setArtwork({
 				source: {

@@ -49,7 +49,7 @@ export async function renderDesign(
 			height: renderOptions.height,
 			format: renderOptions.format,
 			quality: renderOptions.quality,
-			optimize: false,
+			optimize: renderOptions.optimize ?? false,
 			families: designFontFamilies(settings),
 		},
 		options,

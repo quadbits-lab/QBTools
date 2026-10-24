@@ -29,13 +29,6 @@ export function serializeDesign(project: DesignProject): Blob {
 
 type UnknownRecord = Record<string, unknown>;
 
-function isColor(value: unknown): boolean {
-	return (
-		typeof value === "string" &&
-		/^(#[0-9a-f]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\)|transparent)$/i.test(value)
-	);
-}
-
 /** Basic shape validation after format/version checks throw descriptive errors. */
 function validateSettings(settings: DesignSettings): void {
 	if (!settings || typeof settings !== "object") throw new Error("The project file is damaged.");

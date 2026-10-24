@@ -22,7 +22,8 @@
 		"./ffmpeg": "./src/media/ffmpeg.ts",
 		"./gif": "./src/media/gif.ts",
 		"./graphic": "./src/graphic/index.ts",
-		"./graphic-design": "./src/graphic/design.ts"
+		"./graphic-design": "./src/graphic/design.ts",
+		"./assets": "./src/assets.ts"
 	},
 	"scripts": {
 		"typecheck": "tsc --noEmit"

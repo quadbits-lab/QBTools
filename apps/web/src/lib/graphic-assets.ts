@@ -1,8 +1,7 @@
 /** Same-origin, build-pinned asset URLs for the graphic editors (resvg + fonts). */
 // prettier-ignore
-
-// prettier-ignore
 import antonWoff1 from "@fontsource/anton/files/anton-latin-400-normal.woff?url";
+// prettier-ignore
 import antonWoff2 from "@fontsource/anton/files/anton-latin-400-normal.woff2?url";
 // prettier-ignore
 import dmMono400Woff2 from "@fontsource/dm-mono/files/dm-mono-latin-400-normal.woff2?url";
@@ -16,29 +15,40 @@ import inter400Woff2 from "@fontsource/inter/files/inter-latin-400-normal.woff2?
 import inter700Woff1 from "@fontsource/inter/files/inter-latin-700-normal.woff?url";
 // prettier-ignore
 import inter700Woff2 from "@fontsource/inter/files/inter-latin-700-normal.woff2?url";
+import { assetBase } from "@qbtools/engines/assets";
 import type { GraphicAssets } from "@qbtools/engines/graphic";
-// prettier-ignore
-import resvgWasm from "@resvg/resvg-wasm/index_bg.wasm?url";
 
-let cache: GraphicAssets | null = null;
+let cache: Promise<GraphicAssets> | null = null;
 
-/** Resolve once per session; every worker job receives these URLs. */
-export function graphicAssets(): GraphicAssets {
-	return (cache ??= {
-		wasmUrl: resvgWasm,
-		fontUrls: {
-			"anton-400": antonWoff2,
-			"dmmono-400": dmMono400Woff2,
-			"dmmono-500": dmMono500Woff2,
-			"inter-400": inter400Woff2,
-			"inter-700": inter700Woff2,
-		},
-		pathFontUrls: {
-			"anton-400": antonWoff1,
-			"dmmono-400": dmMono400Woff2,
-			"dmmono-500": dmMono500Woff2,
-			"inter-400": inter400Woff1,
-			"inter-700": inter700Woff1,
-		},
+/**
+ * Resolve once per session; every worker job receives these URLs. The resvg
+ * wasm ships through the versioned same-origin /wasm manifest; fonts are
+ * build-hashed assets bundled from the fontsource packages.
+ */
+export async function graphicAssets(): Promise<GraphicAssets> {
+	if (cache) return cache;
+	cache = (async () => {
+		const wasmBase = await assetBase("resvg");
+		return {
+			wasmUrl: `${wasmBase}/index_bg.wasm`,
+			fontUrls: {
+				"anton-400": antonWoff2,
+				"dmmono-400": dmMono400Woff2,
+				"dmmono-500": dmMono500Woff2,
+				"inter-400": inter400Woff2,
+				"inter-700": inter700Woff2,
+			},
+			pathFontUrls: {
+				"anton-400": antonWoff1,
+				"dmmono-400": dmMono400Woff2,
+				"dmmono-500": dmMono500Woff2,
+				"inter-400": inter400Woff1,
+				"inter-700": inter700Woff1,
+			},
+		} satisfies GraphicAssets;
+	})().catch((error) => {
+		cache = null;
+		throw error;
 	});
+	return cache;
 }
