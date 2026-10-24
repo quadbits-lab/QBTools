@@ -26,7 +26,11 @@ const WORD_RE = /[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu;
 export function textStats(text: string, keywordLimit = 8): TextStats {
 	const words = text.match(WORD_RE) ?? [];
 	const trimmed = text.trim();
-	const sentences = trimmed ? (trimmed.match(/[^.!?。！？]+(?:[.!?。！？]+|$)/gu) ?? []).filter((s) => /[\p{L}\p{N}]/u.test(s)).length : 0;
+	const sentences = trimmed
+		? (trimmed.match(/[^.!?。！？]+(?:[.!?。！？]+|$)/gu) ?? []).filter((s) =>
+				/[\p{L}\p{N}]/u.test(s),
+			).length
+		: 0;
 	const paragraphs = trimmed ? trimmed.split(/\n\s*\n/).filter((p) => p.trim()).length : 0;
 
 	const counts = new Map<string, number>();

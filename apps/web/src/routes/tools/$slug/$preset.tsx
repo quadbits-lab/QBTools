@@ -20,7 +20,12 @@ export const Route = createFileRoute("/tools/$slug/$preset")({
 			description: input.description,
 			path: input.path,
 			jsonLd: [
-				webAppLd({ name: preset.title, description: preset.description, path: input.path, category: input.categoryLabel }),
+				webAppLd({
+					name: preset.title,
+					description: preset.description,
+					path: input.path,
+					category: input.categoryLabel,
+				}),
 				faqLd(tool.faqs),
 				breadcrumbLd(input.breadcrumbs),
 			],

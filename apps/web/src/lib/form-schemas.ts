@@ -2,7 +2,11 @@ import { z } from "zod";
 
 /** Shared by forms (client hints) and server functions (the real check). */
 const email = z.string().trim().toLowerCase().email("Please enter a valid email address").max(200);
-const honeypot = z.string().max(0).optional().or(z.string().transform(() => "bot"));
+const honeypot = z
+	.string()
+	.max(0)
+	.optional()
+	.or(z.string().transform(() => "bot"));
 
 export const contactSchema = z.object({
 	name: z.string().trim().min(2, "Please enter your name").max(100),
@@ -20,8 +24,21 @@ export const suggestionSchema = z.object({
 	website: honeypot,
 });
 
-export const SERVICES = ["Custom tool or calculator", "Website", "Design & branding", "SEO & content", "Bulk processing / API", "Other"] as const;
-export const BUDGETS = ["Under $500", "$500–$2,000", "$2,000–$10,000", "$10,000+", "Not sure yet"] as const;
+export const SERVICES = [
+	"Custom tool or calculator",
+	"Website",
+	"Design & branding",
+	"SEO & content",
+	"Bulk processing / API",
+	"Other",
+] as const;
+export const BUDGETS = [
+	"Under $500",
+	"$500–$2,000",
+	"$2,000–$10,000",
+	"$10,000+",
+	"Not sure yet",
+] as const;
 
 export const leadSchema = z.object({
 	name: z.string().trim().min(2, "Please enter your name").max(100),

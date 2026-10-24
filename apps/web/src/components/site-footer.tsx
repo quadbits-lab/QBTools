@@ -2,8 +2,8 @@ import { categories, toolsInCategory } from "@qbtools/registry";
 import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { SITE_NAME } from "#/lib/site";
-import { Logo } from "./logo";
 import { reopenConsent } from "./consent";
+import { Logo } from "./logo";
 
 const LEGAL = [
 	{ to: "/privacy", label: "Privacy Policy" },
@@ -38,14 +38,22 @@ export function SiteFooter() {
 					{categories.map((category) => (
 						<div key={category.id}>
 							<h2 className="mb-3 font-bold">
-								<Link to="/categories/$category" params={{ category: category.id }} className="hover:text-primary">
+								<Link
+									to="/categories/$category"
+									params={{ category: category.id }}
+									className="hover:text-primary"
+								>
 									{category.name}
 								</Link>
 							</h2>
 							<ul className="flex flex-col gap-2">
 								{toolsInCategory(category.id).map((tool) => (
 									<li key={tool.slug}>
-										<Link to="/tools/$slug" params={{ slug: tool.slug }} className="text-muted-foreground hover:text-foreground">
+										<Link
+											to="/tools/$slug"
+											params={{ slug: tool.slug }}
+											className="text-muted-foreground hover:text-foreground"
+										>
 											{tool.name}
 										</Link>
 									</li>
@@ -58,7 +66,11 @@ export function SiteFooter() {
 						<ul className="flex flex-col gap-2">
 							{COMPANY.map((item) => (
 								<li key={item.label}>
-									<Link to={item.to} search={"search" in item ? item.search : undefined} className="text-muted-foreground hover:text-foreground">
+									<Link
+										to={item.to}
+										search={"search" in item ? item.search : undefined}
+										className="text-muted-foreground hover:text-foreground"
+									>
 										{item.label}
 									</Link>
 								</li>
@@ -76,7 +88,11 @@ export function SiteFooter() {
 								</li>
 							))}
 							<li>
-								<button type="button" onClick={reopenConsent} className="cursor-pointer text-left text-muted-foreground hover:text-foreground">
+								<button
+									type="button"
+									onClick={reopenConsent}
+									className="cursor-pointer text-left text-muted-foreground hover:text-foreground"
+								>
 									Cookie settings
 								</button>
 							</li>

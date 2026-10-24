@@ -38,7 +38,13 @@ export default function WordCounter() {
 				<label htmlFor="wc-text" className="sr-only">
 					Your text
 				</label>
-				<Textarea id="wc-text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Start typing or paste your text here…" className="min-h-80 text-[1.0625rem]" />
+				<Textarea
+					id="wc-text"
+					value={text}
+					onChange={(e) => setText(e.target.value)}
+					placeholder="Start typing or paste your text here…"
+					className="min-h-80 text-[1.0625rem]"
+				/>
 				<div className="flex flex-wrap gap-2">
 					<CopyButton text={text} label="Copy text" size="sm" />
 					<Button variant="ghost" size="sm" onClick={() => setText("")} disabled={!text}>
@@ -49,21 +55,46 @@ export default function WordCounter() {
 			<div className="flex flex-col gap-3" aria-live="polite">
 				<div className="grid grid-cols-2 gap-3">
 					<Stat label="Words" value={stats.words.toLocaleString("en")} tone="primary" />
-					<Stat label="Characters" value={stats.characters.toLocaleString("en")} hint={`${stats.charactersNoSpaces.toLocaleString("en")} without spaces`} />
+					<Stat
+						label="Characters"
+						value={stats.characters.toLocaleString("en")}
+						hint={`${stats.charactersNoSpaces.toLocaleString("en")} without spaces`}
+					/>
 					<Stat label="Sentences" value={stats.sentences.toLocaleString("en")} />
 					<Stat label="Paragraphs" value={stats.paragraphs.toLocaleString("en")} />
-					<Stat label="Reading time" value={formatDuration(stats.readingMinutes)} className="[&>span:nth-child(2)]:text-xl" />
-					<Stat label="Speaking time" value={formatDuration(stats.speakingMinutes)} className="[&>span:nth-child(2)]:text-xl" />
+					<Stat
+						label="Reading time"
+						value={formatDuration(stats.readingMinutes)}
+						className="[&>span:nth-child(2)]:text-xl"
+					/>
+					<Stat
+						label="Speaking time"
+						value={formatDuration(stats.speakingMinutes)}
+						className="[&>span:nth-child(2)]:text-xl"
+					/>
 				</div>
 				<div className="rounded-xl border border-border p-4">
 					<Field label="Word goal (optional)" htmlFor="wc-target">
-						<Input id="wc-target" type="number" inputMode="numeric" min={1} placeholder="e.g. 500" value={target} onChange={(e) => setTarget(e.target.value)} className="font-mono" />
+						<Input
+							id="wc-target"
+							type="number"
+							inputMode="numeric"
+							min={1}
+							placeholder="e.g. 500"
+							value={target}
+							onChange={(e) => setTarget(e.target.value)}
+							className="font-mono"
+						/>
 					</Field>
 					{targetWords > 0 && (
 						<Progress
 							className="mt-3"
 							value={(stats.words / targetWords) * 100}
-							label={stats.words >= targetWords ? `Goal reached (${stats.words - targetWords} over)` : `${targetWords - stats.words} words to go`}
+							label={
+								stats.words >= targetWords
+									? `Goal reached (${stats.words - targetWords} over)`
+									: `${targetWords - stats.words} words to go`
+							}
 						/>
 					)}
 				</div>

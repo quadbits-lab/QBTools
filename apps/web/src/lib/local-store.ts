@@ -65,5 +65,7 @@ export function markToolUsed(slug: string) {
 }
 
 export function toggleFavorite(slug: string) {
-	favoriteTools.update((list) => (list.includes(slug) ? list.filter((s) => s !== slug) : [slug, ...list]));
+	favoriteTools.update((list) =>
+		list.includes(slug) ? list.filter((s) => s !== slug) : [slug, ...list],
+	);
 }

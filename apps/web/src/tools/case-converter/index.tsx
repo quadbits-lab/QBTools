@@ -17,9 +17,19 @@ export default function CaseConverter() {
 				<label htmlFor="cc-in" className="mb-2 block font-semibold">
 					Your text
 				</label>
-				<Textarea id="cc-in" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type or paste text here…" className="min-h-40" />
+				<Textarea
+					id="cc-in"
+					value={text}
+					onChange={(e) => setText(e.target.value)}
+					placeholder="Type or paste text here…"
+					className="min-h-40"
+				/>
 			</div>
-			<div role="group" aria-label="Choose a case" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+			<div
+				role="group"
+				aria-label="Choose a case"
+				className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4"
+			>
 				{caseModes.map((m) => (
 					<button
 						key={m.mode}
@@ -28,11 +38,20 @@ export default function CaseConverter() {
 						onClick={() => setMode(m.mode)}
 						className={cn(
 							"flex min-h-14 cursor-pointer flex-col items-start justify-center rounded-xl border px-4 py-2 text-left transition-colors",
-							mode === m.mode ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface hover:border-primary",
+							mode === m.mode
+								? "border-primary bg-primary text-primary-foreground"
+								: "border-border bg-surface hover:border-primary",
 						)}
 					>
 						<span className="font-bold">{m.label}</span>
-						<span className={cn("truncate text-xs", mode === m.mode ? "opacity-85" : "text-muted-foreground")}>{m.example}</span>
+						<span
+							className={cn(
+								"truncate text-xs",
+								mode === m.mode ? "opacity-85" : "text-muted-foreground",
+							)}
+						>
+							{m.example}
+						</span>
 					</button>
 				))}
 			</div>
@@ -44,10 +63,23 @@ export default function CaseConverter() {
 			</div>
 			<div className="flex flex-wrap gap-2">
 				<CopyButton text={output} label="Copy result" size="lg" variant="primary" />
-				<Button variant="secondary" size="lg" onClick={() => mode && setText(output)} disabled={!mode || !text}>
+				<Button
+					variant="secondary"
+					size="lg"
+					onClick={() => mode && setText(output)}
+					disabled={!mode || !text}
+				>
 					Use result as input
 				</Button>
-				<Button variant="ghost" size="lg" onClick={() => { setText(""); setMode(null); }} disabled={!text}>
+				<Button
+					variant="ghost"
+					size="lg"
+					onClick={() => {
+						setText("");
+						setMode(null);
+					}}
+					disabled={!text}
+				>
 					<Eraser /> Clear
 				</Button>
 			</div>

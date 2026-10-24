@@ -7,8 +7,16 @@ export const Route = createFileRoute("/ads.txt")({
 			GET: () => {
 				const body = process.env.ADS_TXT?.replace(/\\n/g, "\n").trim();
 				return body
-					? new Response(`${body}\n`, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" } })
-					: new Response("Not found\n", { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+					? new Response(`${body}\n`, {
+							headers: {
+								"Content-Type": "text/plain; charset=utf-8",
+								"Cache-Control": "public, max-age=86400",
+							},
+						})
+					: new Response("Not found\n", {
+							status: 404,
+							headers: { "Content-Type": "text/plain; charset=utf-8" },
+						});
 			},
 		},
 	},

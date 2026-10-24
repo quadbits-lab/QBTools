@@ -15,7 +15,9 @@ export const contactMessages = sqliteTable("contact_messages", {
 	email: text("email").notNull(),
 	subject: text("subject").notNull(),
 	message: text("message").notNull(),
-	status: text("status", { enum: ["new", "done"] }).notNull().default("new"),
+	status: text("status", { enum: ["new", "done"] })
+		.notNull()
+		.default("new"),
 	createdAt: createdAt(),
 });
 

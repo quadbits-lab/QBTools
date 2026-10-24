@@ -43,8 +43,11 @@ export function ConsentBanner() {
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center">
 				<Cookie className="hidden size-8 shrink-0 text-primary sm:block" />
 				<p className="text-[0.95rem] leading-relaxed">
-					We use cookies only to show ads that keep QBTools free. Your files are never involved. You can say no — every tool still
-					works. <Link to="/cookies" className="font-semibold text-primary underline">Learn more</Link>
+					We use cookies only to show ads that keep QBTools free. Your files are never involved. You
+					can say no — every tool still works.{" "}
+					<Link to="/cookies" className="font-semibold text-primary underline">
+						Learn more
+					</Link>
 				</p>
 				<div className="flex shrink-0 gap-2">
 					<Button variant="secondary" onClick={() => choose("denied")}>

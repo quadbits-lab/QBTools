@@ -50,7 +50,9 @@ function trimmedBlob(canvas: HTMLCanvasElement, pad = 16): Promise<Blob | null> 
 	const out = document.createElement("canvas");
 	out.width = maxX - minX + pad * 2;
 	out.height = maxY - minY + pad * 2;
-	out.getContext("2d")?.drawImage(canvas, minX - pad, minY - pad, out.width, out.height, 0, 0, out.width, out.height);
+	out
+		.getContext("2d")
+		?.drawImage(canvas, minX - pad, minY - pad, out.width, out.height, 0, 0, out.width, out.height);
 	return new Promise((resolve) => out.toBlob(resolve, "image/png"));
 }
 
@@ -142,13 +144,32 @@ export default function SignatureGenerator() {
 
 	return (
 		<div className="flex flex-col gap-5">
-			<Segmented label="Signature method" value={mode} onChange={setMode} options={[{ value: "draw", label: "Draw" }, { value: "type", label: "Type" }]} className="max-w-sm" />
+			<Segmented
+				label="Signature method"
+				value={mode}
+				onChange={setMode}
+				options={[
+					{ value: "draw", label: "Draw" },
+					{ value: "type", label: "Type" },
+				]}
+				className="max-w-sm"
+			/>
 			{mode === "type" && (
 				<div className="grid gap-4 md:grid-cols-[1fr_auto]">
 					<Field label="Your name" htmlFor="sig-name">
-						<Input id="sig-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" maxLength={40} />
+						<Input
+							id="sig-name"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							placeholder="Jane Doe"
+							maxLength={40}
+						/>
 					</Field>
-					<div role="radiogroup" aria-label="Handwriting style" className="flex flex-wrap items-end gap-2">
+					<div
+						role="radiogroup"
+						aria-label="Handwriting style"
+						className="flex flex-wrap items-end gap-2"
+					>
 						{FONTS.map((f, i) => (
 							<button
 								key={f.family}
@@ -156,7 +177,12 @@ export default function SignatureGenerator() {
 								role="radio"
 								aria-checked={font === i}
 								onClick={() => setFont(i)}
-								className={cn("h-12 cursor-pointer rounded-xl border px-4 text-2xl", font === i ? "border-primary bg-primary-soft" : "border-border hover:border-primary")}
+								className={cn(
+									"h-12 cursor-pointer rounded-xl border px-4 text-2xl",
+									font === i
+										? "border-primary bg-primary-soft"
+										: "border-border hover:border-primary",
+								)}
 								style={{ fontFamily: `"${f.family}"`, fontWeight: f.weight }}
 							>
 								{name.trim().split(" ")[0] || "Signature"}
@@ -170,8 +196,15 @@ export default function SignatureGenerator() {
 					ref={canvasRef}
 					width={W * scale}
 					height={H * scale}
-					aria-label={mode === "draw" ? "Signature drawing area. Draw with your mouse, finger or pen." : "Signature preview"}
-					className={cn("checker-bg block aspect-[3/1] w-full", mode === "draw" && "cursor-crosshair touch-none")}
+					aria-label={
+						mode === "draw"
+							? "Signature drawing area. Draw with your mouse, finger or pen."
+							: "Signature preview"
+					}
+					className={cn(
+						"checker-bg block aspect-[3/1] w-full",
+						mode === "draw" && "cursor-crosshair touch-none",
+					)}
 					onPointerDown={(event) => {
 						if (mode !== "draw") return;
 						event.currentTarget.setPointerCapture(event.pointerId);
@@ -187,7 +220,11 @@ export default function SignatureGenerator() {
 						current.current = null;
 					}}
 				/>
-				{mode === "draw" && strokes.length === 0 && <p className="pointer-events-none absolute inset-0 grid place-items-center text-lg text-slate-400">Sign here</p>}
+				{mode === "draw" && strokes.length === 0 && (
+					<p className="pointer-events-none absolute inset-0 grid place-items-center text-lg text-slate-400">
+						Sign here
+					</p>
+				)}
 				<div className="pointer-events-none absolute right-[8%] bottom-[22%] left-[8%] border-b border-slate-300" />
 			</div>
 			<div className="flex flex-wrap items-end gap-6">
@@ -200,12 +237,26 @@ export default function SignatureGenerator() {
 							aria-checked={ink === c.value}
 							aria-label={c.label}
 							onClick={() => setInk(c.value)}
-							className={cn("size-11 cursor-pointer rounded-full border-4", ink === c.value ? "border-primary" : "border-transparent")}
+							className={cn(
+								"size-11 cursor-pointer rounded-full border-4",
+								ink === c.value ? "border-primary" : "border-transparent",
+							)}
 							style={{ backgroundColor: c.value }}
 						/>
 					))}
 				</div>
-				{mode === "draw" && <Slider id="sig-width" label="Pen size" valueLabel={`${width}px`} min={1} max={12} value={width} onChange={(e) => setWidth(Number(e.target.value))} className="w-48" />}
+				{mode === "draw" && (
+					<Slider
+						id="sig-width"
+						label="Pen size"
+						valueLabel={`${width}px`}
+						min={1}
+						max={12}
+						value={width}
+						onChange={(e) => setWidth(Number(e.target.value))}
+						className="w-48"
+					/>
+				)}
 			</div>
 			<div className="flex flex-wrap gap-2">
 				<Button size="lg" onClick={save} disabled={isEmpty}>
@@ -213,10 +264,20 @@ export default function SignatureGenerator() {
 				</Button>
 				{mode === "draw" && (
 					<>
-						<Button size="lg" variant="secondary" onClick={() => setStrokes((s) => s.slice(0, -1))} disabled={strokes.length === 0}>
+						<Button
+							size="lg"
+							variant="secondary"
+							onClick={() => setStrokes((s) => s.slice(0, -1))}
+							disabled={strokes.length === 0}
+						>
 							<Undo2 /> Undo
 						</Button>
-						<Button size="lg" variant="ghost" onClick={() => setStrokes([])} disabled={strokes.length === 0}>
+						<Button
+							size="lg"
+							variant="ghost"
+							onClick={() => setStrokes([])}
+							disabled={strokes.length === 0}
+						>
 							<Eraser /> Clear
 						</Button>
 					</>

@@ -49,7 +49,12 @@ export const guides: Guide[] = [
 					"Check the preview and tap Download.",
 				],
 			},
-			{ type: "tool", slug: "compress-image", preset: "to-100kb", label: "Compress Image to 100KB" },
+			{
+				type: "tool",
+				slug: "compress-image",
+				preset: "to-100kb",
+				label: "Compress Image to 100KB",
+			},
 			{ type: "h2", text: "If the photo still won't fit" },
 			{
 				type: "p",

@@ -48,7 +48,9 @@ export function calculateAge(birth: Date, asOf: Date): AgeResult | null {
 
 	// Whole months: the largest m where birth + m months (day clamped to the month's end) ≤ asOf.
 	let totalMonths =
-		(asOf.getUTCFullYear() - birth.getUTCFullYear()) * 12 + asOf.getUTCMonth() - birth.getUTCMonth();
+		(asOf.getUTCFullYear() - birth.getUTCFullYear()) * 12 +
+		asOf.getUTCMonth() -
+		birth.getUTCMonth();
 	if (addMonths(birth, totalMonths).getTime() > asOf.getTime()) totalMonths -= 1;
 	const anchor = addMonths(birth, totalMonths);
 	const years = Math.floor(totalMonths / 12);

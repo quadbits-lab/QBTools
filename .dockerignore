@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/.turbo
+**/.tanstack
+**/data
+**/*.db
+**/*.db-*
+.env
+**/.env
+!.env.example
+.git
+.claude
+**/.DS_Store
+coverage

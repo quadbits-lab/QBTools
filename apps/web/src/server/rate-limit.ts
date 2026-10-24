@@ -2,7 +2,11 @@
  * In-memory fixed-window limiter keyed by bucket + client. Good for a single
  * container; swap for Redis if you ever run several replicas.
  */
-export function createRateLimiter(options: { limit: number; windowMs: number; now?: () => number }) {
+export function createRateLimiter(options: {
+	limit: number;
+	windowMs: number;
+	now?: () => number;
+}) {
 	const now = options.now ?? Date.now;
 	const hits = new Map<string, { count: number; resetAt: number }>();
 

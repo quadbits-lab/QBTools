@@ -21,7 +21,10 @@ export function SiteHeader() {
 
 	return (
 		<header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
-			<a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:rounded-lg focus:bg-surface focus:p-3">
+			<a
+				href="#main"
+				className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:rounded-lg focus:bg-surface focus:p-3"
+			>
 				Skip to content
 			</a>
 			<div className="container-page flex h-16 items-center gap-3">
@@ -46,9 +49,17 @@ export function SiteHeader() {
 					>
 						<Search className="size-4" />
 						<span className="text-sm">Search tools…</span>
-						<kbd className="ml-auto rounded-md border border-border bg-muted px-1.5 font-mono text-xs">⌘K</kbd>
+						<kbd className="ml-auto rounded-md border border-border bg-muted px-1.5 font-mono text-xs">
+							⌘K
+						</kbd>
 					</button>
-					<Button variant="ghost" size="icon" onClick={open} aria-label="Search tools" className="md:hidden">
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={open}
+						aria-label="Search tools"
+						className="md:hidden"
+					>
 						<Search />
 					</Button>
 					<ThemeToggle />
@@ -64,10 +75,20 @@ export function SiteHeader() {
 					</Button>
 				</div>
 			</div>
-			<div className={cn("border-t border-border bg-background lg:hidden", menuOpen ? "block" : "hidden")}>
+			<div
+				className={cn(
+					"border-t border-border bg-background lg:hidden",
+					menuOpen ? "block" : "hidden",
+				)}
+			>
 				<nav aria-label="Mobile" className="container-page flex flex-col gap-1 py-3">
 					{NAV.map((item) => (
-						<Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-lg font-semibold hover:bg-muted">
+						<Link
+							key={item.to}
+							to={item.to}
+							onClick={() => setMenuOpen(false)}
+							className="rounded-xl px-3 py-3 text-lg font-semibold hover:bg-muted"
+						>
 							{item.label}
 						</Link>
 					))}

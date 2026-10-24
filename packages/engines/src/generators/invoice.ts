@@ -36,10 +36,14 @@ export function lineTotal(item: InvoiceItem): number {
 	return round2((item.quantity || 0) * (item.unitPrice || 0));
 }
 
-export function invoiceTotals(invoice: Pick<Invoice, "items" | "taxRate" | "discount" | "discountType">): InvoiceTotals {
+export function invoiceTotals(
+	invoice: Pick<Invoice, "items" | "taxRate" | "discount" | "discountType">,
+): InvoiceTotals {
 	const subtotal = round2(invoice.items.reduce((sum, item) => sum + lineTotal(item), 0));
 	const rawDiscount =
-		invoice.discountType === "percent" ? (subtotal * (invoice.discount || 0)) / 100 : invoice.discount || 0;
+		invoice.discountType === "percent"
+			? (subtotal * (invoice.discount || 0)) / 100
+			: invoice.discount || 0;
 	const discount = round2(Math.min(Math.max(rawDiscount, 0), subtotal));
 	const taxable = round2(subtotal - discount);
 	const tax = round2((taxable * (invoice.taxRate || 0)) / 100);
@@ -54,4 +58,20 @@ export function formatMoney(amount: number, currency: string): string {
 	}
 }
 
-export const CURRENCIES = ["USD", "EUR", "GBP", "INR", "AED", "SAR", "PKR", "BDT", "NGN", "CAD", "AUD", "SGD", "JPY", "CNY", "ZAR"] as const;
+export const CURRENCIES = [
+	"USD",
+	"EUR",
+	"GBP",
+	"INR",
+	"AED",
+	"SAR",
+	"PKR",
+	"BDT",
+	"NGN",
+	"CAD",
+	"AUD",
+	"SGD",
+	"JPY",
+	"CNY",
+	"ZAR",
+] as const;

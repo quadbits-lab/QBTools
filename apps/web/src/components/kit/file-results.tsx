@@ -17,7 +17,11 @@ export interface FileJob {
 }
 
 let jobCounter = 0;
-export const makeJob = (file: File): FileJob => ({ id: `job-${++jobCounter}`, file, status: "queued" });
+export const makeJob = (file: File): FileJob => ({
+	id: `job-${++jobCounter}`,
+	file,
+	status: "queued",
+});
 
 function Thumb({ blob }: { blob?: Blob }) {
 	const url = useObjectUrl(blob?.type.startsWith("image/") ? blob : undefined);
@@ -29,7 +33,13 @@ function Thumb({ blob }: { blob?: Blob }) {
 }
 
 /** List of processed files with before → after sizes and downloads. */
-export function FileResults({ jobs, onRemove }: { jobs: FileJob[]; onRemove?: (id: string) => void }) {
+export function FileResults({
+	jobs,
+	onRemove,
+}: {
+	jobs: FileJob[];
+	onRemove?: (id: string) => void;
+}) {
 	const [zipping, setZipping] = useState(false);
 	const done = jobs.filter((j) => j.status === "done" && j.result);
 	const totalBefore = done.reduce((s, j) => s + j.file.size, 0);
@@ -41,7 +51,10 @@ export function FileResults({ jobs, onRemove }: { jobs: FileJob[]; onRemove?: (i
 				{jobs.map((job) => {
 					const saved = job.result ? 1 - job.result.blob.size / job.file.size : 0;
 					return (
-						<li key={job.id} className="flex flex-wrap items-center gap-3 rounded-2xl border border-border p-3 sm:flex-nowrap">
+						<li
+							key={job.id}
+							className="flex flex-wrap items-center gap-3 rounded-2xl border border-border p-3 sm:flex-nowrap"
+						>
 							<Thumb blob={job.result?.blob ?? job.file} />
 							<div className="min-w-0 flex-1">
 								<p className="truncate font-semibold">{job.result?.name ?? job.file.name}</p>
@@ -50,8 +63,16 @@ export function FileResults({ jobs, onRemove }: { jobs: FileJob[]; onRemove?: (i
 									{job.result && (
 										<>
 											<ArrowRight className="size-3.5" />
-											<span className="font-mono font-semibold text-foreground">{formatBytes(job.result.blob.size)}</span>
-											{saved > 0.005 ? <Badge tone="positive">−{Math.round(saved * 100)}%</Badge> : <Badge>{saved < -0.005 ? `+${Math.round(-saved * 100)}%` : "same size"}</Badge>}
+											<span className="font-mono font-semibold text-foreground">
+												{formatBytes(job.result.blob.size)}
+											</span>
+											{saved > 0.005 ? (
+												<Badge tone="positive">−{Math.round(saved * 100)}%</Badge>
+											) : (
+												<Badge>
+													{saved < -0.005 ? `+${Math.round(-saved * 100)}%` : "same size"}
+												</Badge>
+											)}
 										</>
 									)}
 								</p>
@@ -65,15 +86,23 @@ export function FileResults({ jobs, onRemove }: { jobs: FileJob[]; onRemove?: (i
 							<div className="flex items-center gap-1">
 								{job.status === "working" || job.status === "queued" ? (
 									<span className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
-										<Loader2 className="size-4 animate-spin" /> {job.status === "working" ? "Working…" : "Waiting…"}
+										<Loader2 className="size-4 animate-spin" />{" "}
+										{job.status === "working" ? "Working…" : "Waiting…"}
 									</span>
 								) : job.result ? (
-									<Button onClick={() => job.result && downloadBlob(job.result.blob, job.result.name)}>
+									<Button
+										onClick={() => job.result && downloadBlob(job.result.blob, job.result.name)}
+									>
 										<Download /> Download
 									</Button>
 								) : null}
 								{onRemove && (
-									<Button variant="ghost" size="icon-sm" aria-label={`Remove ${job.file.name}`} onClick={() => onRemove(job.id)}>
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										aria-label={`Remove ${job.file.name}`}
+										onClick={() => onRemove(job.id)}
+									>
 										<X className="size-4" />
 									</Button>
 								)}
@@ -85,8 +114,11 @@ export function FileResults({ jobs, onRemove }: { jobs: FileJob[]; onRemove?: (i
 			{done.length > 1 && (
 				<div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-positive-soft/60 p-4">
 					<p>
-						<strong>{done.length} files</strong> · {formatBytes(totalBefore)} → <strong>{formatBytes(totalAfter)}</strong>
-						{totalBefore > totalAfter && <> (saved {Math.round((1 - totalAfter / totalBefore) * 100)}%)</>}
+						<strong>{done.length} files</strong> · {formatBytes(totalBefore)} →{" "}
+						<strong>{formatBytes(totalAfter)}</strong>
+						{totalBefore > totalAfter && (
+							<> (saved {Math.round((1 - totalAfter / totalBefore) * 100)}%)</>
+						)}
 					</p>
 					<Button
 						size="lg"
@@ -94,7 +126,15 @@ export function FileResults({ jobs, onRemove }: { jobs: FileJob[]; onRemove?: (i
 						onClick={async () => {
 							setZipping(true);
 							try {
-								downloadBlob(await zipFiles(done.map((j) => ({ name: j.result?.name ?? j.file.name, blob: j.result?.blob as Blob }))), "qbtools-files.zip");
+								downloadBlob(
+									await zipFiles(
+										done.map((j) => ({
+											name: j.result?.name ?? j.file.name,
+											blob: j.result?.blob as Blob,
+										})),
+									),
+									"qbtools-files.zip",
+								);
 							} finally {
 								setZipping(false);
 							}
@@ -120,8 +160,11 @@ export async function runJobs(
 			const result = await work(job.file);
 			setJobs((list) => list.map((j) => (j.id === job.id ? { ...j, status: "done", result } : j)));
 		} catch (error) {
-			const message = error instanceof Error ? error.message : "Something went wrong with this file.";
-			setJobs((list) => list.map((j) => (j.id === job.id ? { ...j, status: "error", error: message } : j)));
+			const message =
+				error instanceof Error ? error.message : "Something went wrong with this file.";
+			setJobs((list) =>
+				list.map((j) => (j.id === job.id ? { ...j, status: "error", error: message } : j)),
+			);
 		}
 	}
 }

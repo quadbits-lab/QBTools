@@ -23,13 +23,21 @@ export const aiTextFn = createServerFn({ method: "POST" })
 	.validator(aiTextSchema)
 	.handler(async ({ data }): Promise<AiTextResult> => {
 		const env = getEnv();
-		if (!env.AI_API_KEY) return { ok: false, error: "The AI helper isn't switched on for this site yet." };
+		if (!env.AI_API_KEY)
+			return { ok: false, error: "The AI helper isn't switched on for this site yet." };
 		if (data.text.length > env.AI_MAX_INPUT_CHARS) {
-			return { ok: false, error: `Please keep it under ${env.AI_MAX_INPUT_CHARS.toLocaleString("en")} characters.` };
+			return {
+				ok: false,
+				error: `Please keep it under ${env.AI_MAX_INPUT_CHARS.toLocaleString("en")} characters.`,
+			};
 		}
 		limiter ??= createRateLimiter({ limit: env.RATE_LIMIT_AI_PER_HOUR, windowMs: 3_600_000 });
 		const allowed = limiter.take(`ai:${clientKey()}`);
-		if (!allowed.ok) return { ok: false, error: `You've used the AI helper a lot! Try again in ${Math.ceil(allowed.retryAfter / 60)} minutes.` };
+		if (!allowed.ok)
+			return {
+				ok: false,
+				error: `You've used the AI helper a lot! Try again in ${Math.ceil(allowed.retryAfter / 60)} minutes.`,
+			};
 
 		const { default: Anthropic } = await import("@anthropic-ai/sdk");
 		const client = new Anthropic({ apiKey: env.AI_API_KEY });
@@ -70,10 +78,21 @@ export const aiTextFn = createServerFn({ method: "POST" })
 					messages: [{ role: "user", content: `<text>\n${data.text}\n</text>` }],
 				});
 				const block = response.content.find((b) => b.type === "tool_use");
-				const input = (block?.type === "tool_use" ? block.input : null) as { corrected?: unknown; changes?: unknown } | null;
-				if (!input || typeof input.corrected !== "string") return { ok: false, error: "The AI couldn't check this text. Please try again." };
-				const changes = Array.isArray(input.changes) ? (input.changes as GrammarChange[]).filter((c) => c && typeof c.original === "string") : [];
-				return { ok: true, mode: "grammar", corrected: input.corrected, changes: changes.slice(0, 50) };
+				const input = (block?.type === "tool_use" ? block.input : null) as {
+					corrected?: unknown;
+					changes?: unknown;
+				} | null;
+				if (!input || typeof input.corrected !== "string")
+					return { ok: false, error: "The AI couldn't check this text. Please try again." };
+				const changes = Array.isArray(input.changes)
+					? (input.changes as GrammarChange[]).filter((c) => c && typeof c.original === "string")
+					: [];
+				return {
+					ok: true,
+					mode: "grammar",
+					corrected: input.corrected,
+					changes: changes.slice(0, 50),
+				};
 			}
 
 			const response = await client.messages.create({
@@ -86,7 +105,9 @@ export const aiTextFn = createServerFn({ method: "POST" })
 						description: "Return 2 alternative rewrites.",
 						input_schema: {
 							type: "object",
-							properties: { versions: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 3 } },
+							properties: {
+								versions: { type: "array", items: { type: "string" }, minItems: 1, maxItems: 3 },
+							},
 							required: ["versions"],
 						},
 					},
@@ -95,9 +116,14 @@ export const aiTextFn = createServerFn({ method: "POST" })
 				messages: [{ role: "user", content: `<text>\n${data.text}\n</text>` }],
 			});
 			const block = response.content.find((b) => b.type === "tool_use");
-			const input = (block?.type === "tool_use" ? block.input : null) as { versions?: unknown } | null;
-			const versions = Array.isArray(input?.versions) ? input.versions.filter((v): v is string => typeof v === "string" && v.trim() !== "") : [];
-			if (versions.length === 0) return { ok: false, error: "The AI couldn't rewrite this text. Please try again." };
+			const input = (block?.type === "tool_use" ? block.input : null) as {
+				versions?: unknown;
+			} | null;
+			const versions = Array.isArray(input?.versions)
+				? input.versions.filter((v): v is string => typeof v === "string" && v.trim() !== "")
+				: [];
+			if (versions.length === 0)
+				return { ok: false, error: "The AI couldn't rewrite this text. Please try again." };
 			return { ok: true, mode: "paraphrase", versions: versions.slice(0, 3) };
 		} catch (error) {
 			console.error("[ai] request failed", error);

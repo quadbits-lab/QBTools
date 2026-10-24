@@ -1,7 +1,7 @@
+import { Button } from "@qbtools/ui/button";
 import { onThemeChange, readThemeMode, setThemeMode, type ThemeMode } from "@qbtools/ui/theme";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@qbtools/ui/button";
 
 const NEXT: Record<ThemeMode, ThemeMode> = { light: "dark", dark: "system", system: "light" };
 const LABEL: Record<ThemeMode, string> = { light: "Light", dark: "Dark", system: "System" };

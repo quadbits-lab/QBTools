@@ -23,7 +23,10 @@ export const calculatorTools: ToolDef[] = [
 				title: "Optional: change the “as of” date",
 				text: "Leave it as today, or pick a date like an exam deadline.",
 			},
-			{ title: "See your age", text: "Years, months, days, and your next birthday appear instantly." },
+			{
+				title: "See your age",
+				text: "Years, months, days, and your next birthday appear instantly.",
+			},
 		],
 		about: {
 			what: "The age calculator finds the exact time between two dates, counting real month lengths and leap years, so the result matches what forms expect.",
@@ -68,7 +71,10 @@ export const calculatorTools: ToolDef[] = [
 		howTo: [
 			{ title: "Enter loan amount", text: "Type how much you want to borrow." },
 			{ title: "Add rate and tenure", text: "Enter the yearly interest rate and the loan length." },
-			{ title: "See the breakdown", text: "Get the EMI, total interest and full repayment schedule." },
+			{
+				title: "See the breakdown",
+				text: "Get the EMI, total interest and full repayment schedule.",
+			},
 		],
 		about: {
 			what: "EMI (Equated Monthly Instalment) is the fixed amount you pay each month on a loan. It covers both interest and part of the loan itself. Early payments are mostly interest; later ones are mostly principal.",

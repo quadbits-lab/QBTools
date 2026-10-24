@@ -129,7 +129,8 @@ function crackTimeFromEntropy(bits: number): string {
 }
 
 export function strengthFromEntropy(bits: number): Strength {
-	const score: Strength["score"] = bits < 28 ? 0 : bits < 36 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4;
+	const score: Strength["score"] =
+		bits < 28 ? 0 : bits < 36 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4;
 	const labels = ["Very weak", "Weak", "Fair", "Strong", "Very strong"] as const;
 	return { score, label: labels[score], entropyBits: bits, crackTime: crackTimeFromEntropy(bits) };
 }

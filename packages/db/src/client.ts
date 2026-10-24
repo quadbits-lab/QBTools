@@ -23,7 +23,10 @@ export function migrate(sqlite: Database): string[] {
 		if (done.has(migration.id)) continue;
 		sqlite.transaction(() => {
 			sqlite.run(migration.sql);
-			sqlite.run("INSERT INTO _migrations (id, applied_at) VALUES (?, ?)", [migration.id, Date.now()]);
+			sqlite.run("INSERT INTO _migrations (id, applied_at) VALUES (?, ?)", [
+				migration.id,
+				Date.now(),
+			]);
 		})();
 		applied.push(migration.id);
 	}

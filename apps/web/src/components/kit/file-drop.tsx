@@ -32,7 +32,11 @@ export function FileDrop({
 		const name = file.name.toLowerCase();
 		const type = file.type.toLowerCase();
 		return rules.some((rule) =>
-			rule.startsWith(".") ? name.endsWith(rule) : rule.endsWith("/*") ? type.startsWith(rule.slice(0, -1)) : type === rule,
+			rule.startsWith(".")
+				? name.endsWith(rule)
+				: rule.endsWith("/*")
+					? type.startsWith(rule.slice(0, -1))
+					: type === rule,
 		);
 	};
 
@@ -78,9 +82,13 @@ export function FileDrop({
 			<span className="grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground">
 				<Upload className="size-7" />
 			</span>
-			<span className="text-lg font-bold">{title ?? (multiple ? "Choose files or drop them here" : "Choose a file or drop it here")}</span>
+			<span className="text-lg font-bold">
+				{title ?? (multiple ? "Choose files or drop them here" : "Choose a file or drop it here")}
+			</span>
 			{hint ? <span className="text-sm text-muted-foreground">{hint}</span> : null}
-			<span className="hidden text-xs text-muted-foreground sm:block">You can also paste with Ctrl+V / ⌘V</span>
+			<span className="hidden text-xs text-muted-foreground sm:block">
+				You can also paste with Ctrl+V / ⌘V
+			</span>
 			<input
 				ref={inputRef}
 				id={inputId}

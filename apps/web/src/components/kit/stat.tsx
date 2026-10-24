@@ -23,7 +23,13 @@ export function Stat({
 			)}
 		>
 			<span className="text-sm font-medium text-muted-foreground">{label}</span>
-			<span className={cn("font-mono text-2xl font-bold tracking-tight", tone === "primary" && "text-primary", tone === "positive" && "text-positive")}>
+			<span
+				className={cn(
+					"font-mono text-2xl font-bold tracking-tight",
+					tone === "primary" && "text-primary",
+					tone === "positive" && "text-positive",
+				)}
+			>
 				{value}
 			</span>
 			{hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}

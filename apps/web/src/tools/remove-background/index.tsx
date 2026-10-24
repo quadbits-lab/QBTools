@@ -1,5 +1,11 @@
 import { downloadBlob, replaceExtension } from "@qbtools/engines/files";
-import { compositeOn, decodeImage, drawToCanvas, encodeCanvas, scaleToFit } from "@qbtools/engines/image";
+import {
+	compositeOn,
+	decodeImage,
+	drawToCanvas,
+	encodeCanvas,
+	scaleToFit,
+} from "@qbtools/engines/image";
 import { Button } from "@qbtools/ui/button";
 import { Input } from "@qbtools/ui/input";
 import { Progress } from "@qbtools/ui/progress";
@@ -12,7 +18,15 @@ import { PrivacyNote } from "#/components/kit/privacy-note";
 import { useObjectUrl } from "#/components/kit/use-object-url";
 import type { WorkerRequest, WorkerResponse } from "./worker";
 
-const BACKGROUNDS = [null, "#ffffff", "#000000", "#e0e7ff", "#fde68a", "#bbf7d0", "#fecaca"] as const;
+const BACKGROUNDS = [
+	null,
+	"#ffffff",
+	"#000000",
+	"#e0e7ff",
+	"#fde68a",
+	"#bbf7d0",
+	"#fecaca",
+] as const;
 const MAX_SIDE = 2048;
 
 export default function RemoveBackground() {
@@ -41,7 +55,13 @@ export default function RemoveBackground() {
 				const canvas = document.createElement("canvas");
 				canvas.width = msg.width;
 				canvas.height = msg.height;
-				canvas.getContext("2d")?.putImageData(new ImageData(new Uint8ClampedArray(msg.data), msg.width, msg.height), 0, 0);
+				canvas
+					.getContext("2d")
+					?.putImageData(
+						new ImageData(new Uint8ClampedArray(msg.data), msg.width, msg.height),
+						0,
+						0,
+					);
 				setCutout(canvas);
 				setStatus("done");
 			}
@@ -52,12 +72,17 @@ export default function RemoveBackground() {
 
 	useEffect(() => {
 		if (!cutout) return;
-		void encodeCanvas(compositeOn(cutout, background), background ? "jpeg" : "png", 0.92).then(setResult);
+		void encodeCanvas(compositeOn(cutout, background), background ? "jpeg" : "png", 0.92).then(
+			setResult,
+		);
 	}, [cutout, background]);
 
-	useEffect(() => () => {
-		if (original) URL.revokeObjectURL(original);
-	}, [original]);
+	useEffect(
+		() => () => {
+			if (original) URL.revokeObjectURL(original);
+		},
+		[original],
+	);
 
 	const start = async (files: File[]) => {
 		const f = files[0];
@@ -75,7 +100,11 @@ export default function RemoveBackground() {
 			setFile(f);
 			setOriginal(URL.createObjectURL(blob));
 			setStatus("loading");
-			workerRef.current?.postMessage({ type: "run", id: Date.now(), image: blob } satisfies WorkerRequest);
+			workerRef.current?.postMessage({
+				type: "run",
+				id: Date.now(),
+				image: blob,
+			} satisfies WorkerRequest);
 		} catch (e) {
 			setError(e instanceof Error ? e.message : "Couldn't open this image.");
 		}
@@ -84,7 +113,11 @@ export default function RemoveBackground() {
 	if (!file) {
 		return (
 			<div className="flex flex-col gap-4">
-				<FileDrop accept="image/*,.heic,.heif" onFiles={start} hint="Photos of people, products, pets or objects work best" />
+				<FileDrop
+					accept="image/*,.heic,.heif"
+					onFiles={start}
+					hint="Photos of people, products, pets or objects work best"
+				/>
 				{error && <Notice tone="critical">{error}</Notice>}
 				<PrivacyNote text="The AI runs on your device — your photo is never uploaded." />
 			</div>
@@ -94,15 +127,37 @@ export default function RemoveBackground() {
 	const busy = status === "loading" || status === "working";
 	return (
 		<div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-			<div className={cn("relative grid min-h-80 place-items-center overflow-hidden rounded-2xl border border-border", !background && "checker-bg")} style={background ? { backgroundColor: background } : undefined}>
-				{preview ? <img src={preview} alt="Result with background removed" className="max-h-[32rem] max-w-full object-contain" /> : original ? <img src={original} alt="Original" className={cn("max-h-[32rem] max-w-full object-contain", busy && "opacity-50")} /> : null}
+			<div
+				className={cn(
+					"relative grid min-h-80 place-items-center overflow-hidden rounded-2xl border border-border",
+					!background && "checker-bg",
+				)}
+				style={background ? { backgroundColor: background } : undefined}
+			>
+				{preview ? (
+					<img
+						src={preview}
+						alt="Result with background removed"
+						className="max-h-[32rem] max-w-full object-contain"
+					/>
+				) : original ? (
+					<img
+						src={original}
+						alt="Original"
+						className={cn("max-h-[32rem] max-w-full object-contain", busy && "opacity-50")}
+					/>
+				) : null}
 				{busy && (
 					<div className="absolute inset-x-6 bottom-6 rounded-xl bg-surface/95 p-4 shadow-lg">
 						{status === "loading" && progress && progress.total > 0 ? (
-							<Progress value={(progress.loaded / progress.total) * 100} label={`Downloading the AI model (one time) · ${formatBytes(progress.loaded)} of ${formatBytes(progress.total)}`} />
+							<Progress
+								value={(progress.loaded / progress.total) * 100}
+								label={`Downloading the AI model (one time) · ${formatBytes(progress.loaded)} of ${formatBytes(progress.total)}`}
+							/>
 						) : (
 							<p className="flex items-center gap-2 font-semibold">
-								<Loader2 className="size-5 animate-spin text-primary" /> {status === "loading" ? "Starting the AI…" : "Removing the background…"}
+								<Loader2 className="size-5 animate-spin text-primary" />{" "}
+								{status === "loading" ? "Starting the AI…" : "Removing the background…"}
 							</p>
 						)}
 					</div>
@@ -120,21 +175,56 @@ export default function RemoveBackground() {
 								aria-checked={background === bg}
 								aria-label={bg ?? "Transparent"}
 								onClick={() => setBackground(bg)}
-								className={cn("size-12 cursor-pointer rounded-xl border-2", background === bg ? "border-primary ring-2 ring-primary/30" : "border-border", !bg && "checker-bg")}
+								className={cn(
+									"size-12 cursor-pointer rounded-xl border-2",
+									background === bg ? "border-primary ring-2 ring-primary/30" : "border-border",
+									!bg && "checker-bg",
+								)}
 								style={bg ? { backgroundColor: bg } : undefined}
 							/>
 						))}
 						<label className="flex items-center gap-2">
-							<Input type="color" aria-label="Custom background color" value={custom} onChange={(e) => { setCustom(e.target.value); setBackground(e.target.value); }} className="size-12 cursor-pointer p-1" />
+							<Input
+								type="color"
+								aria-label="Custom background color"
+								value={custom}
+								onChange={(e) => {
+									setCustom(e.target.value);
+									setBackground(e.target.value);
+								}}
+								className="size-12 cursor-pointer p-1"
+							/>
 						</label>
 					</div>
 				</div>
 				{result && (
-					<Button size="lg" onClick={() => downloadBlob(result, replaceExtension(file.name, background ? "jpg" : "png").replace(/(\.\w+)$/, "-no-bg$1"))}>
-						<Download /> Download {background ? "JPG" : "transparent PNG"} ({formatBytes(result.size)})
+					<Button
+						size="lg"
+						onClick={() =>
+							downloadBlob(
+								result,
+								replaceExtension(file.name, background ? "jpg" : "png").replace(
+									/(\.\w+)$/,
+									"-no-bg$1",
+								),
+							)
+						}
+					>
+						<Download /> Download {background ? "JPG" : "transparent PNG"} (
+						{formatBytes(result.size)})
 					</Button>
 				)}
-				<Button size="lg" variant="secondary" disabled={busy} onClick={() => { setFile(null); setCutout(null); setResult(null); setStatus("idle"); }}>
+				<Button
+					size="lg"
+					variant="secondary"
+					disabled={busy}
+					onClick={() => {
+						setFile(null);
+						setCutout(null);
+						setResult(null);
+						setStatus("idle");
+					}}
+				>
 					<RotateCcw /> Try another photo
 				</Button>
 				{error && <Notice tone="critical">{error}</Notice>}

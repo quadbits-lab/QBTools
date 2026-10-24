@@ -18,7 +18,12 @@ export const Route = createFileRoute("/tools/$slug/")({
 			description: input.description,
 			path: input.path,
 			jsonLd: [
-				webAppLd({ name: tool.name, description: tool.description, path: input.path, category: input.categoryLabel }),
+				webAppLd({
+					name: tool.name,
+					description: tool.description,
+					path: input.path,
+					category: input.categoryLabel,
+				}),
 				faqLd(tool.faqs),
 				breadcrumbLd(input.breadcrumbs),
 			],

@@ -14,7 +14,9 @@ export function Progress({
 		<div className={cn("flex flex-col gap-1.5", className)}>
 			<div className="flex justify-between text-sm">
 				<span className="font-medium">{label}</span>
-				{pct !== null ? <span className="font-mono text-muted-foreground">{pct.toFixed(0)}%</span> : null}
+				{pct !== null ? (
+					<span className="font-mono text-muted-foreground">{pct.toFixed(0)}%</span>
+				) : null}
 			</div>
 			<div
 				role="progressbar"
@@ -25,7 +27,10 @@ export function Progress({
 				className="h-2.5 overflow-hidden rounded-full bg-muted"
 			>
 				<div
-					className={cn("h-full rounded-full bg-primary transition-[width]", pct === null && "w-1/3 animate-pulse")}
+					className={cn(
+						"h-full rounded-full bg-primary transition-[width]",
+						pct === null && "w-1/3 animate-pulse",
+					)}
 					style={pct === null ? undefined : { width: `${pct}%` }}
 				/>
 			</div>

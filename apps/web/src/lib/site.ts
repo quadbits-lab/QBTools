@@ -2,7 +2,10 @@ export const SITE_NAME = "QBTools";
 export const SITE_TAGLINE = "Free tools that just work";
 export const SITE_DESCRIPTION =
 	"Free online tools for everyday tasks — compress images, merge PDFs, count words, calculate EMI, make QR codes and more. No signup, private and fast.";
-export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:3000").replace(
+	/\/$/,
+	"",
+);
 export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? "hello@qbtools.app";
 export const THEME_COLOR = "#4f46e5";
 

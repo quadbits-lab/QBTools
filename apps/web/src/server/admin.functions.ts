@@ -1,7 +1,15 @@
-import { contactMessages, count, desc, getDb, premiumWaitlist, serviceLeads, toolSuggestions } from "@qbtools/db";
+import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+	contactMessages,
+	count,
+	desc,
+	getDb,
+	premiumWaitlist,
+	serviceLeads,
+	toolSuggestions,
+} from "@qbtools/db";
 import { createServerFn } from "@tanstack/react-start";
 import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
-import { createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { getEnv } from "./env";
 import { createRateLimiter } from "./rate-limit";
@@ -32,9 +40,15 @@ export const adminLoginFn = createServerFn({ method: "POST" })
 	.validator(z.object({ token: z.string().min(1).max(500) }))
 	.handler(async ({ data }) => {
 		const token = getEnv().ADMIN_TOKEN;
-		if (!token) return { ok: false as const, error: "Admin is disabled. Set ADMIN_TOKEN (16+ characters) to enable it." };
-		if (!loginLimiter.take(clientKey()).ok) return { ok: false as const, error: "Too many attempts. Try again later." };
-		if (!safeEqual(data.token, token)) return { ok: false as const, error: "That token isn't right." };
+		if (!token)
+			return {
+				ok: false as const,
+				error: "Admin is disabled. Set ADMIN_TOKEN (16+ characters) to enable it.",
+			};
+		if (!loginLimiter.take(clientKey()).ok)
+			return { ok: false as const, error: "Too many attempts. Try again later." };
+		if (!safeEqual(data.token, token))
+			return { ok: false as const, error: "That token isn't right." };
 		setCookie(COOKIE, sessionValue(token), {
 			httpOnly: true,
 			sameSite: "strict",
@@ -55,12 +69,17 @@ export const adminDataFn = createServerFn({ method: "GET" }).handler(async () =>
 	const db = getDb();
 	const [contacts, suggestions, leads, waitlist, waitlistCount] = await Promise.all([
 		db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt)).limit(200),
-		db.select().from(toolSuggestions).orderBy(desc(toolSuggestions.votes), desc(toolSuggestions.createdAt)).limit(200),
+		db
+			.select()
+			.from(toolSuggestions)
+			.orderBy(desc(toolSuggestions.votes), desc(toolSuggestions.createdAt))
+			.limit(200),
 		db.select().from(serviceLeads).orderBy(desc(serviceLeads.createdAt)).limit(200),
 		db.select().from(premiumWaitlist).orderBy(desc(premiumWaitlist.createdAt)).limit(200),
 		db.select({ n: count() }).from(premiumWaitlist),
 	]);
-	const iso = <T extends { createdAt: Date }>(rows: T[]) => rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
+	const iso = <T extends { createdAt: Date }>(rows: T[]) =>
+		rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
 	return {
 		authorized: true as const,
 		contacts: iso(contacts),

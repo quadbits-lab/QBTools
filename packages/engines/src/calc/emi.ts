@@ -17,7 +17,11 @@ export interface EmiResult {
  * EMI = P·r·(1+r)^n / ((1+r)^n − 1), r = monthly rate.
  * Returns null for non-positive principal or tenure.
  */
-export function calculateEmi(principal: number, annualRatePct: number, months: number): EmiResult | null {
+export function calculateEmi(
+	principal: number,
+	annualRatePct: number,
+	months: number,
+): EmiResult | null {
 	if (!(principal > 0) || !(months >= 1) || !(annualRatePct >= 0)) return null;
 	const n = Math.round(months);
 	const r = annualRatePct / 12 / 100;

@@ -9,7 +9,10 @@ type Result = { ok: true; message: string } | { ok: false; error: string };
  * Validates FormData against a zod schema in the browser (instant feedback),
  * then calls the server function, which validates again.
  */
-export function useFormSubmit<S extends z.ZodType>(schema: S, action: (input: { data: z.input<S> }) => Promise<Result>) {
+export function useFormSubmit<S extends z.ZodType>(
+	schema: S,
+	action: (input: { data: z.input<S> }) => Promise<Result>,
+) {
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [pending, setPending] = useState(false);
 	const [done, setDone] = useState<string | null>(null);

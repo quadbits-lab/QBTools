@@ -14,32 +14,60 @@ export const Route = createFileRoute("/services")({
 	head: () =>
 		seo({
 			title: "Services — Custom Tools, Websites, Design & SEO",
-			description: "Hire the QBTools team to build custom calculators, websites, designs and SEO content for your business. Free quote within 2 days.",
+			description:
+				"Hire the QBTools team to build custom calculators, websites, designs and SEO content for your business. Free quote within 2 days.",
 			path: "/services",
 		}),
 	component: ServicesPage,
 });
 
 const OFFERS = [
-	{ icon: Code2, title: "Custom tools & calculators", text: "Loan calculators, quote builders, converters — embedded on your own website and branded to match." },
-	{ icon: Layers, title: "Websites & web apps", text: "Fast, mobile-first websites that are easy to update. From landing pages to full web apps." },
-	{ icon: Palette, title: "Design & branding", text: "Logos, social media kits, YouTube thumbnails and presentation templates." },
-	{ icon: Megaphone, title: "SEO & content", text: "Pages and articles built to rank, plus technical SEO audits for existing sites." },
+	{
+		icon: Code2,
+		title: "Custom tools & calculators",
+		text: "Loan calculators, quote builders, converters — embedded on your own website and branded to match.",
+	},
+	{
+		icon: Layers,
+		title: "Websites & web apps",
+		text: "Fast, mobile-first websites that are easy to update. From landing pages to full web apps.",
+	},
+	{
+		icon: Palette,
+		title: "Design & branding",
+		text: "Logos, social media kits, YouTube thumbnails and presentation templates.",
+	},
+	{
+		icon: Megaphone,
+		title: "SEO & content",
+		text: "Pages and articles built to rank, plus technical SEO audits for existing sites.",
+	},
 ];
 
 function ServicesPage() {
-	const { errors, pending, done, onSubmit, reset } = useFormSubmit(leadSchema, useServerFn(submitLead));
+	const { errors, pending, done, onSubmit, reset } = useFormSubmit(
+		leadSchema,
+		useServerFn(submitLead),
+	);
 	return (
 		<>
 			<PageHero
 				eyebrow="QBTools Services"
 				title="We build the tools and websites your business needs"
-				description={<p>The same team that makes QBTools fast and simple can build for you. Tell us what you need — the quote is free.</p>}
+				description={
+					<p>
+						The same team that makes QBTools fast and simple can build for you. Tell us what you
+						need — the quote is free.
+					</p>
+				}
 			/>
 			<div className="container-page grid gap-12 py-12 lg:grid-cols-[1fr_1.1fr]">
 				<div className="grid content-start gap-4 sm:grid-cols-2 lg:grid-cols-1">
 					{OFFERS.map((offer) => (
-						<div key={offer.title} className="flex gap-4 rounded-2xl border border-border bg-surface p-5">
+						<div
+							key={offer.title}
+							className="flex gap-4 rounded-2xl border border-border bg-surface p-5"
+						>
 							<span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
 								<offer.icon className="size-6" />
 							</span>
@@ -50,7 +78,10 @@ function ServicesPage() {
 						</div>
 					))}
 				</div>
-				<section aria-labelledby="quote" className="rounded-3xl border border-border bg-surface p-5 sm:p-8">
+				<section
+					aria-labelledby="quote"
+					className="rounded-3xl border border-border bg-surface p-5 sm:p-8"
+				>
 					<h2 id="quote" className="text-2xl font-extrabold tracking-tight">
 						Get a free quote
 					</h2>
@@ -63,13 +94,28 @@ function ServicesPage() {
 							</Button>
 						</div>
 					) : (
-						<form onSubmit={onSubmit} noValidate className="relative mt-6 grid gap-5 sm:grid-cols-2">
+						<form
+							onSubmit={onSubmit}
+							noValidate
+							className="relative mt-6 grid gap-5 sm:grid-cols-2"
+						>
 							<input {...HONEYPOT_PROPS} />
 							<Field label="Your name" htmlFor="l-name" error={errors.name}>
-								<Input id="l-name" name="name" autoComplete="name" aria-invalid={Boolean(errors.name)} />
+								<Input
+									id="l-name"
+									name="name"
+									autoComplete="name"
+									aria-invalid={Boolean(errors.name)}
+								/>
 							</Field>
 							<Field label="Email" htmlFor="l-email" error={errors.email}>
-								<Input id="l-email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(errors.email)} />
+								<Input
+									id="l-email"
+									name="email"
+									type="email"
+									autoComplete="email"
+									aria-invalid={Boolean(errors.email)}
+								/>
 							</Field>
 							<Field label="Company (optional)" htmlFor="l-company">
 								<Input id="l-company" name="company" autoComplete="organization" />
@@ -89,8 +135,18 @@ function ServicesPage() {
 									))}
 								</Select>
 							</Field>
-							<Field label="About your project" htmlFor="l-message" error={errors.message} className="sm:col-span-2">
-								<Textarea id="l-message" name="message" rows={5} aria-invalid={Boolean(errors.message)} />
+							<Field
+								label="About your project"
+								htmlFor="l-message"
+								error={errors.message}
+								className="sm:col-span-2"
+							>
+								<Textarea
+									id="l-message"
+									name="message"
+									rows={5}
+									aria-invalid={Boolean(errors.message)}
+								/>
 							</Field>
 							<div className="sm:col-span-2">
 								<Button type="submit" size="lg" disabled={pending}>

@@ -3,8 +3,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Breadcrumbs } from "#/components/breadcrumbs";
 import { ToolCard } from "#/components/tool-card";
 import { categoryTone, iconFor } from "#/lib/icons";
-import { absoluteUrl } from "#/lib/site";
 import { breadcrumbLd, seo } from "#/lib/seo";
+import { absoluteUrl } from "#/lib/site";
 
 export const Route = createFileRoute("/categories/$category")({
 	loader: ({ params }) => {
@@ -52,11 +52,15 @@ function CategoryPage() {
 		<div className="container-page py-8 sm:py-12">
 			<Breadcrumbs items={[{ name: "Home", href: "/" }, { name: category.name }]} />
 			<header className="flex flex-col gap-5 sm:flex-row sm:items-center">
-				<span className={`grid size-20 shrink-0 place-items-center rounded-3xl ${categoryTone[id]}`}>
+				<span
+					className={`grid size-20 shrink-0 place-items-center rounded-3xl ${categoryTone[id]}`}
+				>
 					<Icon className="size-10" />
 				</span>
 				<div>
-					<h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Free {category.name.toLowerCase()}</h1>
+					<h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+						Free {category.name.toLowerCase()}
+					</h1>
 					<p className="mt-2 max-w-3xl text-lg text-muted-foreground">{category.description}</p>
 				</div>
 			</header>

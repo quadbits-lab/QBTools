@@ -51,7 +51,9 @@ export default function SplitPdf() {
 		setPending(true);
 		setError(null);
 		try {
-			setResults(await splitPdf(file, mode === "ranges" ? { kind: "ranges", ranges } : { kind: "every" }));
+			setResults(
+				await splitPdf(file, mode === "ranges" ? { kind: "ranges", ranges } : { kind: "every" }),
+			);
 		} catch (e) {
 			setError(e instanceof Error ? e.message : "Couldn't split this PDF.");
 		} finally {
@@ -74,28 +76,75 @@ export default function SplitPdf() {
 			<p>
 				<strong>{file.name}</strong> · {pages} pages · {formatBytes(file.size)}
 			</p>
-			<Segmented label="Split mode" value={mode} onChange={(m) => { setMode(m); setResults([]); }} options={[{ value: "ranges", label: "Choose pages" }, { value: "every", label: "Every page separately" }]} className="max-w-lg" />
+			<Segmented
+				label="Split mode"
+				value={mode}
+				onChange={(m) => {
+					setMode(m);
+					setResults([]);
+				}}
+				options={[
+					{ value: "ranges", label: "Choose pages" },
+					{ value: "every", label: "Every page separately" },
+				]}
+				className="max-w-lg"
+			/>
 			{mode === "ranges" && (
-				<Field label="Pages to keep" htmlFor="ranges" error={rangeError} hint={`Example: 1-3, 5, 8-  (this PDF has pages 1–${pages}). ${selected ? `${selected} page${selected === 1 ? "" : "s"} selected.` : ""}`} className="max-w-md">
-					<Input id="ranges" value={ranges} onChange={(e) => { setRanges(e.target.value); setResults([]); }} aria-invalid={Boolean(rangeError)} className="font-mono" />
+				<Field
+					label="Pages to keep"
+					htmlFor="ranges"
+					error={rangeError}
+					hint={`Example: 1-3, 5, 8-  (this PDF has pages 1–${pages}). ${selected ? `${selected} page${selected === 1 ? "" : "s"} selected.` : ""}`}
+					className="max-w-md"
+				>
+					<Input
+						id="ranges"
+						value={ranges}
+						onChange={(e) => {
+							setRanges(e.target.value);
+							setResults([]);
+						}}
+						aria-invalid={Boolean(rangeError)}
+						className="font-mono"
+					/>
 				</Field>
 			)}
 			{results.length === 0 && (
-				<Button size="lg" className="self-start" onClick={run} disabled={pending || Boolean(rangeError)}>
-					{pending ? <Loader2 className="animate-spin" /> : <Scissors />} {mode === "ranges" ? "Extract pages" : `Split into ${pages} files`}
+				<Button
+					size="lg"
+					className="self-start"
+					onClick={run}
+					disabled={pending || Boolean(rangeError)}
+				>
+					{pending ? <Loader2 className="animate-spin" /> : <Scissors />}{" "}
+					{mode === "ranges" ? "Extract pages" : `Split into ${pages} files`}
 				</Button>
 			)}
 			{error && <Notice tone="critical">{error}</Notice>}
-			{results.length === 1 && results[0] && <ResultDownload blob={results[0].blob} name={results[0].name} />}
+			{results.length === 1 && results[0] && (
+				<ResultDownload blob={results[0].blob} name={results[0].name} />
+			)}
 			{results.length > 1 && (
 				<div className="flex flex-wrap items-center gap-3 rounded-2xl bg-positive-soft/60 p-5">
 					<p className="flex-1 font-bold">{results.length} PDFs ready</p>
-					<Button size="lg" onClick={async () => downloadBlob(await zipFiles(results), file.name.replace(/\.pdf$/i, "-pages.zip"))}>
+					<Button
+						size="lg"
+						onClick={async () =>
+							downloadBlob(await zipFiles(results), file.name.replace(/\.pdf$/i, "-pages.zip"))
+						}
+					>
 						<FileArchive /> Download all (ZIP)
 					</Button>
 				</div>
 			)}
-			<Button variant="ghost" className="self-start" onClick={() => { setFile(null); setResults([]); }}>
+			<Button
+				variant="ghost"
+				className="self-start"
+				onClick={() => {
+					setFile(null);
+					setResults([]);
+				}}
+			>
 				<RotateCcw /> Choose another PDF
 			</Button>
 			<PrivacyNote />

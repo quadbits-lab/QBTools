@@ -15,7 +15,8 @@ export type WorkerResponse =
 	| { type: "result"; id: number; width: number; height: number; data: Uint8ClampedArray }
 	| { type: "error"; id?: number; message: string };
 
-const post = (message: WorkerResponse, transfer: Transferable[] = []) => (self as DedicatedWorkerGlobalScope).postMessage(message, transfer);
+const post = (message: WorkerResponse, transfer: Transferable[] = []) =>
+	(self as DedicatedWorkerGlobalScope).postMessage(message, transfer);
 
 const files = new Map<string, { loaded: number; total: number }>();
 function onProgress(info: ProgressInfo) {
@@ -36,7 +37,11 @@ let segmenter: Promise<Segmenter> | null = null;
 
 async function createSegmenter(): Promise<Segmenter> {
 	post({ type: "status", status: "loading" });
-	const model = await pipeline("background-removal", MODEL, { device: "wasm", dtype: "q8", progress_callback: onProgress });
+	const model = await pipeline("background-removal", MODEL, {
+		device: "wasm",
+		dtype: "q8",
+		progress_callback: onProgress,
+	});
 	post({ type: "status", status: "ready" });
 	return model as unknown as Segmenter;
 }
@@ -55,6 +60,11 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
 	} catch (error) {
 		segmenter = null;
 		console.error(error);
-		post({ type: "error", id, message: "The AI couldn't process this photo. Please try a smaller image, or the latest Chrome, Edge, Safari or Firefox." });
+		post({
+			type: "error",
+			id,
+			message:
+				"The AI couldn't process this photo. Please try a smaller image, or the latest Chrome, Edge, Safari or Firefox.",
+		});
 	}
 };

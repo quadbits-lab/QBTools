@@ -37,10 +37,62 @@ interface Design {
 }
 
 const TEMPLATES: { name: string; design: Partial<Design> }[] = [
-	{ name: "Bold yellow", design: { bg1: "#111827", bg2: "#1f2937", titleColor: "#facc15", strokeColor: "#000000", strokeWidth: 14, font: "Anton", position: "bottom", align: "left", badgeColor: "#ef4444" } },
-	{ name: "Clean white", design: { bg1: "#4f46e5", bg2: "#7c3aed", titleColor: "#ffffff", strokeColor: "#1e1b4b", strokeWidth: 8, font: "Bebas Neue", position: "center", align: "center", badgeColor: "#f59e0b" } },
-	{ name: "Red alert", design: { bg1: "#7f1d1d", bg2: "#dc2626", titleColor: "#ffffff", strokeColor: "#000000", strokeWidth: 16, font: "Anton", position: "top", align: "left", badgeColor: "#facc15" } },
-	{ name: "Fresh green", design: { bg1: "#064e3b", bg2: "#10b981", titleColor: "#ecfccb", strokeColor: "#022c22", strokeWidth: 10, font: "Bebas Neue", position: "bottom", align: "center", badgeColor: "#0ea5e9" } },
+	{
+		name: "Bold yellow",
+		design: {
+			bg1: "#111827",
+			bg2: "#1f2937",
+			titleColor: "#facc15",
+			strokeColor: "#000000",
+			strokeWidth: 14,
+			font: "Anton",
+			position: "bottom",
+			align: "left",
+			badgeColor: "#ef4444",
+		},
+	},
+	{
+		name: "Clean white",
+		design: {
+			bg1: "#4f46e5",
+			bg2: "#7c3aed",
+			titleColor: "#ffffff",
+			strokeColor: "#1e1b4b",
+			strokeWidth: 8,
+			font: "Bebas Neue",
+			position: "center",
+			align: "center",
+			badgeColor: "#f59e0b",
+		},
+	},
+	{
+		name: "Red alert",
+		design: {
+			bg1: "#7f1d1d",
+			bg2: "#dc2626",
+			titleColor: "#ffffff",
+			strokeColor: "#000000",
+			strokeWidth: 16,
+			font: "Anton",
+			position: "top",
+			align: "left",
+			badgeColor: "#facc15",
+		},
+	},
+	{
+		name: "Fresh green",
+		design: {
+			bg1: "#064e3b",
+			bg2: "#10b981",
+			titleColor: "#ecfccb",
+			strokeColor: "#022c22",
+			strokeWidth: 10,
+			font: "Bebas Neue",
+			position: "bottom",
+			align: "center",
+			badgeColor: "#0ea5e9",
+		},
+	},
 ];
 
 const initial: Design = {
@@ -76,7 +128,14 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 	return lines;
 }
 
-function drawCover(ctx: CanvasRenderingContext2D, img: CanvasImageSource & { width: number; height: number }, x: number, y: number, w: number, h: number) {
+function drawCover(
+	ctx: CanvasRenderingContext2D,
+	img: CanvasImageSource & { width: number; height: number },
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+) {
 	const scale = Math.max(w / img.width, h / img.height);
 	const sw = w / scale;
 	const sh = h / scale;
@@ -95,10 +154,13 @@ export default function ThumbnailMaker() {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [fontsReady, setFontsReady] = useState(0);
-	const set = <K extends keyof Design>(key: K, value: Design[K]) => setD((v) => ({ ...v, [key]: value }));
+	const set = <K extends keyof Design>(key: K, value: Design[K]) =>
+		setD((v) => ({ ...v, [key]: value }));
 
 	useEffect(() => {
-		void Promise.all(FONTS.map((f) => document.fonts.load(`80px "${f}"`))).then(() => setFontsReady((n) => n + 1));
+		void Promise.all(FONTS.map((f) => document.fonts.load(`80px "${f}"`))).then(() =>
+			setFontsReady((n) => n + 1),
+		);
 	}, []);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: fontsReady forces a redraw once fonts load
@@ -132,7 +194,8 @@ export default function ThumbnailMaker() {
 		const lineHeight = d.titleSize * 1.02;
 		const subtitleSize = Math.round(d.titleSize * 0.38);
 		const block = lines.length * lineHeight + (d.subtitle ? subtitleSize * 1.4 : 0);
-		let y = d.position === "top" ? pad : d.position === "center" ? (H - block) / 2 : H - pad - block;
+		let y =
+			d.position === "top" ? pad : d.position === "center" ? (H - block) / 2 : H - pad - block;
 		const x = d.align === "left" ? pad : (cutout ? W * 0.62 : W) / 2;
 		for (const line of lines) {
 			if (d.strokeWidth > 0) {
@@ -217,7 +280,8 @@ export default function ThumbnailMaker() {
 			const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", q));
 			if (blob && (blob.size <= MAX_BYTES || q === 0.5)) {
 				downloadBlob(blob, "thumbnail.jpg");
-				if (blob.size > MAX_BYTES) setError(`Saved, but it's ${formatBytes(blob.size)} — over YouTube's 2MB limit.`);
+				if (blob.size > MAX_BYTES)
+					setError(`Saved, but it's ${formatBytes(blob.size)} — over YouTube's 2MB limit.`);
 				return;
 			}
 		}
@@ -226,17 +290,40 @@ export default function ThumbnailMaker() {
 	return (
 		<div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
 			<div className="flex flex-col gap-3">
-				<canvas ref={canvasRef} width={W} height={H} className="aspect-video w-full rounded-2xl border border-border shadow-sm" role="img" aria-label="Thumbnail preview" />
+				<canvas
+					ref={canvasRef}
+					width={W}
+					height={H}
+					className="aspect-video w-full rounded-2xl border border-border shadow-sm"
+					role="img"
+					aria-label="Thumbnail preview"
+				/>
 				<div className="flex flex-wrap gap-2">
 					{TEMPLATES.map((t) => (
-						<button key={t.name} type="button" onClick={() => setD((v) => ({ ...v, ...t.design }))} className="flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-3 text-sm font-semibold hover:border-primary">
-							<span className="size-4 rounded-full" style={{ background: `linear-gradient(135deg, ${t.design.bg1}, ${t.design.bg2})` }} />
+						<button
+							key={t.name}
+							type="button"
+							onClick={() => setD((v) => ({ ...v, ...t.design }))}
+							className="flex min-h-10 cursor-pointer items-center gap-2 rounded-full border border-border px-3 text-sm font-semibold hover:border-primary"
+						>
+							<span
+								className="size-4 rounded-full"
+								style={{ background: `linear-gradient(135deg, ${t.design.bg1}, ${t.design.bg2})` }}
+							/>
 							{t.name}
 						</button>
 					))}
 				</div>
 				<div className="flex flex-wrap items-center gap-3">
-					<Segmented label="File type" value={format} onChange={setFormat} options={[{ value: "jpg", label: "JPG (under 2MB)" }, { value: "png", label: "PNG" }]} />
+					<Segmented
+						label="File type"
+						value={format}
+						onChange={setFormat}
+						options={[
+							{ value: "jpg", label: "JPG (under 2MB)" },
+							{ value: "png", label: "PNG" },
+						]}
+					/>
 					<Button size="lg" onClick={download}>
 						<Download /> Download 1280×720
 					</Button>
@@ -246,19 +333,37 @@ export default function ThumbnailMaker() {
 			</div>
 			<div className="flex flex-col gap-4">
 				<Field label="Title" htmlFor="tm-title">
-					<Textarea id="tm-title" value={d.title} onChange={(e) => set("title", e.target.value)} className="min-h-20 text-lg" />
+					<Textarea
+						id="tm-title"
+						value={d.title}
+						onChange={(e) => set("title", e.target.value)}
+						className="min-h-20 text-lg"
+					/>
 				</Field>
 				<div className="grid grid-cols-2 gap-3">
 					<Field label="Subtitle" htmlFor="tm-sub">
-						<Input id="tm-sub" value={d.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
+						<Input
+							id="tm-sub"
+							value={d.subtitle}
+							onChange={(e) => set("subtitle", e.target.value)}
+						/>
 					</Field>
 					<Field label="Badge" htmlFor="tm-badge">
-						<Input id="tm-badge" value={d.badge} maxLength={12} onChange={(e) => set("badge", e.target.value)} />
+						<Input
+							id="tm-badge"
+							value={d.badge}
+							maxLength={12}
+							onChange={(e) => set("badge", e.target.value)}
+						/>
 					</Field>
 				</div>
 				<div className="grid grid-cols-2 gap-3">
 					<Field label="Font" htmlFor="tm-font">
-						<Select id="tm-font" value={d.font} onChange={(e) => set("font", e.target.value as Design["font"])}>
+						<Select
+							id="tm-font"
+							value={d.font}
+							onChange={(e) => set("font", e.target.value as Design["font"])}
+						>
 							{FONTS.map((f) => (
 								<option key={f} value={f}>
 									{f.replace(" Variable", "")}
@@ -267,15 +372,35 @@ export default function ThumbnailMaker() {
 						</Select>
 					</Field>
 					<Field label="Position" htmlFor="tm-pos">
-						<Select id="tm-pos" value={d.position} onChange={(e) => set("position", e.target.value as Design["position"])}>
+						<Select
+							id="tm-pos"
+							value={d.position}
+							onChange={(e) => set("position", e.target.value as Design["position"])}
+						>
 							<option value="top">Top</option>
 							<option value="center">Middle</option>
 							<option value="bottom">Bottom</option>
 						</Select>
 					</Field>
 				</div>
-				<Slider id="tm-size" label="Text size" valueLabel={`${d.titleSize}px`} min={60} max={200} value={d.titleSize} onChange={(e) => set("titleSize", Number(e.target.value))} />
-				<Slider id="tm-stroke" label="Outline" valueLabel={`${d.strokeWidth}px`} min={0} max={30} value={d.strokeWidth} onChange={(e) => set("strokeWidth", Number(e.target.value))} />
+				<Slider
+					id="tm-size"
+					label="Text size"
+					valueLabel={`${d.titleSize}px`}
+					min={60}
+					max={200}
+					value={d.titleSize}
+					onChange={(e) => set("titleSize", Number(e.target.value))}
+				/>
+				<Slider
+					id="tm-stroke"
+					label="Outline"
+					valueLabel={`${d.strokeWidth}px`}
+					min={0}
+					max={30}
+					value={d.strokeWidth}
+					onChange={(e) => set("strokeWidth", Number(e.target.value))}
+				/>
 				<div className="grid grid-cols-4 gap-2">
 					{(
 						[
@@ -286,23 +411,56 @@ export default function ThumbnailMaker() {
 						] as const
 					).map(([key, label]) => (
 						<Field key={key} label={label} htmlFor={`tm-${key}`}>
-							<Input id={`tm-${key}`} type="color" value={d[key]} onChange={(e) => setD((v) => ({ ...v, [key]: e.target.value, ...(key === "bg1" ? { bg2: e.target.value } : {}) }))} className="cursor-pointer p-1" />
+							<Input
+								id={`tm-${key}`}
+								type="color"
+								value={d[key]}
+								onChange={(e) =>
+									setD((v) => ({
+										...v,
+										[key]: e.target.value,
+										...(key === "bg1" ? { bg2: e.target.value } : {}),
+									}))
+								}
+								className="cursor-pointer p-1"
+							/>
 						</Field>
 					))}
 				</div>
 				<div className="flex flex-col gap-2 rounded-2xl border border-border p-4">
 					<p className="font-semibold">Background picture</p>
 					<div className="flex flex-wrap gap-2">
-						<label className={cn("inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted")}>
+						<label
+							className={cn(
+								"inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted",
+							)}
+						>
 							<ImagePlus className="size-4" /> Photo
-							<input type="file" accept="image/*,.heic" className="sr-only" onChange={(e) => pickImage(e.target.files?.[0], "background")} />
+							<input
+								type="file"
+								accept="image/*,.heic"
+								className="sr-only"
+								onChange={(e) => pickImage(e.target.files?.[0], "background")}
+							/>
 						</label>
 						<label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted">
 							<Video className="size-4" /> From video
-							<input type="file" accept="video/*" className="sr-only" onChange={(e) => pickVideo(e.target.files?.[0])} />
+							<input
+								type="file"
+								accept="video/*"
+								className="sr-only"
+								onChange={(e) => pickVideo(e.target.files?.[0])}
+							/>
 						</label>
 						{background && (
-							<Button variant="ghost" size="sm" onClick={() => { setBackground(null); setVideo(null); }}>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => {
+									setBackground(null);
+									setVideo(null);
+								}}
+							>
 								<X className="size-4" /> Remove
 							</Button>
 						)}
@@ -310,20 +468,48 @@ export default function ThumbnailMaker() {
 					{video && videoDuration > 0 && (
 						<Field label={`Frame at ${frameAt.toFixed(1)}s`} htmlFor="tm-frame">
 							<div className="flex items-center gap-2">
-								<input id="tm-frame" type="range" min={0} max={videoDuration} step={0.1} value={frameAt} onChange={(e) => setFrameAt(Number(e.target.value))} onPointerUp={() => grab(video, frameAt)} onKeyUp={() => grab(video, frameAt)} className="h-8 w-full cursor-pointer" />
+								<input
+									id="tm-frame"
+									type="range"
+									min={0}
+									max={videoDuration}
+									step={0.1}
+									value={frameAt}
+									onChange={(e) => setFrameAt(Number(e.target.value))}
+									onPointerUp={() => grab(video, frameAt)}
+									onKeyUp={() => grab(video, frameAt)}
+									className="h-8 w-full cursor-pointer"
+								/>
 								{busy && <Loader2 className="size-4 animate-spin" />}
 							</div>
 						</Field>
 					)}
-					{background && <Slider id="tm-overlay" label="Darken photo" valueLabel={`${d.overlay}%`} min={0} max={80} value={d.overlay} onChange={(e) => set("overlay", Number(e.target.value))} />}
+					{background && (
+						<Slider
+							id="tm-overlay"
+							label="Darken photo"
+							valueLabel={`${d.overlay}%`}
+							min={0}
+							max={80}
+							value={d.overlay}
+							onChange={(e) => set("overlay", Number(e.target.value))}
+						/>
+					)}
 				</div>
 				<div className="flex flex-col gap-2 rounded-2xl border border-border p-4">
 					<p className="font-semibold">Cut-out (e.g. your face, transparent PNG)</p>
-					<p className="text-sm text-muted-foreground">Tip: make one with our Background Remover.</p>
+					<p className="text-sm text-muted-foreground">
+						Tip: make one with our Background Remover.
+					</p>
 					<div className="flex gap-2">
 						<label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input px-3 text-sm font-semibold hover:bg-muted">
 							<ImagePlus className="size-4" /> Add cut-out
-							<input type="file" accept="image/png,image/webp" className="sr-only" onChange={(e) => pickImage(e.target.files?.[0], "cutout")} />
+							<input
+								type="file"
+								accept="image/png,image/webp"
+								className="sr-only"
+								onChange={(e) => pickImage(e.target.files?.[0], "cutout")}
+							/>
 						</label>
 						{cutout && (
 							<Button variant="ghost" size="sm" onClick={() => setCutout(null)}>

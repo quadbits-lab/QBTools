@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { buildSearchIndex, categories, editDistance, registryPaths, tokenize, tools } from "./index";
+import {
+	buildSearchIndex,
+	categories,
+	editDistance,
+	registryPaths,
+	tokenize,
+	tools,
+} from "./index";
 
 const index = buildSearchIndex(tools);
 

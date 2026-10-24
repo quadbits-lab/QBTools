@@ -20,7 +20,10 @@ export const mediaTools: ToolDef[] = [
 		howTo: [
 			{ title: "Add a video", text: "Drop an MP4, MOV or WebM file." },
 			{ title: "Pick quality", text: "Choose a size preset or resolution like 720p." },
-			{ title: "Compress & download", text: "Wait for the progress bar, then save the smaller MP4." },
+			{
+				title: "Compress & download",
+				text: "Wait for the progress bar, then save the smaller MP4.",
+			},
 		],
 		about: {
 			what: "Video compression re-encodes your video with modern settings and an optional smaller resolution. It uses your device's built-in video encoder, so it's fast and private.",
@@ -60,7 +63,10 @@ export const mediaTools: ToolDef[] = [
 		keywords: ["audio trimmer", "cut mp3", "trim audio", "ringtone maker", "audio cutter"],
 		howTo: [
 			{ title: "Add audio", text: "Drop an MP3, WAV, M4A or OGG file." },
-			{ title: "Select the part", text: "Drag the handles on the waveform and press play to check." },
+			{
+				title: "Select the part",
+				text: "Drag the handles on the waveform and press play to check.",
+			},
 			{ title: "Save", text: "Add fades if you like, then download MP3 or WAV." },
 		],
 		about: {

@@ -4,7 +4,10 @@ export const TONES = ["simple", "formal", "friendly", "shorter", "creative"] as 
 export type Tone = (typeof TONES)[number];
 
 export const aiTextSchema = z.discriminatedUnion("mode", [
-	z.object({ mode: z.literal("grammar"), text: z.string().trim().min(1, "Please paste some text").max(20_000) }),
+	z.object({
+		mode: z.literal("grammar"),
+		text: z.string().trim().min(1, "Please paste some text").max(20_000),
+	}),
 	z.object({
 		mode: z.literal("paraphrase"),
 		tone: z.enum(TONES),

@@ -39,7 +39,9 @@ describe("convertCase", () => {
 		expect(convertCase(input, "title")).toBe("The Lord of the Rings: The Return of the King");
 	});
 	test("sentence", () => {
-		expect(convertCase("HELLO WORLD. i am HERE! ok", "sentence")).toBe("Hello world. I am here! Ok");
+		expect(convertCase("HELLO WORLD. i am HERE! ok", "sentence")).toBe(
+			"Hello world. I am here! Ok",
+		);
 	});
 	test("capitalized", () => {
 		expect(convertCase("don't stop me", "capitalized")).toBe("Don't Stop Me");

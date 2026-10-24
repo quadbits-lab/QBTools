@@ -1,0 +1,67 @@
+# QBTools production stack.
+#   cp .env.example .env   # then edit
+#   docker compose up -d --build
+name: qbtools
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: runtime
+      args:
+        VITE_SITE_URL: ${SITE_URL:-http://localhost:3000}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-}
+        VITE_ADSENSE_CLIENT: ${VITE_ADSENSE_CLIENT:-}
+        VITE_ADSENSE_SLOT_TOP: ${VITE_ADSENSE_SLOT_TOP:-}
+        VITE_ADSENSE_SLOT_BOTTOM: ${VITE_ADSENSE_SLOT_BOTTOM:-}
+        VITE_ANALYTICS_SRC: ${VITE_ANALYTICS_SRC:-}
+        VITE_ANALYTICS_DOMAIN: ${VITE_ANALYTICS_DOMAIN:-}
+        VITE_ANALYTICS_WEBSITE_ID: ${VITE_ANALYTICS_WEBSITE_ID:-}
+    image: qbtools:latest
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_PATH: /data/qbtools.db
+      PORT: "3000"
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - qbtools-data:/data
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  qbtools-data:

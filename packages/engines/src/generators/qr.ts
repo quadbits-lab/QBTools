@@ -18,11 +18,14 @@ export interface ContactPayload {
 }
 
 /** Escape \ ; , : " per the WiFi QR (MECARD-style) spec. */
-const escapeWifi = (value: string) => value.replace(/([\;,:"])/g, "\\$1");
+const escapeWifi = (value: string) => value.replace(/([;,:"])/g, "\\$1");
 
 /** Escape per vCard 3.0 (RFC 2426). */
 const escapeVcard = (value: string) =>
-	value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+	value
+		.replace(/\\/g, "\\\\")
+		.replace(/\n/g, "\\n")
+		.replace(/([,;])/g, "\\$1");
 
 export function wifiPayload({ ssid, password, encryption, hidden }: WifiPayload): string {
 	const parts = [`T:${encryption}`, `S:${escapeWifi(ssid)}`];

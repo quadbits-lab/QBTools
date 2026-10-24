@@ -23,7 +23,13 @@ export const VIDEO_PRESETS = {
 } as const;
 export type VideoPreset = keyof typeof VIDEO_PRESETS;
 
-export const RESOLUTIONS = { original: null, "1080": 1080, "720": 720, "480": 480, "360": 360 } as const;
+export const RESOLUTIONS = {
+	original: null,
+	"1080": 1080,
+	"720": 720,
+	"480": 480,
+	"360": 360,
+} as const;
 export type Resolution = keyof typeof RESOLUTIONS;
 
 export function supportsWebCodecs(): boolean {
@@ -43,7 +49,12 @@ export async function probeVideo(file: File): Promise<VideoInfo> {
 		const video = await input.getPrimaryVideoTrack();
 		if (!video) throw new Error("No video found in this file.");
 		const audio = await input.getPrimaryAudioTrack();
-		return { duration: await input.computeDuration(), width: video.displayWidth, height: video.displayHeight, hasAudio: Boolean(audio) };
+		return {
+			duration: await input.computeDuration(),
+			width: video.displayWidth,
+			height: video.displayHeight,
+			hasAudio: Boolean(audio),
+		};
 	} finally {
 		input.dispose?.();
 	}
@@ -60,24 +71,35 @@ export interface CompressVideoOptions {
 /** Re-encode to H.264/AAC MP4 with WebCodecs (hardware accelerated where available). */
 export async function compressVideo(file: File, options: CompressVideoOptions): Promise<Blob> {
 	const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
-	const output = new Output({ format: new Mp4OutputFormat({ fastStart: "in-memory" }), target: new BufferTarget() });
+	const output = new Output({
+		format: new Mp4OutputFormat({ fastStart: "in-memory" }),
+		target: new BufferTarget(),
+	});
 	const maxSide = RESOLUTIONS[options.resolution];
 	const videoTrack = await input.getPrimaryVideoTrack();
 	if (!videoTrack) throw new Error("No video found in this file.");
 	const landscape = videoTrack.displayWidth >= videoTrack.displayHeight;
 	const shortSide = Math.min(videoTrack.displayWidth, videoTrack.displayHeight);
-	const resize = maxSide && shortSide > maxSide ? (landscape ? { height: maxSide } : { width: maxSide }) : {};
+	const resize =
+		maxSide && shortSide > maxSide ? (landscape ? { height: maxSide } : { width: maxSide }) : {};
 
 	const conversion = await Conversion.init({
 		input,
 		output,
 		tracks: "primary",
-		video: { codec: "avc", quality: VIDEO_PRESETS[options.preset].quality, forceTranscode: true, ...resize },
+		video: {
+			codec: "avc",
+			quality: VIDEO_PRESETS[options.preset].quality,
+			forceTranscode: true,
+			...resize,
+		},
 		audio: options.removeAudio ? { discard: true } : { codec: "aac", quality: QUALITY_MEDIUM },
 		showWarnings: false,
 	});
 	if (!conversion.isValid) {
-		throw new Error("Your browser can't convert this video. Try the latest Chrome, Edge or Safari, or a different file.");
+		throw new Error(
+			"Your browser can't convert this video. Try the latest Chrome, Edge or Safari, or a different file.",
+		);
 	}
 	conversion.onProgress = (p) => options.onProgress?.(p);
 	options.signal?.addEventListener("abort", () => void conversion.cancel());
@@ -128,12 +150,22 @@ export async function decodeAudio(file: File): Promise<AudioBuffer> {
 }
 
 /** Copy [start, end) seconds with linear fade in/out. */
-export function trimAudioBuffer(buffer: AudioBuffer, start: number, end: number, fadeIn: number, fadeOut: number): AudioBuffer {
+export function trimAudioBuffer(
+	buffer: AudioBuffer,
+	start: number,
+	end: number,
+	fadeIn: number,
+	fadeOut: number,
+): AudioBuffer {
 	const rate = buffer.sampleRate;
 	const from = Math.max(0, Math.floor(start * rate));
 	const to = Math.min(buffer.length, Math.ceil(end * rate));
 	const length = Math.max(1, to - from);
-	const out = new AudioBuffer({ length, numberOfChannels: buffer.numberOfChannels, sampleRate: rate });
+	const out = new AudioBuffer({
+		length,
+		numberOfChannels: buffer.numberOfChannels,
+		sampleRate: rate,
+	});
 	const fadeInLen = Math.min(length, Math.floor(fadeIn * rate));
 	const fadeOutLen = Math.min(length, Math.floor(fadeOut * rate));
 	for (let ch = 0; ch < buffer.numberOfChannels; ch++) {

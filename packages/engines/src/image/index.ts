@@ -3,7 +3,11 @@ import { isHeic } from "../files";
 export type ImageFormat = "jpeg" | "png" | "webp";
 
 export const FORMAT_EXT: Record<ImageFormat, string> = { jpeg: "jpg", png: "png", webp: "webp" };
-export const FORMAT_MIME: Record<ImageFormat, string> = { jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+export const FORMAT_MIME: Record<ImageFormat, string> = {
+	jpeg: "image/jpeg",
+	png: "image/png",
+	webp: "image/webp",
+};
 
 export function formatFromMime(mime: string): ImageFormat {
 	if (mime.includes("png")) return "png";
@@ -33,7 +37,9 @@ export async function decodeImage(file: Blob & { name?: string }): Promise<Image
 	try {
 		return await createImageBitmap(source, { imageOrientation: "from-image" });
 	} catch {
-		throw new Error("This image couldn't be opened. It may be damaged or in an unsupported format.");
+		throw new Error(
+			"This image couldn't be opened. It may be damaged or in an unsupported format.",
+		);
 	}
 }
 
@@ -46,7 +52,10 @@ export interface DrawOptions {
 }
 
 /** Draw a bitmap into a new canvas at the target size with high-quality resampling. */
-export async function drawToCanvas(bitmap: ImageBitmap, options: DrawOptions): Promise<HTMLCanvasElement> {
+export async function drawToCanvas(
+	bitmap: ImageBitmap,
+	options: DrawOptions,
+): Promise<HTMLCanvasElement> {
 	const { width, height, fit = "stretch", background } = options;
 	let sx = 0;
 	let sy = 0;
@@ -102,7 +111,11 @@ export async function drawToCanvas(bitmap: ImageBitmap, options: DrawOptions): P
 	return out;
 }
 
-export function encodeCanvas(canvas: HTMLCanvasElement, format: ImageFormat, quality = 0.9): Promise<Blob> {
+export function encodeCanvas(
+	canvas: HTMLCanvasElement,
+	format: ImageFormat,
+	quality = 0.9,
+): Promise<Blob> {
 	return new Promise((resolve, reject) =>
 		canvas.toBlob(
 			(blob) => (blob ? resolve(blob) : reject(new Error("Couldn't save the image."))),
@@ -127,14 +140,23 @@ export interface CompressResult {
  */
 export async function compressToTarget(
 	bitmap: ImageBitmap,
-	options: { targetBytes: number; format: Exclude<ImageFormat, "png">; allowResize: boolean; background?: string },
+	options: {
+		targetBytes: number;
+		format: Exclude<ImageFormat, "png">;
+		allowResize: boolean;
+		background?: string;
+	},
 ): Promise<CompressResult> {
 	const { targetBytes, format, allowResize, background = "#ffffff" } = options;
 	let width = bitmap.width;
 	let height = bitmap.height;
 
 	for (let attempt = 0; attempt < 6; attempt++) {
-		const canvas = await drawToCanvas(bitmap, { width, height, background: format === "jpeg" ? background : undefined });
+		const canvas = await drawToCanvas(bitmap, {
+			width,
+			height,
+			background: format === "jpeg" ? background : undefined,
+		});
 		let lo = 0.05;
 		let hi = 0.95;
 		let best: Blob | null = null;
@@ -175,11 +197,17 @@ export async function compressToTarget(
 /** Shrink (never enlarge) to fit within maxW × maxH, keeping aspect ratio. */
 export function scaleToFit(srcW: number, srcH: number, maxW?: number, maxH?: number) {
 	const scale = Math.min(maxW ? maxW / srcW : 1, maxH ? maxH / srcH : 1, 1);
-	return { width: Math.max(1, Math.round(srcW * scale)), height: Math.max(1, Math.round(srcH * scale)) };
+	return {
+		width: Math.max(1, Math.round(srcW * scale)),
+		height: Math.max(1, Math.round(srcH * scale)),
+	};
 }
 
 /** Composite an RGBA cut-out over a solid color (or keep transparent). */
-export function compositeOn(cutout: HTMLCanvasElement, background: string | null): HTMLCanvasElement {
+export function compositeOn(
+	cutout: HTMLCanvasElement,
+	background: string | null,
+): HTMLCanvasElement {
 	const out = document.createElement("canvas");
 	out.width = cutout.width;
 	out.height = cutout.height;

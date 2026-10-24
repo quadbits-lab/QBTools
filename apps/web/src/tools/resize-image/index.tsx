@@ -1,5 +1,13 @@
 import { downloadBlob, suffixFilename } from "@qbtools/engines/files";
-import { canEncodeWebp, decodeImage, drawToCanvas, encodeCanvas, FORMAT_EXT, formatFromMime, type ImageFormat } from "@qbtools/engines/image";
+import {
+	canEncodeWebp,
+	decodeImage,
+	drawToCanvas,
+	encodeCanvas,
+	FORMAT_EXT,
+	formatFromMime,
+	type ImageFormat,
+} from "@qbtools/engines/image";
 import { Button } from "@qbtools/ui/button";
 import { Input, Select } from "@qbtools/ui/input";
 import { Field } from "@qbtools/ui/label";
@@ -63,11 +71,18 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 	};
 
 	const ratio = bitmap ? bitmap.width / bitmap.height : 1;
-	const target = mode === "percent" && bitmap ? { w: Math.max(1, Math.round((bitmap.width * percent) / 100)), h: Math.max(1, Math.round((bitmap.height * percent) / 100)) } : { w: width, h: height };
+	const target =
+		mode === "percent" && bitmap
+			? {
+					w: Math.max(1, Math.round((bitmap.width * percent) / 100)),
+					h: Math.max(1, Math.round((bitmap.height * percent) / 100)),
+				}
+			: { w: width, h: height };
 
 	const run = async () => {
 		if (!bitmap || !file || target.w < 1 || target.h < 1) return;
-		if (target.w * target.h > 50_000_000) return setError("That's too big — please keep it under about 7000×7000 pixels.");
+		if (target.w * target.h > 50_000_000)
+			return setError("That's too big — please keep it under about 7000×7000 pixels.");
 		setPending(true);
 		setError(null);
 		try {
@@ -90,7 +105,13 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 	if (!bitmap || !file) {
 		return (
 			<div className="flex flex-col gap-4">
-				<FileDrop accept="image/*,.heic,.heif" onFiles={load} hint={presetSize ? `Will be resized to ${width}×${height} pixels` : "JPG, PNG, WebP or HEIC"} />
+				<FileDrop
+					accept="image/*,.heic,.heif"
+					onFiles={load}
+					hint={
+						presetSize ? `Will be resized to ${width}×${height} pixels` : "JPG, PNG, WebP or HEIC"
+					}
+				/>
 				{error && <Notice tone="critical">{error}</Notice>}
 				<PrivacyNote />
 			</div>
@@ -102,20 +123,62 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 		<div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
 			<div className="flex flex-col gap-5">
 				<p className="text-sm text-muted-foreground">
-					Original: <strong className="font-mono text-foreground">{bitmap.width}×{bitmap.height}px</strong> · {formatBytes(file.size)}
+					Original:{" "}
+					<strong className="font-mono text-foreground">
+						{bitmap.width}×{bitmap.height}px
+					</strong>{" "}
+					· {formatBytes(file.size)}
 				</p>
-				<Segmented label="Resize by" value={mode} onChange={setMode} options={[{ value: "pixels", label: "Pixels" }, { value: "percent", label: "Percentage" }]} />
+				<Segmented
+					label="Resize by"
+					value={mode}
+					onChange={setMode}
+					options={[
+						{ value: "pixels", label: "Pixels" },
+						{ value: "percent", label: "Percentage" },
+					]}
+				/>
 				{mode === "pixels" ? (
 					<>
 						<div className="flex items-end gap-2">
 							<Field label="Width (px)" htmlFor="rs-w" className="flex-1">
-								<Input id="rs-w" type="number" inputMode="numeric" min={1} value={width || ""} onChange={(e) => { const w = Number(e.target.value); setWidth(w); if (keepRatio) setHeight(Math.round(w / ratio)); }} className="font-mono" />
+								<Input
+									id="rs-w"
+									type="number"
+									inputMode="numeric"
+									min={1}
+									value={width || ""}
+									onChange={(e) => {
+										const w = Number(e.target.value);
+										setWidth(w);
+										if (keepRatio) setHeight(Math.round(w / ratio));
+									}}
+									className="font-mono"
+								/>
 							</Field>
-							<Button variant="ghost" size="icon" aria-label={keepRatio ? "Unlock aspect ratio" : "Lock aspect ratio"} aria-pressed={keepRatio} onClick={() => setKeepRatio(!keepRatio)}>
+							<Button
+								variant="ghost"
+								size="icon"
+								aria-label={keepRatio ? "Unlock aspect ratio" : "Lock aspect ratio"}
+								aria-pressed={keepRatio}
+								onClick={() => setKeepRatio(!keepRatio)}
+							>
 								{keepRatio ? <Lock /> : <Unlock />}
 							</Button>
 							<Field label="Height (px)" htmlFor="rs-h" className="flex-1">
-								<Input id="rs-h" type="number" inputMode="numeric" min={1} value={height || ""} onChange={(e) => { const h = Number(e.target.value); setHeight(h); if (keepRatio) setWidth(Math.round(h * ratio)); }} className="font-mono" />
+								<Input
+									id="rs-h"
+									type="number"
+									inputMode="numeric"
+									min={1}
+									value={height || ""}
+									onChange={(e) => {
+										const h = Number(e.target.value);
+										setHeight(h);
+										if (keepRatio) setWidth(Math.round(h * ratio));
+									}}
+									className="font-mono"
+								/>
 							</Field>
 						</div>
 						<label className="flex items-center gap-3 font-medium">
@@ -132,7 +195,17 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 						)}
 						<div className="flex flex-wrap gap-2" role="group" aria-label="Ready-made sizes">
 							{PRESETS.map((p) => (
-								<button key={p.label} type="button" onClick={() => { setKeepRatio(false); setWidth(p.w); setHeight(p.h); setFit("cover"); }} className="min-h-10 cursor-pointer rounded-full border border-border px-3 text-sm font-semibold hover:border-primary">
+								<button
+									key={p.label}
+									type="button"
+									onClick={() => {
+										setKeepRatio(false);
+										setWidth(p.w);
+										setHeight(p.h);
+										setFit("cover");
+									}}
+									className="min-h-10 cursor-pointer rounded-full border border-border px-3 text-sm font-semibold hover:border-primary"
+								>
 									{p.label}
 								</button>
 							))}
@@ -140,11 +213,25 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 					</>
 				) : (
 					<Field label={`Scale to ${percent}% → ${target.w}×${target.h}px`} htmlFor="rs-pct">
-						<input id="rs-pct" type="range" min={5} max={200} step={5} value={percent} onChange={(e) => setPercent(Number(e.target.value))} className="h-8 w-full cursor-pointer" />
+						<input
+							id="rs-pct"
+							type="range"
+							min={5}
+							max={200}
+							step={5}
+							value={percent}
+							onChange={(e) => setPercent(Number(e.target.value))}
+							className="h-8 w-full cursor-pointer"
+						/>
 					</Field>
 				)}
 				<Field label="Save as" htmlFor="rs-format">
-					<Select id="rs-format" value={format} onChange={(e) => setFormat(e.target.value as ImageFormat | "same")} className="max-w-xs">
+					<Select
+						id="rs-format"
+						value={format}
+						onChange={(e) => setFormat(e.target.value as ImageFormat | "same")}
+						className="max-w-xs"
+					>
 						<option value="same">Same as original</option>
 						<option value="jpeg">JPG</option>
 						<option value="png">PNG</option>
@@ -155,7 +242,15 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 					<Button size="lg" onClick={run} disabled={pending || target.w < 1 || target.h < 1}>
 						{pending && <Loader2 className="animate-spin" />} Resize to {target.w}×{target.h}
 					</Button>
-					<Button size="lg" variant="ghost" onClick={() => { setFile(null); setBitmap(null); setResult(null); }}>
+					<Button
+						size="lg"
+						variant="ghost"
+						onClick={() => {
+							setFile(null);
+							setBitmap(null);
+							setResult(null);
+						}}
+					>
 						<RotateCcw /> New image
 					</Button>
 				</div>
@@ -163,10 +258,23 @@ export default function ResizeImage({ params }: ToolWidgetProps) {
 			</div>
 			<div className="flex flex-col gap-3">
 				<div className="checker-bg grid min-h-64 place-items-center overflow-hidden rounded-2xl border border-border">
-					{preview ? <img src={preview} alt="Resized result" className="max-h-96 max-w-full object-contain" /> : <p className="text-slate-500">Your resized image will appear here</p>}
+					{preview ? (
+						<img
+							src={preview}
+							alt="Resized result"
+							className="max-h-96 max-w-full object-contain"
+						/>
+					) : (
+						<p className="text-slate-500">Your resized image will appear here</p>
+					)}
 				</div>
 				{result && (
-					<Button size="lg" onClick={() => downloadBlob(result, suffixFilename(file.name, `${target.w}x${target.h}`, ext))}>
+					<Button
+						size="lg"
+						onClick={() =>
+							downloadBlob(result, suffixFilename(file.name, `${target.w}x${target.h}`, ext))
+						}
+					>
 						<Download /> Download ({formatBytes(result.size)})
 					</Button>
 				)}

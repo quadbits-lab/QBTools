@@ -10,7 +10,9 @@ async function load(bytes: ArrayBuffer | Uint8Array, name = "This PDF") {
 		return await PDFDocument.load(bytes, { updateMetadata: false });
 	} catch (error) {
 		if (String(error).toLowerCase().includes("encrypt")) {
-			throw new Error(`${name} is password-protected. Open it with the password and save an unlocked copy first.`);
+			throw new Error(
+				`${name} is password-protected. Open it with the password and save an unlocked copy first.`,
+			);
 		}
 		throw new Error(`${name} couldn't be opened. It may be damaged or not a real PDF.`);
 	}
@@ -33,7 +35,10 @@ export async function mergePdfs(files: File[], onProgress?: (done: number) => vo
 }
 
 /** One PDF with the chosen pages, or one PDF per page. */
-export async function splitPdf(file: File, mode: { kind: "ranges"; ranges: string } | { kind: "every" }): Promise<{ name: string; blob: Blob }[]> {
+export async function splitPdf(
+	file: File,
+	mode: { kind: "ranges"; ranges: string } | { kind: "every" },
+): Promise<{ name: string; blob: Blob }[]> {
 	const src = await load(await file.arrayBuffer(), file.name);
 	const base = file.name.replace(/\.pdf$/i, "");
 	if (mode.kind === "ranges") {
@@ -47,7 +52,10 @@ export async function splitPdf(file: File, mode: { kind: "ranges"; ranges: strin
 		const out = await PDFDocument.create();
 		const [page] = await out.copyPages(src, [index]);
 		if (page) out.addPage(page);
-		results.push({ name: `${base}-page-${String(index + 1).padStart(3, "0")}.pdf`, blob: pdfBlob(await out.save()) });
+		results.push({
+			name: `${base}-page-${String(index + 1).padStart(3, "0")}.pdf`,
+			blob: pdfBlob(await out.save()),
+		});
 	}
 	return results;
 }
@@ -59,11 +67,18 @@ const SIZES = { a4: [595.28, 841.89], letter: [612, 792] } as const;
  * PNGs embed as-is. Everything else (JPEG, WebP, GIF…) is re-encoded through a
  * canvas, which also applies EXIF rotation that pdf-lib would ignore.
  */
-async function toEmbeddable(file: File): Promise<{ bytes: Uint8Array; png: boolean; width: number; height: number }> {
+async function toEmbeddable(
+	file: File,
+): Promise<{ bytes: Uint8Array; png: boolean; width: number; height: number }> {
 	const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
 	const png = file.type === "image/png";
 	if (png) {
-		return { bytes: new Uint8Array(await file.arrayBuffer()), png, width: bitmap.width, height: bitmap.height };
+		return {
+			bytes: new Uint8Array(await file.arrayBuffer()),
+			png,
+			width: bitmap.width,
+			height: bitmap.height,
+		};
 	}
 	const canvas = document.createElement("canvas");
 	canvas.width = bitmap.width;
@@ -75,7 +90,12 @@ async function toEmbeddable(file: File): Promise<{ bytes: Uint8Array; png: boole
 	ctx.drawImage(bitmap, 0, 0);
 	const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/jpeg", 0.92));
 	if (!blob) throw new Error(`${file.name} couldn't be converted.`);
-	return { bytes: new Uint8Array(await blob.arrayBuffer()), png: false, width: bitmap.width, height: bitmap.height };
+	return {
+		bytes: new Uint8Array(await blob.arrayBuffer()),
+		png: false,
+		width: bitmap.width,
+		height: bitmap.height,
+	};
 }
 
 export async function imagesToPdf(
@@ -88,12 +108,18 @@ export async function imagesToPdf(
 		const img = await toEmbeddable(file);
 		const embedded = img.png ? await doc.embedPng(img.bytes) : await doc.embedJpg(img.bytes);
 		const landscapeImage = embedded.width > embedded.height;
-		let [pw, ph] = options.pageSize === "fit" ? [embedded.width, embedded.height] : [...SIZES[options.pageSize]];
-		const landscape = options.orientation === "landscape" || (options.orientation === "auto" && landscapeImage);
+		let [pw, ph] =
+			options.pageSize === "fit" ? [embedded.width, embedded.height] : [...SIZES[options.pageSize]];
+		const landscape =
+			options.orientation === "landscape" || (options.orientation === "auto" && landscapeImage);
 		if (options.pageSize !== "fit" && landscape) [pw, ph] = [ph, pw];
 		const margin = options.pageSize === "fit" ? 0 : options.marginPt;
 		const page = doc.addPage([pw, ph]);
-		const scale = Math.min((pw - margin * 2) / embedded.width, (ph - margin * 2) / embedded.height, options.pageSize === "fit" ? 1 : Number.POSITIVE_INFINITY);
+		const scale = Math.min(
+			(pw - margin * 2) / embedded.width,
+			(ph - margin * 2) / embedded.height,
+			options.pageSize === "fit" ? 1 : Number.POSITIVE_INFINITY,
+		);
 		const w = embedded.width * scale;
 		const h = embedded.height * scale;
 		page.drawImage(embedded, { x: (pw - w) / 2, y: (ph - h) / 2, width: w, height: h });

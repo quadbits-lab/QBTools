@@ -28,7 +28,9 @@ export const caseModes: { mode: CaseMode; label: string; example: string }[] = [
 ];
 
 const MINOR_WORDS = new Set(
-	"a an and as at but by en for if in nor of on or per the to v vs via with from into over".split(" "),
+	"a an and as at but by en for if in nor of on or per the to v vs via with from into over".split(
+		" ",
+	),
 );
 
 const upperFirst = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
@@ -51,21 +53,30 @@ export function convertCase(text: string, mode: CaseMode): string {
 		case "sentence":
 			return text
 				.toLowerCase()
-				.replace(/(^\s*|[.!?]\s+|\n\s*)(\p{L})/gu, (_, prefix: string, letter: string) => prefix + letter.toUpperCase())
+				.replace(
+					/(^\s*|[.!?]\s+|\n\s*)(\p{L})/gu,
+					(_, prefix: string, letter: string) => prefix + letter.toUpperCase(),
+				)
 				.replace(/\bi\b/g, "I");
 		case "capitalized":
-			return text.toLowerCase().replace(/(^|[^\p{L}\p{N}'’])(\p{L})/gu, (_, p: string, l: string) => p + l.toUpperCase());
+			return text
+				.toLowerCase()
+				.replace(/(^|[^\p{L}\p{N}'’])(\p{L})/gu, (_, p: string, l: string) => p + l.toUpperCase());
 		case "title": {
 			let index = 0;
-			return text.toLowerCase().replace(/[\p{L}\p{N}]+(?:['’][\p{L}]+)*/gu, (word, offset: number, whole: string) => {
-				const isFirst = index++ === 0;
-				const afterColon = /[:—–-]\s*$/.test(whole.slice(0, offset));
-				return isFirst || afterColon || !MINOR_WORDS.has(word) ? upperFirst(word) : word;
-			});
+			return text
+				.toLowerCase()
+				.replace(/[\p{L}\p{N}]+(?:['’][\p{L}]+)*/gu, (word, offset: number, whole: string) => {
+					const isFirst = index++ === 0;
+					const afterColon = /[:—–-]\s*$/.test(whole.slice(0, offset));
+					return isFirst || afterColon || !MINOR_WORDS.has(word) ? upperFirst(word) : word;
+				});
 		}
 		case "alternating": {
 			let i = 0;
-			return [...text].map((ch) => (/\p{L}/u.test(ch) ? (i++ % 2 ? ch.toUpperCase() : ch.toLowerCase()) : ch)).join("");
+			return [...text]
+				.map((ch) => (/\p{L}/u.test(ch) ? (i++ % 2 ? ch.toUpperCase() : ch.toLowerCase()) : ch))
+				.join("");
 		}
 		case "inverse":
 			return [...text]
@@ -76,12 +87,20 @@ export function convertCase(text: string, mode: CaseMode): string {
 				.map((w, i) => (i === 0 ? w.toLowerCase() : upperFirst(w.toLowerCase())))
 				.join("");
 		case "pascal":
-			return identifierWords(text).map((w) => upperFirst(w.toLowerCase())).join("");
+			return identifierWords(text)
+				.map((w) => upperFirst(w.toLowerCase()))
+				.join("");
 		case "snake":
-			return identifierWords(text).map((w) => w.toLowerCase()).join("_");
+			return identifierWords(text)
+				.map((w) => w.toLowerCase())
+				.join("_");
 		case "kebab":
-			return identifierWords(text).map((w) => w.toLowerCase()).join("-");
+			return identifierWords(text)
+				.map((w) => w.toLowerCase())
+				.join("-");
 		case "constant":
-			return identifierWords(text).map((w) => w.toUpperCase()).join("_");
+			return identifierWords(text)
+				.map((w) => w.toUpperCase())
+				.join("_");
 	}
 }

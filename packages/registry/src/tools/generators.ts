@@ -13,7 +13,10 @@ export const generatorTools: ToolDef[] = [
 		keywords: ["qr code generator", "make qr code", "wifi qr", "qr code for link", "vcard qr"],
 		howTo: [
 			{ title: "Choose a type", text: "Link, Text, WiFi or Contact." },
-			{ title: "Fill in details", text: "The QR code updates as you type. Pick colors if you like." },
+			{
+				title: "Fill in details",
+				text: "The QR code updates as you type. Pick colors if you like.",
+			},
 			{ title: "Download", text: "Save as PNG for sharing or SVG for printing." },
 		],
 		about: {
@@ -94,10 +97,19 @@ export const generatorTools: ToolDef[] = [
 		description:
 			"Create and download professional PDF invoices with your logo, items, tax and discount. Free, no signup, drafts saved in your browser.",
 		icon: "receipt-text",
-		keywords: ["invoice generator", "invoice maker", "free invoice", "pdf invoice", "bill generator"],
+		keywords: [
+			"invoice generator",
+			"invoice maker",
+			"free invoice",
+			"pdf invoice",
+			"bill generator",
+		],
 		howTo: [
 			{ title: "Add your details", text: "Your business, your client, and an optional logo." },
-			{ title: "Add items", text: "List products or services with quantity and price. Totals are automatic." },
+			{
+				title: "Add items",
+				text: "List products or services with quantity and price. Totals are automatic.",
+			},
 			{ title: "Download PDF", text: "Save a clean PDF invoice to send or print." },
 		],
 		about: {
@@ -130,7 +142,13 @@ export const generatorTools: ToolDef[] = [
 		description:
 			"Create an electronic signature by drawing with your finger or mouse, or typing your name in handwriting styles. Download a transparent PNG.",
 		icon: "signature",
-		keywords: ["signature generator", "signature maker", "e-signature", "draw signature", "digital signature"],
+		keywords: [
+			"signature generator",
+			"signature maker",
+			"e-signature",
+			"draw signature",
+			"digital signature",
+		],
 		howTo: [
 			{ title: "Draw or type", text: "Sign with your finger or mouse, or type your name." },
 			{ title: "Style it", text: "Pick ink color and pen thickness or a handwriting font." },

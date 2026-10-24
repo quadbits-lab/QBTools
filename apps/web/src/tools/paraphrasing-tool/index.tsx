@@ -44,13 +44,28 @@ export default function ParaphrasingTool() {
 
 	return (
 		<div className="flex flex-col gap-5">
-			<AiTextInput value={text} onChange={setText} maxChars={maxChars} placeholder="Paste the sentence or paragraph you want to rewrite…" />
+			<AiTextInput
+				value={text}
+				onChange={setText}
+				maxChars={maxChars}
+				placeholder="Paste the sentence or paragraph you want to rewrite…"
+			/>
 			<div>
 				<p className="mb-2 font-semibold">Style</p>
-				<Segmented label="Style" value={tone} onChange={setTone} options={TONE_OPTIONS} className="max-w-2xl" />
+				<Segmented
+					label="Style"
+					value={tone}
+					onChange={setTone}
+					options={TONE_OPTIONS}
+					className="max-w-2xl"
+				/>
 			</div>
 			<div className="flex flex-wrap items-center gap-4">
-				<Button size="lg" onClick={rewrite} disabled={pending || !status || !text.trim() || text.length > maxChars}>
+				<Button
+					size="lg"
+					onClick={rewrite}
+					disabled={pending || !status || !text.trim() || text.length > maxChars}
+				>
 					{pending ? <Loader2 className="animate-spin" /> : <WandSparkles />}
 					{pending ? "Rewriting…" : "Rewrite"}
 				</Button>

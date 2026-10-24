@@ -9,7 +9,10 @@ const envSchema = z.object({
 		.min(16, "ADMIN_TOKEN must be at least 16 characters")
 		.optional()
 		.or(z.literal("").transform(() => undefined)),
-	AI_API_KEY: z.string().optional().or(z.literal("").transform(() => undefined)),
+	AI_API_KEY: z
+		.string()
+		.optional()
+		.or(z.literal("").transform(() => undefined)),
 	AI_MODEL: z.string().default("claude-haiku-5-5"),
 	AI_MAX_INPUT_CHARS: z.coerce.number().int().positive().default(5000),
 	RATE_LIMIT_FORMS_PER_HOUR: z.coerce.number().int().positive().default(10),

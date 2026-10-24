@@ -6,7 +6,10 @@
 	"engines": {
 		"bun": ">=1.4.0"
 	},
-	"workspaces": ["apps/*", "packages/*"],
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
 	"scripts": {
 		"dev": "turbo run dev --filter=@qbtools/web",
 		"build": "turbo run build --filter=@qbtools/web",

@@ -8,7 +8,13 @@ export function toWinAnsi(text: string): string {
 		.map((ch) => {
 			const code = ch.codePointAt(0) ?? 0;
 			if (ch === "\t") return "  ";
-			if (code === 10 || (code >= 32 && code <= 126) || (code >= 160 && code <= 255) || WIN_ANSI_EXTRA.includes(ch)) return ch;
+			if (
+				code === 10 ||
+				(code >= 32 && code <= 126) ||
+				(code >= 160 && code <= 255) ||
+				WIN_ANSI_EXTRA.includes(ch)
+			)
+				return ch;
 			return "?";
 		})
 		.join("");
@@ -17,7 +23,11 @@ export function toWinAnsi(text: string): string {
 function hexToRgb(hex: string) {
 	const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
 	if (!m) return rgb(0.31, 0.27, 0.9);
-	return rgb(Number.parseInt(m[1] ?? "0", 16) / 255, Number.parseInt(m[2] ?? "0", 16) / 255, Number.parseInt(m[3] ?? "0", 16) / 255);
+	return rgb(
+		Number.parseInt(m[1] ?? "0", 16) / 255,
+		Number.parseInt(m[2] ?? "0", 16) / 255,
+		Number.parseInt(m[3] ?? "0", 16) / 255,
+	);
 }
 
 /** Amounts as "INR 1,234.50" — currency symbols like ₹ aren't in WinAnsi. */
@@ -72,9 +82,16 @@ export async function renderInvoicePdf(invoice: Invoice): Promise<Uint8Array> {
 	if (invoice.logo) {
 		try {
 			const bytes = Uint8Array.from(atob(invoice.logo.split(",")[1] ?? ""), (c) => c.charCodeAt(0));
-			const image = invoice.logo.startsWith("data:image/png") ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes);
+			const image = invoice.logo.startsWith("data:image/png")
+				? await pdf.embedPng(bytes)
+				: await pdf.embedJpg(bytes);
 			const scale = Math.min(140 / image.width, 56 / image.height, 1);
-			page.drawImage(image, { x: margin, y: y - image.height * scale + 6, width: image.width * scale, height: image.height * scale });
+			page.drawImage(image, {
+				x: margin,
+				y: y - image.height * scale + 6,
+				width: image.width * scale,
+				height: image.height * scale,
+			});
 		} catch {
 			// Unsupported logo format: skip it rather than failing the invoice.
 		}
@@ -115,7 +132,12 @@ export async function renderInvoicePdf(invoice: Invoice): Promise<Uint8Array> {
 	y -= 30;
 
 	// Items table
-	const cols = { desc: margin + 10, qty: margin + width * 0.62, price: margin + width * 0.8, total: margin + width - 10 };
+	const cols = {
+		desc: margin + 10,
+		qty: margin + width * 0.62,
+		price: margin + width * 0.8,
+		total: margin + width - 10,
+	};
 	const drawHeader = () => {
 		page.drawRectangle({ x: margin, y: y - 8, width, height: 26, color: accent, opacity: 0.1 });
 		text("DESCRIPTION", cols.desc, 9, bold, muted);
@@ -143,7 +165,12 @@ export async function renderInvoicePdf(invoice: Invoice): Promise<Uint8Array> {
 		textRight(money(item.unitPrice || 0, invoice.currency), cols.price, 10);
 		textRight(money(lineTotal(item), invoice.currency), cols.total, 10, bold);
 		y = rowTop - rowHeight;
-		page.drawLine({ start: { x: margin, y: y + 6 }, end: { x: margin + width, y: y + 6 }, thickness: 0.5, color: rgb(0.88, 0.89, 0.92) });
+		page.drawLine({
+			start: { x: margin, y: y + 6 },
+			end: { x: margin + width, y: y + 6 },
+			thickness: 0.5,
+			color: rgb(0.88, 0.89, 0.92),
+		});
 		y -= 8;
 	}
 
@@ -156,9 +183,20 @@ export async function renderInvoicePdf(invoice: Invoice): Promise<Uint8Array> {
 		y -= strong ? 22 : 17;
 	};
 	row("Subtotal", money(totals.subtotal, invoice.currency));
-	if (totals.discount > 0) row(invoice.discountType === "percent" ? `Discount (${invoice.discount}%)` : "Discount", `- ${money(totals.discount, invoice.currency)}`);
-	if (invoice.taxRate > 0) row(`${invoice.taxLabel || "Tax"} (${invoice.taxRate}%)`, money(totals.tax, invoice.currency));
-	page.drawRectangle({ x: labelX - 10, y: y - 10, width: margin + width - labelX + 10, height: 32, color: accent });
+	if (totals.discount > 0)
+		row(
+			invoice.discountType === "percent" ? `Discount (${invoice.discount}%)` : "Discount",
+			`- ${money(totals.discount, invoice.currency)}`,
+		);
+	if (invoice.taxRate > 0)
+		row(`${invoice.taxLabel || "Tax"} (${invoice.taxRate}%)`, money(totals.tax, invoice.currency));
+	page.drawRectangle({
+		x: labelX - 10,
+		y: y - 10,
+		width: margin + width - labelX + 10,
+		height: 32,
+		color: accent,
+	});
 	y += 0;
 	text("TOTAL", labelX, 12, bold, rgb(1, 1, 1));
 	textRight(money(totals.total, invoice.currency), cols.total, 14, bold, rgb(1, 1, 1));

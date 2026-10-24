@@ -16,13 +16,23 @@ function Preview({ item }: { item: OrderedFile }) {
 	const src = item.thumb ?? url;
 	return (
 		<span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-lg border border-border bg-white">
-			{src ? <img src={src} alt="" className="max-h-full max-w-full object-contain" /> : <FileText className="size-6 text-cat-pdf" />}
+			{src ? (
+				<img src={src} alt="" className="max-h-full max-w-full object-contain" />
+			) : (
+				<FileText className="size-6 text-cat-pdf" />
+			)}
 		</span>
 	);
 }
 
 /** Reorderable list with big up/down buttons (works by touch and keyboard). */
-export function OrderedFiles({ items, onChange }: { items: OrderedFile[]; onChange: (items: OrderedFile[]) => void }) {
+export function OrderedFiles({
+	items,
+	onChange,
+}: {
+	items: OrderedFile[];
+	onChange: (items: OrderedFile[]) => void;
+}) {
 	const move = (index: number, delta: number) => {
 		const next = [...items];
 		const [item] = next.splice(index, 1);
@@ -32,8 +42,13 @@ export function OrderedFiles({ items, onChange }: { items: OrderedFile[]; onChan
 	return (
 		<ol className="flex flex-col gap-2">
 			{items.map((item, index) => (
-				<li key={item.id} className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-2.5">
-					<span className="w-6 text-center font-mono font-bold text-muted-foreground">{index + 1}</span>
+				<li
+					key={item.id}
+					className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-2.5"
+				>
+					<span className="w-6 text-center font-mono font-bold text-muted-foreground">
+						{index + 1}
+					</span>
 					<Preview item={item} />
 					<span className="min-w-0 flex-1">
 						<span className="block truncate font-semibold">{item.file.name}</span>
@@ -42,13 +57,30 @@ export function OrderedFiles({ items, onChange }: { items: OrderedFile[]; onChan
 							{item.meta ? ` · ${item.meta}` : ""}
 						</span>
 					</span>
-					<Button variant="ghost" size="icon-sm" aria-label={`Move ${item.file.name} up`} disabled={index === 0} onClick={() => move(index, -1)}>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label={`Move ${item.file.name} up`}
+						disabled={index === 0}
+						onClick={() => move(index, -1)}
+					>
 						<ArrowUp className="size-4" />
 					</Button>
-					<Button variant="ghost" size="icon-sm" aria-label={`Move ${item.file.name} down`} disabled={index === items.length - 1} onClick={() => move(index, 1)}>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label={`Move ${item.file.name} down`}
+						disabled={index === items.length - 1}
+						onClick={() => move(index, 1)}
+					>
 						<ArrowDown className="size-4" />
 					</Button>
-					<Button variant="ghost" size="icon-sm" aria-label={`Remove ${item.file.name}`} onClick={() => onChange(items.filter((i) => i.id !== item.id))}>
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						aria-label={`Remove ${item.file.name}`}
+						onClick={() => onChange(items.filter((i) => i.id !== item.id))}
+					>
 						<X className="size-4" />
 					</Button>
 				</li>

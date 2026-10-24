@@ -10,7 +10,12 @@ async function pdfjs() {
 
 export const COMPRESSION_LEVELS = {
 	light: { scale: 1.6, quality: 0.75, label: "Light", hint: "Best quality, smaller savings" },
-	recommended: { scale: 1.25, quality: 0.6, label: "Recommended", hint: "Good quality, good savings" },
+	recommended: {
+		scale: 1.25,
+		quality: 0.6,
+		label: "Recommended",
+		hint: "Good quality, good savings",
+	},
 	strong: { scale: 1, quality: 0.42, label: "Strong", hint: "Smallest file, lower quality" },
 } as const;
 export type CompressionLevel = keyof typeof COMPRESSION_LEVELS;
@@ -19,7 +24,11 @@ export type CompressionLevel = keyof typeof COMPRESSION_LEVELS;
  * Re-render every page to an optimized JPEG and rebuild the PDF at the
  * original page size. Big wins for scans; text becomes non-selectable.
  */
-export async function compressPdf(file: File, level: CompressionLevel, onProgress?: (done: number, total: number) => void): Promise<Blob> {
+export async function compressPdf(
+	file: File,
+	level: CompressionLevel,
+	onProgress?: (done: number, total: number) => void,
+): Promise<Blob> {
 	const { scale, quality } = COMPRESSION_LEVELS[level];
 	const lib = await pdfjs();
 	const task = lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
@@ -28,7 +37,9 @@ export async function compressPdf(file: File, level: CompressionLevel, onProgres
 		doc = await task.promise;
 	} catch (error) {
 		if ((error as { name?: string })?.name === "PasswordException") {
-			throw new Error("This PDF is password-protected. Open it with the password and save an unlocked copy first.");
+			throw new Error(
+				"This PDF is password-protected. Open it with the password and save an unlocked copy first.",
+			);
 		}
 		throw new Error("This PDF couldn't be opened. It may be damaged.");
 	}

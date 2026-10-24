@@ -22,7 +22,14 @@ export function Notice({
 				className,
 			)}
 		>
-			<Icon className={cn("mt-0.5 size-5 shrink-0", tone === "info" && "text-primary", tone === "caution" && "text-caution", tone === "critical" && "text-critical")} />
+			<Icon
+				className={cn(
+					"mt-0.5 size-5 shrink-0",
+					tone === "info" && "text-primary",
+					tone === "caution" && "text-caution",
+					tone === "critical" && "text-critical",
+				)}
+			/>
 			<div>{children}</div>
 		</div>
 	);

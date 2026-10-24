@@ -99,12 +99,26 @@ function GuidePage() {
 	const tools = guide.tools.map(getTool).filter((t) => t !== undefined);
 	return (
 		<article className="container-page py-8 sm:py-12">
-			<Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: guide.title }]} />
+			<Breadcrumbs
+				items={[
+					{ name: "Home", href: "/" },
+					{ name: "Guides", href: "/guides" },
+					{ name: guide.title },
+				]}
+			/>
 			<header className="max-w-3xl">
-				<h1 className="text-3xl leading-tight font-extrabold tracking-tight text-balance sm:text-4xl">{guide.title}</h1>
+				<h1 className="text-3xl leading-tight font-extrabold tracking-tight text-balance sm:text-4xl">
+					{guide.title}
+				</h1>
 				<p className="mt-3 text-lg text-muted-foreground">{guide.description}</p>
 				<p className="mt-3 text-sm text-muted-foreground">
-					{guide.readMinutes} min read · Published {new Date(guide.published).toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}
+					{guide.readMinutes} min read · Published{" "}
+					{new Date(guide.published).toLocaleDateString("en", {
+						day: "numeric",
+						month: "long",
+						year: "numeric",
+						timeZone: "UTC",
+					})}
 				</p>
 			</header>
 			<div className="prose-qb mt-8">

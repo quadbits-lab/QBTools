@@ -14,7 +14,9 @@ export default function GrammarChecker() {
 	const run = useServerFn(aiTextFn);
 	const [text, setText] = useState("");
 	const [pending, setPending] = useState(false);
-	const [result, setResult] = useState<{ corrected: string; changes: GrammarChange[] } | null>(null);
+	const [result, setResult] = useState<{ corrected: string; changes: GrammarChange[] } | null>(
+		null,
+	);
 
 	if (status && !status.available) return <AiUnavailable />;
 	const maxChars = status?.maxChars ?? 5000;
@@ -24,7 +26,8 @@ export default function GrammarChecker() {
 		setResult(null);
 		try {
 			const res = await run({ data: { mode: "grammar", text } });
-			if (res.ok && res.mode === "grammar") setResult({ corrected: res.corrected, changes: res.changes });
+			if (res.ok && res.mode === "grammar")
+				setResult({ corrected: res.corrected, changes: res.changes });
 			else if (!res.ok) toast.error(res.error);
 		} catch {
 			toast.error("Couldn't reach the AI helper. Check your connection and try again.");
@@ -35,9 +38,18 @@ export default function GrammarChecker() {
 
 	return (
 		<div className="flex flex-col gap-5">
-			<AiTextInput value={text} onChange={setText} maxChars={maxChars} placeholder="Paste an email, essay or message… e.g. “their going to the libary tomorow”" />
+			<AiTextInput
+				value={text}
+				onChange={setText}
+				maxChars={maxChars}
+				placeholder="Paste an email, essay or message… e.g. “their going to the libary tomorow”"
+			/>
 			<div className="flex flex-wrap items-center gap-4">
-				<Button size="lg" onClick={check} disabled={pending || !status || !text.trim() || text.length > maxChars}>
+				<Button
+					size="lg"
+					onClick={check}
+					disabled={pending || !status || !text.trim() || text.length > maxChars}
+				>
 					{pending ? <Loader2 className="animate-spin" /> : <SpellCheck />}
 					{pending ? "Checking…" : "Check grammar"}
 				</Button>
@@ -49,13 +61,22 @@ export default function GrammarChecker() {
 						<label htmlFor="gc-out" className="mb-2 block font-semibold">
 							Corrected text
 						</label>
-						<Textarea id="gc-out" readOnly value={result.corrected} className="min-h-56 bg-surface-2" />
+						<Textarea
+							id="gc-out"
+							readOnly
+							value={result.corrected}
+							className="min-h-56 bg-surface-2"
+						/>
 						<div className="mt-3">
 							<CopyButton text={result.corrected} label="Copy corrected text" variant="primary" />
 						</div>
 					</div>
 					<div className="rounded-2xl border border-border p-5">
-						<h3 className="font-bold">{result.changes.length === 0 ? "Looks good!" : `${result.changes.length} ${result.changes.length === 1 ? "fix" : "fixes"}`}</h3>
+						<h3 className="font-bold">
+							{result.changes.length === 0
+								? "Looks good!"
+								: `${result.changes.length} ${result.changes.length === 1 ? "fix" : "fixes"}`}
+						</h3>
 						{result.changes.length === 0 ? (
 							<p className="mt-2 flex items-center gap-2 text-positive">
 								<CheckCircle2 className="size-5" /> No mistakes found.

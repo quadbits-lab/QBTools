@@ -28,7 +28,9 @@ function toCsv(rows: Row[]): string {
 		const safe = /^[=+\-@]/.test(text) ? `'${text}` : text;
 		return /[",\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 	};
-	return [headers.join(","), ...rows.map((r) => headers.map((h) => cell(r[h])).join(","))].join("\n");
+	return [headers.join(","), ...rows.map((r) => headers.map((h) => cell(r[h])).join(","))].join(
+		"\n",
+	);
 }
 
 function exportCsv(name: string, rows: Row[]) {
@@ -41,12 +43,25 @@ function exportCsv(name: string, rows: Row[]) {
 	URL.revokeObjectURL(url);
 }
 
-function DataTable({ name, rows, columns }: { name: string; rows: Row[]; columns: { key: string; label: string; mono?: boolean }[] }) {
+function DataTable({
+	name,
+	rows,
+	columns,
+}: {
+	name: string;
+	rows: Row[];
+	columns: { key: string; label: string; mono?: boolean }[];
+}) {
 	return (
 		<div>
 			<div className="mb-3 flex items-center justify-between">
 				<p className="text-sm text-muted-foreground">{rows.length} rows (latest 200)</p>
-				<Button variant="secondary" size="sm" onClick={() => exportCsv(name, rows)} disabled={rows.length === 0}>
+				<Button
+					variant="secondary"
+					size="sm"
+					onClick={() => exportCsv(name, rows)}
+					disabled={rows.length === 0}
+				>
 					<Download className="size-4" /> Export CSV
 				</Button>
 			</div>
@@ -64,7 +79,10 @@ function DataTable({ name, rows, columns }: { name: string; rows: Row[]; columns
 					<tbody>
 						{rows.length === 0 ? (
 							<tr>
-								<td colSpan={columns.length} className="px-4 py-10 text-center text-muted-foreground">
+								<td
+									colSpan={columns.length}
+									className="px-4 py-10 text-center text-muted-foreground"
+								>
 									Nothing here yet.
 								</td>
 							</tr>
@@ -72,8 +90,13 @@ function DataTable({ name, rows, columns }: { name: string; rows: Row[]; columns
 							rows.map((row) => (
 								<tr key={String(row.id)} className="border-t border-border align-top">
 									{columns.map((c) => (
-										<td key={c.key} className={`max-w-md px-4 py-3 whitespace-pre-wrap ${c.mono ? "font-mono text-xs" : ""}`}>
-											{c.key === "createdAt" ? new Date(String(row[c.key])).toLocaleString() : String(row[c.key] ?? "")}
+										<td
+											key={c.key}
+											className={`max-w-md px-4 py-3 whitespace-pre-wrap ${c.mono ? "font-mono text-xs" : ""}`}
+										>
+											{c.key === "createdAt"
+												? new Date(String(row[c.key])).toLocaleString()
+												: String(row[c.key] ?? "")}
 										</td>
 									))}
 								</tr>
@@ -105,9 +128,20 @@ function Login({ enabled }: { enabled: boolean }) {
 				}}
 			>
 				<h1 className="text-2xl font-extrabold">Admin sign in</h1>
-				{!enabled && <p className="text-caution">Admin is disabled. Set ADMIN_TOKEN (16+ characters) in your environment.</p>}
+				{!enabled && (
+					<p className="text-caution">
+						Admin is disabled. Set ADMIN_TOKEN (16+ characters) in your environment.
+					</p>
+				)}
 				<Field label="Admin token" htmlFor="admin-token">
-					<Input id="admin-token" type="password" autoComplete="current-password" value={token} onChange={(e) => setToken(e.target.value)} disabled={!enabled} />
+					<Input
+						id="admin-token"
+						type="password"
+						autoComplete="current-password"
+						value={token}
+						onChange={(e) => setToken(e.target.value)}
+						disabled={!enabled}
+					/>
 				</Field>
 				<Button type="submit" disabled={!enabled || pending || !token}>
 					{pending ? "Checking…" : "Sign in"}
@@ -128,7 +162,9 @@ function AdminPage() {
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<h1 className="text-3xl font-extrabold tracking-tight">Admin</h1>
-					<p className="mt-1 text-muted-foreground">Messages, tool ideas, leads and the Premium waitlist.</p>
+					<p className="mt-1 text-muted-foreground">
+						Messages, tool ideas, leads and the Premium waitlist.
+					</p>
 				</div>
 				<Button
 					variant="secondary"

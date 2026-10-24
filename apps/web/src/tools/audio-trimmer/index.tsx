@@ -40,7 +40,11 @@ export default function AudioTrimmer() {
 		let disposed = false;
 		const url = URL.createObjectURL(file);
 		void (async () => {
-			const [{ default: WaveSurferLib }, { default: RegionsPlugin }, engine] = await Promise.all([import("wavesurfer.js"), import("wavesurfer.js/plugins/regions"), import("@qbtools/engines/media")]);
+			const [{ default: WaveSurferLib }, { default: RegionsPlugin }, engine] = await Promise.all([
+				import("wavesurfer.js"),
+				import("wavesurfer.js/plugins/regions"),
+				import("@qbtools/engines/media"),
+			]);
 			if (disposed || !container.current) return;
 			media.current = engine;
 			const styles = getComputedStyle(document.documentElement);
@@ -60,7 +64,13 @@ export default function AudioTrimmer() {
 			ws.current = instance;
 			instance.on("ready", (duration) => {
 				const end = Math.min(duration, 30);
-				region.current = regions.addRegion({ start: 0, end, color: "color-mix(in oklch, var(--primary) 22%, transparent)", drag: true, resize: true });
+				region.current = regions.addRegion({
+					start: 0,
+					end,
+					color: "color-mix(in oklch, var(--primary) 22%, transparent)",
+					drag: true,
+					resize: true,
+				});
 				setRange({ start: 0, end });
 			});
 			instance.on("play", () => setPlaying(true));
@@ -69,7 +79,9 @@ export default function AudioTrimmer() {
 				if (region.current && time >= region.current.end) instance.pause();
 			});
 			regions.on("region-updated", (r) => setRange({ start: r.start, end: r.end }));
-			instance.on("error", () => setError("This audio file couldn't be opened. Try MP3, WAV, M4A or OGG."));
+			instance.on("error", () =>
+				setError("This audio file couldn't be opened. Try MP3, WAV, M4A or OGG."),
+			);
 			try {
 				setBuffer(await engine.decodeAudio(file));
 			} catch (e) {
@@ -98,7 +110,8 @@ export default function AudioTrimmer() {
 		setError(null);
 		try {
 			const clip = media.current.trimAudioBuffer(buffer, range.start, range.end, fadeIn, fadeOut);
-			const blob = format === "wav" ? media.current.encodeWav(clip) : await media.current.encodeMp3(clip);
+			const blob =
+				format === "wav" ? media.current.encodeWav(clip) : await media.current.encodeMp3(clip);
 			downloadBlob(blob, replaceExtension(file.name, format).replace(/(\.\w+)$/, "-trimmed$1"));
 		} catch (e) {
 			setError(e instanceof Error ? e.message : "Couldn't save the clip.");
@@ -110,7 +123,11 @@ export default function AudioTrimmer() {
 	if (!file) {
 		return (
 			<div className="flex flex-col gap-4">
-				<FileDrop accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.aac" onFiles={(f) => f[0] && setFile(f[0])} hint="MP3, WAV, M4A, OGG or FLAC" />
+				<FileDrop
+					accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac,.aac"
+					onFiles={(f) => f[0] && setFile(f[0])}
+					hint="MP3, WAV, M4A, OGG or FLAC"
+				/>
 				<PrivacyNote />
 			</div>
 		);
@@ -120,34 +137,94 @@ export default function AudioTrimmer() {
 	return (
 		<div className="flex flex-col gap-5">
 			<p className="truncate font-semibold">{file.name}</p>
-			<div ref={container} className="rounded-2xl border border-border bg-surface-2 p-3" aria-label="Audio waveform. Drag the highlighted area or its edges to choose the part to keep." />
+			<div
+				ref={container}
+				role="group"
+				className="rounded-2xl border border-border bg-surface-2 p-3"
+				aria-label="Audio waveform. Drag the highlighted area or its edges to choose the part to keep."
+			/>
 			<div className="flex flex-wrap items-end gap-4">
-				<Button size="lg" variant="secondary" onClick={() => (playing ? ws.current?.pause() : region.current?.play())} disabled={!buffer}>
+				<Button
+					size="lg"
+					variant="secondary"
+					onClick={() => (playing ? ws.current?.pause() : region.current?.play())}
+					disabled={!buffer}
+				>
 					{playing ? <Pause /> : <Play />} {playing ? "Pause" : "Play selection"}
 				</Button>
 				<Field label="Start" htmlFor="at-start" className="w-32">
-					<Input id="at-start" value={fmt(range.start)} onChange={(e) => { const v = parseTime(e.target.value); if (Number.isFinite(v)) setRegion(v, range.end); }} className="font-mono" />
+					<Input
+						id="at-start"
+						value={fmt(range.start)}
+						onChange={(e) => {
+							const v = parseTime(e.target.value);
+							if (Number.isFinite(v)) setRegion(v, range.end);
+						}}
+						className="font-mono"
+					/>
 				</Field>
 				<Field label="End" htmlFor="at-end" className="w-32">
-					<Input id="at-end" value={fmt(range.end)} onChange={(e) => { const v = parseTime(e.target.value); if (Number.isFinite(v)) setRegion(range.start, v); }} className="font-mono" />
+					<Input
+						id="at-end"
+						value={fmt(range.end)}
+						onChange={(e) => {
+							const v = parseTime(e.target.value);
+							if (Number.isFinite(v)) setRegion(range.start, v);
+						}}
+						className="font-mono"
+					/>
 				</Field>
 				<p className="pb-3 text-muted-foreground">
 					Length: <strong className="font-mono text-foreground">{fmt(length)}</strong>
 				</p>
 			</div>
 			<div className="grid gap-4 sm:grid-cols-3">
-				<Slider id="fade-in" label="Fade in" valueLabel={`${fadeIn}s`} min={0} max={5} step={0.5} value={fadeIn} onChange={(e) => setFadeIn(Number(e.target.value))} />
-				<Slider id="fade-out" label="Fade out" valueLabel={`${fadeOut}s`} min={0} max={5} step={0.5} value={fadeOut} onChange={(e) => setFadeOut(Number(e.target.value))} />
+				<Slider
+					id="fade-in"
+					label="Fade in"
+					valueLabel={`${fadeIn}s`}
+					min={0}
+					max={5}
+					step={0.5}
+					value={fadeIn}
+					onChange={(e) => setFadeIn(Number(e.target.value))}
+				/>
+				<Slider
+					id="fade-out"
+					label="Fade out"
+					valueLabel={`${fadeOut}s`}
+					min={0}
+					max={5}
+					step={0.5}
+					value={fadeOut}
+					onChange={(e) => setFadeOut(Number(e.target.value))}
+				/>
 				<div className="flex flex-col gap-2">
 					<span className="text-sm font-semibold">Save as</span>
-					<Segmented label="Format" value={format} onChange={setFormat} options={[{ value: "mp3", label: "MP3" }, { value: "wav", label: "WAV" }]} />
+					<Segmented
+						label="Format"
+						value={format}
+						onChange={setFormat}
+						options={[
+							{ value: "mp3", label: "MP3" },
+							{ value: "wav", label: "WAV" },
+						]}
+					/>
 				</div>
 			</div>
 			<div className="flex flex-wrap gap-2">
 				<Button size="lg" onClick={exportClip} disabled={!buffer || pending || length < 0.1}>
-					{pending ? <Loader2 className="animate-spin" /> : <Download />} Download {format.toUpperCase()}
+					{pending ? <Loader2 className="animate-spin" /> : <Download />} Download{" "}
+					{format.toUpperCase()}
 				</Button>
-				<Button size="lg" variant="ghost" onClick={() => { setFile(null); setBuffer(null); }}>
+				<Button
+					size="lg"
+					variant="ghost"
+					onClick={() => {
+						setFile(null);
+						setBuffer(null);
+					}}
+				>
 					<RotateCcw /> Another file
 				</Button>
 			</div>

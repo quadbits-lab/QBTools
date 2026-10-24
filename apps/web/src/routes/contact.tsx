@@ -19,13 +19,22 @@ export const Route = createFileRoute("/contact")({
 	head: () =>
 		seo({
 			title: "Contact Us & Suggest a Tool",
-			description: "Questions, feedback or an idea for a new free tool? Send us a message or suggest a tool — we read everything.",
+			description:
+				"Questions, feedback or an idea for a new free tool? Send us a message or suggest a tool — we read everything.",
 			path: "/contact",
 		}),
 	component: ContactPage,
 });
 
-function Success({ message, onAgain, again }: { message: string; onAgain: () => void; again: string }) {
+function Success({
+	message,
+	onAgain,
+	again,
+}: {
+	message: string;
+	onAgain: () => void;
+	again: string;
+}) {
 	return (
 		<div className="flex flex-col items-center gap-4 py-10 text-center">
 			<CheckCircle2 className="size-14 text-positive" />
@@ -38,22 +47,44 @@ function Success({ message, onAgain, again }: { message: string; onAgain: () => 
 }
 
 function ContactForm() {
-	const { errors, pending, done, onSubmit, reset } = useFormSubmit(contactSchema, useServerFn(submitContact));
+	const { errors, pending, done, onSubmit, reset } = useFormSubmit(
+		contactSchema,
+		useServerFn(submitContact),
+	);
 	if (done) return <Success message={done} onAgain={reset} again="Send another message" />;
 	return (
 		<form onSubmit={onSubmit} noValidate className="relative grid gap-5 sm:grid-cols-2">
 			<input {...HONEYPOT_PROPS} />
 			<Field label="Your name" htmlFor="c-name" error={errors.name}>
-				<Input id="c-name" name="name" autoComplete="name" required aria-invalid={Boolean(errors.name)} />
+				<Input
+					id="c-name"
+					name="name"
+					autoComplete="name"
+					required
+					aria-invalid={Boolean(errors.name)}
+				/>
 			</Field>
 			<Field label="Email" htmlFor="c-email" error={errors.email}>
-				<Input id="c-email" name="email" type="email" autoComplete="email" required aria-invalid={Boolean(errors.email)} />
+				<Input
+					id="c-email"
+					name="email"
+					type="email"
+					autoComplete="email"
+					required
+					aria-invalid={Boolean(errors.email)}
+				/>
 			</Field>
 			<Field label="Subject" htmlFor="c-subject" error={errors.subject} className="sm:col-span-2">
 				<Input id="c-subject" name="subject" required aria-invalid={Boolean(errors.subject)} />
 			</Field>
 			<Field label="Message" htmlFor="c-message" error={errors.message} className="sm:col-span-2">
-				<Textarea id="c-message" name="message" rows={6} required aria-invalid={Boolean(errors.message)} />
+				<Textarea
+					id="c-message"
+					name="message"
+					rows={6}
+					required
+					aria-invalid={Boolean(errors.message)}
+				/>
 			</Field>
 			<div className="sm:col-span-2">
 				<Button type="submit" size="lg" disabled={pending}>
@@ -65,12 +96,21 @@ function ContactForm() {
 }
 
 function SuggestForm() {
-	const { errors, pending, done, onSubmit, reset } = useFormSubmit(suggestionSchema, useServerFn(submitSuggestion));
+	const { errors, pending, done, onSubmit, reset } = useFormSubmit(
+		suggestionSchema,
+		useServerFn(submitSuggestion),
+	);
 	if (done) return <Success message={done} onAgain={reset} again="Suggest another tool" />;
 	return (
 		<form onSubmit={onSubmit} noValidate className="relative grid gap-5 sm:grid-cols-2">
 			<input {...HONEYPOT_PROPS} />
-			<Field label="What tool should we build?" htmlFor="s-title" error={errors.title} hint="For example: “JSON formatter” or “Unit converter”" className="sm:col-span-2">
+			<Field
+				label="What tool should we build?"
+				htmlFor="s-title"
+				error={errors.title}
+				hint="For example: “JSON formatter” or “Unit converter”"
+				className="sm:col-span-2"
+			>
 				<Input id="s-title" name="title" required aria-invalid={Boolean(errors.title)} />
 			</Field>
 			<Field label="Category (optional)" htmlFor="s-category">
@@ -85,8 +125,19 @@ function SuggestForm() {
 					<option value="other">Something else</option>
 				</Select>
 			</Field>
-			<Field label="Email (optional)" htmlFor="s-email" error={errors.email} hint="We'll tell you when it's ready.">
-				<Input id="s-email" name="email" type="email" autoComplete="email" aria-invalid={Boolean(errors.email)} />
+			<Field
+				label="Email (optional)"
+				htmlFor="s-email"
+				error={errors.email}
+				hint="We'll tell you when it's ready."
+			>
+				<Input
+					id="s-email"
+					name="email"
+					type="email"
+					autoComplete="email"
+					aria-invalid={Boolean(errors.email)}
+				/>
 			</Field>
 			<Field label="How would you use it? (optional)" htmlFor="s-details" className="sm:col-span-2">
 				<Textarea id="s-details" name="details" rows={4} />
@@ -119,7 +170,12 @@ function ContactPage() {
 				}
 			/>
 			<div className="container-page py-10">
-				<Tabs value={tab} onValueChange={(value) => navigate({ search: { tab: value as "contact" | "suggest" }, replace: true })}>
+				<Tabs
+					value={tab}
+					onValueChange={(value) =>
+						navigate({ search: { tab: value as "contact" | "suggest" }, replace: true })
+					}
+				>
 					<TabsList>
 						<TabsTrigger value="contact">Send a message</TabsTrigger>
 						<TabsTrigger value="suggest">Suggest a tool</TabsTrigger>

@@ -14,7 +14,15 @@ export interface SeoInput {
 }
 
 /** Route head() payload: title, meta, canonical, OG/Twitter and JSON-LD. */
-export function seo({ title, description, path, rawTitle, noindex, jsonLd = [], ogType = "website" }: SeoInput) {
+export function seo({
+	title,
+	description,
+	path,
+	rawTitle,
+	noindex,
+	jsonLd = [],
+	ogType = "website",
+}: SeoInput) {
 	const fullTitle = rawTitle ? title : `${title} | ${SITE_NAME}`;
 	const url = absoluteUrl(path);
 	const image = absoluteUrl("/og-default.png");
@@ -67,7 +75,12 @@ export function faqLd(faqs: { q: string; a: string }[]): JsonLd {
 	};
 }
 
-export function webAppLd(input: { name: string; description: string; path: string; category: string }): JsonLd {
+export function webAppLd(input: {
+	name: string;
+	description: string;
+	path: string;
+	category: string;
+}): JsonLd {
 	return {
 		"@context": "https://schema.org",
 		"@type": "WebApplication",

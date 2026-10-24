@@ -3,7 +3,11 @@ import { toast } from "@qbtools/ui/toaster";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 
-export function CopyButton({ text, label = "Copy", ...props }: { text: string; label?: string } & Omit<ButtonProps, "onClick">) {
+export function CopyButton({
+	text,
+	label = "Copy",
+	...props
+}: { text: string; label?: string } & Omit<ButtonProps, "onClick">) {
 	const [copied, setCopied] = useState(false);
 	return (
 		<Button

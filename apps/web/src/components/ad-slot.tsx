@@ -29,7 +29,13 @@ function loadAdsense(client: string) {
  * Reserved ad space (fixed min-height, so no layout shift). Renders nothing
  * until AdSense is configured, and shows ads only after the visitor accepts.
  */
-export function AdSlot({ position, className }: { position: keyof typeof SLOTS; className?: string }) {
+export function AdSlot({
+	position,
+	className,
+}: {
+	position: keyof typeof SLOTS;
+	className?: string;
+}) {
 	const consent = consentStore.use();
 	const ref = useRef<HTMLModElement>(null);
 	const slot = SLOTS[position];
@@ -49,8 +55,13 @@ export function AdSlot({ position, className }: { position: keyof typeof SLOTS; 
 
 	if (!CLIENT || !slot) return null;
 	return (
-		<aside aria-label="Advertisement" className={cn("my-8 flex min-h-[100px] flex-col items-center justify-center", className)}>
-			<span className="mb-1 text-[0.7rem] tracking-wide text-muted-foreground uppercase">Advertisement</span>
+		<aside
+			aria-label="Advertisement"
+			className={cn("my-8 flex min-h-[100px] flex-col items-center justify-center", className)}
+		>
+			<span className="mb-1 text-[0.7rem] tracking-wide text-muted-foreground uppercase">
+				Advertisement
+			</span>
 			{enabled ? (
 				<ins
 					ref={ref}

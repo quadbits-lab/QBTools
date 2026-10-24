@@ -38,8 +38,21 @@ export default function QrCodeGenerator() {
 	const [kind, setKind] = useState<QrKind>("url");
 	const [url, setUrl] = useState("https://example.com");
 	const [text, setText] = useState("");
-	const [wifi, setWifi] = useState({ ssid: "", password: "", encryption: "WPA" as "WPA" | "WEP" | "nopass", hidden: false });
-	const [contact, setContact] = useState({ firstName: "", lastName: "", phone: "", email: "", organization: "", title: "", url: "" });
+	const [wifi, setWifi] = useState({
+		ssid: "",
+		password: "",
+		encryption: "WPA" as "WPA" | "WEP" | "nopass",
+		hidden: false,
+	});
+	const [contact, setContact] = useState({
+		firstName: "",
+		lastName: "",
+		phone: "",
+		email: "",
+		organization: "",
+		title: "",
+		url: "",
+	});
 	const [email, setEmail] = useState({ to: "", subject: "", body: "" });
 	const [phone, setPhone] = useState("");
 	const [fg, setFg] = useState("#111827");
@@ -57,7 +70,9 @@ export default function QrCodeGenerator() {
 			case "wifi":
 				return wifi.ssid ? wifiPayload(wifi) : "";
 			case "contact":
-				return contact.firstName || contact.lastName || contact.phone || contact.email ? vcardPayload(contact) : "";
+				return contact.firstName || contact.lastName || contact.phone || contact.email
+					? vcardPayload(contact)
+					: "";
 			case "email": {
 				const params = new URLSearchParams();
 				if (email.subject) params.set("subject", email.subject);
@@ -73,20 +88,37 @@ export default function QrCodeGenerator() {
 	useEffect(() => {
 		if (!canvasRef.current) return;
 		if (!payload) {
-			canvasRef.current.getContext("2d")?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+			canvasRef.current
+				.getContext("2d")
+				?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 			return;
 		}
-		QRCode.toCanvas(canvasRef.current, payload, { width: 320, margin: 2, errorCorrectionLevel: ecl, color: { dark: fg, light: bg } })
+		QRCode.toCanvas(canvasRef.current, payload, {
+			width: 320,
+			margin: 2,
+			errorCorrectionLevel: ecl,
+			color: { dark: fg, light: bg },
+		})
 			.then(() => setError(null))
 			.catch(() => setError("That's too much information for one QR code. Please shorten it."));
 	}, [payload, fg, bg, ecl]);
 
 	const downloadPng = async () => {
-		const dataUrl = await QRCode.toDataURL(payload, { width: 1024, margin: 2, errorCorrectionLevel: ecl, color: { dark: fg, light: bg } });
+		const dataUrl = await QRCode.toDataURL(payload, {
+			width: 1024,
+			margin: 2,
+			errorCorrectionLevel: ecl,
+			color: { dark: fg, light: bg },
+		});
 		downloadBlob(await (await fetch(dataUrl)).blob(), "qr-code.png");
 	};
 	const downloadSvg = async () => {
-		const svg = await QRCode.toString(payload, { type: "svg", margin: 2, errorCorrectionLevel: ecl, color: { dark: fg, light: bg } });
+		const svg = await QRCode.toString(payload, {
+			type: "svg",
+			margin: 2,
+			errorCorrectionLevel: ecl,
+			color: { dark: fg, light: bg },
+		});
 		downloadBlob(new Blob([svg], { type: "image/svg+xml" }), "qr-code.svg");
 	};
 
@@ -98,21 +130,43 @@ export default function QrCodeGenerator() {
 				<Segmented label="QR code type" value={kind} onChange={setKind} options={KINDS} />
 				{kind === "url" && (
 					<Field label="Website link" htmlFor="qr-url">
-						<Input id="qr-url" type="url" inputMode="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="example.com" />
+						<Input
+							id="qr-url"
+							type="url"
+							inputMode="url"
+							value={url}
+							onChange={(e) => setUrl(e.target.value)}
+							placeholder="example.com"
+						/>
 					</Field>
 				)}
 				{kind === "text" && (
 					<Field label="Text" htmlFor="qr-text">
-						<Textarea id="qr-text" value={text} onChange={(e) => setText(e.target.value)} placeholder="Any message…" />
+						<Textarea
+							id="qr-text"
+							value={text}
+							onChange={(e) => setText(e.target.value)}
+							placeholder="Any message…"
+						/>
 					</Field>
 				)}
 				{kind === "wifi" && (
 					<div className="grid gap-4 sm:grid-cols-2">
 						<Field label="Network name (SSID)" htmlFor="qr-ssid">
-							<Input id="qr-ssid" value={wifi.ssid} onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })} />
+							<Input
+								id="qr-ssid"
+								value={wifi.ssid}
+								onChange={(e) => setWifi({ ...wifi, ssid: e.target.value })}
+							/>
 						</Field>
 						<Field label="Security" htmlFor="qr-enc">
-							<Select id="qr-enc" value={wifi.encryption} onChange={(e) => setWifi({ ...wifi, encryption: e.target.value as typeof wifi.encryption })}>
+							<Select
+								id="qr-enc"
+								value={wifi.encryption}
+								onChange={(e) =>
+									setWifi({ ...wifi, encryption: e.target.value as typeof wifi.encryption })
+								}
+							>
 								<option value="WPA">WPA / WPA2 / WPA3</option>
 								<option value="WEP">WEP</option>
 								<option value="nopass">No password</option>
@@ -120,11 +174,20 @@ export default function QrCodeGenerator() {
 						</Field>
 						{wifi.encryption !== "nopass" && (
 							<Field label="Password" htmlFor="qr-pass">
-								<Input id="qr-pass" value={wifi.password} onChange={(e) => setWifi({ ...wifi, password: e.target.value })} autoComplete="off" />
+								<Input
+									id="qr-pass"
+									value={wifi.password}
+									onChange={(e) => setWifi({ ...wifi, password: e.target.value })}
+									autoComplete="off"
+								/>
 							</Field>
 						)}
 						<label className="flex items-center gap-3 self-end pb-3 font-medium">
-							<Switch checked={wifi.hidden} onCheckedChange={(hidden) => setWifi({ ...wifi, hidden })} /> Hidden network
+							<Switch
+								checked={wifi.hidden}
+								onCheckedChange={(hidden) => setWifi({ ...wifi, hidden })}
+							/>{" "}
+							Hidden network
 						</label>
 					</div>
 				)}
@@ -142,7 +205,11 @@ export default function QrCodeGenerator() {
 							] as const
 						).map(([key, label]) => (
 							<Field key={key} label={label} htmlFor={`qr-${key}`}>
-								<Input id={`qr-${key}`} value={contact[key]} onChange={(e) => setContact({ ...contact, [key]: e.target.value })} />
+								<Input
+									id={`qr-${key}`}
+									value={contact[key]}
+									onChange={(e) => setContact({ ...contact, [key]: e.target.value })}
+								/>
 							</Field>
 						))}
 					</div>
@@ -150,27 +217,60 @@ export default function QrCodeGenerator() {
 				{kind === "email" && (
 					<div className="grid gap-4">
 						<Field label="Send to" htmlFor="qr-mail">
-							<Input id="qr-mail" type="email" value={email.to} onChange={(e) => setEmail({ ...email, to: e.target.value })} />
+							<Input
+								id="qr-mail"
+								type="email"
+								value={email.to}
+								onChange={(e) => setEmail({ ...email, to: e.target.value })}
+							/>
 						</Field>
 						<Field label="Subject" htmlFor="qr-subj">
-							<Input id="qr-subj" value={email.subject} onChange={(e) => setEmail({ ...email, subject: e.target.value })} />
+							<Input
+								id="qr-subj"
+								value={email.subject}
+								onChange={(e) => setEmail({ ...email, subject: e.target.value })}
+							/>
 						</Field>
 						<Field label="Message" htmlFor="qr-body">
-							<Textarea id="qr-body" value={email.body} onChange={(e) => setEmail({ ...email, body: e.target.value })} className="min-h-24" />
+							<Textarea
+								id="qr-body"
+								value={email.body}
+								onChange={(e) => setEmail({ ...email, body: e.target.value })}
+								className="min-h-24"
+							/>
 						</Field>
 					</div>
 				)}
 				{kind === "phone" && (
 					<Field label="Phone number" htmlFor="qr-tel">
-						<Input id="qr-tel" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 123 4567" />
+						<Input
+							id="qr-tel"
+							type="tel"
+							inputMode="tel"
+							value={phone}
+							onChange={(e) => setPhone(e.target.value)}
+							placeholder="+1 555 123 4567"
+						/>
 					</Field>
 				)}
 				<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
 					<Field label="Code color" htmlFor="qr-fg">
-						<Input id="qr-fg" type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="cursor-pointer p-1" />
+						<Input
+							id="qr-fg"
+							type="color"
+							value={fg}
+							onChange={(e) => setFg(e.target.value)}
+							className="cursor-pointer p-1"
+						/>
 					</Field>
 					<Field label="Background" htmlFor="qr-bg">
-						<Input id="qr-bg" type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="cursor-pointer p-1" />
+						<Input
+							id="qr-bg"
+							type="color"
+							value={bg}
+							onChange={(e) => setBg(e.target.value)}
+							className="cursor-pointer p-1"
+						/>
 					</Field>
 					<Field label="Error correction" htmlFor="qr-ecl" className="col-span-2 sm:col-span-1">
 						<Select id="qr-ecl" value={ecl} onChange={(e) => setEcl(e.target.value as typeof ecl)}>
@@ -181,19 +281,43 @@ export default function QrCodeGenerator() {
 						</Select>
 					</Field>
 				</div>
-				{lowContrast && <Notice tone="caution">These colors are too similar — some phones may not scan the code.</Notice>}
+				{lowContrast && (
+					<Notice tone="caution">
+						These colors are too similar — some phones may not scan the code.
+					</Notice>
+				)}
 			</div>
 			<div className="flex flex-col items-center gap-4">
 				<div className="rounded-3xl border border-border bg-white p-4">
-					<canvas ref={canvasRef} width={320} height={320} className="size-64 sm:size-80" aria-label="QR code preview" role="img" />
+					<canvas
+						ref={canvasRef}
+						width={320}
+						height={320}
+						className="size-64 sm:size-80"
+						aria-label="QR code preview"
+						role="img"
+					/>
 				</div>
 				{error && <Notice tone="critical">{error}</Notice>}
-				{!payload && <p className="text-muted-foreground">Fill in the details to create your QR code.</p>}
+				{!payload && (
+					<p className="text-muted-foreground">Fill in the details to create your QR code.</p>
+				)}
 				<div className="flex w-full max-w-sm flex-col gap-2 sm:flex-row">
-					<Button size="lg" className="flex-1" onClick={downloadPng} disabled={!payload || Boolean(error)}>
+					<Button
+						size="lg"
+						className="flex-1"
+						onClick={downloadPng}
+						disabled={!payload || Boolean(error)}
+					>
 						<Download /> PNG
 					</Button>
-					<Button size="lg" variant="secondary" className="flex-1" onClick={downloadSvg} disabled={!payload || Boolean(error)}>
+					<Button
+						size="lg"
+						variant="secondary"
+						className="flex-1"
+						onClick={downloadSvg}
+						disabled={!payload || Boolean(error)}
+					>
 						<Download /> SVG
 					</Button>
 				</div>

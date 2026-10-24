@@ -9,7 +9,15 @@ import { searchIndex } from "#/lib/search";
  * Big hero search with instant suggestions (ARIA combobox).
  * Enter opens the highlighted tool, or /tools?q= when nothing is highlighted.
  */
-export function SearchBox({ size = "lg", autoFocus = false, className }: { size?: "lg" | "md"; autoFocus?: boolean; className?: string }) {
+export function SearchBox({
+	size = "lg",
+	autoFocus = false,
+	className,
+}: {
+	size?: "lg" | "md";
+	autoFocus?: boolean;
+	className?: string;
+}) {
 	const [query, setQuery] = useState("");
 	const [open, setOpen] = useState(false);
 	const [active, setActive] = useState(-1);
@@ -45,7 +53,12 @@ export function SearchBox({ size = "lg", autoFocus = false, className }: { size?
 				<label htmlFor={`${listId}-input`} className="sr-only">
 					Search tools
 				</label>
-				<Search className={cn("pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted-foreground", size === "lg" ? "size-6" : "size-5")} />
+				<Search
+					className={cn(
+						"pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-muted-foreground",
+						size === "lg" ? "size-6" : "size-5",
+					)}
+				/>
 				<input
 					ref={inputRef}
 					id={`${listId}-input`}
@@ -59,7 +72,7 @@ export function SearchBox({ size = "lg", autoFocus = false, className }: { size?
 					// biome-ignore lint/a11y/noAutofocus: opt-in on the 404 page only
 					autoFocus={autoFocus}
 					value={query}
-					placeholder="Try “compress image to 100kb” or “merge pdf”"
+					placeholder="What do you want to do?"
 					onChange={(event) => {
 						setQuery(event.target.value);
 						setActive(-1);
@@ -94,18 +107,21 @@ export function SearchBox({ size = "lg", autoFocus = false, className }: { size?
 				</button>
 			</form>
 			{showList && (
-				<ul
+				<div
 					id={listId}
 					role="listbox"
 					className="absolute top-full right-0 left-0 z-40 mt-2 overflow-hidden rounded-2xl border border-border bg-surface p-2 text-left shadow-xl"
 				>
 					{results.length === 0 ? (
-						<li className="px-4 py-3 text-muted-foreground">No matching tools — press Enter to search all tools.</li>
+						<div className="px-4 py-3 text-muted-foreground">
+							No matching tools — press Enter to search all tools.
+						</div>
 					) : (
 						results.map((result, index) => {
 							const Icon = iconFor(result.tool.icon);
 							return (
-								<li
+								// biome-ignore lint/a11y/useFocusableInteractive: combobox pattern — focus stays in the input via aria-activedescendant
+								<div
 									key={result.href}
 									id={`${listId}-${index}`}
 									role="option"
@@ -115,20 +131,30 @@ export function SearchBox({ size = "lg", autoFocus = false, className }: { size?
 										go(result.href);
 									}}
 									onMouseEnter={() => setActive(index)}
-									className={cn("flex min-h-14 cursor-pointer items-center gap-3 rounded-xl px-3", index === active && "bg-muted")}
+									className={cn(
+										"flex min-h-14 cursor-pointer items-center gap-3 rounded-xl px-3",
+										index === active && "bg-muted",
+									)}
 								>
-									<span className={cn("grid size-10 shrink-0 place-items-center rounded-xl", categoryTone[result.tool.category])}>
+									<span
+										className={cn(
+											"grid size-10 shrink-0 place-items-center rounded-xl",
+											categoryTone[result.tool.category],
+										)}
+									>
 										<Icon className="size-5" />
 									</span>
 									<span className="flex min-w-0 flex-col">
 										<span className="truncate font-semibold">{result.title}</span>
-										<span className="truncate text-sm text-muted-foreground">{result.subtitle}</span>
+										<span className="truncate text-sm text-muted-foreground">
+											{result.subtitle}
+										</span>
 									</span>
-								</li>
+								</div>
 							);
 						})
 					)}
-				</ul>
+				</div>
 			)}
 		</div>
 	);

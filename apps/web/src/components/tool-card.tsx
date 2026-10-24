@@ -5,7 +5,13 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { categoryTone, iconFor } from "#/lib/icons";
 
-export function ToolIcon({ tool, size = "md" }: { tool: Pick<ToolDef, "icon" | "category">; size?: "sm" | "md" | "lg" }) {
+export function ToolIcon({
+	tool,
+	size = "md",
+}: {
+	tool: Pick<ToolDef, "icon" | "category">;
+	size?: "sm" | "md" | "lg";
+}) {
 	const Icon = iconFor(tool.icon);
 	return (
 		<span
@@ -56,7 +62,9 @@ export function CategoryCard({ category, count }: { category: Category; count: n
 			params={{ category: category.id }}
 			className="group flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg sm:p-6"
 		>
-			<span className={cn("grid size-14 place-items-center rounded-2xl", categoryTone[category.id])}>
+			<span
+				className={cn("grid size-14 place-items-center rounded-2xl", categoryTone[category.id])}
+			>
 				<Icon className="size-7" />
 			</span>
 			<span className="flex flex-col gap-1">
@@ -64,7 +72,8 @@ export function CategoryCard({ category, count }: { category: Category; count: n
 				<span className="text-muted-foreground">{category.tagline}</span>
 			</span>
 			<span className="mt-auto flex items-center gap-1 text-sm font-semibold text-primary">
-				{count} tools <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+				{count} tools{" "}
+				<ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
 			</span>
 		</Link>
 	);

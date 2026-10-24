@@ -65,7 +65,11 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 						Type to find a tool, then press Enter to open it.
 					</DialogDescription>
 					<Command shouldFilter={false} label="Search tools">
-						<CommandInput value={query} onValueChange={setQuery} placeholder="What do you want to do?" />
+						<CommandInput
+							value={query}
+							onValueChange={setQuery}
+							placeholder="What do you want to do?"
+						/>
 						<CommandList>
 							<CommandEmpty>No tools found. Try “compress” or “pdf”.</CommandEmpty>
 							{query.trim() === "" ? (
@@ -73,7 +77,11 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 									{recentDefs.length > 0 && (
 										<CommandGroup heading="Recent">
 											{recentDefs.slice(0, 5).map((tool) => (
-												<CommandItem key={tool.slug} value={`recent-${tool.slug}`} onSelect={() => go(`/tools/${tool.slug}`)}>
+												<CommandItem
+													key={tool.slug}
+													value={`recent-${tool.slug}`}
+													onSelect={() => go(`/tools/${tool.slug}`)}
+												>
 													<Clock className="size-5 text-muted-foreground" />
 													{tool.name}
 												</CommandItem>
@@ -84,8 +92,14 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 										{categories.map((category) => {
 											const Icon = iconFor(category.icon);
 											return (
-												<CommandItem key={category.id} value={category.id} onSelect={() => go(`/categories/${category.id}`)}>
-													<span className={`grid size-8 place-items-center rounded-lg ${categoryTone[category.id]}`}>
+												<CommandItem
+													key={category.id}
+													value={category.id}
+													onSelect={() => go(`/categories/${category.id}`)}
+												>
+													<span
+														className={`grid size-8 place-items-center rounded-lg ${categoryTone[category.id]}`}
+													>
 														<Icon className="size-4" />
 													</span>
 													{category.name}
@@ -113,13 +127,21 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
 									{results.map((result) => {
 										const Icon = iconFor(result.tool.icon);
 										return (
-											<CommandItem key={result.href} value={result.href} onSelect={() => go(result.href)}>
-												<span className={`grid size-8 place-items-center rounded-lg ${categoryTone[result.tool.category]}`}>
+											<CommandItem
+												key={result.href}
+												value={result.href}
+												onSelect={() => go(result.href)}
+											>
+												<span
+													className={`grid size-8 place-items-center rounded-lg ${categoryTone[result.tool.category]}`}
+												>
 													<Icon className="size-4" />
 												</span>
 												<span className="flex min-w-0 flex-col">
 													<span className="truncate font-semibold">{result.title}</span>
-													<span className="truncate text-sm text-muted-foreground">{result.subtitle}</span>
+													<span className="truncate text-sm text-muted-foreground">
+														{result.subtitle}
+													</span>
 												</span>
 												<ArrowRight className="ml-auto size-4 text-muted-foreground" />
 											</CommandItem>

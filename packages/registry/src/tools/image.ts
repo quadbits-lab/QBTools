@@ -252,7 +252,8 @@ export const imageTools: ToolDef[] = [
 				slug: "webp-to-jpg",
 				title: "WebP to JPG Converter",
 				description: "Convert WebP images to JPG so they open everywhere. Free and private.",
-				intro: "Saved an image that turned out to be WebP? Convert it to a JPG that opens in any app.",
+				intro:
+					"Saved an image that turned out to be WebP? Convert it to a JPG that opens in any app.",
 				keywords: ["webp to jpg", "convert webp"],
 				params: { to: "jpg" },
 			},
@@ -260,7 +261,8 @@ export const imageTools: ToolDef[] = [
 				slug: "jpg-to-webp",
 				title: "JPG to WebP Converter",
 				description: "Convert JPG and PNG to WebP for faster websites. Free, no upload.",
-				intro: "WebP images are often 25–35% smaller than JPG at the same quality — great for websites.",
+				intro:
+					"WebP images are often 25–35% smaller than JPG at the same quality — great for websites.",
 				keywords: ["jpg to webp", "png to webp", "convert to webp"],
 				params: { to: "webp" },
 			},

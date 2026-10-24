@@ -14,7 +14,8 @@ export const Route = createFileRoute("/premium")({
 	head: () =>
 		seo({
 			title: "QBTools Premium — Bulk Processing, No Ads",
-			description: "QBTools stays free. Premium adds bulk processing, no ads, bigger files and priority AI. Join the waitlist for early-bird pricing.",
+			description:
+				"QBTools stays free. Premium adds bulk processing, no ads, bigger files and priority AI. Join the waitlist for early-bird pricing.",
 			path: "/premium",
 		}),
 	component: PremiumPage,
@@ -32,33 +33,65 @@ const PLANS = [
 		name: "Premium",
 		price: "$4",
 		note: "per month (early bird)",
-		features: ["No ads, anywhere", "Bulk mode: 100s of files at once", "Bigger files & longer videos", "Priority AI with longer texts", "Saved presets & history across devices"],
+		features: [
+			"No ads, anywhere",
+			"Bulk mode: 100s of files at once",
+			"Bigger files & longer videos",
+			"Priority AI with longer texts",
+			"Saved presets & history across devices",
+		],
 		highlight: true,
 	},
 	{
 		name: "Business",
 		price: "Custom",
 		note: "for teams",
-		features: ["Everything in Premium", "Team seats & invoices", "API access", "Your branding on tools"],
+		features: [
+			"Everything in Premium",
+			"Team seats & invoices",
+			"API access",
+			"Your branding on tools",
+		],
 		highlight: false,
 	},
 ];
 
 function PremiumPage() {
-	const { errors, pending, done, onSubmit } = useFormSubmit(waitlistSchema, useServerFn(joinWaitlist));
+	const { errors, pending, done, onSubmit } = useFormSubmit(
+		waitlistSchema,
+		useServerFn(joinWaitlist),
+	);
 	return (
 		<>
-			<PageHero eyebrow="Coming soon" title="QBTools Premium" description={<p>Every tool stays free. Premium is for people who process a lot of files and want zero ads.</p>} />
+			<PageHero
+				eyebrow="Coming soon"
+				title="QBTools Premium"
+				description={
+					<p>
+						Every tool stays free. Premium is for people who process a lot of files and want zero
+						ads.
+					</p>
+				}
+			/>
 			<div className="container-page py-12">
 				<div className="grid gap-5 lg:grid-cols-3">
 					{PLANS.map((plan) => (
-						<div key={plan.name} className={cn("flex flex-col rounded-3xl border bg-surface p-7", plan.highlight ? "border-primary shadow-xl ring-4 ring-primary/10" : "border-border")}>
+						<div
+							key={plan.name}
+							className={cn(
+								"flex flex-col rounded-3xl border bg-surface p-7",
+								plan.highlight
+									? "border-primary shadow-xl ring-4 ring-primary/10"
+									: "border-border",
+							)}
+						>
 							<h2 className="flex items-center gap-2 text-xl font-extrabold">
 								{plan.highlight && <Crown className="size-5 text-accent" />}
 								{plan.name}
 							</h2>
 							<p className="mt-4">
-								<span className="text-4xl font-extrabold">{plan.price}</span> <span className="text-muted-foreground">{plan.note}</span>
+								<span className="text-4xl font-extrabold">{plan.price}</span>{" "}
+								<span className="text-muted-foreground">{plan.note}</span>
 							</p>
 							<ul className="mt-6 flex flex-col gap-3">
 								{plan.features.map((f) => (
@@ -71,22 +104,39 @@ function PremiumPage() {
 						</div>
 					))}
 				</div>
-				<section aria-labelledby="waitlist" className="mx-auto mt-14 max-w-2xl rounded-3xl bg-primary-soft/60 p-6 text-center sm:p-10">
+				<section
+					aria-labelledby="waitlist"
+					className="mx-auto mt-14 max-w-2xl rounded-3xl bg-primary-soft/60 p-6 text-center sm:p-10"
+				>
 					<h2 id="waitlist" className="text-2xl font-extrabold tracking-tight">
 						Join the waitlist
 					</h2>
-					<p className="mt-2 text-muted-foreground">Be first in line and lock in early-bird pricing. No spam, ever.</p>
+					<p className="mt-2 text-muted-foreground">
+						Be first in line and lock in early-bird pricing. No spam, ever.
+					</p>
 					{done ? (
 						<p className="mt-6 flex items-center justify-center gap-2 text-lg font-semibold text-positive">
 							<CheckCircle2 /> {done}
 						</p>
 					) : (
-						<form onSubmit={onSubmit} noValidate className="relative mx-auto mt-6 flex max-w-lg flex-col gap-3 sm:flex-row">
+						<form
+							onSubmit={onSubmit}
+							noValidate
+							className="relative mx-auto mt-6 flex max-w-lg flex-col gap-3 sm:flex-row"
+						>
 							<input {...HONEYPOT_PROPS} />
 							<label htmlFor="w-email" className="sr-only">
 								Email
 							</label>
-							<Input id="w-email" name="email" type="email" placeholder="you@example.com" autoComplete="email" aria-invalid={Boolean(errors.email)} className="flex-1" />
+							<Input
+								id="w-email"
+								name="email"
+								type="email"
+								placeholder="you@example.com"
+								autoComplete="email"
+								aria-invalid={Boolean(errors.email)}
+								className="flex-1"
+							/>
 							<input type="hidden" name="interest" value="premium" />
 							<Button type="submit" size="md" disabled={pending}>
 								{pending ? "Joining…" : "Join waitlist"}

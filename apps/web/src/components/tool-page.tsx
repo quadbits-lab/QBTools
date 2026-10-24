@@ -31,8 +31,9 @@ class WidgetBoundary extends Component<{ children: ReactNode }, { error: Error |
 		if (this.state.error) {
 			return (
 				<Notice tone="critical">
-					Something went wrong loading this tool. Please refresh the page. If it keeps happening, your browser may be too old for
-					this tool — try the latest Chrome, Edge, Safari or Firefox.
+					Something went wrong loading this tool. Please refresh the page. If it keeps happening,
+					your browser may be too old for this tool — try the latest Chrome, Edge, Safari or
+					Firefox.
 				</Notice>
 			);
 		}
@@ -44,7 +45,12 @@ function FavoriteButton({ slug }: { slug: string }) {
 	const favorites = favoriteTools.use();
 	const active = favorites.includes(slug);
 	return (
-		<Button variant="secondary" size="sm" onClick={() => toggleFavorite(slug)} aria-pressed={active}>
+		<Button
+			variant="secondary"
+			size="sm"
+			onClick={() => toggleFavorite(slug)}
+			aria-pressed={active}
+		>
 			<Star className={cn("size-4", active && "fill-accent text-accent")} />
 			{active ? "Saved" : "Save tool"}
 		</Button>
@@ -64,15 +70,21 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				items={[
 					{ name: "Home", href: "/" },
 					{ name: category.name, href: `/categories/${category.id}` },
-					...(preset ? [{ name: tool.name, href: `/tools/${tool.slug}` }, { name: preset.title }] : [{ name: tool.name }]),
+					...(preset
+						? [{ name: tool.name, href: `/tools/${tool.slug}` }, { name: preset.title }]
+						: [{ name: tool.name }]),
 				]}
 			/>
 
 			<header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start">
 				<ToolIcon tool={tool} size="lg" />
 				<div className="flex-1">
-					<h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{preset?.title ?? tool.name}</h1>
-					<p className="mt-2 max-w-3xl text-lg text-muted-foreground">{preset?.intro ?? tool.tagline}</p>
+					<h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+						{preset?.title ?? tool.name}
+					</h1>
+					<p className="mt-2 max-w-3xl text-lg text-muted-foreground">
+						{preset?.intro ?? tool.tagline}
+					</p>
 					<div className="mt-3 flex flex-wrap items-center gap-2">
 						{tool.runtime === "browser" ? (
 							<Badge tone="positive">
@@ -91,10 +103,15 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				</div>
 			</header>
 
-			<section aria-label={`${tool.name} tool`} className="rounded-3xl border border-border bg-surface p-4 shadow-sm sm:p-6">
+			<section
+				aria-label={`${tool.name} tool`}
+				className="rounded-3xl border border-border bg-surface p-4 shadow-sm sm:p-6"
+			>
 				<ClientOnly fallback={<WidgetSkeleton />}>
 					<WidgetBoundary>
-						<Suspense fallback={<WidgetSkeleton />}>{Widget ? <Widget tool={tool} params={preset?.params ?? {}} /> : null}</Suspense>
+						<Suspense fallback={<WidgetSkeleton />}>
+							{Widget ? <Widget tool={tool} params={preset?.params ?? {}} /> : null}
+						</Suspense>
 					</WidgetBoundary>
 				</ClientOnly>
 			</section>
@@ -107,7 +124,10 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				</h2>
 				<ol className="mt-5 grid gap-4 md:grid-cols-3">
 					{tool.howTo.map((step, index) => (
-						<li key={step.title} className="flex gap-4 rounded-2xl border border-border bg-surface p-5">
+						<li
+							key={step.title}
+							className="flex gap-4 rounded-2xl border border-border bg-surface p-5"
+						>
 							<span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary font-mono text-lg font-bold text-primary-foreground">
 								{index + 1}
 							</span>

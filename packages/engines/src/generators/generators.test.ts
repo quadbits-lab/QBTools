@@ -12,7 +12,14 @@ import {
 	wifiPayload,
 } from "./index";
 
-const all = { length: 20, lowercase: true, uppercase: true, digits: true, symbols: true, excludeAmbiguous: false };
+const all = {
+	length: 20,
+	lowercase: true,
+	uppercase: true,
+	digits: true,
+	symbols: true,
+	excludeAmbiguous: false,
+};
 
 describe("password", () => {
 	test("length and every chosen class present", () => {
@@ -33,13 +40,22 @@ describe("password", () => {
 
 	test("no sets throws", () => {
 		expect(() =>
-			generatePassword({ ...all, lowercase: false, uppercase: false, digits: false, symbols: false }),
+			generatePassword({
+				...all,
+				lowercase: false,
+				uppercase: false,
+				digits: false,
+				symbols: false,
+			}),
 		).toThrow();
 	});
 
 	test("random int is roughly uniform", () => {
 		const counts = [0, 0, 0];
-		for (let i = 0; i < 30000; i++) counts[secureRandomInt(3)]! += 1;
+		for (let i = 0; i < 30000; i++) {
+			const n = secureRandomInt(3);
+			counts[n] = (counts[n] ?? 0) + 1;
+		}
 		for (const c of counts) expect(Math.abs(c - 10000)).toBeLessThan(600);
 	});
 
@@ -57,18 +73,25 @@ describe("password", () => {
 	});
 
 	test("passphrase", () => {
-		const phrase = generatePassphrase({ words: 5, separator: "-", capitalize: true, includeNumber: true });
+		const phrase = generatePassphrase({
+			words: 5,
+			separator: "-",
+			capitalize: true,
+			includeNumber: true,
+		});
 		expect(phrase.split("-")).toHaveLength(5);
 		expect(phrase).toMatch(/\d/);
-		expect(passphraseEntropy({ words: 5, separator: "-", capitalize: false, includeNumber: false })).toBeCloseTo(51.7, 1);
+		expect(
+			passphraseEntropy({ words: 5, separator: "-", capitalize: false, includeNumber: false }),
+		).toBeCloseTo(51.7, 1);
 	});
 });
 
 describe("qr payloads", () => {
 	test("wifi escapes special characters", () => {
-		expect(wifiPayload({ ssid: 'My;Net"', password: "p:a,ss", encryption: "WPA", hidden: false })).toBe(
-			String.raw`WIFI:T:WPA;S:My\;Net\";P:p\:a\,ss;;`,
-		);
+		expect(
+			wifiPayload({ ssid: 'My;Net"', password: "p:a,ss", encryption: "WPA", hidden: false }),
+		).toBe(String.raw`WIFI:T:WPA;S:My\;Net\";P:p\:a\,ss;;`);
 		expect(wifiPayload({ ssid: "Open", password: "x", encryption: "nopass", hidden: true })).toBe(
 			"WIFI:T:nopass;S:Open;H:true;;",
 		);
@@ -101,7 +124,13 @@ describe("invoice totals", () => {
 			discount: 10,
 			discountType: "percent",
 		});
-		expect(totals).toEqual({ subtotal: 200.5, discount: 20.05, taxable: 180.45, tax: 32.48, total: 212.93 });
+		expect(totals).toEqual({
+			subtotal: 200.5,
+			discount: 20.05,
+			taxable: 180.45,
+			tax: 32.48,
+			total: 212.93,
+		});
 	});
 
 	test("amount discount is capped at subtotal", () => {
@@ -126,7 +155,11 @@ describe("invoice pdf", () => {
 			currency: "INR",
 			from: { name: "Asha Design", details: "12 MG Road\nBengaluru" },
 			to: { name: "Client Ltd", details: "client@example.com" },
-			items: Array.from({ length: 40 }, (_, i) => ({ description: `Item ${i + 1} — logo design ₹`, quantity: 1, unitPrice: 100 })),
+			items: Array.from({ length: 40 }, (_, i) => ({
+				description: `Item ${i + 1} — logo design ₹`,
+				quantity: 1,
+				unitPrice: 100,
+			})),
 			taxLabel: "GST",
 			taxRate: 18,
 			discount: 5,

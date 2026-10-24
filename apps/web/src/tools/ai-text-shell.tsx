@@ -18,17 +18,38 @@ export function useAiStatus() {
 	return state;
 }
 
-export function AiTextInput({ value, onChange, maxChars, placeholder }: { value: string; onChange: (v: string) => void; maxChars: number; placeholder: string }) {
+export function AiTextInput({
+	value,
+	onChange,
+	maxChars,
+	placeholder,
+}: {
+	value: string;
+	onChange: (v: string) => void;
+	maxChars: number;
+	placeholder: string;
+}) {
 	const over = value.length > maxChars;
 	return (
 		<div>
 			<label htmlFor="ai-text" className="mb-2 flex items-center justify-between font-semibold">
 				Your text
-				<span className={over ? "font-mono text-sm text-critical" : "font-mono text-sm text-muted-foreground"}>
+				<span
+					className={
+						over ? "font-mono text-sm text-critical" : "font-mono text-sm text-muted-foreground"
+					}
+				>
 					{value.length.toLocaleString("en")} / {maxChars.toLocaleString("en")}
 				</span>
 			</label>
-			<Textarea id="ai-text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="min-h-56" aria-invalid={over} />
+			<Textarea
+				id="ai-text"
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder={placeholder}
+				className="min-h-56"
+				aria-invalid={over}
+			/>
 		</div>
 	);
 }
@@ -36,8 +57,15 @@ export function AiTextInput({ value, onChange, maxChars, placeholder }: { value:
 export function AiUnavailable() {
 	return (
 		<Notice tone="caution">
-			The AI helper isn't switched on for this site yet. In the meantime, try our <a href="/tools/word-counter" className="font-semibold underline">Word Counter</a> or{" "}
-			<a href="/tools/case-converter" className="font-semibold underline">Case Converter</a>.
+			The AI helper isn't switched on for this site yet. In the meantime, try our{" "}
+			<a href="/tools/word-counter" className="font-semibold underline">
+				Word Counter
+			</a>{" "}
+			or{" "}
+			<a href="/tools/case-converter" className="font-semibold underline">
+				Case Converter
+			</a>
+			.
 		</Notice>
 	);
 }
