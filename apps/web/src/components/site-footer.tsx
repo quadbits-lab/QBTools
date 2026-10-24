@@ -49,11 +49,7 @@ export function SiteFooter() {
 				<FooterColumn title="Tools">
 					{firstCategories.map((category) => (
 						<li key={category.id}>
-							<Link
-								to="/categories/$category"
-								params={{ category: category.id }}
-								className={LINK}
-							>
+							<Link to="/categories/$category" params={{ category: category.id }} className={LINK}>
 								{category.name}
 							</Link>
 						</li>
@@ -62,11 +58,7 @@ export function SiteFooter() {
 				<FooterColumn title="More tools">
 					{moreCategories.map((category) => (
 						<li key={category.id}>
-							<Link
-								to="/categories/$category"
-								params={{ category: category.id }}
-								className={LINK}
-							>
+							<Link to="/categories/$category" params={{ category: category.id }} className={LINK}>
 								{category.name}
 							</Link>
 						</li>

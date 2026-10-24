@@ -111,10 +111,7 @@ export function SearchBox({
 						<X className="size-4" />
 					</button>
 				) : (
-					<kbd
-						aria-hidden="true"
-						className="pointer-events-none absolute top-1/2 right-4 hidden -translate-y-1/2 rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.625rem] text-subtle sm:block"
-					>
+					<kbd className="pointer-events-none absolute top-1/2 right-4 hidden -translate-y-1/2 rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.625rem] text-subtle sm:block">
 						⌘K
 					</kbd>
 				)}

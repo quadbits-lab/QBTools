@@ -122,6 +122,7 @@ export function SidebarMenuButton({
 	...props
 }: React.ComponentProps<"button"> & { asChild?: boolean; isActive?: boolean }) {
 	const Comp = asChild ? Slot.Root : "button";
+	const { setOpen } = useSidebar();
 	return (
 		<Comp
 			data-active={isActive}
@@ -131,6 +132,10 @@ export function SidebarMenuButton({
 				className,
 			)}
 			{...props}
+			onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+				props.onClick?.(event);
+				setOpen(false);
+			}}
 		/>
 	);
 }

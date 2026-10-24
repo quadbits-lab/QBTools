@@ -94,7 +94,7 @@ export function ToolCard({
 				to="/tools/$slug"
 				params={{ slug: tool.slug }}
 				className={cn(
-					"group relative flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
+					"@container group relative flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
 					style.borderHover,
 					className,
 				)}
@@ -104,7 +104,7 @@ export function ToolCard({
 					<span className="truncate text-sm font-medium text-foreground">{tool.name}</span>
 					<span className="truncate text-sm text-muted-foreground">{tool.tagline}</span>
 				</span>
-				<ToolFlags tool={tool} className="hidden sm:flex" />
+				<ToolFlags tool={tool} className="hidden @md:flex" />
 				<FavoriteButton tool={tool} />
 				<GoCell />
 			</Link>

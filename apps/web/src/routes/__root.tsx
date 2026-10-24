@@ -1,6 +1,12 @@
 import { THEME_INIT_SCRIPT } from "@qbtools/ui/theme";
 import { Toaster } from "@qbtools/ui/toaster";
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import {
+	createRootRoute,
+	HeadContent,
+	Outlet,
+	Scripts,
+	useRouterState,
+} from "@tanstack/react-router";
 import { AccountProvider } from "#/components/account-provider";
 import { analyticsScripts } from "#/components/analytics";
 import { CommandPaletteProvider } from "#/components/command-palette";
@@ -52,6 +58,10 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+	// The dashboard is an app shell with its own sidebar and top bar.
+	const inDashboard = useRouterState({
+		select: (state) => /^\/dashboard(\/|$)/.test(state.location.pathname),
+	});
 	return (
 		<html lang="en" className="dark" suppressHydrationWarning>
 			<head>
@@ -62,11 +72,11 @@ function RootComponent() {
 					<RouteLoading />
 					<CommandPaletteProvider>
 						<div className="flex min-h-dvh flex-col">
-							<SiteHeader />
+							{!inDashboard && <SiteHeader />}
 							<main id="main" className="flex-1">
 								<Outlet />
 							</main>
-							<SiteFooter />
+							{!inDashboard && <SiteFooter />}
 						</div>
 					</CommandPaletteProvider>
 				</AccountProvider>

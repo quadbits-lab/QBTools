@@ -20,14 +20,14 @@ export function StorageMeter() {
 	const used = data?.storage.used ?? 0;
 	const reserved = data?.storage.reserved ?? 0;
 	return (
-		<div className="grid gap-2 border border-input p-4">
+		<div className="grid gap-2 rounded-lg border border-border p-4">
 			<div className="flex justify-between text-sm">
 				<span>Private Media Storage</span>
 				<strong>{decimalBytes(used)} / 10 GB</strong>
 			</div>
 			<progress
 				aria-label="Storage used and reserved"
-				className="h-2 w-full accent-primary"
+				className="h-2 w-full rounded-full accent-primary"
 				value={used + reserved}
 				max={STORAGE_LIMIT}
 			/>

@@ -25,10 +25,13 @@ export function RouteLoading() {
 export function DashboardSkeleton() {
 	return (
 		<div role="status" aria-busy="true" aria-label="Loading dashboard" className="grid gap-5 py-8">
-			<div className="h-10 w-48 animate-pulse bg-muted motion-reduce:animate-none" />
+			<div className="h-10 w-48 animate-pulse rounded-md bg-muted motion-reduce:animate-none" />
 			<div className="grid gap-4 sm:grid-cols-3">
 				{[1, 2, 3].map((id) => (
-					<div key={id} className="h-36 animate-pulse bg-muted motion-reduce:animate-none" />
+					<div
+						key={id}
+						className="h-36 animate-pulse rounded-lg bg-muted motion-reduce:animate-none"
+					/>
 				))}
 			</div>
 		</div>

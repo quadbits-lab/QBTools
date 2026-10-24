@@ -3,7 +3,7 @@ import { Badge } from "@qbtools/ui/badge";
 import { Button } from "@qbtools/ui/button";
 import { cn } from "@qbtools/ui/utils";
 import { ClientOnly, Link } from "@tanstack/react-router";
-import { Check, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Check, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { Component, type ReactNode, Suspense, useEffect } from "react";
 import { favoriteTools, markToolUsed, toggleFavorite } from "#/lib/local-store";
 import { widgets } from "#/tools/widgets";
@@ -14,12 +14,13 @@ import { FaqList } from "./faq";
 import { Notice } from "./kit/notice";
 import { Kicker } from "./page";
 import { ToolCard, ToolIcon } from "./tool-card";
+import { CategoryBadge, ToolFlags } from "./tool-flags";
 
 function WidgetSkeleton() {
 	return (
 		<div className="flex min-h-80 flex-col gap-4 p-1" aria-hidden="true">
-			<div className="h-56 animate-pulse bg-muted" />
-			<div className="h-12 w-48 animate-pulse bg-muted" />
+			<div className="h-56 animate-pulse rounded-lg bg-muted" />
+			<div className="h-12 w-48 animate-pulse rounded-md bg-muted" />
 		</div>
 	);
 }
@@ -47,14 +48,9 @@ function FavoriteButton({ slug }: { slug: string }) {
 	const favorites = favoriteTools.use();
 	const active = favorites.includes(slug);
 	return (
-		<Button
-			variant="secondary"
-			size="sm"
-			onClick={() => toggleFavorite(slug)}
-			aria-pressed={active}
-		>
-			<Star className={cn("size-4", active && "fill-foreground text-foreground")} />
-			{active ? "Saved" : "Save tool"}
+		<Button variant="outline" size="lg" onClick={() => toggleFavorite(slug)} aria-pressed={active}>
+			<Star className={cn("size-4", active && "fill-current text-cat-amber-icon")} />
+			{active ? "Saved to favorites" : "Save to favorites"}
 		</Button>
 	);
 }
@@ -81,36 +77,76 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				]}
 			/>
 
-			<header className="reveal mb-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
-				<div className="flex flex-col gap-5">
+			<header className="reveal mb-10 grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start">
+				<div className="flex flex-col gap-6 sm:flex-row sm:items-start">
 					<ToolIcon tool={tool} size="lg" />
-					<h1 className="display max-w-4xl text-[clamp(2.4rem,5.5vw,4.5rem)]">
-						{preset?.title ?? tool.name}
-					</h1>
-					<p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
-						{preset?.intro ?? tool.tagline}
-					</p>
+					<div className="flex min-w-0 flex-col gap-3">
+						<div className="flex flex-wrap items-center gap-2">
+							<CategoryBadge category={tool.category} icon={category.icon} label={category.name} />
+							<ToolFlags tool={tool} />
+						</div>
+						<h1 className="text-[clamp(2rem,4.5vw,2.5rem)] leading-tight font-semibold tracking-[-0.03em]">
+							{preset?.title ?? tool.name}
+						</h1>
+						<p className="max-w-2xl text-lg leading-7 text-muted-foreground">
+							{preset?.intro ?? tool.tagline}
+						</p>
+						<div className="mt-1 flex flex-wrap items-center gap-3">
+							<Button asChild size="lg">
+								<a href="#tool">
+									Open tool <ArrowRight />
+								</a>
+							</Button>
+							<FavoriteButton slug={tool.slug} />
+						</div>
+					</div>
 				</div>
-				<div className="flex flex-wrap items-center gap-2 lg:justify-end">
-					{tool.runtime === "browser" ? (
-						<Badge tone="positive">
-							<ShieldCheck /> Runs on your device
-						</Badge>
-					) : (
-						<Badge tone="primary">
-							<Sparkles /> AI-powered
-						</Badge>
+				<aside
+					className={cn(
+						"flex flex-col gap-3 rounded-lg border p-5",
+						tool.runtime === "browser"
+							? "border-cat-emerald-border bg-cat-emerald-bg"
+							: "border-cat-violet-border bg-cat-violet-bg",
 					)}
-					<Badge>
-						<Check /> Free · no signup
-					</Badge>
-					<FavoriteButton slug={tool.slug} />
-				</div>
+				>
+					{tool.runtime === "browser" ? (
+						<>
+							<p className="flex items-center gap-2 text-xl font-semibold tracking-[-0.02em] text-cat-emerald-fg">
+								<ShieldCheck className="size-5 text-cat-emerald-icon" aria-hidden="true" />
+								100% private
+							</p>
+							<p className="text-sm">
+								Runs entirely in your browser. Your files never leave your device and nothing is
+								stored on a server.
+							</p>
+						</>
+					) : (
+						<>
+							<p className="flex items-center gap-2 text-xl font-semibold tracking-[-0.02em] text-cat-violet-fg">
+								<Sparkles className="size-5 text-cat-violet-icon" aria-hidden="true" />
+								AI-powered
+							</p>
+							<p className="text-sm">
+								The text you submit is sent to our server for AI processing. Nothing else leaves
+								your device.
+							</p>
+						</>
+					)}
+					<div className="flex flex-wrap gap-2">
+						<Badge tone="positive">
+							<Check /> No signup
+						</Badge>
+						<Badge tone="positive">
+							<Check /> Free forever
+						</Badge>
+					</div>
+				</aside>
 			</header>
 
 			<section
+				id="tool"
 				aria-label={`${tool.name} tool`}
-				className="border border-input bg-surface p-4 sm:p-8"
+				className="scroll-mt-20 rounded-lg border border-border bg-card p-4 sm:p-8"
 			>
 				<ClientOnly fallback={<WidgetSkeleton />}>
 					<WidgetBoundary>
@@ -128,11 +164,11 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 				<h2 id="how-to" className="mt-4 text-3xl tracking-[-0.035em]">
 					How to use {tool.name}
 				</h2>
-				<ol className="mt-8 grid md:grid-cols-3">
+				<ol className="mt-8 grid gap-4 md:grid-cols-3">
 					{tool.howTo.map((step, index) => (
 						<li
 							key={step.title}
-							className="flex flex-col gap-3 border-t border-input pt-5 pr-8 pb-8"
+							className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5"
 						>
 							<span className="label-mono text-subtle">
 								Step {String(index + 1).padStart(2, "0")}
@@ -154,7 +190,7 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 						{tool.about.what}
 					</p>
 				</div>
-				<div className="border border-border bg-surface-2 p-6 sm:p-8">
+				<div className="rounded-lg border border-border bg-muted/50 p-6 sm:p-8">
 					<h3 className="label-mono">When to use it</h3>
 					<ul className="mt-4 flex flex-col">
 						{tool.about.when.map((item) => (
@@ -183,10 +219,10 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 								to="/tools/$slug/$preset"
 								params={{ slug: tool.slug, preset: p.slug }}
 								className={cn(
-									"label-mono border px-3.5 py-3 transition-colors",
+									"inline-flex h-9 items-center rounded-full border px-4 text-sm font-medium transition-colors",
 									p.slug === preset?.slug
-										? "border-foreground bg-primary text-primary-foreground"
-										: "border-input text-foreground hover:border-foreground",
+										? "border-transparent bg-primary text-primary-foreground"
+										: "border-input bg-background text-foreground hover:bg-accent",
 								)}
 							>
 								{p.title}
@@ -210,9 +246,9 @@ export function ToolPage({ tool, preset }: { tool: ToolDef; preset?: ToolPreset 
 					<h2 id="related" className="mt-4 text-3xl tracking-[-0.035em]">
 						Related tools
 					</h2>
-					<div className="mt-8 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+					<div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
 						{related.map((t) => (
-							<ToolCard key={t.slug} tool={t} className="border-0" />
+							<ToolCard key={t.slug} tool={t} />
 						))}
 					</div>
 				</section>

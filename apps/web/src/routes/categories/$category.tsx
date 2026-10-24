@@ -52,24 +52,26 @@ function CategoryPage() {
 		<div className="container-page py-8 sm:py-12">
 			<Breadcrumbs items={[{ name: "Home", href: "/" }, { name: category.name }]} />
 			<header className="flex flex-col gap-5 sm:flex-row sm:items-center">
-				<span className={`grid size-20 shrink-0 place-items-center ${categoryTone[id]}`}>
+				<span
+					className={`grid size-20 shrink-0 place-items-center rounded-xl border ${categoryTone[id]}`}
+				>
 					<Icon className="size-10" />
 				</span>
 				<div>
-					<h1 className="text-3xl font-medium tracking-[-0.035em] sm:text-4xl">
+					<h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
 						Free {category.name.toLowerCase()}
 					</h1>
 					<p className="mt-2 max-w-3xl text-lg text-muted-foreground">{category.description}</p>
 				</div>
 			</header>
-			<div className="mt-10 grid gap-4 sm:grid-cols-2">
+			<div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{list.map((tool) => (
-					<ToolCard key={tool.slug} tool={tool} className="sm:p-6" />
+					<ToolCard key={tool.slug} tool={tool} />
 				))}
 			</div>
 			{presets.length > 0 && (
 				<section aria-labelledby="shortcuts" className="mt-14">
-					<h2 id="shortcuts" className="text-xl font-medium tracking-[-0.035em]">
+					<h2 id="shortcuts" className="text-xl font-semibold tracking-[-0.02em]">
 						Popular shortcuts
 					</h2>
 					<div className="mt-4 flex flex-wrap gap-2">
@@ -78,7 +80,7 @@ function CategoryPage() {
 								key={`${tool.slug}/${preset.slug}`}
 								to="/tools/$slug/$preset"
 								params={{ slug: tool.slug, preset: preset.slug }}
-								className="border border-border bg-surface px-4 py-2.5 font-medium hover:border-primary hover:text-primary"
+								className="inline-flex h-9 items-center rounded-full border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent"
 							>
 								{preset.title}
 							</Link>

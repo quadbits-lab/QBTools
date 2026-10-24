@@ -38,7 +38,7 @@ export function SiteHeader() {
 							hash={"hash" in item ? item.hash : undefined}
 							className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
 							activeProps={{ className: "!text-foreground" }}
-							activeOptions={{ exact: item.to === "/" }}
+							activeOptions={{ exact: item.to === "/", includeHash: "hash" in item }}
 						>
 							{item.label}
 						</Link>

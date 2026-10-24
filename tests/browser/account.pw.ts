@@ -41,7 +41,7 @@ test("dashboard, favorites and history persist across navigation", async ({ page
 		data: { slug: "word-counter", saved: false },
 	});
 	await page.goto("/tools/word-counter");
-	await page.getByRole("button", { name: "Save tool", exact: true }).click();
+	await page.getByRole("button", { name: "Save to favorites", exact: true }).click();
 	await page.goto("/dashboard/favorites");
 	await expect(page.getByText("Word Counter", { exact: true }).first()).toBeVisible();
 	await page.goto("/dashboard");
@@ -164,6 +164,8 @@ test("mobile dashboard and reduced-motion navigation remain usable", async ({ pa
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
 		true,
 	);
+	// Below 1024px the dashboard navigation is a drawer.
+	await page.getByRole("button", { name: "Open sidebar" }).click();
 	await page.getByRole("link", { name: "Favorites", exact: true }).click();
 	await expect(page.getByRole("heading", { name: "Favorite tools" })).toBeVisible();
 });
