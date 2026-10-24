@@ -1,4 +1,4 @@
-import { type Category, categoryById, type ToolDef, toolsInCategory } from "@qbtools/registry";
+import { categoryById, type ToolDef } from "@qbtools/registry";
 import { cn } from "@qbtools/ui/utils";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Star } from "lucide-react";
@@ -47,7 +47,7 @@ function GoCell() {
 	);
 }
 
-function FavoriteButton({ tool, className }: { tool: ToolDef; className?: string }) {
+export function FavoriteButton({ tool, className }: { tool: ToolDef; className?: string }) {
 	const favorites = favoriteTools.use();
 	const isFavorite = favorites.includes(tool.slug);
 	return (
@@ -143,79 +143,5 @@ export function ToolCard({
 				<GoCell />
 			</span>
 		</Link>
-	);
-}
-
-/** Category card: icon tile, tool count, name, tagline, quick links. */
-export function CategoryCard({
-	category,
-	count,
-}: {
-	category: Category;
-	count: number;
-	/** Kept so older callers compile; the card no longer shows an index. */
-	index?: number;
-}) {
-	const Icon = iconFor(category.icon);
-	const style = categoryStyles[category.id];
-	const sampleTools = toolsInCategory(category.id).slice(0, 3);
-
-	return (
-		<div
-			className={cn(
-				"group relative flex flex-col gap-4 rounded-lg border border-border bg-card p-6 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
-				style.borderHover,
-			)}
-		>
-			<Link
-				to="/categories/$category"
-				params={{ category: category.id }}
-				className="flex flex-col gap-4"
-			>
-				<span className="flex items-center justify-between gap-4">
-					<span
-						className={cn(
-							"grid size-12 place-items-center rounded-lg border transition-transform duration-200 group-hover:scale-105",
-							style.tile,
-						)}
-					>
-						<Icon className="size-6" strokeWidth={2} />
-					</span>
-					<span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-muted-foreground">
-						{count} tools
-					</span>
-				</span>
-				<span className="flex flex-col gap-2">
-					<span className="text-2xl leading-[30px] font-semibold tracking-[-0.025em] text-foreground">
-						{category.name}
-					</span>
-					<span className="text-sm leading-5 text-muted-foreground">{category.tagline}</span>
-				</span>
-			</Link>
-
-			<div className="flex flex-wrap gap-2">
-				{sampleTools.map((t) => (
-					<Link
-						key={t.slug}
-						to="/tools/$slug"
-						params={{ slug: t.slug }}
-						className="rounded-full border border-border px-2 py-0.5 text-xs text-foreground transition-colors hover:bg-accent"
-					>
-						{t.name}
-					</Link>
-				))}
-			</div>
-
-			<Link
-				to="/categories/$category"
-				params={{ category: category.id }}
-				className={cn(
-					"mt-auto inline-flex items-center gap-1.5 text-sm font-medium hover:gap-2.5",
-					style.text,
-				)}
-			>
-				View all <ArrowRight className="size-3.5" />
-			</Link>
-		</div>
 	);
 }

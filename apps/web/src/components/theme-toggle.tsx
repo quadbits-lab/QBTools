@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 const NEXT: Record<ThemeMode, ThemeMode> = { light: "dark", dark: "system", system: "light" };
 const LABEL: Record<ThemeMode, string> = { light: "Light", dark: "Dark", system: "System" };
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string } = {}) {
 	const [mode, setMode] = useState<ThemeMode>(DEFAULT_THEME);
 
 	useEffect(() => {
@@ -25,11 +25,12 @@ export function ThemeToggle() {
 		<Button
 			variant="outline"
 			size="icon-sm"
+			className={className}
 			onClick={() => setThemeMode(NEXT[mode])}
 			aria-label={`Theme: ${LABEL[mode]}. Switch to ${LABEL[NEXT[mode]]}`}
 			title={`Theme: ${LABEL[mode]}`}
 		>
-			<Icon />
+			<Icon className="size-4 transition-transform duration-200 hover:rotate-12" />
 		</Button>
 	);
 }

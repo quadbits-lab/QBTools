@@ -40,11 +40,10 @@ export function SiteFooter() {
 			<div className="container-page grid gap-12 py-12 md:grid-cols-[1.4fr_repeat(4,1fr)]">
 				<div className="flex flex-col items-start gap-3">
 					<Logo />
-					<p className="max-w-xs text-sm text-muted-foreground">
+					<p className="max-w-xs text-sm text-muted-foreground mt-2">
 						Free tools that just work. Compress, convert, calculate and create — right in your
 						browser.
 					</p>
-					<ToolTag type="private" />
 				</div>
 				<FooterColumn title="Tools">
 					{firstCategories.map((category) => (
@@ -100,7 +99,10 @@ export function SiteFooter() {
 			<div className="border-t border-border">
 				<div className="container-page flex flex-col gap-2 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
 					<p>
-						© {new Date().getFullYear()} {SITE_NAME}. All tools are free to use.
+						© {new Date().getFullYear()} {SITE_NAME}. All tools are free to use | Developed by {` `}
+						<a href="https://lab.quadbits.io" target="_blank" rel="noopener noreferrer">
+							<strong>Quadbits Lab</strong>
+						</a>
 					</p>
 					<p className="flex items-center gap-1.5">
 						<ShieldCheck className="size-3.5 text-success" /> Files processed in your browser

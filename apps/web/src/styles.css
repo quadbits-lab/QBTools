@@ -66,6 +66,92 @@
 	.animate-beacon {
 		animation: beacon-pulse 2s ease-in-out infinite;
 	}
+
+	/* Landing-hero hologram: static CSS art under the canvas, plus the shared
+	   legibility scrim. The canvas fades in only after the WebGL scene paints. */
+	.hero-holo {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		pointer-events: none;
+		opacity: 0.35;
+	}
+
+	.hero-holo-fallback {
+		position: absolute;
+		inset: 0;
+		opacity: 0.95;
+		transition: opacity 700ms var(--ease-out-soft);
+		background: linear-gradient(
+			to bottom,
+			transparent 20%,
+			color-mix(in srgb, var(--foreground) 38%, transparent) 58%,
+			transparent 82%
+		);
+	}
+
+	.hero-holo-fallback::after {
+		content: "";
+		position: absolute;
+		right: -20%;
+		bottom: -14%;
+		left: -20%;
+		height: 62%;
+		background-image:
+			linear-gradient(
+				to right,
+				color-mix(in srgb, var(--foreground) 40%, transparent) 1px,
+				transparent 1px
+			),
+			linear-gradient(
+				to bottom,
+				color-mix(in srgb, var(--foreground) 32%, transparent) 1px,
+				transparent 1px
+			);
+		background-size: 56px 44px;
+		opacity: 0.8;
+		transform: perspective(420px) rotateX(62deg);
+		transform-origin: 50% 100%;
+		mask-image: linear-gradient(to top, #000 6%, transparent 78%);
+		-webkit-mask-image: linear-gradient(to top, #000 6%, transparent 78%);
+	}
+
+	.hero-holo-canvas {
+		position: absolute;
+		inset: 0;
+		display: block;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		transition: opacity 900ms var(--ease-out-soft);
+	}
+
+	.hero-holo[data-hologram-active="true"] .hero-holo-canvas {
+		opacity: 1;
+	}
+
+	.hero-holo[data-hologram-active="true"] .hero-holo-fallback {
+		opacity: 0;
+	}
+
+	.hero-holo-scrim {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			to bottom,
+			var(--background) 0%,
+			transparent 15%,
+			transparent 70%,
+			var(--background) 100%
+		);
+	}
+
+	@media (forced-colors: active) {
+		.hero-holo-fallback,
+		.hero-holo-canvas {
+			display: none;
+		}
+	}
 }
 
 

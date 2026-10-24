@@ -19,6 +19,7 @@ import { seo } from "#/lib/seo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, THEME_COLOR } from "#/lib/site";
 import { sessionFn } from "#/server/auth.functions";
 import appCss from "../styles.css?url";
+import { GoogleAnalytics } from 'tanstack-router-ga4';
 
 export const Route = createRootRoute({
 	loader: () => sessionFn(),
@@ -68,6 +69,7 @@ function RootComponent() {
 				<HeadContent />
 			</head>
 			<body>
+				<GoogleAnalytics measurementId="G-EJXH2DPNF4" />
 				<AccountProvider>
 					<RouteLoading />
 					<CommandPaletteProvider>

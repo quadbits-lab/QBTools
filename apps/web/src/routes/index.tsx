@@ -7,21 +7,25 @@ import { cn } from "@qbtools/ui/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowRight,
+	Compass,
 	Globe,
 	Heart,
 	KeyRound,
 	RotateCcw,
 	Search,
+	SearchX,
 	ShieldCheck,
 	X,
 	Zap,
 } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { CategoryCard } from "#/components/category-card";
 import { FilterChip } from "#/components/filter-chip";
+import { HeroHologram } from "#/components/hero-hologram";
 import { SearchBox } from "#/components/search-box";
-import { CategoryCard, ToolCard } from "#/components/tool-card";
 import { ToolTag } from "#/components/tool-flags";
-import { categoryStyles } from "#/lib/icons";
+import { ShelfToolCard, ShowcaseToolCard } from "#/components/tool-showcase-card";
+import { categoryShortName, categoryStyles } from "#/lib/icons";
 import { favoriteTools, recentTools } from "#/lib/local-store";
 import { seo } from "#/lib/seo";
 import { absoluteUrl, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "#/lib/site";
@@ -128,18 +132,23 @@ function SectionHead({
 	title,
 	id,
 	description,
+	action,
 }: {
 	index: number;
 	kicker: string;
 	title: string;
 	id: string;
 	description?: string;
+	action?: ReactNode;
 }) {
 	return (
 		<div className="flex flex-col gap-2">
-			<p className="label-mono !text-subtle">
-				[{String(index).padStart(2, "0")}] {kicker}
-			</p>
+			<div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+				<p className="label-mono !text-subtle">
+					[{String(index).padStart(2, "0")}] {kicker}
+				</p>
+				{action}
+			</div>
 			<h2 id={id} className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
 				{title}
 			</h2>
@@ -162,42 +171,57 @@ function PersonalShelf() {
 	if (!mounted || allSlugs.length === 0) return null;
 
 	return (
-		<section aria-labelledby="your-tools" className="container-page pt-12 sm:pt-16">
-			<div className="flex flex-wrap items-center justify-between gap-4">
-				<div>
-					<p className="label-mono !text-subtle">Your workspace</p>
-					<h2 id="your-tools" className="text-xl font-semibold tracking-tight">
-						Pinned &amp; recent tools
-					</h2>
+		<section id="workspace" aria-labelledby="your-tools" className="container-page pt-12 sm:pt-16">
+			<div className="rounded-2xl border border-border bg-card/50 p-4 sm:p-5">
+				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<p className="label-mono !text-subtle">Your workspace</p>
+						<h2 id="your-tools" className="mt-1 text-xl font-semibold tracking-[-0.02em]">
+							Pinned &amp; recent tools
+						</h2>
+					</div>
+					<div className="flex w-full items-center gap-2 sm:w-auto">
+						<Segmented
+							label="Show"
+							value={tab}
+							onChange={setTab}
+							options={[
+								{ value: "all", label: `All ${allSlugs.length}` },
+								{ value: "favorites", label: `Saved ${favorites.length}` },
+								{ value: "recent", label: `Recent ${recent.length}` },
+							]}
+							className="min-w-0 flex-1 sm:flex-none"
+						/>
+						{recent.length > 0 && (
+							<Button
+								variant="outline"
+								size="icon-sm"
+								onClick={() => recentTools.write([])}
+								aria-label="Clear recent history"
+								title="Clear recent history"
+								className="shrink-0"
+							>
+								<RotateCcw />
+							</Button>
+						)}
+					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					<Segmented
-						label="Show"
-						value={tab}
-						onChange={setTab}
-						options={[
-							{ value: "all", label: `All (${allSlugs.length})` },
-							{ value: "favorites", label: `Saved (${favorites.length})` },
-							{ value: "recent", label: `Recent (${recent.length})` },
-						]}
-					/>
-					{recent.length > 0 && (
-						<Button
-							variant="outline"
-							size="icon-sm"
-							onClick={() => recentTools.write([])}
-							aria-label="Clear recent history"
-							title="Clear recent history"
-						>
-							<RotateCcw />
-						</Button>
+
+				<div className="mt-4">
+					{list.length === 0 ? (
+						<p className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+							{tab === "favorites"
+								? "No saved tools yet. Star a tool to pin it here."
+								: "No recent tools yet. Open a tool and it will appear here."}
+						</p>
+					) : (
+						<div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+							{list.slice(0, 6).map((tool) => (
+								<ShelfToolCard key={tool.slug} tool={tool} />
+							))}
+						</div>
 					)}
 				</div>
-			</div>
-			<div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-				{list.slice(0, 6).map((tool) => (
-					<ToolCard key={tool.slug} tool={tool} variant="compact" />
-				))}
 			</div>
 		</section>
 	);
@@ -205,6 +229,13 @@ function PersonalShelf() {
 
 type TagFilter = "all" | "popular" | "browser" | "ai";
 type SortBy = "popular" | "name" | "category";
+
+const TAG_OPTIONS: ReadonlyArray<{ value: TagFilter; label: string }> = [
+	{ value: "all", label: "All" },
+	{ value: "popular", label: "Popular" },
+	{ value: "browser", label: "Private" },
+	{ value: "ai", label: "AI" },
+];
 
 /** Directory: category and tag filters, live search, sort, and a card grid. */
 function ToolsDirectory() {
@@ -246,7 +277,11 @@ function ToolsDirectory() {
 	};
 
 	return (
-		<section aria-labelledby="tools-explorer" className="container-page pt-16 sm:pt-24">
+		<section
+			id="tools-directory"
+			aria-labelledby="tools-explorer"
+			className="container-page pt-16 sm:pt-24"
+		>
 			<SectionHead
 				index={1}
 				kicker="Interactive tools directory"
@@ -255,103 +290,112 @@ function ToolsDirectory() {
 				description={`${tools.length} tools across ${activeCategories.length} disciplines. Everything runs in your browser.`}
 			/>
 
-			<div className="mt-8 flex flex-col gap-4">
-				<div className="flex flex-wrap gap-2" role="group" aria-label="Tool categories">
-					<FilterChip
-						label="All tools"
-						count={tools.length}
-						active={activeCategory === "all"}
-						onClick={() => setActiveCategory("all")}
-					/>
-					{activeCategories.map((c) => (
-						<FilterChip
-							key={c.id}
-							label={c.name}
-							count={toolsInCategory(c.id).length}
-							category={c.id}
-							active={activeCategory === c.id}
-							onClick={() => setActiveCategory(c.id)}
-						/>
-					))}
-				</div>
-
-				<div className="flex flex-wrap items-center gap-2">
-					<div className="relative w-full sm:w-[300px]">
+			<div className="mt-8 rounded-xl border border-border bg-card/40 p-4 sm:p-5">
+				<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+					<div className="relative w-full lg:max-w-md">
 						<Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
 							type="search"
-							aria-label="Filter tools by name"
+							aria-label="Search tools"
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							placeholder="Filter by name…"
-							className="pl-9 [&::-webkit-search-cancel-button]:hidden"
+							placeholder="Search tools…"
+							className="h-10 pl-9 [&::-webkit-search-cancel-button]:hidden"
 						/>
 						{searchQuery && (
 							<button
 								type="button"
 								onClick={() => setSearchQuery("")}
-								aria-label="Clear filter"
-								className="absolute top-1/2 right-2 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-muted-foreground hover:text-foreground"
+								aria-label="Clear search"
+								className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 							>
 								<X className="size-3.5" />
 							</button>
 						)}
 					</div>
-					<FilterChip
-						label="All tags"
-						active={tagFilter === "all"}
-						onClick={() => setTagFilter("all")}
-					/>
-					<FilterChip
-						label="Popular"
-						tone="amber"
-						active={tagFilter === "popular"}
-						onClick={() => setTagFilter("popular")}
-					/>
-					<FilterChip
-						label="100% Private"
-						tone="emerald"
-						active={tagFilter === "browser"}
-						onClick={() => setTagFilter("browser")}
-					/>
-					<FilterChip
-						label="AI"
-						tone="violet"
-						active={tagFilter === "ai"}
-						onClick={() => setTagFilter("ai")}
-					/>
-					<div className="ml-auto flex items-center gap-3">
-						<span className="text-sm text-muted-foreground" aria-live="polite">
-							Showing {visible.length} of {tools.length}
-						</span>
-						<select
-							aria-label="Sort tools"
-							value={sortBy}
-							onChange={(e) => setSortBy(e.target.value as SortBy)}
-							className="h-10 cursor-pointer rounded-md border border-input bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-						>
-							<option value="popular">Sort: Popular</option>
-							<option value="name">Sort: Name (A–Z)</option>
-							<option value="category">Sort: Category</option>
-						</select>
+					<select
+						aria-label="Sort tools"
+						value={sortBy}
+						onChange={(e) => setSortBy(e.target.value as SortBy)}
+						className="h-10 w-full cursor-pointer rounded-lg border border-input bg-background px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:w-auto"
+					>
+						<option value="popular">Sort: Popular</option>
+						<option value="name">Sort: Name (A–Z)</option>
+						<option value="category">Sort: Category</option>
+					</select>
+				</div>
+
+				<div className="mt-4 flex flex-col gap-3 border-t border-border/70 pt-4">
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+						<span className="label-mono shrink-0 !text-subtle sm:mt-2 sm:w-24">Discipline</span>
+						<div role="group" aria-label="Tool categories" className="flex flex-wrap gap-2">
+							<FilterChip
+								label="All"
+								count={tools.length}
+								active={activeCategory === "all"}
+								onClick={() => setActiveCategory("all")}
+								className="h-9 shrink-0"
+							/>
+							{activeCategories.map((c) => (
+								<FilterChip
+									key={c.id}
+									label={categoryShortName(c.name)}
+									count={toolsInCategory(c.id).length}
+									category={c.id}
+									active={activeCategory === c.id}
+									onClick={() => setActiveCategory(c.id)}
+									className="h-9 shrink-0"
+								/>
+							))}
+						</div>
+					</div>
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+						<span className="label-mono shrink-0 !text-subtle sm:w-24">Show</span>
+						<Segmented
+							label="Filter tools by type"
+							value={tagFilter}
+							onChange={setTagFilter}
+							options={TAG_OPTIONS}
+							className="w-full sm:w-auto"
+						/>
 					</div>
 				</div>
 			</div>
 
+			<div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+				<p className="text-sm text-muted-foreground" aria-live="polite">
+					Showing <span className="font-medium text-foreground">{visible.length}</span> of{" "}
+					{tools.length} tools
+				</p>
+				{filtering && filteredTools.length > 0 && (
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={reset}
+						className="h-8 px-2 text-muted-foreground hover:text-foreground"
+					>
+						<RotateCcw /> Reset filters
+					</Button>
+				)}
+			</div>
+
 			{filteredTools.length === 0 ? (
-				<div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12 text-center">
-					<p className="text-lg font-semibold">No matching tools found</p>
-					<p className="mt-1 text-sm text-muted-foreground">
-						Try clearing your search or switching to another category.
+				<div className="mt-4 flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 p-10 text-center sm:p-12">
+					<span className="grid size-11 place-items-center rounded-full border border-border bg-background text-muted-foreground">
+						<SearchX className="size-5" aria-hidden="true" />
+					</span>
+					<p className="mt-4 text-lg font-semibold">No matching tools</p>
+					<p className="mt-1 max-w-sm text-sm text-muted-foreground">
+						Try a different search, discipline, or filter.
 					</p>
 					<Button variant="outline" size="sm" className="mt-4" onClick={reset}>
 						Clear filters
 					</Button>
 				</div>
 			) : (
-				<div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{visible.map((tool) => (
-						<ToolCard key={tool.slug} tool={tool} />
+						<ShowcaseToolCard key={tool.slug} tool={tool} />
 					))}
 				</div>
 			)}
@@ -360,13 +404,6 @@ function ToolsDirectory() {
 				<div className="mt-8 flex justify-center">
 					<Button variant="outline" size="lg" arrow onClick={() => setExpanded(true)}>
 						Show all {tools.length} tools
-					</Button>
-				</div>
-			)}
-			{filtering && filteredTools.length > 0 && (
-				<div className="mt-8 flex justify-center">
-					<Button variant="ghost" size="sm" onClick={reset}>
-						Reset filters
 					</Button>
 				</div>
 			)}
@@ -426,59 +463,62 @@ function HomePage() {
 	return (
 		<>
 			{/* Hero */}
-			<section className="container-page flex flex-col items-center gap-6 pt-16 pb-12 text-center sm:pt-24 sm:pb-16">
-				<div className="reveal inline-flex items-center gap-2 rounded-full border border-cat-emerald-border bg-cat-emerald-bg px-3 py-1.5 text-xs text-cat-emerald-fg">
-					<span className="size-2 animate-beacon rounded-full bg-cat-emerald-icon" />
-					<span>{tools.length} free browser tools · 100% client-side · zero telemetry</span>
-				</div>
+			<section className="relative isolate">
+				<HeroHologram />
+				<div className="container-page relative z-10 flex flex-col items-center gap-6 pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
+					<div className="reveal inline-flex items-center gap-2 rounded-full border border-cat-emerald-border bg-cat-emerald-bg px-3 py-1.5 text-xs text-cat-emerald-fg">
+						<span className="size-2 animate-beacon rounded-full bg-cat-emerald-icon" />
+						<span>{tools.length} free browser tools · 100% client-side · zero telemetry</span>
+					</div>
 
-				<h1 className="display reveal max-w-4xl text-[clamp(2.5rem,7vw,4rem)] [animation-delay:80ms]">
-					Free tools that just work.
-				</h1>
+					<h1 className="display reveal max-w-4xl text-[clamp(2.5rem,7vw,4rem)] [animation-delay:80ms]">
+						Free tools that just work.
+					</h1>
 
-				<p className="reveal max-w-[720px] text-lg leading-7 text-muted-foreground [animation-delay:140ms]">
-					Compress photos, merge PDFs, generate QR codes, count words and calculate EMI — all
-					processed locally in your browser. No uploads, no signup.
-				</p>
+					<p className="reveal max-w-[720px] text-lg leading-7 text-muted-foreground [animation-delay:140ms]">
+						Compress photos, merge PDFs, generate QR codes, count words and calculate EMI — all
+						processed locally in your browser. No uploads, no signup.
+					</p>
 
-				<ul className="reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-3 [animation-delay:200ms]">
-					{VALUE_PROPS.map(({ icon: Icon, label, tile }) => (
-						<li key={label} className="flex items-center gap-2 text-sm font-medium">
-							<span className={cn("grid size-7 place-items-center rounded-md border", tile)}>
-								<Icon className="size-3.5" aria-hidden="true" />
-							</span>
-							{label}
-						</li>
-					))}
-				</ul>
-
-				<div className="reveal w-full max-w-[640px] [animation-delay:260ms]">
-					<SearchBox
-						size="lg"
-						placeholder={`Search ${tools.length} tools — try “compress image” or “merge pdf”`}
-					/>
-				</div>
-
-				<div className="reveal flex flex-wrap items-center justify-center gap-2 [animation-delay:320ms]">
-					<span className="pr-1 font-mono text-[0.625rem] font-medium uppercase tracking-[0.1em] text-subtle">
-						Popular
-					</span>
-					{QUICK.map(getTool)
-						.filter((t) => t !== undefined)
-						.map((tool) => (
-							<Link
-								key={tool.slug}
-								to="/tools/$slug"
-								params={{ slug: tool.slug }}
-								className="inline-flex h-8 items-center gap-1.5 rounded-full border border-input bg-background px-3 text-sm font-medium transition-colors hover:bg-accent"
-							>
-								<span
-									aria-hidden="true"
-									className={cn("size-2 rounded-full", categoryStyles[tool.category].dot)}
-								/>
-								{tool.name}
-							</Link>
+					<ul className="reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-3 [animation-delay:200ms]">
+						{VALUE_PROPS.map(({ icon: Icon, label, tile }) => (
+							<li key={label} className="flex items-center gap-2 text-sm font-medium">
+								<span className={cn("grid size-7 place-items-center rounded-md border", tile)}>
+									<Icon className="size-3.5" aria-hidden="true" />
+								</span>
+								{label}
+							</li>
 						))}
+					</ul>
+
+					<div className="reveal w-full max-w-[640px] [animation-delay:260ms]">
+						<SearchBox
+							size="lg"
+							placeholder={`Search ${tools.length} tools — try “compress image” or “merge pdf”`}
+						/>
+					</div>
+
+					<div className="reveal flex flex-wrap items-center justify-center gap-2 [animation-delay:320ms]">
+						<span className="pr-1 font-mono text-[0.625rem] font-medium uppercase tracking-[0.1em] text-subtle">
+							Popular
+						</span>
+						{QUICK.map(getTool)
+							.filter((t) => t !== undefined)
+							.map((tool) => (
+								<Link
+									key={tool.slug}
+									to="/tools/$slug"
+									params={{ slug: tool.slug }}
+									className="inline-flex h-8 items-center gap-1.5 rounded-full border border-input bg-background px-3 text-sm font-medium transition-colors hover:bg-accent"
+								>
+									<span
+										aria-hidden="true"
+										className={cn("size-2 rounded-full", categoryStyles[tool.category].dot)}
+									/>
+									{tool.name}
+								</Link>
+							))}
+					</div>
 				</div>
 			</section>
 
@@ -490,7 +530,7 @@ function HomePage() {
 			<section
 				id="categories"
 				aria-labelledby="categories-title"
-				className="mt-16 scroll-mt-16 border-y border-border bg-muted/50 py-16 sm:mt-24 sm:py-24"
+				className="mt-16 scroll-mt-16 border-y border-border bg-muted/40 py-16 sm:mt-24 sm:py-24"
 			>
 				<div className="container-page">
 					<SectionHead
@@ -499,28 +539,46 @@ function HomePage() {
 						title={`${activeCategories.length} disciplines, one toolbox`}
 						id="categories-title"
 						description="Jump straight to a category and see what is inside."
-					/>
-					<div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-						{activeCategories.map((category) => (
-							<CategoryCard
-								key={category.id}
-								category={category}
-								count={toolsInCategory(category.id).length}
-							/>
-						))}
-						<div className="flex flex-col justify-center gap-3 rounded-lg border border-dashed border-input p-6">
-							<h3 className="text-2xl font-semibold tracking-[-0.025em]">
-								Not sure where to start?
-							</h3>
-							<p className="text-sm text-muted-foreground">
-								Search all {tools.length} tools or browse the full directory.
-							</p>
-							<Button asChild className="self-start">
+						action={
+							<Button asChild variant="outline" size="sm" className="w-fit shrink-0">
 								<Link to="/tools">
-									Browse all tools <ArrowRight />
+									All {tools.length} tools <ArrowRight />
 								</Link>
 							</Button>
+						}
+					/>
+
+					<ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+						{activeCategories.map((category, index) => (
+							<li key={category.id}>
+								<CategoryCard
+									category={category}
+									count={toolsInCategory(category.id).length}
+									index={index + 1}
+								/>
+							</li>
+						))}
+					</ul>
+
+					<div className="mt-4 flex flex-col gap-6 rounded-xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+						<div className="flex items-start gap-4">
+							<span className="grid size-11 shrink-0 place-items-center rounded-lg border border-cat-emerald-border bg-cat-emerald-bg text-cat-emerald-icon">
+								<Compass className="size-5" aria-hidden="true" />
+							</span>
+							<div className="flex flex-col gap-1">
+								<h3 className="text-xl font-semibold tracking-[-0.025em]">
+									Not sure where to start?
+								</h3>
+								<p className="text-sm leading-5 text-muted-foreground">
+									Search all {tools.length} tools or browse the full directory.
+								</p>
+							</div>
 						</div>
+						<Button asChild className="w-full sm:w-auto">
+							<Link to="/tools">
+								Browse all tools <ArrowRight />
+							</Link>
+						</Button>
 					</div>
 				</div>
 			</section>
