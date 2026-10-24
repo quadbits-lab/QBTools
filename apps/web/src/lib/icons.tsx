@@ -1,5 +1,6 @@
 import type { CategoryId } from "@qbtools/registry";
 import {
+	AppWindow,
 	AudioWaveform,
 	Cake,
 	Calculator,
@@ -17,6 +18,7 @@ import {
 	Image,
 	KeyRound,
 	Landmark,
+	LayoutTemplate,
 	Letters,
 	Lock,
 	type LucideIcon,
@@ -28,6 +30,7 @@ import {
 	Repeat,
 	Scaling,
 	Scissors,
+	Shapes,
 	ShieldCheck,
 	Signature,
 	Sparkles,
@@ -38,6 +41,7 @@ import {
 } from "lucide-react";
 
 const icons: Record<string, LucideIcon> = {
+	"app-window": AppWindow,
 	"audio-waveform": AudioWaveform,
 	cake: Cake,
 	calculator: Calculator,
@@ -55,6 +59,7 @@ const icons: Record<string, LucideIcon> = {
 	image: Image,
 	"key-round": KeyRound,
 	landmark: Landmark,
+	"layout-template": LayoutTemplate,
 	letters: Letters,
 	lock: Lock,
 	"minimize-2": Minimize2,
@@ -67,6 +72,7 @@ const icons: Record<string, LucideIcon> = {
 	scissors: Scissors,
 	"shield-check": ShieldCheck,
 	signature: Signature,
+	shapes: Shapes,
 	sparkles: Sparkles,
 	"spell-check": SpellCheck,
 	type: Type,

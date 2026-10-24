@@ -7,7 +7,6 @@ import {
 	Copy,
 	Eye,
 	EyeOff,
-	KeyRound,
 	Lock,
 	RotateCcw,
 	ShieldAlert,

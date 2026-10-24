@@ -1,12 +1,5 @@
 import { latestGuides } from "@qbtools/content";
-import {
-	type CategoryId,
-	categories,
-	getTool,
-	popularTools,
-	tools,
-	toolsInCategory,
-} from "@qbtools/registry";
+import { type CategoryId, categories, getTool, tools, toolsInCategory } from "@qbtools/registry";
 import { Button } from "@qbtools/ui/button";
 import { cn } from "@qbtools/ui/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -21,7 +14,6 @@ import {
 	ShieldCheck,
 	Sparkles,
 	Star,
-	XCircle,
 	Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";

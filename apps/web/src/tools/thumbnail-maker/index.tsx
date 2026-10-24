@@ -1,3 +1,4 @@
+import { ChooseMedia } from "#/components/kit/choose-media";
 import { SaveToMedia } from "#/components/kit/save-to-media";
 import "@fontsource/anton/400.css";
 import "@fontsource/bebas-neue/400.css";
@@ -467,6 +468,12 @@ export default function ThumbnailMaker() {
 								onChange={(e) => pickVideo(e.target.files?.[0])}
 							/>
 						</label>
+						<ChooseMedia
+							accept="image/*,video/*"
+							onFiles={([file]) =>
+								file?.type.startsWith("video/") ? pickVideo(file) : pickImage(file, "background")
+							}
+						/>
 						{background && (
 							<Button
 								variant="ghost"
@@ -526,6 +533,10 @@ export default function ThumbnailMaker() {
 								onChange={(e) => pickImage(e.target.files?.[0], "cutout")}
 							/>
 						</label>
+						<ChooseMedia
+							accept="image/png,image/webp"
+							onFiles={([file]) => pickImage(file, "cutout")}
+						/>
 						{cutout && (
 							<Button variant="ghost" size="sm" onClick={() => setCutout(null)}>
 								<X className="size-4" /> Remove

@@ -67,7 +67,7 @@ export const guides: Guide[] = [
 			{ type: "h2", text: "Is it safe?" },
 			{
 				type: "p",
-				text: "Yes. QBTools compresses photos inside your browser, so your picture is never uploaded to a server. That matters for ID photos and documents.",
+				text: "Yes. QBTools compresses photos inside your browser, so your picture is not sent to a server for processing. Saving it to your account is optional. That matters for ID photos and documents.",
 			},
 		],
 	},

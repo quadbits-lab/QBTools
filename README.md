@@ -1,6 +1,6 @@
 # QBTools — Free tools that just work
 
-A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 31 tools across image, PDF, text, calculators, generators, media and security. Files are processed **in the browser**, with optional, explicit uploads to private account storage.
+A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 34 tools across image, PDF, text, calculators, generators, media and security. Files are processed **in the browser**, with optional, explicit uploads to private account storage.
 
 **Stack:** Bun 1.4 · TanStack Start (React 19, SSR, server functions) · Vite 8 · Tailwind CSS 4 · SQLite (`bun:sqlite` + Drizzle) · Turborepo · Biome · Docker / Compose.
 
@@ -91,7 +91,7 @@ Every option is documented in [.env.example](.env.example). The important ones:
 | Variable                     | Purpose                                                                       |
 | ---------------------------- | ----------------------------------------------------------------------------- |
 | `SITE_URL` / `VITE_SITE_URL` | Canonical origin for SEO tags, sitemap and robots                             |
-| `ADMIN_TOKEN`                | Enables `/admin` (messages, tool ideas + votes, leads, waitlist, CSV export)  |
+| `ADMIN_TOKEN`                | Enables `/admin` (messages, leads, waitlist, CSV export)                      |
 | `AI_API_KEY`, `AI_MODEL`     | Grammar and paraphrase helpers (Anthropic). Leave empty to show "unavailable" |
 | `VITE_ADSENSE_*`, `ADS_TXT`  | Ads (top + bottom slot per tool page) and `/ads.txt`                          |
 | `VITE_ANALYTICS_*`           | Optional cookieless Plausible or Umami                                        |

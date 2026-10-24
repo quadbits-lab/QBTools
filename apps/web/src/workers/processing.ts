@@ -1,5 +1,15 @@
 /// <reference lib="webworker" />
 
+import type {
+	AppIconExportOptions,
+	DesignSettings,
+	FaviconExportOptions,
+	GeneratedAssetSet,
+	GraphicAssets,
+	IconDesign,
+	RenderedDesign,
+	RenderOptions,
+} from "@qbtools/engines/graphic";
 import type { DigestAlgorithm } from "@qbtools/engines/hash";
 import type { OptimizedFormat } from "@qbtools/engines/image-codecs";
 import type { ProcessingOptions } from "@qbtools/engines/processing";
@@ -53,6 +63,43 @@ self.onmessage = async ({
 		} else if (operation === "pdf") {
 			const { optimizePdf } = await import("@qbtools/engines/pdf-optimize");
 			result = await optimizePdf(payload as File, options);
+		} else if (operation === "graphic-render") {
+			const request = payload as {
+				design: DesignSettings;
+				options: ProcessingOptions;
+				renderOptions: RenderOptions;
+				assets?: GraphicAssets;
+			};
+			const graphic = await import("@qbtools/engines/graphic");
+			result = (await graphic.renderDesign(request.design, request.renderOptions, {
+				signal: options.signal,
+				onProgress: options.onProgress,
+				assets: request.assets,
+			})) satisfies RenderedDesign;
+		} else if (operation === "graphic-favicon") {
+			const request = payload as {
+				design: IconDesign;
+				options: FaviconExportOptions;
+				assets?: GraphicAssets;
+			};
+			const graphic = await import("@qbtools/engines/graphic");
+			result = (await graphic.generateFaviconSet(request.design, request.options, {
+				signal: options.signal,
+				onProgress: options.onProgress,
+				assets: request.assets,
+			})) satisfies GeneratedAssetSet;
+		} else if (operation === "graphic-appicon") {
+			const request = payload as {
+				design: IconDesign;
+				options: AppIconExportOptions;
+				assets?: GraphicAssets;
+			};
+			const graphic = await import("@qbtools/engines/graphic");
+			result = (await graphic.generateAppIconSet(request.design, request.options, {
+				signal: options.signal,
+				onProgress: options.onProgress,
+				assets: request.assets,
+			})) satisfies GeneratedAssetSet;
 		} else throw new Error("Unknown processing operation.");
 		self.postMessage({ id, result });
 	} catch (e) {

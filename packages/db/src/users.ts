@@ -26,7 +26,8 @@ export type UserDb = Awaited<ReturnType<typeof createUserDb>>;
 const globalDb = globalThis as typeof globalThis & {
 	__qbtoolsUserDbs?: Map<string, Promise<UserDb>>;
 };
-const connections = (globalDb.__qbtoolsUserDbs ??= new Map());
+if (!globalDb.__qbtoolsUserDbs) globalDb.__qbtoolsUserDbs = new Map<string, Promise<UserDb>>();
+const connections = globalDb.__qbtoolsUserDbs;
 /** One connection per datadir, including during Vite server hot reloads. */
 export function getUserDb() {
 	const directory = process.env.PGLITE_DATA_DIR ?? "./data/users";

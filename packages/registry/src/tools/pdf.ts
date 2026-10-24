@@ -31,7 +31,7 @@ export const pdfTools: ToolDef[] = [
 			},
 			{
 				q: "Are my PDFs uploaded?",
-				a: "No. Your files are combined inside your browser and never sent to us.",
+				a: "No. Your files are combined inside your browser. Nothing is sent to us unless you choose Save to Media while signed in.",
 			},
 			{
 				q: "Can I merge password-protected PDFs?",
@@ -112,7 +112,7 @@ export const pdfTools: ToolDef[] = [
 			},
 			{
 				q: "Is my document private?",
-				a: "Yes. The PDF is compressed in your browser and never uploaded.",
+				a: "Yes. The PDF is compressed in your browser and uploads only if you choose Save to Media.",
 			},
 			{
 				q: "Why did my PDF barely shrink?",

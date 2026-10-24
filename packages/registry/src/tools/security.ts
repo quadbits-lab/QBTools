@@ -8,7 +8,7 @@ export const securityTools: ToolDef[] = [
 		title: "File Encryptor & Decryptor — Free Client-Side AES-256",
 		tagline: "Lock and protect any file with military-grade AES-256 encryption.",
 		description:
-			"Encrypt and decrypt PDF, images, ZIP and sensitive documents in your browser. Secured with AES-256-GCM and PBKDF2 — 100% private, no server upload.",
+			"Encrypt and decrypt PDF, images, ZIP and sensitive documents in your browser. Secured with AES-256-GCM and PBKDF2 — processed privately on your device.",
 		icon: "lock",
 		keywords: [
 			"file encryptor",

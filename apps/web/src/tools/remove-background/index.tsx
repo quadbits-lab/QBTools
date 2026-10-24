@@ -120,7 +120,7 @@ export default function RemoveBackground() {
 					hint="Photos of people, products, pets or objects work best"
 				/>
 				{error && <Notice tone="critical">{error}</Notice>}
-				<PrivacyNote text="The AI runs on your device — your photo is never uploaded." />
+				<PrivacyNote text="The AI runs on your device — your photo uploads only if you choose Save to Media." />
 			</div>
 		);
 	}
@@ -236,7 +236,7 @@ export default function RemoveBackground() {
 						"-no-bg$1",
 					)}
 				/>
-				<PrivacyNote text="The AI runs on your device — your photo is never uploaded." />
+				<PrivacyNote text="The AI runs on your device — your photo uploads only if you choose Save to Media." />
 			</div>
 		</div>
 	);

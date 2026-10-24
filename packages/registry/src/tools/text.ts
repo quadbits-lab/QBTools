@@ -30,7 +30,7 @@ export const textTools: ToolDef[] = [
 		faqs: [
 			{
 				q: "Is my document uploaded?",
-				a: "No. The engine and language files download to your browser; your document stays on your device.",
+				a: "No. The engine and language files download to your browser; your document stays on your device unless you choose Save to Media.",
 			},
 			{
 				q: "Can OCR make mistakes?",

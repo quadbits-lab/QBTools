@@ -10,11 +10,9 @@ import {
 	EyeOff,
 	FileDown,
 	FileUp,
-	KeyRound,
 	Lock,
 	RotateCcw,
 	ShieldAlert,
-	ShieldCheck,
 	Unlock,
 } from "lucide-react";
 import { useState } from "react";
@@ -22,8 +20,6 @@ import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
 import { SaveToMedia } from "#/components/kit/save-to-media";
-
-type CryptoEngine = typeof import("@qbtools/engines/crypto");
 
 export default function FileEncryptor() {
 	const [mode, setMode] = useState<"encrypt" | "decrypt">("encrypt");
@@ -292,7 +288,7 @@ export default function FileEncryptor() {
 			)}
 
 			{result && <SaveToMedia blob={result.blob} name={result.filename} />}
-			<PrivacyNote text="100% Zero-Knowledge Encryption — AES-256-GCM and PBKDF2 executed on your device. 0 bytes uploaded." />
+			<PrivacyNote text="100% Zero-Knowledge Encryption — AES-256-GCM and PBKDF2 executed on your device. Nothing uploads unless you choose Save to Media." />
 		</div>
 	);
 }

@@ -99,6 +99,33 @@ test("generated QR can save to media and return as a tool input", async ({ page,
 	await expect(page.getByRole("dialog")).toHaveCount(0);
 	await expect(page.getByText("1024×1024px", { exact: true })).toBeVisible();
 });
+test("custom file inputs also offer stored media", async ({ page, context }) => {
+	await signIn(context);
+	await page.goto("/tools/thumbnail-maker");
+	await expect(page.getByRole("button", { name: "Choose from Media", exact: true })).toHaveCount(2);
+	await page.goto("/tools/invoice-generator");
+	await expect(page.getByRole("button", { name: "Choose from Media", exact: true })).toBeVisible();
+});
+test("switching accounts does not leak favorites", async ({ page, context }) => {
+	const origin = { Origin: fixture?.baseURL ?? "" };
+	await signIn(context, "bob");
+	await context.request.post("/api/account/favorites", {
+		headers: origin,
+		data: { slug: "word-counter", saved: false },
+	});
+	await context.clearCookies();
+	await signIn(context);
+	await context.request.post("/api/account/favorites", {
+		headers: origin,
+		data: { slug: "word-counter", saved: true },
+	});
+	await page.goto("/dashboard/favorites");
+	await expect(page.getByText("Word Counter", { exact: true }).first()).toBeVisible();
+	await context.clearCookies();
+	await signIn(context, "bob");
+	await page.goto("/dashboard/favorites");
+	await expect(page.getByText("Word Counter", { exact: true })).toHaveCount(0);
+});
 test("API rejects anonymous writes, foreign origins, oversize and unsafe names", async ({
 	context,
 }) => {

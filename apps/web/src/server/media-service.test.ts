@@ -147,6 +147,28 @@ describe("strict media accounting", () => {
 		await reserve();
 		await expect(reserve()).rejects.toThrow("existing upload");
 	});
+	test("limits concurrent writers per asset and per process", async () => {
+		const controllers: AbortController[] = [];
+		const hold = async (user: string) => {
+			const row = await reserve(5, "test.txt", user);
+			const controller = new AbortController();
+			controllers.push(controller);
+			const stalled = new ReadableStream<Uint8Array>({ pull: () => new Promise(() => {}) });
+			const writing = service.upload(user, row.id, stalled, false, controller.signal);
+			writing.catch(() => {});
+			return { row, writing };
+		};
+		const writers = [];
+		for (const user of ["alice", "bob", "charlie", "dana"]) writers.push(await hold(user));
+		await Bun.sleep(20);
+		const firstWriter = writers[0];
+		if (!firstWriter) throw new Error("test setup invariant");
+		await expect(upload(firstWriter.row.id)).rejects.toThrow("no longer available");
+		const extra = await reserve(5, "test.txt", "eli");
+		await expect(upload(extra.id, "hello", "eli")).rejects.toThrow("busy");
+		for (const controller of controllers) controller.abort();
+		await Promise.allSettled(writers.map((writer) => writer.writing));
+	});
 	test("cancelled request refunds reservation", async () => {
 		const row = await reserve();
 		const controller = new AbortController();
@@ -175,7 +197,7 @@ test("safe ranges and return destinations", () => {
 });
 test("existing encrypted format and text samples", async () => {
 	expect(
-		await validateContent("document.enc", new TextEncoder().encode("QBEN" + "x".repeat(60))),
+		await validateContent("document.enc", new TextEncoder().encode(`QBEN${"x".repeat(60)}`)),
 	).toBe("application/octet-stream");
 	await expect(validateContent("fake.enc", new Uint8Array(12))).rejects.toThrow();
 	expect(await validateContent("project.json", new TextEncoder().encode('{"version":1}'))).toBe(

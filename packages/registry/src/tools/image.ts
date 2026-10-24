@@ -325,4 +325,209 @@ export const imageTools: ToolDef[] = [
 		runtime: "browser",
 		popular: 3,
 	},
+	{
+		slug: "og-banner-maker",
+		category: "image",
+		name: "OG Banner Maker",
+		title: "OG Banner Maker — Free Social Preview Image Editor",
+		tagline: "Design Open Graph banners with templates and exports.",
+		description:
+			"Design Open Graph banners with drag-and-drop templates, text, images and gradients. Export PNG, JPG or WebP at 1200×630 and more. Free, private.",
+		icon: "layout-template",
+		keywords: [
+			"og image generator",
+			"open graph image maker",
+			"social preview image",
+			"og banner template",
+			"meta image maker",
+			"linkedin banner maker",
+			"twitter card image",
+		],
+		howTo: [
+			{
+				title: "Pick a template",
+				text: "Choose one of eight layouts, or start from a photo, gradient or solid background.",
+			},
+			{
+				title: "Edit and drag",
+				text: "Drop your logo and hero image, then drag elements into place and tune fonts and colors.",
+			},
+			{
+				title: "Export",
+				text: "Download a PNG for social cards, or a JPG/WebP at 1× or 2× — everything stays on your device.",
+			},
+		],
+		about: {
+			what: "Open Graph images are what social networks and chat apps show above your links. QBTools gives you a live editor with eight templates, drag positioning and precise exports — no design account needed.",
+			when: [
+				"Links to your posts show a blank or stretched preview.",
+				"You need a 1200 × 630 card today, not a Figma file.",
+				"You want the same banner at square and 1500 × 500 sizes.",
+			],
+		},
+		faqs: [
+			{
+				q: "What size should an OG image be?",
+				a: "1200 × 630 pixels is the safe default for Facebook, LinkedIn and most link previews. Twitter cards also accept it.",
+			},
+			{
+				q: "Where do I put the exported image?",
+				a: 'Upload it to your website (for example /og/post-title.png) and set <meta property="og:image" content="https://yoursite.com/og/post-title.png">. The tool can generate this snippet for you.',
+			},
+			{
+				q: "Is my artwork or image uploaded anywhere?",
+				a: "No. Templates, text layout, rasterization and exports all run inside your browser.",
+			},
+			{
+				q: "Can I keep editing later?",
+				a: "Yes. Export a .qbdesign.json project file and re-import it to restore the exact design.",
+			},
+		],
+		related: ["thumbnail-maker", "convert-image", "compress-image", "resize-image"],
+		runtime: "browser",
+		presets: [
+			{
+				slug: "og-1200x630",
+				title: "OG Image Maker (1200×630)",
+				description:
+					"Create a 1200×630 Open Graph preview image with templates, drag-and-drop and PNG export. Free, private, no signup.",
+				intro:
+					"1200 × 630 is the size Facebook, LinkedIn and most chat apps use for link previews. Design one below and export it in seconds.",
+				keywords: ["og image 1200x630", "og image size", "link preview image"],
+				params: { width: 1200, height: 630 },
+			},
+			{
+				slug: "twitter-banner",
+				title: "Twitter Card Image Maker (1500×500)",
+				description:
+					"Design a wide 1500×500 social banner for Twitter/X and sites that use wide cards. Free and processed on your device.",
+				intro:
+					"Wide links, player cards and header images look best at 1500 × 500. Pick a template, tweak the layout, export a crisp 2× PNG.",
+				keywords: ["twitter banner size", "1500x500", "twitter card image"],
+				params: { width: 1500, height: 500 },
+			},
+		],
+	},
+	{
+		slug: "favicon-generator",
+		category: "image",
+		name: "Favicon Generator",
+		title: "Favicon Generator — Free ICO, PNG & SVG Favicons",
+		tagline: "Create favicon packages with ICO, PNG, SVG and manifest.",
+		description:
+			"Generate favicon.ico, PNG, SVG, Apple touch and maskable icons plus site.webmanifest from one image or initials. Free and browser-only.",
+		icon: "app-window",
+		keywords: [
+			"favicon generator",
+			"favicon.io alternative",
+			"favicon.ico generator",
+			"favicon from png",
+			"web manifest icons",
+			"apple touch icon",
+			"maskable icon",
+		],
+		howTo: [
+			{
+				title: "Add artwork",
+				text: "Upload a logo or image, type initials, or search a built-in icon collection.",
+			},
+			{
+				title: "Tune the look",
+				text: "Adjust padding, background and colors while the tab, light/dark and maskable previews update live.",
+			},
+			{
+				title: "Download the package",
+				text: "Get one ZIP with favicon.ico, PNG, SVG, touch icon, manifest and install instructions.",
+			},
+		],
+		about: {
+			what: "A browser icon needs several shapes: ICO for compatibility, PNG and SVG for modern tabs, an opaque icon for iOS home screens and maskable versions with extra padding for Android. This generator builds the whole set from one design.",
+			when: [
+				"Launching a site and only the default browser icon exists.",
+				"Your favicon.ico is blurry on hi-dpi tabs.",
+				"You need a correct site.webmanifest with every icon path.",
+			],
+		},
+		faqs: [
+			{
+				q: "Which favicon sizes do I actually need?",
+				a: "favicon.ico (16/32/48), one 32 PNG, an SVG, and a 180×180 apple-touch-icon cover nearly everything. This package includes all of them plus 192 and 512 maskable icons.",
+			},
+			{
+				q: "Does this make my site installable as a PWA?",
+				a: "No — icons are only part of it. Installability also needs your manifest served over HTTPS and a registered service worker; the included README explains the difference.",
+			},
+			{
+				q: "Why is there a maskable icon with extra padding?",
+				a: "Android masks icons into circles and squircles. The maskable versions keep your artwork inside the safe circle so nothing important is cut.",
+			},
+			{
+				q: "Can I use text or emoji instead of a logo?",
+				a: "Yes. Type initials (rendered as real outlines) or search the built-in icon collection, then set any background.",
+			},
+		],
+		related: ["app-icon-generator", "og-banner-maker", "convert-image", "compress-image"],
+		runtime: "browser",
+	},
+	{
+		slug: "app-icon-generator",
+		category: "image",
+		name: "App Icon Generator",
+		title: "App Icon Generator — iOS & Android Icon Kits Online",
+		tagline: "Build iOS asset catalogs and Android adaptive icons.",
+		description:
+			"Generate iOS AppIcon.appiconset (modern + legacy) and Android adaptive, monochrome and legacy launcher icons from one design. Free, private.",
+		icon: "shapes",
+		keywords: [
+			"app icon generator",
+			"ios app icon set",
+			"android adaptive icon",
+			"appiconset",
+			"adaptive icon maker",
+			"play store icon",
+			"flutter app icon",
+		],
+		howTo: [
+			{
+				title: "Create artwork",
+				text: "Upload a logo, use initials or pick an icon; set background, padding and variants.",
+			},
+			{
+				title: "Check previews",
+				text: "Toggle iOS squircle and Android circle/squircle masks plus safe-zone guides before exporting.",
+			},
+			{
+				title: "Export kits",
+				text: "Download the iOS appiconset, Android adaptive resources, or both in one ZIP.",
+			},
+		],
+		about: {
+			what: "App stores want precise icon kits: a 1024 px iOS catalog with Dark and Tinted variants, and Android adaptive layers with foreground, background and monochrome drawables. QBTools builds both from one browser-local design.",
+			when: [
+				"Publishing an app and Xcode wants icon-…png files for every slot.",
+				"Android 13 themed icons are missing from your resources.",
+				"The Play Store rejects your 512 px listing icon.",
+			],
+		},
+		faqs: [
+			{
+				q: "Which iOS slots are exported?",
+				a: "A modern single-size AppIcon.appiconset (1024 px Any/Dark/Tinted) plus a legacy catalog covering iPhone 20–60 pt and iPad 20–83.5 pt slots and the 1024 App Store image.",
+			},
+			{
+				q: "How does the Android adaptive icon keep corners safe?",
+				a: "Foreground layers are 108 px-based with your artwork kept inside the 66 dp safe circle, so launcher masks never clip it.",
+			},
+			{
+				q: "What is the monochrome layer for?",
+				a: "Android 13+ themed icons tint your icon with the wallpaper colors. You can generate it from source alpha or a luminance threshold.",
+			},
+			{
+				q: "Are rounded corners baked into iOS icons?",
+				a: "No. iOS icons stay square in the catalog; the system rounds them at runtime. Preview masks are appearance only.",
+			},
+		],
+		related: ["favicon-generator", "og-banner-maker", "convert-image"],
+		runtime: "browser",
+	},
 ];

@@ -12,6 +12,7 @@ import { Field } from "@qbtools/ui/label";
 import { toast } from "@qbtools/ui/toaster";
 import { Download, ImagePlus, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ChooseMedia } from "#/components/kit/choose-media";
 import { PrivacyNote } from "#/components/kit/privacy-note";
 import { SaveToMedia } from "#/components/kit/save-to-media";
 
@@ -127,6 +128,7 @@ export default function InvoiceGenerator() {
 							Remove
 						</button>
 					)}
+					<ChooseMedia accept="image/png,image/jpeg" onFiles={(files) => onLogo(files[0])} />
 				</div>
 				<Field label="Invoice number" htmlFor="inv-no">
 					<Input
