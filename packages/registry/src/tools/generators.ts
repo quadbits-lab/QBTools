@@ -175,4 +175,60 @@ export const generatorTools: ToolDef[] = [
 		related: ["invoice-generator", "image-to-pdf", "remove-background"],
 		runtime: "browser",
 	},
+	{
+		slug: "barcode-scanner",
+		category: "generators",
+		name: "Barcode Scanner & Generator",
+		title: "Barcode Scanner and Generator — QR, EAN, Code 128",
+		tagline: "Read barcodes from a photo or camera, or create your own.",
+		description:
+			"Scan QR codes and barcodes from an image or your camera, or create QR, Code 128, EAN, UPC, Data Matrix, PDF417 and Aztec codes. Runs fully in your browser.",
+		icon: "scan-barcode",
+		keywords: [
+			"barcode scanner",
+			"barcode generator",
+			"read barcode from image",
+			"ean13 generator",
+			"code 128 generator",
+		],
+		howTo: [
+			{
+				title: "Scan or create",
+				text: "Choose Scan to read a barcode from a photo or your camera, or Create to make one.",
+			},
+			{
+				title: "Add your image or text",
+				text: "Drop a photo with a barcode in it, or type the text or number you want to encode and pick a type.",
+			},
+			{
+				title: "Copy or download",
+				text: "Copy the scanned text, or download your new barcode as a PNG or scalable SVG.",
+			},
+		],
+		about: {
+			what: "Scanning looks for QR codes, retail barcodes such as EAN and UPC, Code 128, Data Matrix, PDF417 and Aztec in an image or live camera feed. Creating produces a PNG and an SVG you can print. Check that a created barcode scans before you print many copies.",
+			when: [
+				"You need the number from a barcode in a screenshot or photo.",
+				"You are labelling products or shelves and need Code 128 or EAN codes.",
+				"You want a Data Matrix or Aztec code for tickets or parts.",
+			],
+		},
+		faqs: [
+			{
+				q: "Does the camera send video anywhere?",
+				a: "No. Frames are analysed in your browser and are never recorded or uploaded. You can stop the camera at any time.",
+			},
+			{
+				q: "Why does my EAN-13 or UPC code fail?",
+				a: "Retail codes need an exact number of digits. EAN-13 takes 12 or 13 digits, EAN-8 takes 7 or 8 and UPC-A takes 11 or 12. The check digit is added for you if you leave it off.",
+			},
+			{
+				q: "Are retail barcodes I create official?",
+				a: "They are valid in format, but real products need numbers registered to your company through GS1. Use these for internal labels and testing.",
+			},
+		],
+		related: ["qr-code-generator", "signature-generator", "password-generator", "extract-text"],
+		runtime: "browser",
+		isNew: true,
+	},
 ];

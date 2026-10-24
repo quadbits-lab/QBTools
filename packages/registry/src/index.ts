@@ -1,5 +1,6 @@
 import { categories, categoryById, isCategoryId } from "./categories";
 import { calculatorTools } from "./tools/calculators";
+import { developerTools } from "./tools/developer";
 import { generatorTools } from "./tools/generators";
 import { imageTools } from "./tools/image";
 import { mediaTools } from "./tools/media";
@@ -21,6 +22,7 @@ export const tools: ToolDef[] = [
 	...generatorTools,
 	...mediaTools,
 	...securityTools,
+	...developerTools,
 ];
 
 const toolMap = new Map(tools.map((tool) => [tool.slug, tool]));

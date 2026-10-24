@@ -1,41 +1,11 @@
 import { PDFDocument } from "pdf-lib";
-import { assetBase } from "../assets";
 import { LIMITS, type ProcessingOptions, progress } from "../processing";
+import { getQpdf, runQpdf } from "./qpdf";
 export interface OptimizedPdf {
 	blob: Blob;
 	decreased: boolean;
 	warnings: string[];
 }
-interface Qpdf {
-	callMain(args: string[]): number;
-	WORKERFS: unknown;
-	FS: {
-		mkdir(path: string): void;
-		mount(type: unknown, options: { blobs: { name: string; data: Blob }[] }, path: string): void;
-		unmount(path: string): void;
-		readFile(path: string): Uint8Array;
-		unlink(path: string): void;
-	};
-}
-let engine: Promise<Qpdf> | null = null;
-async function loadEngine(): Promise<Qpdf> {
-	const { default: createModule } = await import("@neslinesli93/qpdf-wasm");
-	const create = createModule as unknown as (options: {
-		locateFile: () => string;
-		noInitialRun: boolean;
-		print: () => void;
-		printErr: () => void;
-	}) => Promise<Qpdf>;
-	const module = await create({
-		locateFile: () => `${base}/qpdf.wasm`,
-		noInitialRun: true,
-		print: () => {},
-		printErr: () => {},
-	});
-	module.FS.mkdir("/input");
-	return module;
-}
-let base = "";
 /** Must run in a dedicated worker: qpdf.callMain is synchronous. */
 export async function optimizePdf(
 	file: File,
@@ -54,12 +24,7 @@ export async function optimizePdf(
 				: "This PDF couldn't be opened. It may be damaged.",
 		);
 	}
-	base = await assetBase("qpdf");
-	engine ??= loadEngine().catch((e) => {
-		engine = null;
-		throw e;
-	});
-	const qpdf = await engine;
+	const qpdf = await getQpdf();
 	progress(options, "Optimizing PDF structure…");
 	let mounted = false;
 	try {
@@ -73,14 +38,7 @@ export async function optimizePdf(
 			"--compression-level=9",
 			"/output.pdf",
 		];
-		let code: number;
-		try {
-			code = qpdf.callMain(args);
-		} catch (e) {
-			const status = (e as { status?: number }).status;
-			if (status === undefined) throw e;
-			code = status;
-		}
+		const code = runQpdf(qpdf, args);
 		if (code !== 0 && code !== 3)
 			throw new Error("This PDF couldn't be optimized. Try an unlocked, undamaged copy.");
 		const bytes = qpdf.FS.readFile("/output.pdf").slice();

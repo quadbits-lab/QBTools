@@ -38,6 +38,14 @@ await copyPackage("pdfjs", "pdfjs-dist", ".", (n) =>
 	["wasm", "cmaps", "standard_fonts"].includes(n),
 );
 await copyPackage("qpdf", "@neslinesli93/qpdf-wasm", "dist");
+await copyPackage("zxing", "zxing-wasm", "dist", (n) => n === "reader" || n === "writer");
+await copyPackage(
+	"brotli",
+	"brotli-wasm",
+	"pkg.web",
+	(n) => n === "brotli_wasm.js" || n === "brotli_wasm_bg.wasm",
+);
+await copyPackage("zstd", "@bokuweb/zstd-wasm", "dist/web", (n) => n === "zstd.wasm");
 await copyPackage("tesseract", "tesseract.js", "dist", (n) => n.startsWith("worker.min.js"));
 const tessRoot = await realpath(join(modules, "tesseract.js"));
 const coreRoot = dirname(Bun.resolveSync("tesseract.js-core", tessRoot));

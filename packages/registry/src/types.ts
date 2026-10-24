@@ -5,7 +5,8 @@ export type CategoryId =
 	| "calculators"
 	| "generators"
 	| "media"
-	| "security";
+	| "security"
+	| "developer";
 
 /** Lucide icon name (kebab-case). The app maps names to components. */
 export type IconName = string;

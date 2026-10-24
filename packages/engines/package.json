@@ -18,6 +18,14 @@
 		"./hash": "./src/crypto/hash.ts",
 		"./image-codecs": "./src/image/codecs.ts",
 		"./pdf-optimize": "./src/pdf/optimize.ts",
+		"./pdf-protect": "./src/pdf/protect.ts",
+		"./pdf-watermark": "./src/pdf/watermark.ts",
+		"./pdf-redact": "./src/pdf/redact.ts",
+		"./pdf-searchable": "./src/pdf/searchable.ts",
+		"./barcode": "./src/barcode/index.ts",
+		"./compression": "./src/compression/index.ts",
+		"./format": "./src/format/index.ts",
+		"./pdf-redact-boxes": "./src/pdf/redact-boxes.ts",
 		"./ocr": "./src/ocr/index.ts",
 		"./ffmpeg": "./src/media/ffmpeg.ts",
 		"./gif": "./src/media/gif.ts",
@@ -29,6 +37,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@bokuweb/zstd-wasm": "^0.0.27",
 		"@ffmpeg/core": "^0.12.10",
 		"@ffmpeg/ffmpeg": "^0.12.15",
 		"@huggingface/transformers": "^4.3.1",
@@ -43,6 +52,7 @@
 		"@resvg/resvg-wasm": "^2.6.2",
 		"@tesseract.js-data/ara": "^1.0.0",
 		"@tesseract.js-data/eng": "^1.0.0",
+		"brotli-wasm": "^3.0.1",
 		"client-zip": "^2.5.0",
 		"dompurify": "^3.4.17",
 		"gifenc": "^1.0.3",
@@ -53,9 +63,12 @@
 		"pdf-lib": "^1.17.1",
 		"pdfjs-dist": "^6.4.299",
 		"pica": "^10.0.3",
+		"prettier": "^3.9.10",
 		"qrcode": "^1.5.4",
+		"sql-formatter": "^15.9.0",
 		"tesseract.js": "^7.0.0",
-		"upng-js": "^2.1.0"
+		"upng-js": "^2.1.0",
+		"zxing-wasm": "^3.1.6"
 	},
 	"devDependencies": {
 		"@types/opentype.js": "^1.3.10",

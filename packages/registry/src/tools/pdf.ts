@@ -189,4 +189,210 @@ export const pdfTools: ToolDef[] = [
 			},
 		],
 	},
+	{
+		slug: "protect-pdf",
+		category: "pdf",
+		name: "Protect PDF",
+		title: "Protect or Unlock PDF — Add or Remove a Password",
+		tagline: "Lock a PDF with a password, or remove a password you know.",
+		description:
+			"Encrypt a PDF with AES-256 or remove its password, right in your browser. Your document and password stay on your device unless you choose Save to Media.",
+		icon: "lock",
+		keywords: [
+			"protect pdf",
+			"password protect pdf",
+			"unlock pdf",
+			"remove pdf password",
+			"encrypt pdf",
+		],
+		howTo: [
+			{ title: "Add a PDF", text: "Drop a PDF or tap to choose it." },
+			{
+				title: "Pick Protect or Unlock",
+				text: "Choose Protect and set a password, or choose Unlock and enter the current one.",
+			},
+			{ title: "Download", text: "Save the new PDF. Keep your original until you've tested it." },
+		],
+		about: {
+			what: "Protect encrypts the document with AES-256 so it needs a password to open. Unlock removes the password from a PDF when you enter the correct one. It cannot recover a forgotten password.",
+			when: [
+				"You need to email a sensitive document such as a contract or ID.",
+				"A PDF you own asks for a password every time you open it.",
+				"A portal or printer rejects a password-protected file.",
+			],
+		},
+		faqs: [
+			{
+				q: "Can you unlock a PDF if I forgot the password?",
+				a: "No. Unlock only works when you enter the correct password. QBTools never tries to guess or crack passwords.",
+			},
+			{
+				q: "Is my password sent anywhere?",
+				a: "No. The PDF and password are handled in your browser. Nothing is saved or uploaded unless you choose Save to Media, and the password is never stored.",
+			},
+			{
+				q: "How strong is the protection?",
+				a: "The PDF is encrypted with AES-256. Protection is only as strong as the password, so use a long, unique one.",
+			},
+		],
+		related: ["file-encryptor", "merge-pdf", "compress-pdf", "split-pdf"],
+		runtime: "browser",
+		isNew: true,
+	},
+	{
+		slug: "watermark-pdf",
+		category: "pdf",
+		name: "Watermark PDF",
+		title: "Add a Watermark to PDF — Text or Image Stamp",
+		tagline: "Stamp CONFIDENTIAL, DRAFT or your logo across a PDF.",
+		description:
+			"Add a text or image watermark to every page or chosen pages of a PDF. Set opacity, size, rotation and tiling, all in your browser, with nothing uploaded.",
+		icon: "stamp",
+		keywords: [
+			"watermark pdf",
+			"add watermark to pdf",
+			"pdf stamp",
+			"confidential watermark",
+			"draft watermark pdf",
+		],
+		howTo: [
+			{ title: "Add a PDF", text: "Drop a PDF or tap to choose it." },
+			{
+				title: "Design the watermark",
+				text: "Type your text or add a PNG or JPG logo, then set opacity, size, rotation and which pages to stamp.",
+			},
+			{ title: "Download", text: "Save the watermarked PDF. Your original is never changed." },
+		],
+		about: {
+			what: "The watermark is drawn on top of each page you choose, as one centred stamp or a repeating pattern. The text and pages underneath stay selectable. A watermark discourages casual reuse but is not a security feature, because it can be removed by someone with PDF editing tools.",
+			when: [
+				"You are sharing a draft and want every page marked DRAFT.",
+				"A contract copy needs CONFIDENTIAL across the page.",
+				"You want your logo on handouts or proofs.",
+			],
+		},
+		faqs: [
+			{
+				q: "Can people remove the watermark?",
+				a: "Someone with PDF editing software may be able to. For private documents, add a password with Protect PDF as well.",
+			},
+			{
+				q: "Is my PDF uploaded?",
+				a: "No. The watermark is added in your browser. Nothing is uploaded unless you choose Save to Media.",
+			},
+			{
+				q: "Can I use non-English text?",
+				a: "Text watermarks support Latin letters and common punctuation. For other scripts, make an image of the text and use it as an image watermark.",
+			},
+		],
+		related: ["protect-pdf", "merge-pdf", "compress-pdf", "signature-generator"],
+		runtime: "browser",
+		isNew: true,
+	},
+	{
+		slug: "redact-pdf",
+		category: "pdf",
+		name: "Redact PDF",
+		title: "Redact PDF Online — Permanently Black Out Text",
+		tagline: "Draw boxes over private details and remove them for good.",
+		description:
+			"Black out names, numbers and other sensitive details in a PDF. Redacted pages are rebuilt as images so the hidden text is truly removed, all in your browser.",
+		icon: "eraser",
+		keywords: [
+			"redact pdf",
+			"black out pdf",
+			"hide text in pdf",
+			"remove sensitive information pdf",
+			"censor pdf",
+		],
+		howTo: [
+			{ title: "Add a PDF", text: "Drop a PDF or tap to choose it." },
+			{
+				title: "Draw boxes",
+				text: "Drag a box over each detail to hide. Remove a box with its × button, or redact a whole page.",
+			},
+			{
+				title: "Download",
+				text: "Save the redacted PDF, then open it and check every page before you share it.",
+			},
+		],
+		about: {
+			what: "Covering text with a shape does not remove it: anyone can select or extract what is underneath. Redact PDF re-draws each page you mark with the boxes burned into the pixels and replaces the page with that image, so the original text no longer exists in the file. Pages you did not mark keep their selectable text. Bookmarks and document properties are not kept.",
+			when: [
+				"You are sharing a statement or contract that contains account numbers.",
+				"A form must be submitted with personal details removed.",
+				"You are publishing a document that mentions people who must stay anonymous.",
+			],
+		},
+		faqs: [
+			{
+				q: "Is the hidden text really gone?",
+				a: "On pages you redact, yes. They are rebuilt from a picture of the page with the boxes painted on, so there is no text underneath. Always open the result and test by selecting text where the boxes are.",
+			},
+			{
+				q: "Why can't I select text on redacted pages?",
+				a: "Those pages become images, which is what makes the redaction permanent. Pages without boxes are not changed.",
+			},
+			{
+				q: "Is my PDF uploaded?",
+				a: "No. Redaction happens in your browser. Nothing is uploaded unless you choose Save to Media.",
+			},
+		],
+		related: ["protect-pdf", "watermark-pdf", "compress-pdf", "split-pdf"],
+		runtime: "browser",
+		isNew: true,
+	},
+	{
+		slug: "ocr-pdf",
+		category: "pdf",
+		name: "Searchable PDF (OCR)",
+		title: "Make a Scanned PDF Searchable — Free OCR PDF",
+		tagline: "Turn scanned pages into a PDF you can search and copy from.",
+		description:
+			"Add a hidden text layer to a scanned PDF with on-device OCR so you can search and select text. Pages look the same, and your file stays in your browser.",
+		icon: "scan-text",
+		keywords: [
+			"searchable pdf",
+			"ocr pdf",
+			"scanned pdf to searchable",
+			"make pdf searchable",
+			"pdf ocr online",
+		],
+		howTo: [
+			{ title: "Add a scanned PDF", text: "Drop a PDF of scanned pages or tap to choose it." },
+			{
+				title: "Run OCR",
+				text: "Pages without text are read by OCR. Pages that already have text are kept as they are.",
+			},
+			{
+				title: "Download",
+				text: "Save the new PDF. It looks identical but you can now search it and copy text from it.",
+			},
+		],
+		about: {
+			what: "OCR reads each scanned page and places the recognised words invisibly on top of the original image, so the page looks the same but can be searched, selected and copied. English text is supported. Accuracy depends on scan quality, so check important passages.",
+			when: [
+				"You scanned a contract or receipt and want to search for a name.",
+				"You need to copy text out of a scanned book chapter.",
+				"An archive of scanned letters needs to be findable by keyword.",
+			],
+		},
+		faqs: [
+			{
+				q: "Does it change how my PDF looks?",
+				a: "No. Each page is kept as it was and the recognised text is added invisibly on top.",
+			},
+			{
+				q: "Can it read other languages?",
+				a: "Searchable PDFs currently support English. To extract Arabic or mixed English and Arabic text, use Extract Text.",
+			},
+			{
+				q: "Is my document uploaded?",
+				a: "No. The OCR engine runs in your browser. Nothing is uploaded unless you choose Save to Media.",
+			},
+		],
+		related: ["extract-text", "compress-pdf", "merge-pdf", "protect-pdf"],
+		runtime: "browser",
+		isNew: true,
+	},
 ];

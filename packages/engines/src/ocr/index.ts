@@ -8,6 +8,7 @@ import {
 	type ProcessingOptions,
 	progress,
 } from "../processing";
+import { flattenWords, type OcrLayout } from "./layout";
 export type OcrLanguage = "eng" | "ara" | "eng+ara";
 export interface ExtractTextOptions extends ProcessingOptions {
 	language?: OcrLanguage;
@@ -42,6 +43,22 @@ export class OcrSession {
 		language: OcrLanguage,
 		options: ProcessingOptions,
 	): Promise<string> {
+		return (await this.run(image, language, options, false)).text;
+	}
+	/** Recognise text and return each word with its box, for building a searchable layer. */
+	recognizeLayout(
+		image: HTMLCanvasElement | Blob,
+		language: OcrLanguage,
+		options: ProcessingOptions,
+	): Promise<OcrLayout> {
+		return this.run(image, language, options, true);
+	}
+	private async run(
+		image: HTMLCanvasElement | Blob,
+		language: OcrLanguage,
+		options: ProcessingOptions,
+		layout: boolean,
+	): Promise<OcrLayout> {
 		checkAbort(options.signal);
 		if (this.executor) {
 			const blob =
@@ -54,7 +71,12 @@ export class OcrSession {
 							),
 						);
 			checkAbort(options.signal);
-			return this.executor.run<string>("ocr", { image: blob, language }, options);
+			const response = await this.executor.run<string | OcrLayout>(
+				"ocr",
+				{ image: blob, language, layout },
+				options,
+			);
+			return typeof response === "string" ? { text: response, words: [] } : response;
 		}
 		this.options = options;
 		if (this.language !== language) this.dispose();
@@ -104,7 +126,11 @@ export class OcrSession {
 				this.creating = null;
 			}
 			checkAbort(options.signal);
-			return (await abortable(this.worker.recognize(image), options.signal)).data.text;
+			const job = layout
+				? this.worker.recognize(image, {}, { text: true, blocks: true })
+				: this.worker.recognize(image);
+			const { data } = await abortable(job, options.signal);
+			return { text: data.text, words: layout ? flattenWords(data.blocks) : [] };
 		} finally {
 			options.signal?.removeEventListener("abort", abort);
 			this.options = {};

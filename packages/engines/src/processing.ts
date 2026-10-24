@@ -14,6 +14,10 @@ export const LIMITS = {
 	ocrBytes: 50 * 1024 ** 2,
 	ocrPages: 50,
 	pdfBytes: 100 * 1024 ** 2,
+	redactPages: 100,
+	redactBoxes: 500,
+	benchmarkBytes: 50 * 1024 ** 2,
+	formatChars: 1_000_000,
 	ffmpegBytes: 128 * 1024 ** 2,
 	hashChunkBytes: 4 * 1024 ** 2,
 } as const;

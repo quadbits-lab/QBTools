@@ -46,8 +46,11 @@ self.onmessage = async ({
 			const request = payload as {
 				image: Blob;
 				language: import("@qbtools/engines/ocr").OcrLanguage;
+				layout?: boolean;
 			};
-			result = await ocr.recognize(request.image, request.language, options);
+			result = request.layout
+				? await ocr.recognizeLayout(request.image, request.language, options)
+				: await ocr.recognize(request.image, request.language, options);
 		} else if (operation.startsWith("gif-")) {
 			const { GifSession } = await import("@qbtools/engines/gif");
 			if (operation === "gif-start") {
@@ -63,6 +66,15 @@ self.onmessage = async ({
 		} else if (operation === "pdf") {
 			const { optimizePdf } = await import("@qbtools/engines/pdf-optimize");
 			result = await optimizePdf(payload as File, options);
+		} else if (operation === "benchmark") {
+			const { benchmarkFile } = await import("@qbtools/engines/compression");
+			result = await benchmarkFile(payload as File, options);
+		} else if (operation === "pdf-protect") {
+			const { protectPdf } = await import("@qbtools/engines/pdf-protect");
+			result = await protectPdf(
+				payload as import("@qbtools/engines/pdf-protect").ProtectRequest,
+				options,
+			);
 		} else if (operation === "graphic-render") {
 			const request = payload as {
 				design: DesignSettings;

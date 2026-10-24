@@ -1,6 +1,6 @@
 # QBTools — Free tools that just work
 
-A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 34 tools across image, PDF, text, calculators, generators, media and security. Files are processed **in the browser**, with optional, explicit uploads to private account storage.
+A fast, no-signup website of everyday tools for students, parents, freelancers and everyone else: 41 tools across image, PDF, text, calculators, generators, media, security and developer utilities. Files are processed **in the browser**, with optional, explicit uploads to private account storage.
 
 **Stack:** Bun 1.4 · TanStack Start (React 19, SSR, server functions) · Vite 8 · Tailwind CSS 4 · SQLite (`bun:sqlite` + Drizzle) · Turborepo · Biome · Docker / Compose.
 

@@ -12,7 +12,7 @@ const index = buildSearchIndex(tools);
 
 describe("registry", () => {
 	test("has 34 tools with unique slugs", () => {
-		expect(tools).toHaveLength(34);
+		expect(tools).toHaveLength(41);
 		expect(new Set(tools.map((t) => t.slug)).size).toBe(tools.length);
 	});
 

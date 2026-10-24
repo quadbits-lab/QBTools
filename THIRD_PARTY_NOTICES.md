@@ -9,6 +9,11 @@ components execute locally; their authors do not receive uploaded document conte
 | jSquash WebP (libwebp)                      | 1.5.0             | [Apache-2.0 wrapper; bundled codec notices](https://github.com/jamsinclair/jSquash/tree/main/packages/webp)                            |
 | jSquash AVIF (libavif/AOM)                  | 2.1.1             | [Apache-2.0 wrapper; bundled codec notices](https://github.com/jamsinclair/jSquash/tree/main/packages/avif)                            |
 | jSquash OxiPNG                              | 2.3.0             | [Apache-2.0 wrapper; bundled codec notices](https://github.com/jamsinclair/jSquash/tree/main/packages/oxipng)                          |
+| zxing-wasm (zxing-cpp, zint)                | 3.1.6             | [MIT wrapper; Apache-2.0 zxing-cpp; BSD-3-Clause zint](https://github.com/Sec-ant/zxing-wasm)                                          |
+| brotli-wasm (Brotli)                        | 3.0.1             | [Apache-2.0](https://github.com/httptoolkit/brotli-wasm)                                                                               |
+| @bokuweb/zstd-wasm (Zstandard)              | 0.0.27            | [MIT wrapper; BSD-3-Clause Zstandard](https://github.com/bokuweb/zstd-wasm)                                                            |
+| Prettier (standalone formatter)             | 3.9.10            | [MIT](https://github.com/prettier/prettier)                                                                                            |
+| sql-formatter                               | 15.9.0            | [MIT](https://github.com/sql-formatter-org/sql-formatter)                                                                              |
 | hash-wasm                                   | 4.12.0            | [MIT](https://github.com/Daninet/hash-wasm)                                                                                            |
 | Mediabunny and MP3/AAC/FLAC extensions      | 1.62.1            | [MPL-2.0 wrappers](https://github.com/Vanilagy/mediabunny); embedded LAME is LGPL, FFmpeg AAC is LGPL, libFLAC has its own notices     |
 | Tesseract.js                                | 7.0.0             | [Apache-2.0](https://github.com/naptha/tesseract.js)                                                                                   |

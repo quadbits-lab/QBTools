@@ -155,9 +155,18 @@ const SECURITY_HEADERS: Record<string, string> = {
 	...(ENABLE_HSTS ? { "Strict-Transport-Security": "max-age=31536000; includeSubDomains" } : {}),
 };
 
-function withSecurityHeaders(response: Response): Response {
+/** Pages that use the camera for an on-device feature; every other page keeps it denied. */
+const CAMERA_PATHS = new Set(["/tools/barcode-scanner"]);
+
+function withSecurityHeaders(response: Response, req?: Request): Response {
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
 		if (!response.headers.has(name)) response.headers.set(name, value);
+	}
+	if (req && CAMERA_PATHS.has(new URL(req.url).pathname)) {
+		const policy = SECURITY_HEADERS["Permissions-Policy"];
+		if (policy) {
+			response.headers.set("Permissions-Policy", policy.replace("camera=()", "camera=(self)"));
+		}
 	}
 	return response;
 }
@@ -579,7 +588,7 @@ async function initializeServer() {
 					) {
 						response.headers.set("Cache-Control", "private, no-store");
 					}
-					return withSecurityHeaders(compressDynamic(req, response));
+					return withSecurityHeaders(compressDynamic(req, response), req);
 				} catch (error) {
 					log.error(`Server handler error: ${String(error)}`);
 					return new Response("Internal Server Error", { status: 500 });

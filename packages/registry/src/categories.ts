@@ -64,6 +64,15 @@ export const categories: Category[] = [
 			"Free client-side encryption and security tools: protect documents with AES-256 passwords, compute SHA-256 hashes, and encrypt private notes.",
 		icon: "shield-check",
 	},
+	{
+		id: "developer",
+		name: "Developer tools",
+		plural: "developer tools",
+		tagline: "Format code and compare compression, offline.",
+		description:
+			"Free developer tools that run in your browser: format and clean up JavaScript, TypeScript, JSON, CSS, HTML, SQL and more, and benchmark gzip, Brotli and Zstandard on your own files.",
+		icon: "braces",
+	},
 ];
 
 export const categoryById = Object.fromEntries(categories.map((c) => [c.id, c])) as Record<
