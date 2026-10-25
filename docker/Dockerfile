@@ -14,9 +14,9 @@ FROM ${BUN_IMAGE} AS deps
 WORKDIR /repo
 COPY package.json bun.lock bunfig.toml ./
 # Copy every workspace manifest (and nothing else) so `bun install` is cached
-# until a dependency changes. `COPY --parents` is still a labs-only Dockerfile
-# feature, so the list is explicit: keep it in sync with the `workspaces` field
-# in package.json (apps/* + packages/*).
+# until a dependency changes. `COPY --parents` needs a newer Dockerfile frontend
+# than the 1.7 pinned above, so the list is explicit: keep it in sync with the
+# `workspaces` field in package.json (apps/* + packages/*).
 COPY apps/web/package.json apps/web/
 COPY packages/ui/package.json packages/ui/
 COPY packages/registry/package.json packages/registry/
