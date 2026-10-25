@@ -19,6 +19,17 @@ async function initialize(key: string, load: () => Promise<void>) {
 		);
 	await ready.get(key);
 }
+/** Structural shape the canvas fast path needs; a real ImageData satisfies it too. */
+type ImageDataLike = {
+	readonly data: ArrayLike<number>;
+	readonly width: number;
+	readonly height: number;
+};
+/** Canvas putImageData requires a real ImageData; accept ImageData-shaped callers too. */
+function asImageData(data: ImageDataLike): ImageData {
+	if (typeof ImageData === "undefined" || data instanceof ImageData) return data as ImageData;
+	return new ImageData(new Uint8ClampedArray(data.data), data.width, data.height);
+}
 /** Called inside the tool-owned worker. Only single-threaded encoders are imported. */
 export async function encodeImage(data: ImageData, options: ImageEncodeOptions): Promise<Blob> {
 	checkAbort(options.signal);
@@ -29,7 +40,7 @@ export async function encodeImage(data: ImageData, options: ImageEncodeOptions):
 			const canvas = new OffscreenCanvas(data.width, data.height);
 			const ctx = canvas.getContext("2d");
 			if (!ctx) throw new Error("Canvas is unavailable.");
-			ctx.putImageData(data, 0, 0);
+			ctx.putImageData(asImageData(data), 0, 0);
 			blob = await canvas.convertToBlob({
 				type: `image/${options.format}`,
 				quality: options.quality ?? 0.9,
@@ -40,7 +51,7 @@ export async function encodeImage(data: ImageData, options: ImageEncodeOptions):
 			canvas.height = data.height;
 			const ctx = canvas.getContext("2d");
 			if (!ctx) throw new Error("Canvas is unavailable.");
-			ctx.putImageData(data, 0, 0);
+			ctx.putImageData(asImageData(data), 0, 0);
 			const { encodeCanvas } = await import("./index");
 			blob = await encodeCanvas(canvas, options.format, options.quality);
 		} else throw new Error("Native image encoding needs canvas support.");
