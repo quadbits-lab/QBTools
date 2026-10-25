@@ -1,0 +1,74 @@
+/**
+ * Loaders & micro-animations.
+ * - Spinner: braille frame cycle, deterministic per-frame helper for tests.
+ * - BootSplash: ascii logo + spinner shown while config resolves.
+ * - DotPulse: gentle character pulse for status indicators.
+ * All intervals are cleaned up on unmount; frame math is pure so tests can
+ * assert without timers.
+ */
+
+import { useEffect, useState } from "react";
+import { CLI_NAME, CLI_VERSION } from "../../version";
+import { accents, theme } from "../theme";
+
+export const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"] as const;
+const SPINNER_INTERVAL_MS = 80;
+
+export function spinnerFrame(tick: number): string {
+	const index = ((tick % SPINNER_FRAMES.length) + SPINNER_FRAMES.length) % SPINNER_FRAMES.length;
+	return SPINNER_FRAMES[index] ?? SPINNER_FRAMES[0];
+}
+
+/** Braille spinner with an optional label. */
+export function Spinner(props: { label?: string; frame?: number }) {
+	const [tick, setTick] = useState(props.frame ?? 0);
+	useEffect(() => {
+		if (props.frame !== undefined) return; // static mode (tests)
+		const timer = setInterval(() => setTick((t) => t + 1), SPINNER_INTERVAL_MS);
+		return () => clearInterval(timer);
+	}, [props.frame]);
+	return (
+		<text>
+			<span fg={accents.indigo}>{spinnerFrame(tick)}</span>
+			{props.label ? <span fg={theme.textDim}> {props.label}</span> : null}
+		</text>
+	);
+}
+
+const PULSE_FRAMES = ["●", "◉", "○", "◉"] as const;
+
+/** Gentle pulse for status dots. */
+export function DotPulse(props: { color?: string; frame?: number }) {
+	const [tick, setTick] = useState(props.frame ?? 0);
+	useEffect(() => {
+		if (props.frame !== undefined) return;
+		const timer = setInterval(() => setTick((t) => t + 1), 700);
+		return () => clearInterval(timer);
+	}, [props.frame]);
+	return (
+		<text>
+			<span fg={props.color ?? accents.emerald}>{PULSE_FRAMES[((tick % PULSE_FRAMES.length) + PULSE_FRAMES.length) % PULSE_FRAMES.length]}</span>
+		</text>
+	);
+}
+
+const BOOT_LINES = [
+	"42 tools · system cleanup · fully local",
+	"tip: press ? for keys, / to search",
+];
+
+/** Boot splash: logo + spinner while config and the update check resolve. */
+export function BootSplash() {
+	const [lineIndex, setLineIndex] = useState(0);
+	useEffect(() => {
+		const timer = setInterval(() => setLineIndex((i) => (i + 1) % BOOT_LINES.length), 900);
+		return () => clearInterval(timer);
+	}, []);
+	return (
+		<box flexDirection="column" flexGrow={1} alignItems="center" justifyContent="center" gap={1}>
+			<ascii-font font="tiny" text={CLI_NAME.toUpperCase()} />
+			<text fg={theme.textSubtle}>{CLI_VERSION}</text>
+			<Spinner label={BOOT_LINES[lineIndex] ?? BOOT_LINES[0]} />
+		</box>
+	);
+}

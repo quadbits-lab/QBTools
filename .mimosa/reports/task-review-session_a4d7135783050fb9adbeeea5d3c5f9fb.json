@@ -1,45 +1,39 @@
 {
   "schema_version": "mimosa-task-review/v2",
-  "run_id": "20261025T063123293Z-94349-38fb399c091b",
-  "run_status": "inconclusive",
-  "errors": [
-    {
-      "stage": "candidate-select",
-      "target": "apps/cli/src/services/media.ts",
-      "reason": "candidate_limit_exceeded: 52 changed reviewable file(s) were not scanned because the limit is 20"
-    }
-  ],
+  "run_id": "20261025T074218749Z-91016-72269658be9c",
+  "run_status": "completed",
+  "errors": [],
   "coverage": {
     "schema_version": "mimosa-hook-coverage/v1",
-    "status": "partial",
+    "status": "complete",
     "scope": "hook_observed_diff",
     "baseline": {
       "complete": true,
-      "captured_files": 428,
+      "captured_files": 443,
       "candidate_limit": 5000,
       "truncated": false,
       "enumeration_error_count": 0,
       "snapshot_error_count": 0,
-      "compensated_target_count": 56
+      "compensated_target_count": 3
     },
     "change_tracking": {
-      "touched_observed": 30,
-      "touched_retained": 30,
+      "touched_observed": 3,
+      "touched_retained": 3,
       "truncated": false,
-      "bash_mutation": true,
-      "bash_discovered": 72,
+      "bash_mutation": false,
+      "bash_discovered": 0,
       "bash_discovery_limit": 80,
       "bash_discovery_truncated": false
     },
     "candidates": {
-      "eligible_files": 72,
-      "selected_files": 20,
+      "eligible_files": 3,
+      "selected_files": 3,
       "limit": 20,
-      "truncated": true
+      "truncated": false
     },
     "scanning": {
-      "required_files": 20,
-      "scanned_files": 20,
+      "required_files": 3,
+      "scanned_files": 3,
       "skipped_files": 0,
       "failed_files": 0,
       "project_checks_required": 0,
@@ -51,388 +45,119 @@
       "detail_limit": 3,
       "truncated": false
     },
-    "reason_counts": {
-      "candidate_limit_exceeded": 1,
-      "project_check_failed": 1
-    },
-    "reasons": [
-      {
-        "code": "candidate_limit_exceeded",
-        "stage": "candidate-select",
-        "target": "apps/cli/src/services/media.ts",
-        "detail": "52 changed reviewable file(s) were not scanned because the limit is 20",
-        "affects_completion": true
-      },
-      {
-        "code": "project_check_failed",
-        "stage": "candidate-select",
-        "target": "apps/cli/src/services/media.ts",
-        "detail": "candidate_limit_exceeded: 52 changed reviewable file(s) were not scanned because the limit is 20",
-        "affects_completion": true
-      }
-    ],
+    "reason_counts": {},
+    "reasons": [],
     "reasons_truncated": false
   },
-  "generated_at": "2026-10-25T06:31:23.293Z",
+  "generated_at": "2026-10-25T07:42:18.749Z",
   "session_id": "session_a4d7135783050fb9adbeeea5d3c5f9fb",
   "target": ".",
-  "revision": "a8eaaf679db119657ac544906736226bf0820dab",
+  "revision": "59621d8b91e70d5a17ad5c92657c53ab8a2de138",
   "rules_version": "unavailable",
-  "diff_hash": "2a177896b2c349e19e9504c20744a67ffe0e11481669f8c310bd11a7d1595c4a",
+  "diff_hash": "867a4c1c0fb5dc70f4668a5fb9cc92c8aec2b060b7703d718202880055d12ed9",
   "diff": {
     "algorithm": "sha256",
-    "changed_file_count": 20,
+    "changed_file_count": 3,
     "changed_files": [
       {
-        "file": "apps/cli/src/headless/cmd/auth.ts",
+        "file": "apps/cli/src/services/config.ts",
         "ranges": [
           {
-            "start": 1,
-            "end": 176
+            "start": 47,
+            "end": 49
           }
         ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "afb8b9e61d426b30d601a9ef3775564e44439fec3a277b7fdce4f5742c166c99"
+        "before_hash": "fbf7b61e60361318f5847b28071cf17992cb8ea06392f29c165c307f973b064e",
+        "after_hash": "363f80da7637e0b8e19b7dc0b348af9ed2cd13257b0b7f52fb5dc9dc09f56863"
       },
       {
-        "file": "apps/cli/src/headless/cmd/run.ts",
+        "file": "apps/cli/src/tui/app.tsx",
         "ranges": [
           {
-            "start": 2,
-            "end": 3
-          },
-          {
-            "start": 6,
-            "end": 6
-          },
-          {
-            "start": 12,
-            "end": 12
+            "start": 11,
+            "end": 11
           },
           {
             "start": 15,
-            "end": 16
+            "end": 15
           },
           {
-            "start": 37,
-            "end": 41
+            "start": 26,
+            "end": 26
+          },
+          {
+            "start": 51,
+            "end": 51
+          },
+          {
+            "start": 53,
+            "end": 55
+          },
+          {
+            "start": 59,
+            "end": 75
+          },
+          {
+            "start": 90,
+            "end": 96
+          },
+          {
+            "start": 113,
+            "end": 113
+          },
+          {
+            "start": 167,
+            "end": 167
+          }
+        ],
+        "before_hash": "2a2e24fb6f5a579d986fe961fda1583c180c31a7c78c1f77fb2764f44d833f56",
+        "after_hash": "241546adbdcfb55a08862b53896c96d169f4e5ca6ed6c94ed6a90cadbf4bbe13"
+      },
+      {
+        "file": "apps/cli/src/tui/components.tsx",
+        "ranges": [
+          {
+            "start": 8,
+            "end": 8
+          },
+          {
+            "start": 25,
+            "end": 30
           },
           {
             "start": 47,
             "end": 47
           },
           {
-            "start": 84,
-            "end": 88
+            "start": 50,
+            "end": 50
           },
           {
-            "start": 91,
-            "end": 91
+            "start": 53,
+            "end": 54
           },
           {
-            "start": 107,
-            "end": 109
+            "start": 213,
+            "end": 214
           },
           {
-            "start": 138,
-            "end": 141
+            "start": 216,
+            "end": 244
           },
           {
-            "start": 145,
-            "end": 146
-          },
-          {
-            "start": 150,
-            "end": 153
-          },
-          {
-            "start": 192,
-            "end": 195
-          },
-          {
-            "start": 204,
-            "end": 206
+            "start": 246,
+            "end": 246
           }
         ],
-        "before_hash": "daa8c907f66b3082e5510c35aa64680d537418974a143665bdf19da4824c7a94",
-        "after_hash": "bfde5944f8178d95613407e560cbee30fbe16a2713e848b9df65057894a0a4b0"
-      },
-      {
-        "file": "apps/cli/src/headless/commands.ts",
-        "ranges": [
-          {
-            "start": 5,
-            "end": 6
-          },
-          {
-            "start": 9,
-            "end": 10
-          },
-          {
-            "start": 14,
-            "end": 14
-          },
-          {
-            "start": 23,
-            "end": 25
-          }
-        ],
-        "before_hash": "496055d831d17c70238221055660977ec3933406c703b4c400b7294acfb86fd8",
-        "after_hash": "121c184ad92d02a74b021d09f21006ae9ed81ab86632d8ba1dd4c3e00fb6cc69"
-      },
-      {
-        "file": "apps/cli/src/runner/execute.test.ts",
-        "ranges": [
-          {
-            "start": 6,
-            "end": 6
-          },
-          {
-            "start": 77,
-            "end": 83
-          },
-          {
-            "start": 99,
-            "end": 102
-          },
-          {
-            "start": 113,
-            "end": 118
-          }
-        ],
-        "before_hash": "fbc20c3478ec3a3ee3f3780d1d30df2ea4faa7b4fdb0a46157de2f0422b237c4",
-        "after_hash": "3cff86e721375e6e8bf871c60ed9ba809d94457e9cd4de8d1c675d9a2bcd7af6"
-      },
-      {
-        "file": "apps/cli/src/runner/execute.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 58
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "8acd64953783bae128e96cc2bd4e9c1fc10013182e463a9ba4e65df15b1fe6ff"
-      },
-      {
-        "file": "apps/cli/src/services/api.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 207
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "7d66c67c64edaeb9f94ccc8fa5d9c0d088e23844c762e6a9ccd4ab72641ca798"
-      },
-      {
-        "file": "apps/cli/src/services/auth-store.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 41
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "7a89c3743b7aba55f8d60448b0dcb02497a6d84f3d9316d41f0b5fe6352a3ff7"
-      },
-      {
-        "file": "apps/cli/src/tui/screens/account.tsx",
-        "ranges": [
-          {
-            "start": 2,
-            "end": 4
-          },
-          {
-            "start": 8,
-            "end": 8
-          },
-          {
-            "start": 10,
-            "end": 10
-          },
-          {
-            "start": 13,
-            "end": 13
-          },
-          {
-            "start": 16,
-            "end": 16
-          },
-          {
-            "start": 19,
-            "end": 25
-          },
-          {
-            "start": 38,
-            "end": 47
-          },
-          {
-            "start": 49,
-            "end": 49
-          }
-        ],
-        "before_hash": "0a19d94b3f715644b7a2b5bd2af7fe5004ad64490dbd36544f6a977c2870f699",
-        "after_hash": "0d48256fa9e918e8be0342ee3871aa252dd6390c6e08f41881e01b193cdd83bd"
-      },
-      {
-        "file": "apps/cli/src/tui/screens/tool.tsx",
-        "ranges": [
-          {
-            "start": 8,
-            "end": 8
-          },
-          {
-            "start": 38,
-            "end": 38
-          },
-          {
-            "start": 48,
-            "end": 48
-          }
-        ],
-        "before_hash": "23a75fdf064717b73c269a81834e40d7a1097a7ffa14e06cecba1d0d3da27e77",
-        "after_hash": "a4a891287547f42e189ed9650b943e043ab0ac1bd0a8f6124f5c6e136e69cd88"
-      },
-      {
-        "file": "apps/cli/src/tui/theme.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 49
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "0cf7ccddc539a82d3acf0a461872419b97cc5e6649034f165de3ac46a1790448"
-      },
-      {
-        "file": "apps/web/src/routes/_account/dashboard/settings.tsx",
-        "ranges": [
-          {
-            "start": 125,
-            "end": 125
-          },
-          {
-            "start": 129,
-            "end": 236
-          }
-        ],
-        "before_hash": "7dc33b602aea1621f92288aa9eefe7f37e19a42b60f66000ea8fed7b12e18d03",
-        "after_hash": "65028b38c85d731292ce1946c91b971364a7e48a81488dd90fc3a6655d7fa1ce"
-      },
-      {
-        "file": "apps/web/src/routes/api/ai/$.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 7
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "25d07f957bd57ec55dc16e09e6bb16911c307c35c923b5f863ec094108e43033"
-      },
-      {
-        "file": "apps/web/src/routes/api/cli/$.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 7
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "8d8c829dbb684246569d84cb169dc060cffcec1d7a1e63f60aea9acd08c8bd3c"
-      },
-      {
-        "file": "apps/web/src/server/ai-api.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 99
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "ed0603ddfa9be8b1582a42d049b0626986179c15fc5fbd747b9968ebf72e7bd7"
-      },
-      {
-        "file": "apps/web/src/server/ai-text.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 139
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "79882637214b4bd2f07864c63f3d3bf8cdcd4054ba0df69d2b43508027ca8ca8"
-      },
-      {
-        "file": "apps/web/src/server/ai.functions.ts",
-        "ranges": [
-          {
-            "start": 2,
-            "end": 3
-          },
-          {
-            "start": 15,
-            "end": 15
-          }
-        ],
-        "before_hash": "7c28cda10880523d6178cc1938f0147a6e7c6aec57ea683041e33b0253d9f01d",
-        "after_hash": "a32c2565cea97a9fdefaace60cab51173d4d0d7f18035383b49a534f43674a5e"
-      },
-      {
-        "file": "apps/web/src/server/auth.ts",
-        "ranges": [
-          {
-            "start": 99,
-            "end": 104
-          },
-          {
-            "start": 106,
-            "end": 108
-          }
-        ],
-        "before_hash": "4f4bf532dd66c262ed22399d3475a90f9817fda5e3913107d8817639938da2ba",
-        "after_hash": "d6b78e89bc99c46650deed7b7089a76dd4855122e32eb0761e37fc5126366bfd"
-      },
-      {
-        "file": "apps/web/src/server/cli-api.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 162
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "aaf070d75cf6da1257e74301a40d0b274185ab01bc812e2f6ee16e4f89a55783"
-      },
-      {
-        "file": "apps/web/src/server/cli-token.ts",
-        "ranges": [
-          {
-            "start": 1,
-            "end": 140
-          }
-        ],
-        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "after_hash": "e282f0880770ff5842fafc16d4ad61d49d1ce6cec49d364320ca08dca81a22d7"
-      },
-      {
-        "file": "packages/db/src/user-migrations.ts",
-        "ranges": [
-          {
-            "start": 51,
-            "end": 59
-          }
-        ],
-        "before_hash": "d01d733f48ca3bb259264afb2550d12153b8f57e2c4129168fa421c469642e42",
-        "after_hash": "93fb76ecb55d82cb6cd815dcb995e22d78453e525562ab94c325173114d8d084"
+        "before_hash": "7d7c15761abbe619cac673becc1213c24525ae87a167fd6d012d9602b0997c0f",
+        "after_hash": "4a923c1fa470be3f726de3f1a26c6909f93c2410a2a7b77e785ec9ed8a45b2a9"
       }
     ]
   },
   "timing": {
-    "started_at": "2026-10-25T06:31:22.423Z",
-    "completed_at": "2026-10-25T06:31:23.293Z",
-    "duration_ms": 870,
+    "started_at": "2026-10-25T07:42:17.958Z",
+    "completed_at": "2026-10-25T07:42:18.749Z",
+    "duration_ms": 791,
     "measurement": "hook_wall_clock"
   },
   "tokens": {
@@ -446,11 +171,11 @@
     "schemaVersion": "mimosa-gate-telemetry/v1",
     "profile": "gate",
     "operation": "Stop",
-    "outcome": "partial/INCONCLUSIVE",
-    "latencyMs": 870,
-    "peakMemoryBytes": 227524608,
+    "outcome": "complete",
+    "latencyMs": 791,
+    "peakMemoryBytes": 216154112,
     "memoryMeasurement": "max-observed-process-rss",
-    "scannedFiles": 20,
+    "scannedFiles": 3,
     "cache": {
       "hits": 0,
       "misses": 0,
@@ -472,581 +197,11 @@
     "static_fix_verification": "observed_static_only",
     "runtime_verification": "not_performed"
   },
-  "finding_events": [
-    {
-      "finding_id": "mimosa-0192359b8729e1021168674b",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 130,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:15:17.192Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "0f70a58ae059e7e12eef17325d22422d449e37722ae2f4c56b56f588252cb30e",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-9d275c1502804bb502aee448",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 86,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:15:30.604Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "a771356372b621b73bf928ce4dd56ee5dedfd53462f075f2404f0d928de6091e",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-4f0b9d4e875fb8a6ecf51496",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 91,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:15:30.604Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "dfaf70b7125e1b6dff530fc2080d494cfcb19665898f322d0019c56c6e56c580",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-0192359b8729e1021168674b",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 130,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "fixed_candidate",
-      "decision": "repair_observed",
-      "at": "2026-10-25T05:15:43.179Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "0f70a58ae059e7e12eef17325d22422d449e37722ae2f4c56b56f588252cb30e",
-        "candidate_before_evidence_hash": "0f70a58ae059e7e12eef17325d22422d449e37722ae2f4c56b56f588252cb30e",
-        "post_change_evidence_hash_at_previous_location": "f0ecd92329cca8aae9362cb511bacf2e413b7ce4a6773efa3eb442ac94632279",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-0192359b8729e1021168674b",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 130,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "static_verified",
-      "decision": "static_rescan_passed",
-      "at": "2026-10-25T05:15:43.179Z",
-      "evidence": {
-        "kind": "static_scan",
-        "boundary": "observed",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "0f70a58ae059e7e12eef17325d22422d449e37722ae2f4c56b56f588252cb30e",
-        "candidate_before_evidence_hash": "0f70a58ae059e7e12eef17325d22422d449e37722ae2f4c56b56f588252cb30e",
-        "post_change_evidence_hash_at_previous_location": "f0ecd92329cca8aae9362cb511bacf2e413b7ce4a6773efa3eb442ac94632279",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-9d275c1502804bb502aee448",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 86,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "fixed_candidate",
-      "decision": "repair_observed",
-      "at": "2026-10-25T05:15:43.179Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "a771356372b621b73bf928ce4dd56ee5dedfd53462f075f2404f0d928de6091e",
-        "candidate_before_evidence_hash": "a771356372b621b73bf928ce4dd56ee5dedfd53462f075f2404f0d928de6091e",
-        "post_change_evidence_hash_at_previous_location": "7397e375abc88b72b08f449ea502725a6e945d8d8d51f9600de3111deec10657",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-9d275c1502804bb502aee448",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 86,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "static_verified",
-      "decision": "static_rescan_passed",
-      "at": "2026-10-25T05:15:43.179Z",
-      "evidence": {
-        "kind": "static_scan",
-        "boundary": "observed",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "a771356372b621b73bf928ce4dd56ee5dedfd53462f075f2404f0d928de6091e",
-        "candidate_before_evidence_hash": "a771356372b621b73bf928ce4dd56ee5dedfd53462f075f2404f0d928de6091e",
-        "post_change_evidence_hash_at_previous_location": "7397e375abc88b72b08f449ea502725a6e945d8d8d51f9600de3111deec10657",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-4f0b9d4e875fb8a6ecf51496",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 91,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "fixed_candidate",
-      "decision": "repair_observed",
-      "at": "2026-10-25T05:15:43.179Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "dfaf70b7125e1b6dff530fc2080d494cfcb19665898f322d0019c56c6e56c580",
-        "candidate_before_evidence_hash": "dfaf70b7125e1b6dff530fc2080d494cfcb19665898f322d0019c56c6e56c580",
-        "post_change_evidence_hash_at_previous_location": "91cea91e81d6f2a6bd0b9df3ff9933fe3cab53e0a20f823f48c9435a92de59fa",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-4f0b9d4e875fb8a6ecf51496",
-      "file": "apps/web/src/server/cli-api.ts",
-      "line": 91,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SQL 注入",
-      "status": "static_verified",
-      "decision": "static_rescan_passed",
-      "at": "2026-10-25T05:15:43.179Z",
-      "evidence": {
-        "kind": "static_scan",
-        "boundary": "observed",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "dfaf70b7125e1b6dff530fc2080d494cfcb19665898f322d0019c56c6e56c580",
-        "candidate_before_evidence_hash": "dfaf70b7125e1b6dff530fc2080d494cfcb19665898f322d0019c56c6e56c580",
-        "post_change_evidence_hash_at_previous_location": "91cea91e81d6f2a6bd0b9df3ff9933fe3cab53e0a20f823f48c9435a92de59fa",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 205,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:16:02.169Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 177,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:16:19.440Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 203,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:16:31.055Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 204,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:16:44.411Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 35,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:16:57.592Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 219,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:17:17.107Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 29,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:17:25.380Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 29,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "fixed_candidate",
-      "decision": "repair_observed",
-      "at": "2026-10-25T05:17:44.180Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "candidate_before_evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "post_change_evidence_hash_at_previous_location": "ded65bd6169c4c674a9dc4924fdb1549639933e188769f2bbf886d8a8dfb73a3",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-f714a47043220f892268c258",
-      "file": "apps/cli/src/services/api.ts",
-      "line": 29,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "static_verified",
-      "decision": "static_rescan_passed",
-      "at": "2026-10-25T05:17:44.180Z",
-      "evidence": {
-        "kind": "static_scan",
-        "boundary": "observed",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "candidate_before_evidence_hash": "cfc055eec17375e830f4af945e84bb2862a5cf04b1a581ed4238d11a597730ab",
-        "post_change_evidence_hash_at_previous_location": "ded65bd6169c4c674a9dc4924fdb1549639933e188769f2bbf886d8a8dfb73a3",
-        "runtime_oracle": false,
-        "verification": {
-          "method": "mimosa-posttool-static-rescan",
-          "finding_absent": true,
-          "runtime_oracle": false
-        }
-      }
-    },
-    {
-      "finding_id": "mimosa-644ff987a48ea4daf51e021f",
-      "file": "apps/cli/scripts/auth-e2e.ts",
-      "line": 12,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "硬编码凭据",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:19:53.852Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "bd6ae0dc9a1a6d39bfaf64360748bed9080d689af1ce272ad97e1baaad126c3b",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-6404add7d80b07b1719d19bf",
-      "file": "apps/cli/scripts/auth-e2e.ts",
-      "line": 27,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SSRF 服务端请求伪造",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:19:53.852Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "777ec9366c89241bd10c04a5167b3f5ab066f192adabbc590889e0b06d8e26b8",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-06fc3d46b01495dc6da95fd5",
-      "file": "apps/cli/scripts/auth-e2e.ts",
-      "line": 42,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:19:53.852Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "b301cb277b44bdd9b291fdef64b3ae2177855abe231bdc9ce6f3666eeadb0245",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-aa1b0b51900fc072168958c7",
-      "file": "apps/cli/scripts/auth-e2e.ts",
-      "line": 46,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SSRF 服务端请求伪造",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:19:53.852Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "664ebd50ab02d1fe841d1b2d5c18b992c7656eb557b34e2209c598d5b4881f6d",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-e3b35da776779ea15e4610a3",
-      "file": "apps/cli/scripts/auth-e2e.ts",
-      "line": 63,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SSRF 服务端请求伪造",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:19:53.852Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "d466755fa985888f0f203951660970fd256941a818fe5988b4e1934e821b1d81",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-dd23897dbafe807407a853d4",
-      "file": "apps/cli/scripts/auth-e2e.ts",
-      "line": 76,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "SSRF 服务端请求伪造",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:19:53.852Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "970857f3808baab0b2fbf802b4a9486ffab787513dceebbc769d95e1f6e41276",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-8005b77035afe72af69e9170",
-      "file": "packages/engines/src/media/ffmpeg.ts",
-      "line": 216,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:27:48.037Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "8a50f0538f4cca2a57d1399ed2f564f43c829cddaa888ede93141b0b70a41416",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-e1c731c1b6067d25aa705e6d",
-      "file": "packages/engines/src/media/ffmpeg.ts",
-      "line": 227,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:27:48.037Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "fbd1bc6056e03c366266a28e517511c19cba6177a9a94023a9421b9ec4cf0c18",
-        "runtime_oracle": false
-      }
-    },
-    {
-      "finding_id": "mimosa-e1c731c1b6067d25aa705e6d",
-      "file": "packages/engines/src/media/ffmpeg.ts",
-      "line": 259,
-      "rule_id": "security",
-      "severity": "high",
-      "category": "命令注入",
-      "status": "blocked",
-      "decision": "deny",
-      "at": "2026-10-25T05:27:48.037Z",
-      "evidence": {
-        "kind": "source",
-        "boundary": "candidate",
-        "producer": "deterministic",
-        "source": "semgrep",
-        "evidence_hash": "fbd1bc6056e03c366266a28e517511c19cba6177a9a94023a9421b9ec4cf0c18",
-        "runtime_oracle": false
-      }
-    }
-  ],
+  "finding_events": [],
   "findings": [],
   "artifacts": {
-    "immutable_report": ".mimosa/reports/task-review-session_a4d7135783050fb9adbeeea5d3c5f9fb-20261025T063123293Z-94349-38fb399c091b.json",
+    "immutable_report": ".mimosa/reports/task-review-session_a4d7135783050fb9adbeeea5d3c5f9fb-20261025T074218749Z-91016-72269658be9c.json",
     "latest_report": ".mimosa/reports/task-review-session_a4d7135783050fb9adbeeea5d3c5f9fb.json",
-    "history_summary": ".mimosa/history/run-20261025T063123293Z-94349-38fb399c091b.json"
+    "history_summary": ".mimosa/history/run-20261025T074218749Z-91016-72269658be9c.json"
   }
 }

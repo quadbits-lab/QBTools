@@ -4,7 +4,7 @@
 
 import { parseArgs } from "./args";
 import { type CommandIO, consoleIO, EXIT_ERROR } from "./command";
-import { findCommand } from "./commands";
+import { COMMANDS, findCommand } from "./commands";
 
 export async function runHeadless(
 	argv: readonly string[],
@@ -19,8 +19,14 @@ export async function runHeadless(
 	}
 	const command = findCommand(name);
 	if (!command) {
+		const { nearestNames } = await import("../services/file-suggest");
+		const suggestions = nearestNames(
+			name,
+			COMMANDS.map((candidate) => candidate.name),
+		);
 		io.err(`Unknown command: ${name}`);
-		io.err("Run `qbtools help` to see available commands.");
+		if (suggestions.length) io.err(`Did you mean: ${suggestions.join(", ")}?`);
+		else io.err("Run `qbtools help` to see available commands.");
 		return EXIT_ERROR;
 	}
 	try {

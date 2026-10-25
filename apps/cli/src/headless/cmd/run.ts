@@ -3,6 +3,7 @@
  * stdin/stdout piping. Rendering helpers live here so the TUI reuses them.
  */
 
+import { tools } from "@qbtools/registry";
 import { CancelledError, runTool } from "../../runner/execute";
 import { readInputFiles } from "../../runner/files";
 import {
@@ -12,6 +13,7 @@ import {
 	UnavailableError,
 } from "../../runner/types";
 import { activeProfile, loadConfig, recordRecent } from "../../services/config";
+import { nearestNames } from "../../services/file-suggest";
 import { getBool, getString, type ParsedArgs } from "../args";
 import { type Command, type CommandIO, EXIT_ERROR, EXIT_OK, EXIT_UNAVAILABLE } from "../command";
 
@@ -34,7 +36,7 @@ function concat(chunks: Uint8Array[]): Uint8Array {
 }
 
 /** Build runner values from parsed flags: scalars pass through, --in resolves files. */
-async function valuesFromArgs(
+export async function valuesFromArgs(
 	runner: ToolRunner,
 	args: ParsedArgs,
 	stdin: string,
@@ -156,13 +158,23 @@ export async function executeRunner(
 			return { code: EXIT_UNAVAILABLE };
 		}
 		const message = error instanceof Error ? error.message : String(error);
-		io.err(`${slug} failed: ${message}`);
+		io.err(withToolSuggestions(slug, message));
 		return { code: EXIT_ERROR };
 	} finally {
 		if (process.stderr.isTTY) process.stderr.write("\r\x1b[K");
 	}
 }
 
+/** Append "did you mean" hints when a slug looks like a typo of a real one. */
+function withToolSuggestions(slug: string, message: string): string {
+	if (!message.startsWith("Unknown tool:")) return `${slug} failed: ${message}`;
+	const suggestions = nearestNames(slug, TOOL_SLUGS);
+	return suggestions.length
+		? `Unknown tool: ${slug} — did you mean: ${suggestions.join(", ")}?`
+		: `${message} Run \`qbtools list\` to see every tool.`;
+}
+
+const TOOL_SLUGS = tools.map((tool) => tool.slug);
 export const runCommand: Command = {
 	name: "run",
 	summary: "Run a tool headless: qbtools run <slug> [flags]",

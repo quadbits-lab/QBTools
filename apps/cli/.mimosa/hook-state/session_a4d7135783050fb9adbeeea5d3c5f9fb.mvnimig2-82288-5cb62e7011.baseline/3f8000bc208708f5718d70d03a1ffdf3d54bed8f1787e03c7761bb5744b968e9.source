@@ -1,0 +1,139 @@
+/**
+ * Dashboard: popular tools, recents and favorites from local config.
+ * Fully local — no account required. Rows reveal staggered on mount.
+ */
+
+import type { SelectOption } from "@opentui/core";
+import { getTool, popularTools } from "@qbtools/registry";
+import { useEffect, useState } from "react";
+import { AVAILABILITY_LABELS, availabilityFor } from "../../runner/map";
+import { loadConfig } from "../../services/config";
+import { Spinner } from "../components/loaders";
+import { accents, theme } from "../theme";
+
+export interface ToolPick {
+	slug: string;
+	name: string;
+}
+
+const REVEAL_STEP_MS = 40;
+const totalPopular = popularTools(8).length;
+
+export function DashboardScreen(props: {
+	width: number;
+	onOpenTool(slug: string): void;
+	/** Skip the staggered reveal (tests, slow terminals). */
+	instant?: boolean;
+}) {
+	const [recents, setRecents] = useState<string[] | null>(null);
+	const [favorites, setFavorites] = useState<string[]>([]);
+	const [revealed, setRevealed] = useState(props.instant ? totalPopular : 0);
+
+	useEffect(() => {
+		void loadConfig().then((config) => {
+			setRecents(config.recents);
+			setFavorites(config.favorites);
+		});
+	}, []);
+
+	// Staggered reveal of the popular-tools list.
+	const totalReveal = popularTools(8).length;
+	useEffect(() => {
+		if (props.instant || revealed >= totalReveal) {
+			if (revealed < totalReveal) setRevealed(totalReveal);
+			return;
+		}
+		const timer = setTimeout(() => setRevealed((count) => count + 1), REVEAL_STEP_MS);
+		return () => clearTimeout(timer);
+	}, [revealed, totalReveal, props.instant]);
+
+	const popular = popularTools(8)
+		.slice(0, revealed)
+		.map((tool) => ({ slug: tool.slug, name: tool.name }));
+	const recentTools = (recents ?? [])
+		.map((slug) => ({ slug, name: getTool(slug)?.name ?? slug }))
+		.filter((entry) => getTool(entry.slug));
+	const favoriteTools = favorites
+		.map((slug) => ({ slug, name: getTool(slug)?.name ?? slug }))
+		.filter((entry) => getTool(entry.slug));
+
+	return (
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
+			<text>
+				<span fg={theme.fg}>
+					<strong>Popular tools</strong>
+				</span>
+				<span fg={theme.textSubtle}> — Enter opens · / searches · everything runs locally</span>
+			</text>
+			{revealed < totalReveal ? (
+				<Spinner label="Loading tools…" frame={revealed * 2} />
+			) : (
+				<ToolList
+					tools={popular.map((tool) => ({ ...tool, note: "popular" }))}
+					onOpenTool={props.onOpenTool}
+					focused
+				/>
+			)}
+			{favoriteTools.length ? (
+				<box flexDirection="column" gap={1}>
+					<text fg={theme.fg}>
+						<strong>Favorites</strong>
+					</text>
+					<text fg={theme.textDim}>{favoriteTools.map((tool) => tool.name).join(" · ")}</text>
+				</box>
+			) : null}
+			{recentTools.length ? (
+				<box flexDirection="column" gap={1}>
+					<text fg={theme.fg}>
+						<strong>Recent</strong>
+					</text>
+					<text fg={theme.textDim}>{recentTools.map((tool) => tool.name).join(" · ")}</text>
+				</box>
+			) : null}
+			<text fg={theme.textSubtle}>
+				<span fg={accents.emerald}>local</span>
+				<span> tools run offline · </span>
+				<span fg={accents.amber}>+sharp/+ffmpeg</span>
+				<span> use optional native deps · </span>
+				<span fg={accents.rose}>web</span>
+				<span> tools open in the browser</span>
+			</text>
+		</box>
+	);
+}
+
+function ToolList(props: {
+	tools: Array<ToolPick & { note: string }>;
+	onOpenTool(slug: string): void;
+	focused: boolean;
+}) {
+	return (
+		<select
+			focused={props.focused}
+			options={props.tools.map((tool) => ({
+				name: tool.name,
+				description: "",
+				value: tool.slug,
+			}))}
+			onChange={() => {}}
+			onSelect={(_index: number, option: SelectOption | null) =>
+				props.onOpenTool(String(option?.value ?? ""))
+			}
+			height={Math.min(props.tools.length, 10)}
+			selectedBackgroundColor={theme.muted}
+			selectedTextColor={theme.fg}
+		/>
+	);
+}
+
+export function slugLabel(slug: string): string {
+	const tool = getTool(slug);
+	return `${tool?.name ?? slug} · ${AVAILABILITY_LABELS[availabilityFor(slug)]}`;
+}

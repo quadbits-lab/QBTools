@@ -263,10 +263,10 @@ Open [http://localhost:8310](http://localhost:8310) in your browser. Live HMR is
 ## ⌨️ Terminal CLI
 
 The same 42 tools run in your terminal via **`qbtools`** (`apps/cli`, built with
-OpenTUI on Bun): an interactive TUI with fuzzy search and schema-driven forms, a
-scriptable headless mode (`run`, `--json`, stdin/stdout piping, deterministic
-exit codes), a **system cleanup utility** for macOS/Linux/Windows, and optional
-server sync via CLI API keys.
+Ink on Bun): an interactive console (fuzzy tool browser, schema-driven forms,
+event log, system cleanup) with a scriptable headless mode (`run`, `--json`,
+stdin/stdout piping, deterministic exit codes), a **system cleanup utility** for
+macOS/Linux/Windows, and optional server sync via CLI API keys.
 
 ```bash
 bun run cli                       # interactive UI (from the repo)

@@ -6,9 +6,21 @@
 import { buildSearchIndex, categories, getTool, toolHref, tools } from "@qbtools/registry";
 import { AVAILABILITY_HINTS, AVAILABILITY_LABELS, availabilityFor } from "../../runner/map";
 import { loadConfig, serverUrl } from "../../services/config";
+import { nearestNames } from "../../services/file-suggest";
 import { getString } from "../args";
 import { type Command, EXIT_ERROR, EXIT_OK } from "../command";
 import { formatTable } from "./run";
+
+/** Shared "unknown slug" message with did-you-mean hints. */
+export function unknownSlugMessage(slug: string): string {
+	const hints = nearestNames(
+		slug,
+		tools.map((tool) => tool.slug),
+	);
+	return hints.length
+		? `Unknown tool: ${slug} — did you mean: ${hints.join(", ")}?`
+		: `Unknown tool: ${slug}`;
+}
 
 export const searchCommand: Command = {
 	name: "search",
@@ -58,7 +70,7 @@ export const infoCommand: Command = {
 		}
 		const tool = getTool(slug);
 		if (!tool) {
-			io.err(`Unknown tool: ${slug}`);
+			io.err(unknownSlugMessage(slug));
 			return EXIT_ERROR;
 		}
 		const availability = availabilityFor(slug);

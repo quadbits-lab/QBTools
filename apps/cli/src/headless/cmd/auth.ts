@@ -34,6 +34,11 @@ export const loginCommand: Command = {
 		const base = serverUrl(config);
 
 		if (!apiKey) {
+			io.out("Optional — everything works offline. An account only unlocks:");
+			io.out(
+				"  · favorites/recents sync · AI helpers (grammar, paraphrase) · media storage upload/download",
+			);
+			io.out("");
 			io.out(`1. Open ${base}/dashboard/settings and find the "CLI API keys" card.`);
 			io.out("2. Create a key and copy it (the value is shown only once).");
 			io.out("3. Run: qbtools login --api-key qbk_…");

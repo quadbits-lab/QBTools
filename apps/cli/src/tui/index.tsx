@@ -1,21 +1,18 @@
 /**
  * Interactive TUI entry. Loaded lazily from bin.tsx so headless mode never
- * touches OpenTUI. Owns the renderer lifecycle — never call process.exit()
- * directly; renderer.destroy() restores the terminal.
+ * touches Ink. The renderer owns the process lifetime — never call
+ * process.exit() from here.
  */
 
-import { createCliRenderer } from "@opentui/core";
-import { createRoot } from "@opentui/react";
+import { render } from "ink";
 import { App } from "./app";
 
 export async function runTui(): Promise<void> {
-	const renderer = await createCliRenderer({ exitOnCtrlC: false, useMouse: true });
-	createRoot(renderer).render(<App />);
-
-	// Ctrl+C quits only when nothing is registered to cancel; a running tool
-	// handles its own cancellation first (keys.ts dispatch order).
-	process.on("SIGINT", () => {
-		void renderer.destroy();
+	const instance = render(<App />, {
+		// Ctrl+C is handled by the app: it cancels a running tool first and
+		// only quits when nothing is running.
+		exitOnCtrlC: false,
+		patchConsole: true,
 	});
-	await new Promise<void>(() => {});
+	await instance.waitUntilExit();
 }

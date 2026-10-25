@@ -1,0 +1,90 @@
+import { afterEach, describe, expect, test } from "bun:test";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { expandTilde, splitPrefix, suggestFiles } from "./file-suggest";
+
+const created: string[] = [];
+
+async function fixture(): Promise<string> {
+	const dir = await mkdtemp(join(tmpdir(), "qbtools-suggest-test-"));
+	created.push(dir);
+	await mkdir(join(dir, "src"), { recursive: true });
+	await mkdir(join(dir, "uploads"), { recursive: true });
+	await writeFile(join(dir, "notes.txt"), "x");
+	await writeFile(join(dir, "uploads.bin"), "y");
+	await writeFile(join(dir, ".hidden"), "z");
+	return dir;
+}
+
+afterEach(async () => {
+	for (const dir of created.splice(0)) {
+		await rm(dir, { recursive: true, force: true });
+	}
+});
+describe("splitPrefix", () => {
+	test("empty prefix → cwd, empty base", () => {
+		expect(splitPrefix("")).toEqual({ dir: ".", base: "" });
+	});
+	test("trailing slash → directory itself", () => {
+		expect(splitPrefix("/tmp/")).toEqual({ dir: "/tmp", base: "" });
+	});	test("plain fragment → cwd", () => {
+		expect(splitPrefix("notes")).toEqual({ dir: ".", base: "notes" });
+	});
+	test("nested fragment", () => {
+		expect(splitPrefix("src/comp")).toEqual({ dir: "src", base: "comp" });
+	});
+	test("tilde expansion", () => {
+		const expanded = expandTilde("~/Documents");
+		expect(expanded).not.toContain("~");
+		expect(expanded).toContain("Documents");
+	});
+});
+
+describe("suggestFiles", () => {
+	test("lists directory contents for a bare prefix", async () => {
+		const dir = await fixture();
+		const results = await suggestFiles(dir + "/");
+		const labels = results.map((entry) => entry.label);
+		expect(labels).toContain("notes.txt");
+		expect(labels).toContain("src/");
+		expect(labels).not.toContain(".hidden");
+	});
+
+	test("fuzzy-filters by basename", async () => {
+		const dir = await fixture();
+		const results = await suggestFiles(join(dir, "no"));
+		expect(results.map((entry) => entry.label)).toEqual(["notes.txt"]);
+	});
+
+	test("subsequence matching works", async () => {
+		const dir = await fixture();
+		const results = await suggestFiles(join(dir, "uads"));
+		expect(results.map((entry) => entry.label)).toContain("uploads.bin");
+	});
+
+	test("directories sort before files", async () => {
+		const dir = await fixture();
+		const results = await suggestFiles(join(dir, "up"));
+		expect(results[0]?.isDirectory).toBeTrue();
+		expect(results[0]?.label).toBe("uploads/");
+	});
+
+	test("limit caps results", async () => {
+		const dir = await fixture();
+		const results = await suggestFiles(dir + "/", { limit: 2 });
+		expect(results.length).toBe(2);
+	});
+
+	test("missing directory returns empty (never throws)", async () => {
+		const results = await suggestFiles("/definitely/not/here/x");
+		expect(results).toEqual([]);
+	});
+
+	test("suggestion paths are absolute and joinable", async () => {
+		const dir = await fixture();
+		const results = await suggestFiles(dir + "/");
+		for (const entry of results) {
+			expect(entry.path.startsWith(dir)).toBeTrue();
+		}
+	});
+});

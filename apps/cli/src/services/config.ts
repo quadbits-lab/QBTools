@@ -44,7 +44,9 @@ export function configFilePath(): string {
 function defaultConfig(): CliConfig {
 	return {
 		version: 1,
-		onboarded: false,
+		// Local-first: everything works offline; the flag only records that the
+		// user has seen the app (kept for config compatibility).
+		onboarded: true,
 		activeProfile: DEFAULT_PROFILE,
 		profiles: {
 			[DEFAULT_PROFILE]: {

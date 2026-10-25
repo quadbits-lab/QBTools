@@ -6,27 +6,33 @@ Hands-on walkthroughs. All commands assume `qbtools` is installed (or use
 ## 1. Install & first run
 
 1. Install Bun 1.4+, then `npm i -g qbtools`.
-2. Run `qbtools` with no arguments. The first-run wizard asks for:
-   - **Server URL** — where your QBTools web app runs (`http://localhost:8310`
-     for local dev). Used for sign-in and web-tool deep links.
-   - **Output directory** — where file-producing tools save results
-     (`./qbtools-output` by default).
-3. You land on the dashboard. Press `/`, type "qr", Enter — you're in the QR tool.
+2. Run `qbtools` with no arguments — the console opens straight away. The
+   header shows the wordmark, the version and the tool count. No setup
+   required. Everything works offline immediately.
+3. Type "qr" in the prompt — the board collapses to the QR card — then Enter:
+   the tool opens in the inspector on the right.
+4. If you want to set the server URL or output dir, type "/settings" and
+   Enter — both optional.
 
-Everything except the AI helpers and server sync works offline.
+The AI helpers and server media storage are the only features that need an
+account (tutorial 3).
 
-## 2. TUI tour — three quick wins
+## 2. Console tour — three quick wins
 
-1. **BMI** — Calculators → BMI Calculator → type weight/height → Tab to
-   **Run** → Enter. Result shows your BMI, category and healthy range.
-2. **QR code** — Generators → QR Code Generator → pick "URL", type a URL,
-   run. The PNG is saved to your output dir and shown in the result panel.
-3. **Word counter** — Text → Word Counter → paste an essay (or pipe it, see
-   tutorial 4). Reading time and top keywords included.
+1. **BMI** — type "bmi" in the prompt, Enter → the form opens in the inspector
+   → type weight/height → Ctrl+R. The result lands in the event log at the
+   bottom: your BMI, category and healthy range.
+2. **QR code** — type "qr" → the "QR Code Generator" card → Enter → choose
+   "URL", type a URL, Ctrl+R. The PNG is saved to your output dir and logged.
+3. **Merge PDF with autocomplete** — type "merge" → Enter → in the first file
+   field type the start of a path (say `~/Doc`) — live suggestions list
+   matching files; ↓ to pick, Enter to accept. Repeat for the second file and
+   run with Ctrl+R.
 
-Press `?` anywhere for the key reference; `Esc` goes back.
+Shortcuts: Tab cycles the fields, Ctrl+F returns to the prompt, Ctrl+K clears
+it, Ctrl+L clears the log, `/help` prints the key reference.
 
-## 3. Authenticate with an API key
+## 3. Connect an account (optional)
 
 1. Open your QBTools web app → **Dashboard → Settings → CLI API keys**.
 2. **Create new key**, copy the `qbk_…` value (shown once).
@@ -36,7 +42,16 @@ Press `?` anywhere for the key reference; `Esc` goes back.
 4. `qbtools whoami` confirms; `qbtools logout` forgets it (revoke in the
    dashboard to kill it server-side).
 
-Signed in, the AI tools (grammar checker, paraphraser) work in the CLI too.
+Signed in, three more things unlock: the AI tools (grammar checker,
+paraphraser), favorites sync, and **media storage**:
+
+```bash
+qbtools media list                     # what's stored on the server
+qbtools media put poster.pdf           # copy a file up
+qbtools media get <asset-id> --out .   # copy a file down
+```
+
+Everything else keeps working offline either way.
 
 ## 4. Scripting & CI
 
@@ -108,5 +123,5 @@ qbtools cleanup clean --yes --commands   # also brew cleanup / apt-get clean
 
 Only allowlisted, well-known locations are ever touched. Every deletion is
 written to `~/.config/qbtools/cleanup-logs/<timestamp>.json`. In the TUI
-(**System cleanup** in the sidebar), Space toggles categories and a
+(type "cleanup" in the palette), Space toggles categories and a
 two-step confirm (Enter, then Y) stands between you and deletion.

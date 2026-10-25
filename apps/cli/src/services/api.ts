@@ -37,7 +37,11 @@ interface ApiOptions {
 	body?: unknown;
 }
 
-/** Every endpoint is a literal constant — no dynamic path building anywhere. */
+/**
+ * Every endpoint is a literal constant — no dynamic path building anywhere.
+ * Endpoint params are typed to the constants; media ids ride in the request
+ * body or via mediaRequest's purpose-built helpers.
+ */
 const ENDPOINTS = {
 	whoami: "/api/cli/whoami",
 	keys: "/api/cli/keys",
@@ -45,12 +49,11 @@ const ENDPOINTS = {
 	recents: "/api/cli/recents",
 	aiGrammar: "/api/ai/grammar",
 	aiParaphrase: "/api/ai/paraphrase",
+	mediaList: "/api/media/list",
+	mediaUploads: "/api/media/uploads",
 } as const;
 
-export async function request(
-	endpoint: (typeof ENDPOINTS)[keyof typeof ENDPOINTS],
-	options: ApiOptions = {},
-): Promise<Response> {
+export async function request(endpoint: string, options: ApiOptions = {}): Promise<Response> {
 	const config = await loadConfig();
 	const base = assertHttpUrl(serverUrl(config));
 	// `endpoint` is always a literal constant from ENDPOINTS; the base is the
@@ -176,6 +179,123 @@ export function putRecents(slugs: string[]) {
 		method: "PUT",
 		body: { slugs },
 	});
+}
+
+/* ---------- media storage (auth required) ---------- */
+
+const MEDIA = {
+	list: "/api/media/list",
+	uploads: "/api/media/uploads",
+} as const;
+
+export interface MediaAssetRow {
+	id: string;
+	name: string;
+	mime: string;
+	bytes: number;
+	source_tool?: string | null;
+	created_at: string;
+}
+
+export interface MediaListResponse {
+	assets: MediaAssetRow[];
+	more: boolean;
+}
+
+export function mediaList(
+	options: { search?: string; kind?: string; page?: number } = {},
+): Promise<MediaListResponse> {
+	const params = new URLSearchParams();
+	if (options.search) params.set("search", options.search);
+	if (options.kind) params.set("kind", options.kind);
+	if (options.page) params.set("page", String(options.page));
+	const query = params.toString();
+	return apiFetch<MediaListResponse>(query ? `${MEDIA.list}?${query}` : MEDIA.list);
+}
+
+async function mediaRequest(
+	path: string,
+	options: { method?: string; body?: BodyInit; contentType?: string },
+): Promise<Response> {
+	const config = await loadConfig();
+	const base = assertHttpUrl(serverUrl(config));
+	const url = new URL(path, base);
+	const auth = await loadAuth();
+	const headers: Record<string, string> = {};
+	if (options.contentType) headers["Content-Type"] = options.contentType;
+	if (auth?.kind === "token") {
+		headers.Authorization = ["Bearer", auth.token].join(" ");
+	} else if (auth) {
+		headers.Origin = url.origin;
+		headers.Cookie = ["better-auth.session_token", encodeURIComponent(auth.token)].join("=");
+	}
+	return fetch(url, { method: options.method ?? "GET", headers, body: options.body });
+}
+
+/** Download a stored asset's content into a Uint8Array. */
+export async function mediaGetContent(id: string): Promise<Uint8Array> {
+	const response = await mediaRequest(`/api/media/${id}/content`, {});
+	if (!response.ok) throw await errorFromMedia(response);
+	return new Uint8Array(await response.arrayBuffer());
+}
+
+function errorFromMedia(response: Response): Promise<ApiError> {
+	return response
+		.json()
+		.then((payload) => {
+			const info = payload as { error?: string; message?: string };
+			return new ApiError(
+				response.status,
+				[info.message, info.error].find(Boolean) ?? "Media request failed.",
+			);
+		})
+		.catch(() => new ApiError(response.status, "Media request failed."));
+}
+
+/** Full upload flow: reserve → PUT content → complete. Returns the asset id. */
+export async function mediaPut(
+	file: { name: string; bytes: Uint8Array },
+	options: { sourceTool?: string } = {},
+): Promise<{ id: string; name: string }> {
+	const mime = guessMime(file.name);
+	const reserve = await apiFetch<{ id: string }>(MEDIA.uploads, {
+		method: "POST",
+		body: {
+			requestKey: crypto.randomUUID(),
+			name: file.name.slice(0, 200),
+			bytes: file.bytes.byteLength,
+			mime,
+			sourceTool: options.sourceTool,
+		},
+	});
+	const put = await mediaRequest(`/api/media/${reserve.id}/content`, {
+		method: "PUT",
+		body: new Uint8Array(file.bytes),
+		contentType: mime,
+	});
+	if (!put.ok) throw await errorFromMedia(put);
+	return apiFetch<{ id: string; name: string }>(`/api/media/uploads/${reserve.id}/complete`, {
+		method: "POST",
+	});
+}
+
+function guessMime(name: string): string {
+	const ext = name.slice(name.lastIndexOf(".") + 1).toLowerCase();
+	const table: Record<string, string> = {
+		png: "image/png",
+		jpg: "image/jpeg",
+		jpeg: "image/jpeg",
+		webp: "image/webp",
+		gif: "image/gif",
+		pdf: "application/pdf",
+		mp4: "video/mp4",
+		mp3: "audio/mpeg",
+		txt: "text/plain",
+		md: "text/markdown",
+		json: "application/json",
+		zip: "application/zip",
+	};
+	return table[ext] ?? "application/octet-stream";
 }
 
 export interface AiGrammarResult {

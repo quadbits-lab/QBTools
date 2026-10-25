@@ -7,22 +7,46 @@
 
 import { type ProcessingProgress, UnavailableError } from "../runner/types";
 
-type SharpModule = typeof import("sharp");
-type SharpFactory = SharpModule & { default?: SharpModule };
+/**
+ * Structural sharp factory type — sharp's own exported types differ across
+ * versions (callable module vs namespace with default), so we only rely on
+ * the surface we use.
+ */
+export interface SharpInstance {
+	resize(options: {
+		width?: number;
+		height?: number;
+		fit?: "cover" | "contain" | "inside" | "fill";
+		withoutEnlargement?: boolean;
+	}): SharpInstance;
+	flatten(options: { background: string }): SharpInstance;
+	toFormat(
+		format: "jpeg" | "png" | "webp" | "avif",
+		options?: { quality?: number; effort?: number },
+	): SharpInstance;
+	toBuffer(options: { resolveWithObject: true }): Promise<{
+		data: Buffer;
+		info: { width: number; height: number };
+	}>;
+}
 
-let cached: SharpModule | null | undefined;
+type SharpFactory = (input: Uint8Array) => SharpInstance;
 
-export async function getSharp(): Promise<SharpModule> {
+let cached: SharpFactory | null | undefined;
+
+export async function getSharp(): Promise<SharpFactory> {
 	if (cached !== undefined) {
 		if (!cached) throw unavailable();
 		return cached;
 	}
 	try {
-		const mod = (await import("sharp")) as unknown as SharpFactory;
+		const mod = (await import("sharp")) as unknown as {
+			default?: unknown;
+		} & Record<string, unknown>;
 		// Bun's CJS interop may place the factory behind `.default`.
-		const maybeDefault = (mod as { default?: SharpModule }).default;
-		const factory = typeof maybeDefault === "function" ? maybeDefault : (mod as SharpModule);
-		if (typeof factory !== "function") throw unavailable();
+		const candidate = typeof mod.default === "function" ? mod.default : mod;
+		if (typeof candidate !== "function") throw unavailable();
+		const factory = candidate as unknown as SharpFactory;
 		cached = factory;
 		return factory;
 	} catch {

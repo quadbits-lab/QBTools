@@ -1,0 +1,121 @@
+/**
+ * File-path auto-suggestion for tool form file fields.
+ * Pure directory reads — no shell. `suggestFiles` splits a prefix into
+ * dir + partial basename, lists the directory, fuzzy-filters the basename,
+ * and sorts directories first. Deterministic and unit-tested.
+ */
+
+import { readdir } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
+
+export interface FileSuggestion {
+	/** Full path to insert into the field when accepted. */
+	path: string;
+	/** Display label, e.g. "notes.txt" or "src/". */
+	label: string;
+	isDirectory: boolean;
+}
+
+/** Expand a leading `~` or `~/` to the user's home directory. */
+export function expandTilde(prefix: string): string {
+	if (prefix === "~") return homedir();
+	if (prefix.startsWith("~/")) return join(homedir(), prefix.slice(2));
+	return prefix;
+}
+
+/** Split a path prefix into (directory to list, partial basename). */
+export function splitPrefix(prefix: string): { dir: string; base: string } {
+	const expanded = expandTilde(prefix);
+	if (expanded === "" || expanded.endsWith("/")) {
+		const dir = expanded === "/" ? "/" : expanded.replace(/\/+$/, "");
+		return { dir: dir || ".", base: "" };
+	}
+	const cut = expanded.lastIndexOf("/");
+	if (cut < 0) return { dir: ".", base: expanded };
+	return { dir: expanded.slice(0, cut) || "/", base: expanded.slice(cut + 1) };
+}
+
+function fuzzyScore(name: string, query: string): number | null {
+	if (!query) return 0;
+	const lower = name.toLowerCase();
+	const q = query.toLowerCase();
+	if (lower === q) return 0;
+	if (lower.startsWith(q)) return 1;
+	const at = lower.indexOf(q);
+	if (at >= 0) return 2 + at / 100;
+	// subsequence match (e.g. "ubt" → "uploads.bin")
+	let cursor = 0;
+	for (const char of q) {
+		cursor = lower.indexOf(char, cursor);
+		if (cursor < 0) return null;
+		cursor += 1;
+	}
+	return 50;
+}
+
+export interface SuggestOptions {
+	limit?: number;
+}
+
+/**
+ * Suggest completions for a typed path prefix. Directories come first
+ * (suffixed "/" in labels) so paths can be drilled into. Never throws.
+ */
+export async function suggestFiles(
+	rawPrefix: string,
+	options: SuggestOptions = {},
+): Promise<FileSuggestion[]> {
+	const limit = Math.max(1, options.limit ?? 6);
+	const { dir, base } = splitPrefix(rawPrefix);
+	const entries = await readdir(dir, { withFileTypes: true }).catch(() => null);
+	if (!entries) return [];
+	const scored: Array<{ suggestion: FileSuggestion; score: number }> = [];
+	for (const entry of entries) {
+		if (entry.name.startsWith(".")) continue; // keep noise down
+		const score = fuzzyScore(entry.name, base);
+		if (score === null) continue;
+		const isDirectory = entry.isDirectory();
+		scored.push({
+			score: isDirectory ? score - 0.5 : score, // dirs float up
+			suggestion: {
+				path: join(dir, entry.name),
+				label: isDirectory ? `${entry.name}/` : entry.name,
+				isDirectory,
+			},
+		});
+	}
+	scored.sort((a, b) => a.score - b.score || a.suggestion.label.localeCompare(b.suggestion.label));
+	return scored.slice(0, limit).map((item) => item.suggestion);
+}
+
+/**
+ * Nearest real names for a mistyped word (Levenshtein over lowercase).
+ * Used for "did you mean" hints on unknown commands and tool slugs.
+ */
+export function nearestNames(input: string, candidates: readonly string[], limit = 3): string[] {
+	const word = input.toLowerCase();
+	const scored = candidates
+		.map((candidate) => ({ candidate, distance: levenshtein(word, candidate.toLowerCase()) }))
+		.filter((entry) => entry.distance <= Math.max(2, Math.floor(word.length / 3)))
+		.sort((a, b) => a.distance - b.distance || a.candidate.localeCompare(b.candidate));
+	return scored.slice(0, limit).map((entry) => entry.candidate);
+}
+
+function levenshtein(a: string, b: string): number {
+	const row = new Array<number>(b.length + 1);
+	for (let j = 0; j <= b.length; j++) row[j] = j;
+	for (let i = 1; i <= a.length; i++) {
+		let diagonal = row[0] ?? 0;
+		row[0] = i;
+		for (let j = 1; j <= b.length; j++) {
+			const deletion = (row[j] ?? 0) + 1;
+			const insertion = (row[j - 1] ?? 0) + 1;
+			const substitution = diagonal + (a[i - 1] === b[j - 1] ? 0 : 1);
+			const previous = row[j] ?? 0;
+			row[j] = Math.min(deletion, insertion, substitution);
+			diagonal = previous;
+		}
+	}
+	return row[b.length] ?? 0;
+}

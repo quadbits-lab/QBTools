@@ -1,0 +1,121 @@
+/**
+ * `qbtools media list|get|put` — your QBTools server media storage.
+ * Requires the optional API key (exit 2 with a hint when signed out).
+ */
+
+import { formatBytes, readInputFiles } from "../../runner/files";
+import { ApiError, mediaGetContent, mediaList, mediaPut } from "../../services/api";
+import { loadAuth } from "../../services/auth-store";
+import { activeProfile, loadConfig } from "../../services/config";
+import { getBool, getString } from "../args";
+import { type Command, EXIT_ERROR, EXIT_OK, EXIT_UNAVAILABLE } from "../command";
+
+/** Guard: media needs the server + a stored credential. */
+async function requireAuth(): Promise<string | null> {
+	const auth = await loadAuth();
+	if (auth) return null;
+	return "Media storage needs a signed-in server. Create a key in the dashboard (Settings → CLI API keys), then: qbtools login --api-key qbk_…";
+}
+
+function handleApiError(io: { err(line?: string): void }, error: unknown): number {
+	if (error instanceof ApiError && error.status === 401) {
+		io.err("Not signed in (or the key was revoked). Run: qbtools login --api-key qbk_…");
+		return EXIT_UNAVAILABLE;
+	}
+	io.err(`media failed: ${error instanceof Error ? error.message : String(error)}`);
+	return EXIT_ERROR;
+}
+
+export const mediaCommand: Command = {
+	name: "media",
+	summary: "List, download or upload files in your server media storage",
+	flags: [
+		{ name: "search", arg: "value", description: "list: filter by file name" },
+		{ name: "kind", arg: "value", description: "list: image|video|audio|document" },
+		{ name: "page", arg: "value", description: "list: page number (40 per page)" },
+		{ name: "out", arg: "value", description: "get: output directory (default: output dir)" },
+		{ name: "name", arg: "value", description: "put: stored file name (default: file name)" },
+		{ name: "json", description: "list: print as JSON" },
+	],
+	async run({ args, io }) {
+		const authError = await requireAuth();
+		if (authError) {
+			io.err(authError);
+			return EXIT_UNAVAILABLE;
+		}
+		const action = args.positional[0] ?? "list";
+
+		if (action === "list") {
+			try {
+				const page = Math.max(0, Number(getString(args, "page") ?? 0) || 0);
+				const response = await mediaList({
+					search: getString(args, "search"),
+					kind: getString(args, "kind"),
+					page,
+				});
+				if (getBool(args, "json")) {
+					io.out(JSON.stringify(response, null, "\t"));
+					return EXIT_OK;
+				}
+				if (!response.assets.length) {
+					io.out("No stored files match.");
+					return EXIT_OK;
+				}
+				for (const asset of response.assets) {
+					const when = new Date(asset.created_at).toISOString().slice(0, 10);
+					io.out(
+						`${asset.id.slice(0, 8)}  ${asset.name.padEnd(40).slice(0, 40)}  ${formatBytes(
+							Number(asset.bytes),
+						).padStart(10)}  ${when}`,
+					);
+				}
+				if (response.more) io.out("(more pages: --page N)");
+				return EXIT_OK;
+			} catch (error) {
+				return handleApiError(io, error);
+			}
+		}
+
+		if (action === "get") {
+			const id = args.positional[1];
+			if (!id) {
+				io.err("Usage: qbtools media get <asset-id> [--out dir]");
+				return EXIT_ERROR;
+			}
+			try {
+				const bytes = await mediaGetContent(id);
+				const config = await loadConfig();
+				const outDir = getString(args, "out") ?? activeProfile(config).outputDir;
+				const { pickOutputPath } = await import("../../runner/files");
+				const path = await pickOutputPath(outDir, `media-${id.slice(0, 8)}.bin`);
+				await Bun.write(path, bytes);
+				io.out(`Saved ${formatBytes(bytes.byteLength)} → ${path}`);
+				return EXIT_OK;
+			} catch (error) {
+				return handleApiError(io, error);
+			}
+		}
+
+		if (action === "put") {
+			const inputPath = args.positional[1];
+			if (!inputPath) {
+				io.err("Usage: qbtools media put <file> [--name stored-name]");
+				return EXIT_ERROR;
+			}
+			try {
+				const [input] = await readInputFiles([inputPath]);
+				if (!input) throw new Error("Input file could not be read.");
+				const name = getString(args, "name") ?? input.file.name;
+				const bytes = new Uint8Array(await input.file.arrayBuffer());
+				const result = await mediaPut({ name, bytes });
+				io.out(`Uploaded as ${result.name} (${result.id.slice(0, 8)}…).`);
+				return EXIT_OK;
+			} catch (error) {
+				return handleApiError(io, error);
+			}
+		}
+
+		io.err("Usage: qbtools media <list|get|put> […]");
+		return EXIT_ERROR;
+	},
+};

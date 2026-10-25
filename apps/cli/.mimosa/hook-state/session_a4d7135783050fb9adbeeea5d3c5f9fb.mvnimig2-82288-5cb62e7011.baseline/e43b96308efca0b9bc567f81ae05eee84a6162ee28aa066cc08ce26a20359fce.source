@@ -1,0 +1,444 @@
+/**
+ * Media runners on native ffmpeg: video compress/trim, audio extraction,
+ * GIF, audio trim, and thumbnails. Uses the media service (child_process
+ * with shell:false, allowlisted binaries). ffmpeg missing → exit code 2
+ * with an install hint.
+ */
+
+import { grabFrame, isFfmpegMissing, MediaPath, probeMedia, runFfmpeg } from "../../services/media";
+import { formatBytes, pickOutputPath, statFile, stemOf } from "../files";
+import {
+	filePaths,
+	num,
+	type RunnerValues,
+	str,
+	type ToolRunner,
+	UnavailableError,
+} from "../types";
+
+const AUDIO_EXT = /\.(wav|mp3|m4a|aac|flac|ogg|opus|aiff?|wma)$/i;
+
+async function mediaInput(
+	values: RunnerValues,
+	label: string,
+	isAudio = false,
+): Promise<MediaPath> {
+	const path = filePaths(values, "in")[0];
+	if (!path) throw new Error(`Provide a file via --in <${isAudio ? "audio" : "video"} file>.`);
+	const ext = /\.(mp4|m4v|webm|mkv|avi|mpg|mpeg|ts|wav|mp3|m4a|aac|flac|ogg|opus|aiff?|wma|mov)$/i;
+	if (!ext.test(path)) throw new Error(`Unsupported file type for ${label}.`);
+	if (isAudio && !AUDIO_EXT.test(path))
+		throw new Error("That file isn't a supported audio format.");
+	return MediaPath.create(path, label);
+}
+
+function toUnavailable(error: unknown): never {
+	throw new UnavailableError("ffmpeg", error instanceof Error ? error.message : String(error));
+}
+
+async function guard<T>(run: () => Promise<T>): Promise<T> {
+	try {
+		return await run();
+	} catch (error) {
+		if (isFfmpegMissing(error)) toUnavailable(error);
+		throw error;
+	}
+}
+
+const PRESET_ARGS = [
+	{ id: "high", crf: "22", preset: "slow" },
+	{ id: "balanced", crf: "26", preset: "medium" },
+	{ id: "small", crf: "30", preset: "fast" },
+	{ id: "tiny", crf: "34", preset: "veryfast" },
+] as const;
+
+const SCALE_ARGS = [
+	{ id: "original" },
+	{ id: "1080", height: "1080" },
+	{ id: "720", height: "720" },
+	{ id: "480", height: "480" },
+	{ id: "360", height: "360" },
+] as const;
+
+export const videoCompressor: ToolRunner = {
+	slug: "video-compressor",
+	availability: "ffmpeg",
+	fields: [
+		{
+			name: "in",
+			label: "Video file",
+			kind: "file",
+			required: true,
+			accept: [".mp4", ".mov", ".m4v", ".webm", ".mkv", ".avi", ".ts", ".mpg"],
+		},
+		{
+			name: "preset",
+			label: "Quality preset",
+			kind: "select",
+			default: "balanced",
+			options: PRESET_ARGS.map((preset) => ({ label: preset.id, value: preset.id })),
+		},
+		{
+			name: "resolution",
+			label: "Max height",
+			kind: "select",
+			default: "original",
+			options: SCALE_ARGS.map((scale) => ({ label: scale.id, value: scale.id })),
+		},
+		{
+			name: "format",
+			label: "Container",
+			kind: "select",
+			default: "mp4",
+			options: [
+				{ label: "MP4 (H.264)", value: "mp4" },
+				{ label: "WebM (VP9)", value: "webm" },
+			],
+		},
+		{ name: "removeAudio", label: "Remove audio track", kind: "boolean", default: false },
+	],
+	async run({ values, outDir, outPath, onProgress, signal }) {
+		const input = await mediaInput(values, "video");
+		const format = str(values, "format", "mp4") === "webm" ? "webm" : "mp4";
+		const preset =
+			PRESET_ARGS.find((entry) => entry.id === str(values, "preset", "balanced")) ?? PRESET_ARGS[1];
+		const scale =
+			SCALE_ARGS.find((entry) => entry.id === str(values, "resolution", "original")) ??
+			SCALE_ARGS[0];
+		return guard(async () => {
+			const info = await probeMedia(input);
+			const base = stemOf(input.arg.split("/").pop() ?? "video");
+			const suggested = `${base}-compressed.${format}`;
+			const output = await pickOutputPath(outDir, suggested);
+			const args: Array<string | MediaPath> = ["-i", input];
+			if (format === "mp4") {
+				args.push("-c:v", "libx264", "-preset", preset.preset, "-crf", preset.crf);
+			} else {
+				args.push("-c:v", "libvpx-vp9", "-crf", preset.crf, "-row-mt", "1", "-deadline", "good");
+			}
+			if (scale.id !== "original") {
+				args.push("-vf", `scale=-2:${scale.height ?? "1080"}`);
+			}
+			if (values.removeAudio === true || values.removeAudio === "true") {
+				args.push("-an");
+			} else if (format === "mp4") {
+				args.push("-c:a", "aac", "-b:a", "128k");
+			} else {
+				args.push("-c:a", "libopus", "-b:a", "128k");
+			}
+			args.push("-movflags", "+faststart");
+			args.push(output, "-progress", "pipe:1");
+			await runFfmpeg(args, {
+				signal,
+				onProgress,
+				durationSeconds: info.durationSeconds,
+				label: "Compressing…",
+			});
+			const bytes = await statFile(output);
+			return {
+				summary: `${formatBytes(bytes)} · ${info.width ?? "?"}×${info.height ?? "?"} → ${output}`,
+				outputs: [],
+				data: { path: output, originalBytes: await statFile(input.arg), bytes },
+			};
+		});
+	},
+};
+
+function clampTrim(values: Record<string, unknown>): { start?: number; end?: number } {
+	const start = num(values, "start", 0);
+	const end = num(values, "end", 0);
+	const result: { start?: number; end?: number } = {};
+	if (start > 0) result.start = start;
+	if (end > 0 && end > start) result.end = end;
+	return result;
+}
+
+export const videoTrimmer: ToolRunner = {
+	slug: "video-trimmer",
+	availability: "ffmpeg",
+	fields: [
+		{
+			name: "in",
+			label: "Video file",
+			kind: "file",
+			required: true,
+			accept: [".mp4", ".mov", ".m4v", ".webm", ".mkv", ".avi", ".ts", ".mpg"],
+		},
+		{ name: "start", label: "Start (seconds)", kind: "number", default: 0, min: 0 },
+		{ name: "end", label: "End (seconds, empty = until the end)", kind: "number" },
+	],
+	async run({ values, outDir, outPath, onProgress, signal }) {
+		const input = await mediaInput(values, "video");
+		const trim = clampTrim(values);
+		if (!trim.start && !trim.end) throw new Error("Set a start or end time to trim.");
+		return guard(async () => {
+			const info = await probeMedia(input);
+			const spanEnd = trim.end ?? info.durationSeconds;
+			const duration = Math.max(0.1, spanEnd - (trim.start ?? 0));
+			const base = stemOf(input.arg.split("/").pop() ?? "video");
+			const output = await pickOutputPath(outDir, `${base}-trimmed.mp4`);
+			const args: Array<string | MediaPath> = [];
+			if (trim.start) args.push("-ss", String(trim.start));
+			args.push(
+				"-i",
+				input,
+				"-t",
+				String(duration),
+				"-c:v",
+				"libx264",
+				"-preset",
+				"medium",
+				"-crf",
+				"24",
+				"-c:a",
+				"aac",
+				"-b:a",
+				"128k",
+			);
+			args.push(output, "-progress", "pipe:1");
+			await runFfmpeg(args, { signal, onProgress, durationSeconds: duration, label: "Trimming…" });
+			const bytes = await statFile(output);
+			return {
+				summary: `${duration.toFixed(1)}s clip (${formatBytes(bytes)}) → ${output}`,
+				outputs: [],
+				data: { path: output, bytes, duration },
+			};
+		});
+	},
+};
+
+export const videoToAudio: ToolRunner = {
+	slug: "video-to-audio",
+	availability: "ffmpeg",
+	fields: [
+		{
+			name: "in",
+			label: "Video file",
+			kind: "file",
+			required: true,
+			accept: [".mp4", ".mov", ".m4v", ".webm", ".mkv", ".avi", ".ts", ".mpg"],
+		},
+		{
+			name: "format",
+			label: "Audio format",
+			kind: "select",
+			default: "m4a",
+			options: [
+				{ label: "M4A (AAC)", value: "m4a" },
+				{ label: "MP3", value: "mp3" },
+				{ label: "WAV", value: "wav" },
+			],
+		},
+	],
+	async run({ values, outDir, outPath, onProgress, signal }) {
+		const input = await mediaInput(values, "video");
+		const format = str(values, "format", "m4a");
+		if (!["m4a", "mp3", "wav"].includes(format)) throw new Error("Unsupported audio format.");
+		return guard(async () => {
+			const info = await probeMedia(input);
+			const base = stemOf(input.arg.split("/").pop() ?? "video");
+			const output = await pickOutputPath(outDir, `${base}.${format}`);
+			const codecArgs =
+				format === "m4a"
+					? ["-c:a", "aac", "-b:a", "192k"]
+					: format === "mp3"
+						? ["-c:a", "libmp3lame", "-b:a", "192k"]
+						: ["-c:a", "pcm_s16le"];
+			const args: Array<string | MediaPath> = [
+				"-i",
+				input,
+				"-vn",
+				...codecArgs,
+				output,
+				"-progress",
+				"pipe:1",
+			];
+			await runFfmpeg(args, {
+				signal,
+				onProgress,
+				durationSeconds: info.durationSeconds,
+				label: "Extracting audio…",
+			});
+			const bytes = await statFile(output);
+			return {
+				summary: `${format.toUpperCase()} (${formatBytes(bytes)}) → ${output}`,
+				outputs: [],
+				data: { path: output, bytes },
+			};
+		});
+	},
+};
+
+export const videoToGif: ToolRunner = {
+	slug: "video-to-gif",
+	availability: "ffmpeg",
+	fields: [
+		{
+			name: "in",
+			label: "Video file",
+			kind: "file",
+			required: true,
+			accept: [".mp4", ".mov", ".m4v", ".webm", ".mkv", ".avi", ".ts", ".mpg"],
+		},
+		{ name: "start", label: "Start (seconds)", kind: "number", default: 0, min: 0 },
+		{ name: "duration", label: "Length (seconds)", kind: "number", default: 5, min: 0.5, max: 60 },
+		{ name: "width", label: "Width (px)", kind: "number", default: 480, min: 64, max: 1920 },
+		{ name: "fps", label: "Frame rate", kind: "number", default: 12, min: 5, max: 30 },
+	],
+	async run({ values, outDir, outPath, onProgress, signal }) {
+		const input = await mediaInput(values, "video");
+		const start = num(values, "start", 0);
+		const duration = num(values, "duration", 5);
+		const width = Math.round(num(values, "width", 480));
+		const fps = Math.round(num(values, "fps", 12));
+		return guard(async () => {
+			const base = stemOf(input.arg.split("/").pop() ?? "video");
+			const output = await pickOutputPath(outDir, `${base}.gif`);
+			const args: Array<string | MediaPath> = [];
+			if (start > 0) args.push("-ss", String(start));
+			args.push(
+				"-i",
+				input,
+				"-t",
+				String(duration),
+				"-vf",
+				`fps=${fps},scale=${width}:-1:flags=lanczos`,
+				"-loop",
+				"0",
+				output,
+				"-progress",
+				"pipe:1",
+			);
+			await runFfmpeg(args, {
+				signal,
+				onProgress,
+				durationSeconds: duration,
+				label: "Converting to GIF…",
+			});
+			const bytes = await statFile(output);
+			return {
+				summary: `GIF ${width}px @${fps}fps (${formatBytes(bytes)}) → ${output}`,
+				outputs: [],
+				data: { path: output, bytes },
+			};
+		});
+	},
+};
+
+export const audioTrimmer: ToolRunner = {
+	slug: "audio-trimmer",
+	availability: "ffmpeg",
+	fields: [
+		{
+			name: "in",
+			label: "Audio file",
+			kind: "file",
+			required: true,
+			accept: [".wav", ".mp3", ".m4a", ".aac", ".flac", ".ogg", ".opus", ".aiff", ".aif"],
+		},
+		{ name: "start", label: "Start (seconds)", kind: "number", default: 0, min: 0 },
+		{ name: "end", label: "End (seconds, empty = until the end)", kind: "number" },
+	],
+	async run({ values, outDir, outPath, onProgress, signal }) {
+		const input = await mediaInput(values, "audio", true);
+		const trim = clampTrim(values);
+		if (!trim.start && !trim.end) throw new Error("Set a start or end time to trim.");
+		return guard(async () => {
+			const info = await probeMedia(input);
+			const spanEnd = trim.end ?? info.durationSeconds;
+			const duration = Math.max(0.1, spanEnd - (trim.start ?? 0));
+			const base = stemOf(input.arg.split("/").pop() ?? "audio");
+			const output = await pickOutputPath(outDir, `${base}-trimmed.mp3`);
+			const args: Array<string | MediaPath> = [];
+			if (trim.start) args.push("-ss", String(trim.start));
+			args.push(
+				"-i",
+				input,
+				"-t",
+				String(duration),
+				"-c:a",
+				"libmp3lame",
+				"-b:a",
+				"192k",
+				output,
+				"-progress",
+				"pipe:1",
+			);
+			await runFfmpeg(args, {
+				signal,
+				onProgress,
+				durationSeconds: duration,
+				label: "Trimming audio…",
+			});
+			const bytes = await statFile(output);
+			return {
+				summary: `${duration.toFixed(1)}s MP3 (${formatBytes(bytes)}) → ${output}`,
+				outputs: [],
+				data: { path: output, bytes, duration },
+			};
+		});
+	},
+};
+
+export const thumbnailMaker: ToolRunner = {
+	slug: "thumbnail-maker",
+	availability: "ffmpeg",
+	fields: [
+		{
+			name: "in",
+			label: "Video file",
+			kind: "file",
+			required: true,
+			accept: [".mp4", ".mov", ".m4v", ".webm", ".mkv", ".avi", ".ts", ".mpg"],
+		},
+		{ name: "at", label: "Timestamp (seconds, empty = 25% in)", kind: "number" },
+		{ name: "width", label: "Width (px, empty = native)", kind: "number" },
+	],
+	async run({ values, outDir, outPath, onProgress, signal }) {
+		const input = await mediaInput(values, "video");
+		return guard(async () => {
+			const info = await probeMedia(input);
+			const at = num(values, "at", 0) || info.durationSeconds * 0.25;
+			const width = Math.round(num(values, "width", 0));
+			onProgress?.({ stage: "processing", fraction: null, label: "Grabbing frame…" });
+			const base = stemOf(input.arg.split("/").pop() ?? "video");
+			if (width > 0) {
+				const output = await pickOutputPath(outDir, `${base}-thumb-${width}.png`);
+				await runFfmpeg(
+					["-ss", String(at), "-i", input, "-frames:v", "1", "-vf", `scale=${width}:-2`, output],
+					{ signal },
+				);
+				const scaledBytes = await statFile(output);
+				return {
+					summary: `${width}px frame @ ${at.toFixed(1)}s (${formatBytes(scaledBytes)}) → ${output}`,
+					outputs: [],
+					data: { path: output, bytes: scaledBytes, at },
+				};
+			}
+			const frame = await grabFrame(input, at);
+			const output = await pickOutputPath(outDir, `${base}-thumb.png`);
+			await Bun.write(output, frame);
+			return {
+				summary: `${info.width ?? "?"}×${info.height ?? "?"} frame @ ${at.toFixed(1)}s (${formatBytes(frame.byteLength)}) → ${output}`,
+				outputs: [
+					{
+						type: "image",
+						bytes: frame,
+						mimeType: "image/png",
+						suggestedName: `${base}-thumb.png`,
+					},
+				],
+				data: { path: output, bytes: frame.byteLength, at },
+			};
+		});
+	},
+};
+
+export const mediaRunners: ToolRunner[] = [
+	videoCompressor,
+	videoTrimmer,
+	videoToAudio,
+	videoToGif,
+	audioTrimmer,
+	thumbnailMaker,
+];

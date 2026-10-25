@@ -1,10 +1,10 @@
 {
 	"name": "@qbtools/cli",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"private": true,
 	"type": "module",
 	"module": "src/bin.tsx",
-	"description": "QBTools in your terminal — 42 developer & productivity tools, system cleanup, and scripting-friendly output. Built with OpenTUI.",
+	"description": "QBTools in your terminal — 42 developer & productivity tools, system cleanup, and scripting-friendly output. Built with Ink.",
 	"bin": {
 		"qbtools": "./dist/bin.js"
 	},
@@ -40,15 +40,13 @@
 		"@jsquash/oxipng": "^2.3.0",
 		"@jsquash/webp": "^1.5.0",
 		"@neslinesli93/qpdf-wasm": "^0.3.0",
-		"@opentui/core": "^0.6.8",
-		"@opentui/keymap": "^0.6.8",
-		"@opentui/react": "^0.6.8",
 		"@resvg/resvg-wasm": "^2.6.2",
 		"@visioncortex/vtracer": "^1.0.0-alpha.4",
 		"brotli-wasm": "^3.0.1",
 		"client-zip": "^2.5.0",
 		"dompurify": "^3.4.17",
 		"hash-wasm": "^4.12.0",
+		"ink": "^6.8.0",
 		"mediabunny": "^1.62.1",
 		"opentype.js": "^2.0.0",
 		"pdf-lib": "^1.17.1",
@@ -59,15 +57,16 @@
 		"zxing-wasm": "^3.1.6"
 	},
 	"optionalDependencies": {
-		"sharp": "^0.34.5"
+		"sharp": "^0.35.5"
 	},
 	"devDependencies": {
 		"@qbtools/engines": "workspace:*",
 		"@qbtools/registry": "workspace:*",
 		"@types/bun": "^1.4.4",
-		"@types/qrcode": "^1.5.5",
 		"@types/react": "^19.2.8",
-		"typescript": "^5.9.3"
+		"@types/react-dom": "^19.2.8",
+		"ink-testing-library": "^4.0.0",
+		"typescript": "^7.0.2"
 	},
 	"engines": {
 		"bun": ">=1.4.0"

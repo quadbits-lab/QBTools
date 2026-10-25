@@ -2,22 +2,39 @@
 
 The complete catalog of what `qbtools` does.
 
-## Interactive TUI
+**Local-first:** every tool runs on your machine and no account is required.
+Connecting a server is optional — it only unlocks favorites/recents sync, the
+AI text helpers, and server media storage.
 
-Launch with `qbtools` (no arguments) in a terminal.
+## Interactive console
 
-- **Dashboard** — popular tools, your favorites and recent runs.
-- **Fuzzy search** — press `/` anywhere; matches names, slugs and keywords with
-  typo tolerance (the same index the website uses).
+Launch with `qbtools` (no arguments) in a terminal. `qbtools ui`, `qbtools tui`
+and `qbtools ink` open the same console.
+
+- **Fixed frame** — a hero header (ASCII wordmark, title, description,
+  version), a command bar, the tool browser beside the inspector, an event log
+  and a status bar. The panels keep their size while the content scrolls.
+- **Card board** — the catalogue is grouped into eight category blocks, each a
+  header (`.img (8) ────`) over a grid of tool cards (name + slug), 2–4 per row
+  depending on width. The selected card takes its category's accent border.
+- **Prompt filter** — the prompt filters the board with the shared fuzzy index;
+  `cat:slug` narrows to a category (`.img`, `.pdf`, `.txt`, `.calc`, `.gen`,
+  `.media`, `.sec`, `.dev`). Matching blocks stay, empty ones disappear.
+- **Sticky inspector strip** — a fixed-height panel under the board with three
+  zones: identity (name, `cat:slug`, tagline, availability chip) │ CLI
+  invocation │ flags and synopsis. Opening a tool turns it into its form, with
+  the fields laid out in 2–4 columns.
+- **Direct commands** — a fully typed command runs immediately:
+  `compress-image a.png --quality 80`, reusing the headless flag parser.
 - **Schema-driven forms** — every tool renders its own typed fields (text,
-  number, select, toggle, file paths). Tab between fields, Enter or Ctrl+R to run.
-- **Live progress** — long jobs stream progress with percentage and stage labels;
-  Ctrl+C cancels the job without killing the app.
-- **Result panel** — tables, formatted code, image bytes, and output file paths.
-  Everything a run produces is saved under your output directory.
-- **First-run wizard** — pick your server URL and output directory once.
-- **Themed monochrome UI** — the QBTools design language (dark base, per-category
-  accent colors) ported from the web app.
+  textarea, number, select, toggle, file paths). Tab cycles the fields, Ctrl+R
+  runs.
+- **File-path autocomplete** — typing in a file field suggests real files from
+  the directory you're in; ↑↓ pick, Enter accepts, Esc dismisses.
+- **Event log** — a ring buffer of system events and tool results, timestamped
+  and tagged (`SYS_BOOT`, `OPEN`, `RUN`, `DONE`, `ERR`).
+- **Zero egress** — the status bar always reads `0 NETWORK EGRESS`; nothing
+  leaves the machine unless you sign in.
 
 ## Tool coverage (42 tools)
 
@@ -71,7 +88,9 @@ re-verified at delete time · every run writes a JSON audit log to
 `~/.config/qbtools/cleanup-logs/`. `cleanup analyze` is a read-only
 largest-files report.
 
-## Authentication & sync
+## Authentication & sync (optional)
+
+The CLI is fully usable signed out; connecting an account is opt-in.
 
 Create a **CLI API key** in the web dashboard (Settings → CLI API keys), then:
 
@@ -85,6 +104,21 @@ sent as `Authorization: Bearer`. On login, local favorites and recent tools
 merge with your server profile; offline, they stay local and sync on the next
 login. `logout` forgets the key locally (revoke it in the dashboard to kill it
 server-side).
+
+## Media storage (requires the optional sign-in)
+
+Your server's per-user file storage, from the terminal:
+
+```bash
+qbtools media list [--search pdf] [--kind image]     # browse (40/page)
+qbtools media get <asset-id> --out ./downloads       # copy a file down
+qbtools media put ./hero.png --name hero.png         # upload
+```
+
+`list` supports fuzzy name search, kind filters and paging; `put` runs the
+reserve → upload → complete flow and reports the stored name. Without
+credentials, media commands exit `2` with the login hint — nothing else is
+blocked.
 
 ## Configuration
 

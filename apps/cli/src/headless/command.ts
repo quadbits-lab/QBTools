@@ -1,6 +1,6 @@
 /**
- * Headless command contracts. Commands never touch OpenTUI — the TUI is a
- * separate surface that shares the runner/services layers.
+ * Headless command contracts. Commands never touch the TUI — the interactive
+ * surface is a separate entry that shares the runner/services layers.
  */
 
 import type { ParsedArgs } from "./args";

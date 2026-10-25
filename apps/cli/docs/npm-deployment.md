@@ -38,7 +38,7 @@ apps/cli/
 - **sharp** is an `optionalDependency`: installs where prebuilt binaries
   exist; otherwise image tools degrade to exit code 2 with an install hint.
 
-Runtime requirement: **Bun ≥ 1.4** (OpenTUI + `bun:sqlite`-free engines path
+Runtime requirement: **Bun ≥ 1.4** (the Ink TUI + `bun:sqlite`-free engines path
 rely on Bun's runtime; no Node support is claimed).
 
 ## Release flow
