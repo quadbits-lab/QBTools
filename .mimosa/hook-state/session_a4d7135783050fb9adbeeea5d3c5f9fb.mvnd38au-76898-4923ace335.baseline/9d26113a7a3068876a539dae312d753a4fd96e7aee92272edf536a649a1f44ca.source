@@ -29,13 +29,15 @@ describe("headless qpdf", () => {
 		const doc = await PDFDocument.create();
 		doc.addPage([200, 200]);
 		const bytes = await doc.save();
-		const source = new File([bytes], "source.pdf", { type: "application/pdf" });
+		const source = new File([bytes as BlobPart], "source.pdf", { type: "application/pdf" });
 
 		const locked = await protectPdf({ file: source, mode: "protect", password: "s3cret" });
 		expect(locked.size).toBeGreaterThan(0);
 
 		const unlocked = await protectPdf({
-			file: new File([locked], "locked.pdf", { type: "application/pdf" }),
+			file: new File([new Uint8Array(await locked.arrayBuffer())], "locked.pdf", {
+				type: "application/pdf",
+			}),
 			mode: "unlock",
 			password: "s3cret",
 		});

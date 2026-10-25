@@ -3,18 +3,18 @@
  * flags / stdin and the runner core. Also powers the TUI's run button.
  */
 
-import { getBool, getString, type ParsedArgs } from "../args";
-import { EXIT_ERROR, EXIT_OK, EXIT_UNAVAILABLE, type Command, type CommandIO } from "../command";
 import { readInputFiles } from "../../runner/files";
 import { availabilityFor, runnerFor, WEB_ONLY_TOOLS } from "../../runner/map";
 import {
-	UnavailableError,
 	type RunnerContext,
 	type RunnerOutput,
 	type RunnerResult,
 	type ToolRunner,
+	UnavailableError,
 } from "../../runner/types";
 import { activeProfile, loadConfig, recordRecent } from "../../services/config";
+import { getBool, getString, type ParsedArgs } from "../args";
+import { type Command, type CommandIO, EXIT_ERROR, EXIT_OK, EXIT_UNAVAILABLE } from "../command";
 
 async function readStdin(): Promise<string> {
 	if (process.stdin.isTTY) return "";
@@ -35,7 +35,11 @@ function concat(chunks: Uint8Array[]): Uint8Array {
 }
 
 /** Build runner values from parsed flags: scalars pass through, --in resolves files. */
-async function valuesFromArgs(runner: ToolRunner, args: ParsedArgs, stdin: string): Promise<Record<string, unknown>> {
+async function valuesFromArgs(
+	runner: ToolRunner,
+	args: ParsedArgs,
+	stdin: string,
+): Promise<Record<string, unknown>> {
 	const values: Record<string, unknown> = {};
 	for (const field of runner.fields) {
 		if (field.kind === "file" || field.kind === "files") {
@@ -81,7 +85,11 @@ export function formatTable(columns: string[], rows: string[][]): string {
 	);
 	const line = (cells: string[]) =>
 		cells.map((cell, index) => (cell ?? "").padEnd(widths[index] ?? 0)).join("  ");
-	return [line(columns), widths.map((width) => "─".repeat(width)).join("  "), ...rows.map(line)].join("\n");
+	return [
+		line(columns),
+		widths.map((width) => "─".repeat(width)).join("  "),
+		...rows.map(line),
+	].join("\n");
 }
 
 function renderOutput(output: RunnerOutput): string {
@@ -100,7 +108,9 @@ function renderOutput(output: RunnerOutput): string {
 }
 
 /** Bytes/text that `--stdout` emits for chaining. */
-export function primaryStdoutPayload(result: RunnerResult): { bytes?: Uint8Array; text?: string } | null {
+export function primaryStdoutPayload(
+	result: RunnerResult,
+): { bytes?: Uint8Array; text?: string } | null {
 	for (const output of result.outputs) {
 		if (output.type === "image" || output.type === "file") return { bytes: output.bytes };
 	}
@@ -198,7 +208,10 @@ export const runCommand: Command = {
 			if (payload?.bytes) {
 				await Bun.write(Bun.stdout, payload.bytes);
 			} else if (payload?.text !== undefined) {
-				await Bun.write(Bun.stdout, payload.text.endsWith("\n") ? payload.text : `${payload.text}\n`);
+				await Bun.write(
+					Bun.stdout,
+					payload.text.endsWith("\n") ? payload.text : `${payload.text}\n`,
+				);
 			} else {
 				io.err("This tool has no pipable primary output; printing the summary instead:");
 				io.out(result.summary);
@@ -207,7 +220,9 @@ export const runCommand: Command = {
 		}
 
 		if (getBool(args, "json")) {
-			io.out(JSON.stringify({ slug, summary: result.summary, data: result.data ?? {} }, null, "\t"));
+			io.out(
+				JSON.stringify({ slug, summary: result.summary, data: result.data ?? {} }, null, "\t"),
+			);
 			return code;
 		}
 

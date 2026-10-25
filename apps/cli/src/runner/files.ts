@@ -15,8 +15,7 @@ export async function readInputFiles(paths: readonly string[]): Promise<File[]> 
 	for (const path of paths) {
 		const file = Bun.file(path);
 		if (!(await file.exists())) throw new Error(`Input file not found: ${path}`);
-		if (file.size > MAX_INPUT_BYTES)
-			throw new Error(`Input file is too large (>128 MiB): ${path}`);
+		if (file.size > MAX_INPUT_BYTES) throw new Error(`Input file is too large (>128 MiB): ${path}`);
 		results.push(new File([await file.arrayBuffer()], basename(path)));
 	}
 	return results;

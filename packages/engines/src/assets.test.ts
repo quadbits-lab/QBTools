@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { assetBase } from "./assets";
-import { protectPdf } from "./pdf/protect";
 import { writeBarcodeImage } from "./barcode";
+import { protectPdf } from "./pdf/protect";
 
 describe("headless asset resolution", () => {
 	test("returns file:// bases that exist on disk", async () => {

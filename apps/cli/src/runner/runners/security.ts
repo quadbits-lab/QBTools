@@ -1,8 +1,8 @@
 /** Security runners: hashing, file encryption, text encryption. */
 
 import type { DigestAlgorithm } from "@qbtools/engines/hash";
-import { files, requireString, str, type ToolRunner } from "../types";
 import { formatBytes, writeOutput } from "../files";
+import { files, requireString, str, type ToolRunner } from "../types";
 
 export const hashGenerator: ToolRunner = {
 	slug: "hash-generator",
@@ -28,7 +28,9 @@ export const hashGenerator: ToolRunner = {
 			.filter(Boolean) as DigestAlgorithm[];
 		const invalid = requested.filter((name) => !HASH_ALGORITHMS.includes(name));
 		if (invalid.length)
-			throw new Error(`Unknown algorithms: ${invalid.join(", ")}. Valid: ${HASH_ALGORITHMS.join(", ")}`);
+			throw new Error(
+				`Unknown algorithms: ${invalid.join(", ")}. Valid: ${HASH_ALGORITHMS.join(", ")}`,
+			);
 		const algorithms = requested.length ? requested : DEFAULT_HASH_ALGORITHMS;
 		const [input] = files(values, "in");
 		const source = input ?? str(values, "text").trim();
@@ -130,7 +132,8 @@ export const textEncryptor: ToolRunner = {
 				? await decryptText(text, password)
 				: await encryptText(text, password);
 		return {
-			summary: str(values, "mode", "encrypt") === "decrypt" ? "Decrypted text" : "Encrypted ciphertext",
+			summary:
+				str(values, "mode", "encrypt") === "decrypt" ? "Decrypted text" : "Encrypted ciphertext",
 			outputs: [{ type: "code", text: result }],
 			data: { result },
 		};

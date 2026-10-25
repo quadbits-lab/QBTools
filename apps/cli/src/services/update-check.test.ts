@@ -39,6 +39,8 @@ describe("update check", () => {
 	test("uses the daily cache without hitting the network", async () => {
 		const dir = await tempConfigDir();
 		process.env.QBTOOLS_CONFIG_DIR = dir;
+		const { loadConfig } = await import("./config");
+		await loadConfig(true);
 		await Bun.write(
 			join(dir, "update-check.json"),
 			JSON.stringify({ checkedAt: Date.now(), latest: "99.0.0" }),

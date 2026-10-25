@@ -1,7 +1,7 @@
 /** PDF runners: merge, split, watermark, image-to-pdf, compress, protect. */
 
-import { files, num, requireString, str, type ToolRunner } from "../types";
 import { formatBytes, readInputFiles, writeOutput } from "../files";
+import { files, num, requireString, str, type ToolRunner } from "../types";
 
 function pdfMime(name: string): string {
 	return name.toLowerCase().endsWith(".pdf") ? "application/pdf" : "application/octet-stream";
@@ -24,7 +24,11 @@ export const mergePdf: ToolRunner = {
 		const inputs = files(values, "in");
 		if (inputs.length < 2) throw new Error("Merging needs at least two PDFs.");
 		const blob = await mergePdfs(inputs, (done) =>
-			onProgress?.({ stage: "processing", fraction: done / inputs.length, label: `Merged ${done}/${inputs.length}` }),
+			onProgress?.({
+				stage: "processing",
+				fraction: done / inputs.length,
+				label: `Merged ${done}/${inputs.length}`,
+			}),
 		);
 		const saved = await writeOutput(
 			{ outDir, outPath, suggestedName: "merged.pdf" },
@@ -32,7 +36,14 @@ export const mergePdf: ToolRunner = {
 		);
 		return {
 			summary: `Merged ${inputs.length} PDFs (${formatBytes(saved.bytes)}) → ${saved.path}`,
-			outputs: [{ type: "file", bytes: new Uint8Array(await blob.arrayBuffer()), suggestedName: "merged.pdf", mimeType: pdfMime(saved.path) }],
+			outputs: [
+				{
+					type: "file",
+					bytes: new Uint8Array(await blob.arrayBuffer()),
+					suggestedName: "merged.pdf",
+					mimeType: pdfMime(saved.path),
+				},
+			],
 			data: { path: saved.path, count: inputs.length, bytes: saved.bytes },
 		};
 	},
@@ -103,7 +114,14 @@ export const watermarkPdfRunner: ToolRunner = {
 				{ label: "Tiled", value: "tile" },
 			],
 		},
-		{ name: "opacity", label: "Opacity (0.05–1)", kind: "number", default: 0.25, min: 0.05, max: 1 },
+		{
+			name: "opacity",
+			label: "Opacity (0.05–1)",
+			kind: "number",
+			default: 0.25,
+			min: 0.05,
+			max: 1,
+		},
 		{ name: "rotation", label: "Rotation (°)", kind: "number", default: 45, min: -90, max: 90 },
 		{ name: "size", label: "Width (% of page)", kind: "number", default: 70, min: 5, max: 100 },
 		{ name: "color", label: "Colour (#rrggbb)", kind: "text", default: "#b91c1c" },
@@ -190,7 +208,12 @@ export const imageToPdf: ToolRunner = {
 				orientation: str(values, "orientation", "auto") as "auto" | "portrait" | "landscape",
 				marginPt: num(values, "margin", 0),
 			},
-			(done) => onProgress?.({ stage: "processing", fraction: done / inputs.length, label: `Placed ${done}/${inputs.length}` }),
+			(done) =>
+				onProgress?.({
+					stage: "processing",
+					fraction: done / inputs.length,
+					label: `Placed ${done}/${inputs.length}`,
+				}),
 		);
 		const saved = await writeOutput(
 			{ outDir, outPath, suggestedName: "images.pdf" },
@@ -214,9 +237,7 @@ export const compressPdf: ToolRunner = {
 			label: "Mode",
 			kind: "select",
 			default: "text",
-			options: [
-				{ label: "Preserve text (structure optimization)", value: "text" },
-			],
+			options: [{ label: "Preserve text (structure optimization)", value: "text" }],
 		},
 	],
 	async run({ values, outDir, outPath, onProgress, signal }) {
@@ -229,7 +250,10 @@ export const compressPdf: ToolRunner = {
 			return {
 				summary: `Already optimal (${formatBytes(input.size)}) — no smaller copy produced.`,
 				outputs: [
-					{ type: "text", text: `qpdf couldn't shrink this file (${formatBytes(input.size)}). Scan-heavy PDFs compress better in the web app.` },
+					{
+						type: "text",
+						text: `qpdf couldn't shrink this file (${formatBytes(input.size)}). Scan-heavy PDFs compress better in the web app.`,
+					},
 				],
 				data: { decreased: false, originalBytes: input.size },
 			};
@@ -280,7 +304,11 @@ export const protectPdfRunner: ToolRunner = {
 		);
 		const base = input.name.replace(/\.pdf$/i, "");
 		const saved = await writeOutput(
-			{ outDir, outPath, suggestedName: mode === "protect" ? `${base}-protected.pdf` : `${base}-unlocked.pdf` },
+			{
+				outDir,
+				outPath,
+				suggestedName: mode === "protect" ? `${base}-protected.pdf` : `${base}-unlocked.pdf`,
+			},
 			new Uint8Array(await blob.arrayBuffer()),
 		);
 		return {

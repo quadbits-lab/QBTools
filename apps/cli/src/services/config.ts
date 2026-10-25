@@ -4,7 +4,7 @@
  * `--profile <name>` (env QBTOOLS_PROFILE) selects a profile.
  */
 
-import { mkdir, chmod } from "node:fs/promises";
+import { chmod, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -97,10 +97,13 @@ export function effectiveProfileName(config: CliConfig): string {
 
 export function activeProfile(config: CliConfig): ProfileConfig {
 	const name = effectiveProfileName(config);
-	return config.profiles[name] ?? config.profiles[DEFAULT_PROFILE] ?? {
-		serverUrl: DEFAULT_SERVER_URL,
-		outputDir: "./qbtools-output",
-	};
+	return (
+		config.profiles[name] ??
+		config.profiles[DEFAULT_PROFILE] ?? {
+			serverUrl: DEFAULT_SERVER_URL,
+			outputDir: "./qbtools-output",
+		}
+	);
 }
 
 /** Server base URL: env override wins, then profile. */

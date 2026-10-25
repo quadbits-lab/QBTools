@@ -4,7 +4,7 @@
  * structured outputs out. All heavy work happens in @qbtools/engines.
  */
 
-import type { ProcessingProgress, ProcessingOptions } from "@qbtools/engines/processing";
+import type { ProcessingOptions, ProcessingProgress } from "@qbtools/engines/processing";
 
 /** How a tool executes in the CLI. Mirrors the plan's coverage tiers. */
 export type Availability =
@@ -13,16 +13,8 @@ export type Availability =
 	| "ffmpeg" // needs a native ffmpeg binary
 	| "server" // requires an authenticated QBTools server
 	| "web"; // browser-only; offered as a deep link
-;
 
-export type FieldKind =
-	| "text"
-	| "textarea"
-	| "number"
-	| "select"
-	| "boolean"
-	| "file"
-	| "files";
+export type FieldKind = "text" | "textarea" | "number" | "select" | "boolean" | "file" | "files";
 
 export interface RunnerField {
 	name: string;

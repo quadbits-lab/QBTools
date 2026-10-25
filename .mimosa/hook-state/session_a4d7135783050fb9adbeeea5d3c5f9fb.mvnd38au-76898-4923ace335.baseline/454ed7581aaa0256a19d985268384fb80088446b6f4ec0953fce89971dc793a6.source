@@ -100,7 +100,7 @@ function renderOutput(output: RunnerOutput): string {
 }
 
 /** Bytes/text that `--stdout` emits for chaining. */
-function primaryStdoutPayload(result: RunnerResult): { bytes?: Uint8Array; text?: string } | null {
+export function primaryStdoutPayload(result: RunnerResult): { bytes?: Uint8Array; text?: string } | null {
 	for (const output of result.outputs) {
 		if (output.type === "image" || output.type === "file") return { bytes: output.bytes };
 	}

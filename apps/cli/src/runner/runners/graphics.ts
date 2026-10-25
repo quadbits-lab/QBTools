@@ -4,10 +4,10 @@
  * (proven by the engine's own Bun tests).
  */
 
-import { num, requireString, str, type ToolRunner } from "../types";
+import type { TextFont } from "@qbtools/engines/graphic";
 import { formatBytes, writeOutput } from "../files";
 import { CLI_GRAPHIC_ASSETS } from "../graphic-assets";
-import type { TextFont } from "@qbtools/engines/graphic";
+import { num, requireString, str, type ToolRunner } from "../types";
 
 const FONTS: TextFont[] = [
 	"Inter",
@@ -19,13 +19,7 @@ const FONTS: TextFont[] = [
 	"Caveat",
 ];
 
-const TEMPLATES = [
-	"minimal",
-	"gradient",
-	"split-image",
-	"photo-overlay",
-	"editorial",
-] as const;
+const TEMPLATES = ["minimal", "gradient", "split-image", "photo-overlay", "editorial"] as const;
 
 function parseColor(value: string, fallback: string): string {
 	const trimmed = value.trim();
@@ -40,7 +34,13 @@ export const ogBannerMaker: ToolRunner = {
 	slug: "og-banner-maker",
 	availability: "local",
 	fields: [
-		{ name: "title", label: "Title", kind: "text", required: true, placeholder: "QBTools — 42 free utilities" },
+		{
+			name: "title",
+			label: "Title",
+			kind: "text",
+			required: true,
+			placeholder: "QBTools — 42 free utilities",
+		},
 		{ name: "subtitle", label: "Subtitle", kind: "text" },
 		{ name: "badge", label: "Badge text (optional)", kind: "text" },
 		{
@@ -57,7 +57,12 @@ export const ogBannerMaker: ToolRunner = {
 			default: "Inter",
 			options: FONTS.map((font) => ({ label: font, value: font })),
 		},
-		{ name: "titleColor", label: "Title colour (#rrggbb)", kind: "text", placeholder: "template default" },
+		{
+			name: "titleColor",
+			label: "Title colour (#rrggbb)",
+			kind: "text",
+			placeholder: "template default",
+		},
 		{ name: "bgFrom", label: "Background gradient from (#rrggbb)", kind: "text" },
 		{ name: "bgTo", label: "Background gradient to (#rrggbb)", kind: "text" },
 		{
@@ -144,8 +149,19 @@ export const faviconGenerator: ToolRunner = {
 	slug: "favicon-generator",
 	availability: "local",
 	fields: [
-		{ name: "initials", label: "Initials (up to 3 characters)", kind: "text", required: true, placeholder: "QB" },
-		{ name: "bgFrom", label: "Background gradient from (#rrggbb)", kind: "text", default: "#4f46e5" },
+		{
+			name: "initials",
+			label: "Initials (up to 3 characters)",
+			kind: "text",
+			required: true,
+			placeholder: "QB",
+		},
+		{
+			name: "bgFrom",
+			label: "Background gradient from (#rrggbb)",
+			kind: "text",
+			default: "#4f46e5",
+		},
 		{ name: "bgTo", label: "Background gradient to (#rrggbb)", kind: "text", default: "#9333ea" },
 		{ name: "foreground", label: "Initials colour (#rrggbb)", kind: "text", default: "#ffffff" },
 		{ name: "appName", label: "App name (manifest)", kind: "text", default: "My App" },
@@ -196,7 +212,13 @@ export const appIconGenerator: ToolRunner = {
 	slug: "app-icon-generator",
 	availability: "local",
 	fields: [
-		{ name: "initials", label: "Initials (up to 3 characters)", kind: "text", required: true, placeholder: "QB" },
+		{
+			name: "initials",
+			label: "Initials (up to 3 characters)",
+			kind: "text",
+			required: true,
+			placeholder: "QB",
+		},
 		{
 			name: "platforms",
 			label: "Platforms (comma separated)",
@@ -210,7 +232,10 @@ export const appIconGenerator: ToolRunner = {
 		const { defaultIconDesign } = await import("@qbtools/engines/graphic");
 		const { generateAppIconSet } = await import("@qbtools/engines/graphic");
 		const design = defaultIconDesign("app-icon");
-		design.background = { type: "color", color: parseColor(str(values, "background", "#0f172a"), "#0f172a") };
+		design.background = {
+			type: "color",
+			color: parseColor(str(values, "background", "#0f172a"), "#0f172a"),
+		};
 		const foreground = parseColor(str(values, "foreground", "#ffffff"), "#ffffff");
 		design.foreground = foreground;
 		design.artwork = {
@@ -220,14 +245,24 @@ export const appIconGenerator: ToolRunner = {
 		const platforms = str(values, "platforms", "ios,android,macos")
 			.split(",")
 			.map((part) => part.trim())
-			.filter((part): part is "ios" | "android" | "macos" => ["ios", "android", "macos"].includes(part));
+			.filter((part): part is "ios" | "android" | "macos" =>
+				["ios", "android", "macos"].includes(part),
+			);
 		if (!platforms.length) throw new Error("Pick at least one platform: ios, android, macos.");
 		const set = await generateAppIconSet(
 			design,
 			{
 				platforms,
-				iosDarkMode: { enabled: false, background: { type: "color", color: "#111827" }, foreground: "#ffffff" },
-				iosTintedMode: { enabled: false, background: { type: "color", color: "#f4f4f5" }, foreground: "#18181b" },
+				iosDarkMode: {
+					enabled: false,
+					background: { type: "color", color: "#111827" },
+					foreground: "#ffffff",
+				},
+				iosTintedMode: {
+					enabled: false,
+					background: { type: "color", color: "#f4f4f5" },
+					foreground: "#18181b",
+				},
 				monochrome: { mode: "alpha", threshold: 128 },
 				optimize: false,
 			},
@@ -252,7 +287,10 @@ async function saveAssetSet(
 			{ ...options, suggestedName: set.zip.name || `${name}.zip` },
 			new Uint8Array(await set.zip.blob.arrayBuffer()),
 		);
-		return { saved: { path: saved.path, files: 1 }, summary: `${set.files.length} files → ${saved.path}` };
+		return {
+			saved: { path: saved.path, files: 1 },
+			summary: `${set.files.length} files → ${saved.path}`,
+		};
 	}
 	const written: { path: string; size: number }[] = [];
 	for (const file of set.files) {
@@ -275,8 +313,4 @@ async function saveAssetSet(
 	};
 }
 
-export const graphicRunners: ToolRunner[] = [
-	ogBannerMaker,
-	faviconGenerator,
-	appIconGenerator,
-];
+export const graphicRunners: ToolRunner[] = [ogBannerMaker, faviconGenerator, appIconGenerator];

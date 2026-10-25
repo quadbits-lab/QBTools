@@ -41,7 +41,9 @@ function compareSemver(a: string, b: string): number {
  * Check for a newer published version. Never throws; returns null when the
  * check is disabled, too recent, or the registry is unreachable.
  */
-export async function checkForUpdate(options: { timeoutMs?: number } = {}): Promise<UpdateStatus | null> {
+export async function checkForUpdate(
+	options: { timeoutMs?: number } = {},
+): Promise<UpdateStatus | null> {
 	const config = await loadConfig();
 	if (!config.updateCheck || process.env.QBTOOLS_NO_UPDATE_CHECK === "1") return null;
 
@@ -69,7 +71,10 @@ export async function checkForUpdate(options: { timeoutMs?: number } = {}): Prom
 		const payload = (await response.json()) as { version?: string };
 		const latest = payload.version;
 		if (!latest) return null;
-		await Bun.write(cachePath(), JSON.stringify({ checkedAt: Date.now(), latest } satisfies CheckCache));
+		await Bun.write(
+			cachePath(),
+			JSON.stringify({ checkedAt: Date.now(), latest } satisfies CheckCache),
+		);
 		return {
 			current: CLI_VERSION,
 			latest,

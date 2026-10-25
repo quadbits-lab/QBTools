@@ -1,8 +1,8 @@
 /** Image runners: PNG → SVG vectorization (headless vtracer path). */
 
-import { files, str, type ToolRunner } from "../types";
-import { writeOutput } from "../files";
 import type { VectorizePreset } from "@qbtools/engines/vectorize";
+import { writeOutput } from "../files";
+import { files, str, type ToolRunner } from "../types";
 
 const PRESETS: VectorizePreset[] = ["logo", "bw", "photo", "poster", "pixel"];
 
@@ -10,7 +10,13 @@ export const pngToSvg: ToolRunner = {
 	slug: "png-to-svg",
 	availability: "local",
 	fields: [
-		{ name: "in", label: "Image (PNG/JPEG/WebP)", kind: "file", required: true, accept: [".png", ".jpg", ".jpeg", ".webp"] },
+		{
+			name: "in",
+			label: "Image (PNG/JPEG/WebP)",
+			kind: "file",
+			required: true,
+			accept: [".png", ".jpg", ".jpeg", ".webp"],
+		},
 		{
 			name: "preset",
 			label: "Preset",

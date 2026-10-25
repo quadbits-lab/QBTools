@@ -2,13 +2,13 @@
  * Headless command registry. Commands are ordered for help output.
  */
 
-import type { Command } from "./command";
 import { completionsCommand } from "./cmd/completions";
-import { helpCommand } from "./cmd/help";
 import { infoCommand, openCommand, searchCommand } from "./cmd/discover";
+import { helpCommand } from "./cmd/help";
 import { listCommand } from "./cmd/list";
 import { runCommand } from "./cmd/run";
 import { versionCommand } from "./cmd/version";
+import type { Command } from "./command";
 
 export const COMMANDS: Command[] = [
 	versionCommand,

@@ -21,8 +21,9 @@ export const wordCounter: ToolRunner = {
 		let text = str(values, "text");
 		const paths = Array.isArray(values.in) ? (values.in as string[]) : [];
 		if (!text && paths.length) {
-			text = await Promise.all(paths.map((path) => Bun.file(path).text()))
-				.then((parts) => parts.join("\n"));
+			text = await Promise.all(paths.map((path) => Bun.file(path).text())).then((parts) =>
+				parts.join("\n"),
+			);
 		}
 		if (!text.trim()) throw new Error("Provide text via --text, --in <file>, or --stdin.");
 		const stats = textStats(text);

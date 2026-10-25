@@ -1,6 +1,7 @@
 /** Calculator runners: age, BMI, EMI, GPA, percentage — all pure engines. */
 
 import {
+	type AgeResult,
 	calculateAge,
 	calculateBmi,
 	calculateCgpa,
@@ -13,7 +14,6 @@ import {
 	percentOf,
 	whatPercent,
 	yearlySchedule,
-	type AgeResult,
 } from "@qbtools/engines/calc";
 import { num, requireString, str, type ToolRunner } from "../types";
 
@@ -26,7 +26,10 @@ function ageOutputs(age: AgeResult) {
 			["Total weeks", String(age.totalWeeks)],
 			["Total days", String(age.totalDays)],
 			["Born on a", age.bornOnWeekday],
-			["Next birthday", `${age.nextBirthday.toISOString().slice(0, 10)} (${age.daysToNextBirthday} days)`],
+			[
+				"Next birthday",
+				`${age.nextBirthday.toISOString().slice(0, 10)} (${age.daysToNextBirthday} days)`,
+			],
 		] as string[][],
 	};
 }
@@ -36,8 +39,19 @@ export const ageCalculator: ToolRunner = {
 	availability: "local",
 	stdinField: "birth",
 	fields: [
-		{ name: "birth", label: "Date of birth (YYYY-MM-DD)", kind: "text", required: true, placeholder: "1995-06-15" },
-		{ name: "asof", label: "Age as of (YYYY-MM-DD)", kind: "text", placeholder: "defaults to today" },
+		{
+			name: "birth",
+			label: "Date of birth (YYYY-MM-DD)",
+			kind: "text",
+			required: true,
+			placeholder: "1995-06-15",
+		},
+		{
+			name: "asof",
+			label: "Age as of (YYYY-MM-DD)",
+			kind: "text",
+			placeholder: "defaults to today",
+		},
 	],
 	async run({ values }) {
 		const birth = parseDateInput(requireString(values, "birth", "date of birth"));
@@ -75,7 +89,10 @@ export const bmiCalculator: ToolRunner = {
 					rows: [
 						["BMI", result.bmi.toFixed(1)],
 						["Category", result.label],
-						["Healthy weight range", `${result.healthyMinKg.toFixed(1)} – ${result.healthyMaxKg.toFixed(1)} kg`],
+						[
+							"Healthy weight range",
+							`${result.healthyMinKg.toFixed(1)} – ${result.healthyMaxKg.toFixed(1)} kg`,
+						],
 					],
 				},
 			],
@@ -89,7 +106,14 @@ export const emiCalculator: ToolRunner = {
 	availability: "local",
 	fields: [
 		{ name: "principal", label: "Loan amount", kind: "number", required: true, min: 1 },
-		{ name: "rate", label: "Annual interest rate (%)", kind: "number", required: true, min: 0, max: 100 },
+		{
+			name: "rate",
+			label: "Annual interest rate (%)",
+			kind: "number",
+			required: true,
+			min: 0,
+			max: 100,
+		},
 		{ name: "months", label: "Tenure (months)", kind: "number", required: true, min: 1, max: 1200 },
 	],
 	async run({ values }) {
@@ -164,7 +188,10 @@ export const gpaCalculator: ToolRunner = {
 		const scaleId = (str(values, "scale", "4") === "10" ? "10" : "4") as "4" | "10";
 		const scale = gradeScales[scaleId];
 		const raw = requireString(values, "courses", "courses");
-		const pairs = raw.split(",").map((part) => part.trim()).filter(Boolean);
+		const pairs = raw
+			.split(",")
+			.map((part) => part.trim())
+			.filter(Boolean);
 		const courses = [];
 		for (const pair of pairs) {
 			const [creditsText, pointsText] = pair.split(":");
@@ -231,7 +258,12 @@ export const percentageCalculator: ToolRunner = {
 			const result = percentOf(x, y);
 			return {
 				summary: `${formatNumber(x)}% of ${formatNumber(y)} = ${formatNumber(result)}`,
-				outputs: [{ type: "text", text: `${formatNumber(x)}% of ${formatNumber(y)} is ${formatNumber(result)}` }],
+				outputs: [
+					{
+						type: "text",
+						text: `${formatNumber(x)}% of ${formatNumber(y)} is ${formatNumber(result)}`,
+					},
+				],
 				data: { result },
 			};
 		}
@@ -240,7 +272,12 @@ export const percentageCalculator: ToolRunner = {
 			if (result === null) throw new Error("Y must not be zero for this calculation.");
 			return {
 				summary: `${formatNumber(x)} is ${formatNumber(result)}% of ${formatNumber(y)}`,
-				outputs: [{ type: "text", text: `${formatNumber(x)} is ${formatNumber(result)}% of ${formatNumber(y)}` }],
+				outputs: [
+					{
+						type: "text",
+						text: `${formatNumber(x)} is ${formatNumber(result)}% of ${formatNumber(y)}`,
+					},
+				],
 				data: { result },
 			};
 		}
@@ -250,7 +287,10 @@ export const percentageCalculator: ToolRunner = {
 		return {
 			summary: `${formatNumber(Math.abs(change))}% ${direction}`,
 			outputs: [
-				{ type: "text", text: `${formatNumber(x)} → ${formatNumber(y)} is a ${formatNumber(Math.abs(change))}% ${direction}` },
+				{
+					type: "text",
+					text: `${formatNumber(x)} → ${formatNumber(y)} is a ${formatNumber(Math.abs(change))}% ${direction}`,
+				},
 			],
 			data: { change },
 		};

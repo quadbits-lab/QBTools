@@ -1,7 +1,7 @@
 /** Developer runners: code formatter + compression benchmark. */
 
-import { files, num, str, type ToolRunner } from "../types";
 import { formatBytes } from "../files";
+import { files, num, str, type ToolRunner } from "../types";
 
 export const codeFormatter: ToolRunner = {
 	slug: "code-formatter",
@@ -26,10 +26,16 @@ export const codeFormatter: ToolRunner = {
 				{ label: "SQL", value: "sql" },
 			],
 		},
-		{ name: "indent", label: "Indentation", kind: "select", default: "tabs", options: [
-			{ label: "Tabs", value: "tabs" },
-			{ label: "Spaces", value: "spaces" },
-		] },
+		{
+			name: "indent",
+			label: "Indentation",
+			kind: "select",
+			default: "tabs",
+			options: [
+				{ label: "Tabs", value: "tabs" },
+				{ label: "Spaces", value: "spaces" },
+			],
+		},
 		{ name: "printWidth", label: "Line width", kind: "number", default: 100, min: 40, max: 200 },
 		{ name: "minify", label: "Minify JSON instead of formatting", kind: "boolean" },
 	],
@@ -77,9 +83,7 @@ export const codeFormatter: ToolRunner = {
 export const compressionBenchmark: ToolRunner = {
 	slug: "compression-benchmark",
 	availability: "local",
-	fields: [
-		{ name: "in", label: "File to benchmark (≤50 MiB)", kind: "file", required: true },
-	],
+	fields: [{ name: "in", label: "File to benchmark (≤50 MiB)", kind: "file", required: true }],
 	async run({ values, onProgress, signal }) {
 		const { benchmarkFile } = await import("@qbtools/engines/compression");
 		const [input] = files(values, "in");

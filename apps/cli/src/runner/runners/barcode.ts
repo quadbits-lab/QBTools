@@ -1,8 +1,8 @@
 /** Barcode runner: generation works headless; scanning needs sharp (Phase 5). */
 
 import { checkAbort } from "@qbtools/engines/processing";
-import { UnavailableError, files, num, requireString, str, type ToolRunner } from "../types";
 import { writeOutput } from "../files";
+import { files, num, requireString, str, type ToolRunner, UnavailableError } from "../types";
 
 const FORMATS = [
 	"QRCode",
@@ -41,9 +41,21 @@ export const barcodeRunner: ToolRunner = {
 			default: "QRCode",
 			options: FORMATS.map((format) => ({ label: format, value: format })),
 		},
-		{ name: "scale", label: "Pixels per module (1–16)", kind: "number", default: 4, min: 1, max: 16 },
+		{
+			name: "scale",
+			label: "Pixels per module (1–16)",
+			kind: "number",
+			default: 4,
+			min: 1,
+			max: 16,
+		},
 		{ name: "showText", label: "Print text under linear barcodes", kind: "boolean", default: true },
-		{ name: "in", label: "Image to scan (scan mode)", kind: "file", accept: [".png", ".jpg", ".jpeg", ".webp"] },
+		{
+			name: "in",
+			label: "Image to scan (scan mode)",
+			kind: "file",
+			accept: [".png", ".jpg", ".jpeg", ".webp"],
+		},
 	],
 	async run({ values, outDir, outPath, onProgress, signal }) {
 		const mode = str(values, "mode", "generate");
@@ -65,7 +77,11 @@ export const barcodeRunner: ToolRunner = {
 			showText: values.showText !== false,
 		});
 		checkAbort(signal);
-		const stem = text.replace(/[^a-z0-9]+/gi, "-").slice(0, 32).replace(/^-+|-+$/g, "") || "barcode";
+		const stem =
+			text
+				.replace(/[^a-z0-9]+/gi, "-")
+				.slice(0, 32)
+				.replace(/^-+|-+$/g, "") || "barcode";
 		const saved = await writeOutput(
 			{ outDir, outPath, suggestedName: `${stem}.png` },
 			new Uint8Array(await image.png.arrayBuffer()),
@@ -73,7 +89,12 @@ export const barcodeRunner: ToolRunner = {
 		return {
 			summary: `Barcode saved to ${saved.path}`,
 			outputs: [
-				{ type: "image", bytes: new Uint8Array(await image.png.arrayBuffer()), mimeType: "image/png", suggestedName: `${stem}.png` },
+				{
+					type: "image",
+					bytes: new Uint8Array(await image.png.arrayBuffer()),
+					mimeType: "image/png",
+					suggestedName: `${stem}.png`,
+				},
 			],
 			data: { path: saved.path, format: str(values, "format", "QRCode") },
 		};

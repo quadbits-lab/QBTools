@@ -2,11 +2,11 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { executeRunner } from "./cmd/run";
-import { parseArgs } from "./args";
-import { consoleIO } from "./command";
+import { parseArgs } from "../headless/args";
+import { executeRunner, primaryStdoutPayload } from "../headless/cmd/run";
+import type { CommandIO } from "../headless/command";
 
-const SILENT_IO = { out: () => {}, err: () => {} };
+const SILENT_IO: CommandIO = { out: () => {}, err: () => {} };
 
 async function tempConfigDir(): Promise<string> {
 	return mkdtemp(join(tmpdir(), "qbtools-cli-test-"));
@@ -74,9 +74,13 @@ describe("executeRunner", () => {
 	});
 
 	test("password generator honors defaults without flags", async () => {
-		const { code, result } = await executeRunner("password-generator", parseArgs(["password-generator"]), {
-			io: SILENT_IO,
-		});
+		const { code, result } = await executeRunner(
+			"password-generator",
+			parseArgs(["password-generator"]),
+			{
+				io: SILENT_IO,
+			},
+		);
 		expect(code).toBe(0);
 		const data = result?.data as { passwords: string[] };
 		expect(data.passwords.length).toBe(1);
@@ -99,13 +103,17 @@ describe("executeRunner", () => {
 		await rm(dir, { recursive: true, force: true });
 	});
 
-	test("--stdout payload picks bytes before text", async () => {
-		const { primaryStdoutPayload } = await import("./cmd/run");
+	test("--stdout payload picks bytes before text", () => {
 		const imagePayload = primaryStdoutPayload({
 			summary: "",
 			outputs: [
 				{ type: "text", text: "summary line" },
-				{ type: "image", bytes: new Uint8Array([1, 2, 3]), mimeType: "image/png", suggestedName: "x.png" },
+				{
+					type: "image",
+					bytes: new Uint8Array([1, 2, 3]),
+					mimeType: "image/png",
+					suggestedName: "x.png",
+				},
 			],
 		});
 		expect(imagePayload?.bytes).toEqual(new Uint8Array([1, 2, 3]));

@@ -30,7 +30,7 @@ describe("config", () => {
 		process.env.QBTOOLS_CONFIG_DIR = dir;
 		const config = await loadConfig(true);
 		expect(config.onboarded).toBeFalse();
-		expect(config.profiles.default.serverUrl).toBe("http://localhost:8310");
+		expect(config.profiles.default?.serverUrl).toBe("http://localhost:8310");
 		expect(config.updateCheck).toBeTrue();
 		await rm(dir, { recursive: true, force: true });
 	});

@@ -4,11 +4,11 @@
  */
 
 import { buildSearchIndex, categories, getTool, toolHref, tools } from "@qbtools/registry";
-import { getString } from "../args";
-import { EXIT_ERROR, EXIT_OK, type Command } from "../command";
-import { availabilityFor, AVAILABILITY_HINTS, AVAILABILITY_LABELS } from "../../runner/map";
-import { formatTable } from "./run";
+import { AVAILABILITY_HINTS, AVAILABILITY_LABELS, availabilityFor } from "../../runner/map";
 import { loadConfig, serverUrl } from "../../services/config";
+import { getString } from "../args";
+import { type Command, EXIT_ERROR, EXIT_OK } from "../command";
+import { formatTable } from "./run";
 
 export const searchCommand: Command = {
 	name: "search",

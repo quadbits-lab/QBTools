@@ -30,28 +30,28 @@ let engine: Promise<Qpdf> | null = null;
 /** Shared qpdf instance. Must run in a dedicated worker: callMain is synchronous. */
 export function getQpdf(): Promise<Qpdf> {
 	engine ??= (async () => {
-	const base = await assetBase("qpdf");
-	const { default: createModule } = await import("@neslinesli93/qpdf-wasm");
-	const create = createModule as unknown as (options: {
-		locateFile?: () => string;
-		wasmBinary?: Uint8Array;
-		noInitialRun: boolean;
-		print: () => void;
-		printErr: () => void;
-	}) => Promise<Qpdf>;
-	// Headless callers get a file:// base whose loader can't be located the
-	// emscripten way, so hand the wasm bytes over directly.
-	const headlessOptions = base.startsWith("file://")
-		? {
-				wasmBinary: new Uint8Array(await (await fetch(`${base}/qpdf.wasm`)).arrayBuffer()),
-			}
-		: { locateFile: () => `${base}/qpdf.wasm` };
-	const module = await create({
-		...headlessOptions,
-		noInitialRun: true,
-		print: () => {},
-		printErr: () => {},
-	});
+		const base = await assetBase("qpdf");
+		const { default: createModule } = await import("@neslinesli93/qpdf-wasm");
+		const create = createModule as unknown as (options: {
+			locateFile?: () => string;
+			wasmBinary?: Uint8Array;
+			noInitialRun: boolean;
+			print: () => void;
+			printErr: () => void;
+		}) => Promise<Qpdf>;
+		// Headless callers get a file:// base whose loader can't be located the
+		// emscripten way, so hand the wasm bytes over directly.
+		const headlessOptions = base.startsWith("file://")
+			? {
+					wasmBinary: new Uint8Array(await (await fetch(`${base}/qpdf.wasm`)).arrayBuffer()),
+				}
+			: { locateFile: () => `${base}/qpdf.wasm` };
+		const module = await create({
+			...headlessOptions,
+			noInitialRun: true,
+			print: () => {},
+			printErr: () => {},
+		});
 		module.FS.mkdir("/input");
 		return module;
 	})().catch((error) => {

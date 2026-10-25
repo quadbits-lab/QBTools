@@ -4,7 +4,6 @@
  * in runner-map.test.ts, mirroring the web app's widgets parity test).
  */
 
-import type { Availability, ToolRunner } from "./types";
 import { barcodeRunner } from "./runners/barcode";
 import { calculatorRunners } from "./runners/calculators";
 import { developerRunners } from "./runners/developer";
@@ -14,6 +13,7 @@ import { pdfRunners } from "./runners/pdf";
 import { securityRunners } from "./runners/security";
 import { textRunners } from "./runners/text";
 import { pngToSvg } from "./runners/vectorize";
+import type { Availability, ToolRunner } from "./types";
 
 /** Browser-only tools surfaced as deep links (`qbtools open <slug>`). */
 export const WEB_ONLY_TOOLS = new Set([
@@ -41,8 +41,7 @@ const SERVER_HINT =
 	"Needs an authenticated QBTools server. Run `qbtools login` first (API-key auth arrives with the server phase).";
 const SHARP_HINT =
 	"Needs the optional sharp dependency for image processing (wired in the sharp phase).";
-const FFMPEG_HINT =
-	"Needs a native ffmpeg binary on your PATH (wired in the media phase).";
+const FFMPEG_HINT = "Needs a native ffmpeg binary on your PATH (wired in the media phase).";
 
 export const STUB_RUNNERS: ToolRunner[] = [
 	stubRunner("grammar-checker", "server", SERVER_HINT),

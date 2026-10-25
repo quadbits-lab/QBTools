@@ -1,14 +1,14 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-10-25T04:57:31.337Z",
+  "recordedAt": "2026-10-25T05:01:07.880Z",
   "sessionId": "session_a4d7135783050fb9adbeeea5d3c5f9fb",
   "event": "PostToolUse",
   "toolName": "Edit",
-  "file": "package.json",
-  "outcome": "inconclusive",
-  "coverage": "partial",
+  "file": "src/services/update-check.test.ts",
+  "outcome": "clear",
+  "coverage": "complete",
   "findingCount": 0,
-  "durationMs": 4,
+  "durationMs": 3,
   "hostState": "hook_complete",
   "reportHint": ".mimosa/reports/"
 }

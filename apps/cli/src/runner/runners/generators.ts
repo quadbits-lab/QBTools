@@ -9,7 +9,7 @@ import {
 	strengthFromEntropy,
 } from "@qbtools/engines/generators";
 import QRCode from "qrcode";
-import { bool, num, requireString, str, type RunnerContext, type ToolRunner } from "../types";
+import { bool, num, type RunnerContext, requireString, str, type ToolRunner } from "../types";
 
 export const passwordGenerator: ToolRunner = {
 	slug: "password-generator",
@@ -32,9 +32,19 @@ export const passwordGenerator: ToolRunner = {
 		{ name: "uppercase", label: "Include uppercase", kind: "boolean", default: true },
 		{ name: "digits", label: "Include digits", kind: "boolean", default: true },
 		{ name: "symbols", label: "Include symbols", kind: "boolean", default: true },
-		{ name: "excludeAmbiguous", label: "Exclude ambiguous characters", kind: "boolean", default: true },
+		{
+			name: "excludeAmbiguous",
+			label: "Exclude ambiguous characters",
+			kind: "boolean",
+			default: true,
+		},
 		{ name: "capitalize", label: "Capitalize passphrase words", kind: "boolean", default: true },
-		{ name: "includeNumber", label: "Add a number to the passphrase", kind: "boolean", default: true },
+		{
+			name: "includeNumber",
+			label: "Add a number to the passphrase",
+			kind: "boolean",
+			default: true,
+		},
 		{ name: "count", label: "How many to generate", kind: "number", default: 1, min: 1, max: 50 },
 	],
 	async run({ values }) {
@@ -115,10 +125,16 @@ export const qrCodeGenerator: ToolRunner = {
 				{ label: "None", value: "nopass" },
 			],
 		},
-		{ name: "format", label: "Output format", kind: "select", default: "png", options: [
-			{ label: "PNG image", value: "png" },
-			{ label: "SVG vector", value: "svg" },
-		] },
+		{
+			name: "format",
+			label: "Output format",
+			kind: "select",
+			default: "png",
+			options: [
+				{ label: "PNG image", value: "png" },
+				{ label: "SVG vector", value: "svg" },
+			],
+		},
 		{ name: "width", label: "PNG width (px)", kind: "number", default: 512, min: 128, max: 2048 },
 	],
 	async run(ctx: RunnerContext) {
@@ -150,15 +166,17 @@ export const qrCodeGenerator: ToolRunner = {
 			margin: 1,
 			errorCorrectionLevel: "M",
 		});
-		const stem = payload.replace(/[^a-z0-9]+/gi, "-").slice(0, 32).replace(/^-+|-+$/g, "") || "qr";
+		const stem =
+			payload
+				.replace(/[^a-z0-9]+/gi, "-")
+				.slice(0, 32)
+				.replace(/^-+|-+$/g, "") || "qr";
 		const name = `${stem || "qr"}.png`;
 		const { writeOutput } = await import("../files");
 		const saved = await writeOutput({ outDir, outPath, suggestedName: name }, buffer);
 		return {
 			summary: `QR code saved to ${saved.path}`,
-			outputs: [
-				{ type: "image", bytes: buffer, mimeType: "image/png", suggestedName: name },
-			],
+			outputs: [{ type: "image", bytes: buffer, mimeType: "image/png", suggestedName: name }],
 			data: { payload, path: saved.path },
 		};
 	},
@@ -225,9 +243,9 @@ export const invoiceGenerator: ToolRunner = {
 			taxLabel: "Tax",
 			taxRate: num(values, "taxRate", 0),
 			discount: num(values, "discount", 0),
-			discountType: (str(values, "discountType", "percent") === "amount"
-				? "amount"
-				: "percent") as "percent" | "amount",
+			discountType: (str(values, "discountType", "percent") === "amount" ? "amount" : "percent") as
+				| "percent"
+				| "amount",
 			notes: "",
 			accent: "#111111",
 		};
@@ -235,10 +253,7 @@ export const invoiceGenerator: ToolRunner = {
 		const bytes = await renderInvoicePdf(invoice);
 		const { writeOutput } = await import("../files");
 		const name = `${invoice.number.replace(/[^\w-]+/g, "-")}.pdf`;
-		const saved = await writeOutput(
-			{ outDir, outPath, suggestedName: name },
-			bytes as Uint8Array,
-		);
+		const saved = await writeOutput({ outDir, outPath, suggestedName: name }, bytes as Uint8Array);
 		return {
 			summary: `Invoice ${invoice.number} — total ${totals.total.toFixed(2)} ${invoice.currency} → ${saved.path}`,
 			outputs: [
@@ -258,4 +273,8 @@ export const invoiceGenerator: ToolRunner = {
 	},
 };
 
-export const generatorRunners: ToolRunner[] = [passwordGenerator, qrCodeGenerator, invoiceGenerator];
+export const generatorRunners: ToolRunner[] = [
+	passwordGenerator,
+	qrCodeGenerator,
+	invoiceGenerator,
+];

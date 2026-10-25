@@ -6,11 +6,7 @@
 
 import type { GraphicAssets } from "@qbtools/engines/graphic";
 
-function fontUrl(
-	provider: "@fontsource" | (string & {}),
-	name: string,
-	file: string,
-): string {
+function fontUrl(provider: "@fontsource" | (string & {}), name: string, file: string): string {
 	const spec = `${provider}/${name}/files/${file}`;
 	const path = Bun.resolveSync(spec, import.meta.dir);
 	return `file://${path}`;

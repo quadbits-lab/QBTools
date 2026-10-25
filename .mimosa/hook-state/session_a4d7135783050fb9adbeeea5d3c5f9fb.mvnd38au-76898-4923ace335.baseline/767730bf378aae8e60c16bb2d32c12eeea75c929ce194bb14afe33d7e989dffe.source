@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { SITE_NAME } from "#/lib/site";
 import { reopenConsent } from "./consent";
+import { GitHubRepoBadge } from "./github-repo-badge";
 import { Logo } from "./logo";
 
 const LEGAL = [
@@ -43,6 +44,7 @@ export function SiteFooter() {
 						Free tools that just work. Compress, convert, calculate and create — right in your
 						browser.
 					</p>
+					<GitHubRepoBadge className="mt-1" />
 				</div>
 				<FooterColumn title="Tools">
 					{firstCategories.map((category) => (

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { tools } from "@qbtools/registry";
-import { availabilityFor, RUNNERS, WEB_ONLY_TOOLS } from "./map";
 import { CLI_GRAPHIC_ASSETS } from "./graphic-assets";
+import { availabilityFor, RUNNERS, WEB_ONLY_TOOLS } from "./map";
 
 describe("runner coverage parity", () => {
 	test("every registry slug resolves to a runner or an explicit web-only entry", () => {
