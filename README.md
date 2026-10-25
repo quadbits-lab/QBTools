@@ -256,7 +256,7 @@ Open [http://localhost:8310](http://localhost:8310) in your browser. Live HMR is
 | `bun run assets:prepare` | Root           | Compiles and validates versioned WASM artifacts & web workers       |
 | `bun run db:backup`      | `@qbtools/db`  | Performs safe online SQLite snapshot (`VACUUM INTO`)                |
 | `bun run test:browser`   | Root           | Runs end-to-end Playwright browser integration tests                |
-| `bun run cli`            | `@qbtools/cli` | Runs the `qbtools` terminal app (interactive TUI + headless mode)   |
+| `bun run cli`            | `qbtools`      | Runs the `qbtools` terminal app (interactive TUI + headless mode)   |
 
 ---
 

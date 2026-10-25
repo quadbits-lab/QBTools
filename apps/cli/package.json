@@ -1,19 +1,35 @@
 {
-	"name": "@qbtools/cli",
+	"name": "qbtools",
 	"version": "0.2.0",
-	"private": true,
 	"type": "module",
 	"module": "src/bin.tsx",
 	"description": "QBTools in your terminal — 42 developer & productivity tools, system cleanup, and scripting-friendly output. Built with Ink.",
 	"bin": {
 		"qbtools": "./dist/bin.js"
 	},
+	"homepage": "https://github.com/Quadbits-Lab/QBTools/tree/beta/apps/cli#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Quadbits-Lab/QBTools.git",
+		"directory": "apps/cli"
+	},
+	"bugs": "https://github.com/Quadbits-Lab/QBTools/issues",
+	"keywords": [
+		"cli",
+		"tui",
+		"ink",
+		"bun",
+		"pdf",
+		"image",
+		"developer-tools",
+		"privacy"
+	],
 	"publishConfig": {
-		"name": "qbtools",
 		"access": "public"
 	},
 	"files": [
-		"dist",
+		"dist/bin.js",
+		"dist/bin.js.map",
 		"README.md",
 		"docs"
 	],
