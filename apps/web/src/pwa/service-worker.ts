@@ -14,6 +14,7 @@ import {
 	isCacheableResponse,
 	isCacheableWasmResponse,
 	isOwnedCacheName,
+	isOwnOrigin,
 	OFFLINE_FALLBACK_URL,
 	PAGE_MAX_ENTRIES,
 	PRECACHE_URLS,
@@ -51,6 +52,7 @@ interface ServiceWorkerGlobalScopeLike {
 	addEventListener(type: "message", listener: (event: MessageEventLike) => void): void;
 	skipWaiting(): Promise<void>;
 	clients: { claim(): Promise<void> };
+	location: Location;
 }
 
 const scope = globalThis as unknown as ServiceWorkerGlobalScopeLike;
@@ -64,6 +66,9 @@ scope.addEventListener("activate", (event) => {
 });
 
 scope.addEventListener("fetch", (event) => {
+	// Another origin is never ours to cache, not even for a top-level
+	// navigation to a site that links here.
+	if (!isOwnOrigin(event.request.url, scope.location.origin)) return;
 	const strategy = strategyFor(pathnameOf(event.request), event.request.mode);
 	if (strategy === "bypass" || strategy === "passthrough") return;
 	event.respondWith(handle(event, strategy));

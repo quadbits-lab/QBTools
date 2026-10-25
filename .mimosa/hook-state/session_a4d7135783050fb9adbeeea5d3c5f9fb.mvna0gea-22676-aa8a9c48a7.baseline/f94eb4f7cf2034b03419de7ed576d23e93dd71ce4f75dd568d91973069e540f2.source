@@ -85,11 +85,36 @@ export function ToolCard({
 	tool: ToolDef;
 	/** Kept so older callers compile; the card no longer shows an index. */
 	index?: number;
-	variant?: "default" | "compact";
+	/** `tile` is the narrow two-up card used by the mobile directory grid. */
+	variant?: "default" | "compact" | "tile";
 	className?: string;
 }) {
 	const category = categoryById[tool.category];
 	const style = categoryStyles[tool.category];
+
+	if (variant === "tile") {
+		return (
+			<article className={cn("group relative h-full min-w-0", className)}>
+				<Link
+					to="/tools/$slug"
+					params={{ slug: tool.slug }}
+					className={cn(
+						"flex h-full flex-col rounded-xl border border-border bg-card p-2.5 transition-[border-color,box-shadow] duration-150 hover:shadow-hover",
+						style.borderHover,
+					)}
+				>
+					<ToolIcon tool={tool} size="sm" />
+					<span className="mt-4 line-clamp-2 text-sm leading-5 font-medium text-foreground">
+						{tool.name}
+					</span>
+					<span className="mt-2 line-clamp-2 text-xs leading-4 text-muted-foreground">
+						{tool.tagline}
+					</span>
+				</Link>
+				<FavoriteButton tool={tool} className="absolute top-2 right-2 size-7" />
+			</article>
+		);
+	}
 
 	if (variant === "compact") {
 		return (

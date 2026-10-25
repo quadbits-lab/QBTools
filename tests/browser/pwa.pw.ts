@@ -79,6 +79,21 @@ test("registers the service worker and serves the offline page when the network 
 	await context.close();
 });
 
+test("offers an install button once the browser allows an install", async ({ page }) => {
+	await page.goto("/");
+	// Headless browsers never raise the real event, so stand in for it.
+	await page.evaluate(() => {
+		const event = new Event("beforeinstallprompt", { cancelable: true }) as Event & {
+			prompt: () => Promise<void>;
+			userChoice: Promise<{ outcome: string }>;
+		};
+		event.prompt = () => Promise.resolve();
+		event.userChoice = Promise.resolve({ outcome: "accepted" });
+		window.dispatchEvent(event);
+	});
+	await expect(page.getByRole("button", { name: /install qbtools/i })).toBeVisible();
+});
+
 test("keeps a visited tool working offline", async ({ browser, browserName }) => {
 	const context = await browser.newContext({ serviceWorkers: "allow" });
 	const page = await context.newPage();

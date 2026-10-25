@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { inflateSync } from "node:zlib";
 import { generateAppIconSet, iosLegacySlots, monochromePixels } from "./appicon";
 import {
 	backgroundFill,
@@ -19,6 +20,7 @@ import { measureTextWidth } from "./fonts";
 import { buildIcns, icnsChunkTypes } from "./icns";
 import { buildIco, validateIco } from "./ico";
 import { parseDesign, projectFileName, QBDESIGN_VERSION, serializeDesign } from "./projects";
+import { encodeRawPng } from "./rawpng";
 import { renderDesign } from "./render-design";
 import type {
 	ArtworkData,
@@ -57,6 +59,103 @@ function must<T>(value: T | null | undefined, label: string): T {
 	if (value == null) throw new Error(`${label} missing from the generated set`);
 	return value;
 }
+
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+
+interface PngChunk {
+	type: string;
+	data: Uint8Array;
+	/** Bytes covered by the chunk CRC: the four type bytes followed by the data. */
+	crcInput: Uint8Array;
+	crc: number;
+}
+
+/** Parse PNG chunks, checking framing so CRC spans stay honest. */
+function pngChunks(bytes: Uint8Array): PngChunk[] {
+	const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+	const chunks: PngChunk[] = [];
+	let offset = PNG_SIGNATURE.length;
+	while (offset + 12 <= bytes.byteLength) {
+		const length = view.getUint32(offset);
+		const end = offset + 12 + length;
+		if (end > bytes.byteLength) throw new Error("Truncated PNG chunk");
+		chunks.push({
+			type: String.fromCharCode(...bytes.subarray(offset + 4, offset + 8)),
+			data: bytes.subarray(offset + 8, offset + 8 + length),
+			crcInput: bytes.subarray(offset + 4, offset + 8 + length),
+			crc: view.getUint32(offset + 8 + length),
+		});
+		offset = end;
+	}
+	expect(offset).toBe(bytes.byteLength);
+	return chunks;
+}
+
+describe("rawpng", () => {
+	test("encodes RGBA pixels as a valid PNG", async () => {
+		const width = 3;
+		const height = 2;
+		const pixels = new Uint8Array([
+			255, 0, 0, 255, 0, 255, 0, 128, 0, 0, 255, 0, 17, 34, 51, 255, 68, 85, 102, 255, 119, 136,
+			153, 255,
+		]);
+		const blob = await encodeRawPng(pixels, width, height);
+		expect(blob.type).toBe("image/png");
+		const bytes = new Uint8Array(await blob.arrayBuffer());
+		expect([...bytes.subarray(0, 8)]).toEqual(PNG_SIGNATURE);
+
+		const chunks = pngChunks(bytes);
+		expect(chunks.map((chunk) => chunk.type)).toEqual(["IHDR", "IDAT", "IEND"]);
+		// Bun's CRC-32 is an independent implementation of the chunk checksum.
+		for (const chunk of chunks) expect(chunk.crc).toBe(Bun.hash.crc32(chunk.crcInput));
+
+		const ihdr = must(chunks[0], "IHDR");
+		const ihdrView = new DataView(ihdr.data.buffer, ihdr.data.byteOffset, ihdr.data.byteLength);
+		expect(ihdr.data.length).toBe(13);
+		expect(ihdrView.getUint32(0)).toBe(width);
+		expect(ihdrView.getUint32(4)).toBe(height);
+		// bit depth 8, colour type 6 (RGBA), deflate, filter 0, no interlace.
+		expect([...ihdr.data.subarray(8)]).toEqual([8, 6, 0, 0, 0]);
+
+		const idat = must(chunks[1], "IDAT");
+		expect(idat.data[0]).toBe(0x78); // zlib header, not a raw deflate stream
+		const raw = new Uint8Array(inflateSync(idat.data));
+		const stride = width * 4 + 1;
+		expect(raw.length).toBe(stride * height);
+		for (let y = 0; y < height; y++) {
+			expect(raw[y * stride]).toBe(0);
+			expect([...raw.subarray(y * stride + 1, (y + 1) * stride)]).toEqual([
+				...pixels.subarray(y * width * 4, (y + 1) * width * 4),
+			]);
+		}
+
+		const iend = must(chunks[2], "IEND");
+		expect(iend.data.length).toBe(0);
+	});
+
+	test("is deterministic for identical pixels", async () => {
+		const pixels = new Uint8Array(16 * 16 * 4).map((_, i) => (i * 37) % 256);
+		const first = new Uint8Array(await (await encodeRawPng(pixels, 16, 16)).arrayBuffer());
+		const second = new Uint8Array(await (await encodeRawPng(pixels, 16, 16)).arrayBuffer());
+		expect(second).toEqual(first);
+	});
+
+	test("rejects invalid dimensions and payload sizes", async () => {
+		await expect(encodeRawPng(new Uint8Array(0), 0, 0)).rejects.toThrow("positive whole numbers");
+		await expect(encodeRawPng(new Uint8Array(4), 1.5, 2)).rejects.toThrow("positive whole numbers");
+		await expect(encodeRawPng(new Uint8Array(3), 1, 1)).rejects.toThrow(
+			"Expected 4 RGBA bytes for a 1×1 image, received 3",
+		);
+	});
+
+	test("honours an aborted signal", async () => {
+		const controller = new AbortController();
+		controller.abort();
+		await expect(
+			encodeRawPng(new Uint8Array(4), 1, 1, { processing: { signal: controller.signal } }),
+		).rejects.toThrow("Cancelled");
+	});
+});
 
 describe("ico", () => {
 	test("round-trips frames with valid offsets", () => {

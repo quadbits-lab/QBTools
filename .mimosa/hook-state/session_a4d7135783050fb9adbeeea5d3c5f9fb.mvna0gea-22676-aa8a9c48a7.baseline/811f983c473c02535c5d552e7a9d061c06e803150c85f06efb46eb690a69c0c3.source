@@ -94,7 +94,7 @@ export function SearchBox({
 						}
 					}}
 					className={cn(
-						"w-full rounded-lg border border-field-border bg-field pr-11 outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring sm:pr-16 [&::-webkit-search-cancel-button]:hidden",
+						"w-full rounded-xl border border-field-border bg-field pr-11 outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring sm:pr-16 [&::-webkit-search-cancel-button]:hidden",
 						size === "lg"
 							? "h-12 pl-10 text-[0.9375rem] sm:h-14 sm:pl-12 sm:text-base"
 							: "h-11 pl-10 text-sm sm:h-12 sm:pl-11",

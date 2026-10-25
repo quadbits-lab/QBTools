@@ -39,6 +39,7 @@ export function MobileFilterSheet({
 	resultCount,
 	onReset,
 	hasActiveFilters,
+	onAfterClose,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -51,10 +52,19 @@ export function MobileFilterSheet({
 	resultCount: number;
 	onReset: () => void;
 	hasActiveFilters: boolean;
+	/** Called after the sheet closes; used to return focus to its trigger. */
+	onAfterClose?: () => void;
 }) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent variant="sheet" className="flex flex-col p-0">
+			<DialogContent
+				variant="sheet"
+				className="flex flex-col p-0"
+				onCloseAutoFocus={(event) => {
+					event.preventDefault();
+					onAfterClose?.();
+				}}
+			>
 				<DialogTitle className="sr-only">Filter tools</DialogTitle>
 				<DialogDescription className="sr-only">
 					Narrow the directory by discipline, tool type, or order.

@@ -13,6 +13,7 @@ import { analyticsScripts } from "#/components/analytics";
 import { CommandPaletteProvider } from "#/components/command-palette";
 import { ConsentBanner } from "#/components/consent";
 import { NotFound } from "#/components/not-found";
+import { PwaManager } from "#/components/pwa-manager";
 import { RouteLoading } from "#/components/route-loading";
 import { SiteFooter } from "#/components/site-footer";
 import { SiteHeader } from "#/components/site-header";
@@ -22,7 +23,8 @@ import { sessionFn } from "#/server/auth.functions";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
-	loader: () => sessionFn(),
+	// A cached page must still boot offline, where the session call cannot succeed.
+	loader: () => sessionFn().catch(() => null),
 	head: ({ loaderData, matches }) => {
 		const privatePage =
 			Boolean(loaderData?.user) ||
@@ -40,6 +42,10 @@ export const Route = createRootRoute({
 				{ name: "theme-color", content: THEME_COLOR },
 				{ name: "color-scheme", content: "dark light" },
 				{ name: "format-detection", content: "telephone=no" },
+				{ name: "mobile-web-app-capable", content: "yes" },
+				{ name: "apple-mobile-web-app-capable", content: "yes" },
+				{ name: "apple-mobile-web-app-status-bar-style", content: "black" },
+				{ name: "apple-mobile-web-app-title", content: SITE_NAME },
 				{ name: "google-adsense-account", content: "ca-pub-7437740312049843" },
 				...base.meta,
 			],
@@ -72,6 +78,7 @@ function RootComponent() {
 				<GoogleAnalytics measurementId="G-EJXH2DPNF4" />
 				<AccountProvider>
 					<RouteLoading />
+					<PwaManager />
 					<CommandPaletteProvider>
 						<div className="flex min-h-dvh flex-col">
 							{!inDashboard && <SiteHeader />}

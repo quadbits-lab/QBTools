@@ -1,0 +1,481 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261025T033049179Z-10758-1e36b9a9969a",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "candidate-select",
+      "target": "tests/browser/probe-sw.pw.ts",
+      "reason": "changed_file_unreadable: observed changed file no longer exists or cannot be read"
+    },
+    {
+      "stage": "candidate-select",
+      "target": "tests/browser/probe-install.pw.ts",
+      "reason": "changed_file_unreadable: observed changed file no longer exists or cannot be read"
+    },
+    {
+      "stage": "candidate-select",
+      "target": "packages/engines/src/graphic/rawpng.ts",
+      "reason": "candidate_limit_exceeded: 10 changed reviewable file(s) were not scanned because the limit is 20"
+    },
+    {
+      "stage": "baseline-read",
+      "target": "tests/browser/graphic-tools.pw.ts",
+      "reason": "baseline_snapshot_unreadable: file is missing from task baseline"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 369,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 27
+    },
+    "change_tracking": {
+      "touched_observed": 17,
+      "touched_retained": 17,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 30,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 30,
+      "selected_files": 20,
+      "limit": 20,
+      "truncated": true
+    },
+    "scanning": {
+      "required_files": 19,
+      "scanned_files": 19,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 1,
+      "project_checks_completed": 1
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "changed_file_unreadable": 2,
+      "candidate_limit_exceeded": 1,
+      "baseline_snapshot_unreadable": 1,
+      "project_check_failed": 4
+    },
+    "reasons": [
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-sw.pw.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-install.pw.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "packages/engines/src/graphic/rawpng.ts",
+        "detail": "10 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": "tests/browser/graphic-tools.pw.ts",
+        "detail": "file is missing from task baseline",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-sw.pw.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-install.pw.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "packages/engines/src/graphic/rawpng.ts",
+        "detail": "candidate_limit_exceeded: 10 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": "tests/browser/graphic-tools.pw.ts",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-10-25T03:30:49.179Z",
+  "session_id": "session_18f0866c155e5a6aada9a89d66c5006f",
+  "target": ".",
+  "revision": "5f3840890a3c855b86a8fc7f853f20ea1bab9b70",
+  "rules_version": "unavailable",
+  "diff_hash": "f78050c3acf64a1c5921ac3ae2c24d9b592a2c70f8fd51091376906dd9a441af",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 20,
+    "changed_files": [
+      {
+        "file": "apps/web/package.json",
+        "ranges": [
+          {
+            "start": 7,
+            "end": 8
+          },
+          {
+            "start": 10,
+            "end": 10
+          }
+        ],
+        "before_hash": "a6a7e6ab270929dba8bc647302e0e7d750dbe5c716fdfdf883d71f98d438bf7b",
+        "after_hash": "cb4336124f79545521922bc4bf5706d7296346c6386e85ee52c3e9f8d2d58094"
+      },
+      {
+        "file": "apps/web/scripts/generate-pwa-icons.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 76
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "733e5a2d726ba92771f2ed8fe44e9ff70178f77ad286c981ced8fe0b8a288d4b"
+      },
+      {
+        "file": "apps/web/server.ts",
+        "ranges": [
+          {
+            "start": 172,
+            "end": 172
+          },
+          {
+            "start": 250,
+            "end": 250
+          },
+          {
+            "start": 308,
+            "end": 322
+          },
+          {
+            "start": 330,
+            "end": 330
+          },
+          {
+            "start": 428,
+            "end": 428
+          },
+          {
+            "start": 444,
+            "end": 444
+          }
+        ],
+        "before_hash": "7bf7be500c32d6c8759247a8d101a46060f22f657542c334adfc10837be04b9f",
+        "after_hash": "f9104c1a7b0b6f7d26469ee07bb85ced3ce89090aaa9bfc696b961efb8003ea9"
+      },
+      {
+        "file": "apps/web/src/components/pwa-install-button.tsx",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 49
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "6873fcb1a4d193bc9be8d84586716059c8a5b4f8c99b82f2451ded626d86078a"
+      },
+      {
+        "file": "apps/web/src/components/pwa-manager.tsx",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 107
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "51f9bccc17e36620d2cbe09425700da338f19926e0d1225fcdbd3268cab873a3"
+      },
+      {
+        "file": "apps/web/src/components/site-header.tsx",
+        "ranges": [
+          {
+            "start": 10,
+            "end": 10
+          },
+          {
+            "start": 187,
+            "end": 188
+          }
+        ],
+        "before_hash": "bdacd93368c0a3cb088660cdda5654c640a0a4504579d763b0102f454cfb81c4",
+        "after_hash": "7ff661517926e4c394aeaefef2c11e2bf545dcffe8c8ab862cef55749445e144"
+      },
+      {
+        "file": "apps/web/src/lib/pwa.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 147
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "400633b88f33c8869ea46b143e8915be4dfd18a9a01ed626204df485512419f0"
+      },
+      {
+        "file": "apps/web/src/lib/site.ts",
+        "ranges": [
+          {
+            "start": 12,
+            "end": 15
+          }
+        ],
+        "before_hash": "5ca2dbd26d885ecb1c2b0dcbb4059adb079606822bc8f5704da92a2f562e2077",
+        "after_hash": "c9ac97bfa2a38fcc563a1e455b301e645db0b0949f42643290806136ba058516"
+      },
+      {
+        "file": "apps/web/src/pwa/manifest.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 75
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "934d8cbc9a7ee1a17dd836de1ace31e1740857120d9467c725629d2703ccece9"
+      },
+      {
+        "file": "apps/web/src/pwa/rules.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 152
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "67005690f62b9383a99ead31a67112f6ef478d917b9c9e077addc21b23541281"
+      },
+      {
+        "file": "apps/web/src/pwa/rules.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 159
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "4e8585b998d3333cc94c4fe17c5d587ef10881fe77973958bdd2307e4dcbf27f"
+      },
+      {
+        "file": "apps/web/src/pwa/service-worker.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 191
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "033c92dbb61e08f8fddadde2962c27ecc65a6d68c1bf95389aa48226f3acc116"
+      },
+      {
+        "file": "apps/web/src/routes/__root.tsx",
+        "ranges": [
+          {
+            "start": 16,
+            "end": 16
+          },
+          {
+            "start": 26,
+            "end": 27
+          },
+          {
+            "start": 45,
+            "end": 48
+          },
+          {
+            "start": 81,
+            "end": 81
+          }
+        ],
+        "before_hash": "3d200e552ce8566df6001307d44b9f02f18c04838ff0112ff52b06a8d0f29517",
+        "after_hash": "c1d44e89d48882f8969e70ad7e8d573ff207b2bdc6574aefa980eec1512dbdf3"
+      },
+      {
+        "file": "packages/engines/src/graphic/appicon.ts",
+        "ranges": [
+          {
+            "start": 429,
+            "end": 429
+          },
+          {
+            "start": 472,
+            "end": 477
+          }
+        ],
+        "before_hash": "e80ed322c7e5945479bdeb312eda237d73d80821d8b61ac08afde9a21de126a2",
+        "after_hash": "924c19bfb3599ee07bab5c1049cf53546caebc35e5c4eeb7f881c8c906301bb8"
+      },
+      {
+        "file": "packages/engines/src/graphic/graphic.test.ts",
+        "ranges": [
+          {
+            "start": 2,
+            "end": 2
+          },
+          {
+            "start": 23,
+            "end": 23
+          },
+          {
+            "start": 63,
+            "end": 159
+          }
+        ],
+        "before_hash": "3c49b4da4b115034fb984529e58b837f7564fb77413139c176de54a8bdc97da8",
+        "after_hash": "e65c84ba4b7a75f56aabe6691ea8a440e23f0baf9ec023541ae3953bb66d9f7f"
+      },
+      {
+        "file": "packages/engines/src/image/codecs.ts",
+        "ranges": [
+          {
+            "start": 22,
+            "end": 32
+          },
+          {
+            "start": 43,
+            "end": 43
+          },
+          {
+            "start": 54,
+            "end": 54
+          }
+        ],
+        "before_hash": "31b3060182edca2dcd4c8af17f2130232377dd69621795fd7db484470f591997",
+        "after_hash": "68580adfc0f47ceeadfef3c6f11655f191e54298e78d2a641f9b2d813fcc8bc8"
+      },
+      {
+        "file": "packages/ui/src/primitives/tabs.tsx",
+        "ranges": [
+          {
+            "start": 21,
+            "end": 21
+          },
+          {
+            "start": 37,
+            "end": 37
+          }
+        ],
+        "before_hash": "cfad2697bd90e28e2bd127776120ed8ebefb4670fb74bbf362344db3e388d989",
+        "after_hash": "be3ce6f4f2e6c4cd97edaac663bb92d895d0ec2664fc71badc19315359fdea6a"
+      },
+      {
+        "file": "scripts/build-sw.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 52
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "7d95d5e35afab8b6e7320c9328e5fc2eb3ed6d87e032855633d8619c229e0aea"
+      },
+      {
+        "file": "tests/browser/graphic-tools.pw.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 174
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "f8382ac86e87a07f1301e60d82db8027d3d332a302df42bef2a8f744a5de3c12"
+      },
+      {
+        "file": "tests/browser/pwa.pw.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 126
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "4e722d0ae2dfc08886854102e146dfc22955c4a281f4440e5bfc661a38787d70"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-10-25T03:30:48.351Z",
+    "completed_at": "2026-10-25T03:30:49.179Z",
+    "duration_ms": 828,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 828,
+    "peakMemoryBytes": 231636992,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 19,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-session_18f0866c155e5a6aada9a89d66c5006f-20261025T033049179Z-10758-1e36b9a9969a.json",
+    "latest_report": ".mimosa/reports/task-review-session_18f0866c155e5a6aada9a89d66c5006f.json",
+    "history_summary": ".mimosa/history/run-20261025T033049179Z-10758-1e36b9a9969a.json"
+  }
+}

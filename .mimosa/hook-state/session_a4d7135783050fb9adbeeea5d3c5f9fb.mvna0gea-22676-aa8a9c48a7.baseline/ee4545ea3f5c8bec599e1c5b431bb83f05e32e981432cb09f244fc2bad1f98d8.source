@@ -169,7 +169,7 @@ const SECURITY_HEADERS: Record<string, string> = {
 	"X-Frame-Options": "SAMEORIGIN",
 	"Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
 	"Content-Security-Policy":
-		"frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+		"frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; worker-src 'self' blob:",
 	...(ENABLE_HSTS ? { "Strict-Transport-Security": "max-age=31536000; includeSubDomains" } : {}),
 };
 
@@ -247,6 +247,7 @@ interface InMemoryAsset {
 	gz?: Uint8Array;
 	etag?: string;
 	type: string;
+	route: string;
 	immutable: boolean;
 	size: number;
 }
@@ -305,15 +306,28 @@ function compressDataIfAppropriate(data: Uint8Array, mimeType: string): Uint8Arr
 }
 
 /**
+ * Files that must never be served stale: the service worker (so a new worker
+ * reaches the browser on its next update check) and the manifest (so installs
+ * always see the current one).
+ */
+const REVALIDATED_ROUTES = new Set(["/sw.js", "/manifest.webmanifest"]);
+
+/**
+ * Cache policy for a static file.
+ */
+function staticCacheControl(route: string, immutable: boolean): string {
+	if (REVALIDATED_ROUTES.has(route)) return "no-cache";
+	return immutable ? "public, max-age=31536000, immutable" : "public, max-age=3600";
+}
+
+/**
  * Create response handler function with ETag and Gzip support
  */
 function createResponseHandler(asset: InMemoryAsset): (req: Request) => Response {
 	return (req: Request) => {
 		const headers: Record<string, string> = {
 			"Content-Type": asset.type,
-			"Cache-Control": asset.immutable
-				? "public, max-age=31536000, immutable"
-				: "public, max-age=3600",
+			"Cache-Control": staticCacheControl(asset.route, asset.immutable),
 		};
 
 		if (ENABLE_ETAG && asset.etag) {
@@ -411,6 +425,7 @@ async function initializeStaticRoutes(clientDirectory: string): Promise<PreloadR
 						gz,
 						etag,
 						type: metadata.type,
+						route,
 						// Only Vite's content-hashed files may be cached forever.
 						immutable: route.startsWith("/assets/"),
 						size: bytes.byteLength,
@@ -426,7 +441,7 @@ async function initializeStaticRoutes(clientDirectory: string): Promise<PreloadR
 						return new Response(fileOnDemand, {
 							headers: {
 								"Content-Type": metadata.type,
-								"Cache-Control": "public, max-age=3600",
+								"Cache-Control": staticCacheControl(route, false),
 							},
 						});
 					};

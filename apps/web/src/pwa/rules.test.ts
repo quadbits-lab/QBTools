@@ -7,6 +7,7 @@ import {
 	isCacheableWasmResponse,
 	isHashedAsset,
 	isOwnedCacheName,
+	isOwnOrigin,
 	isPrecachedPath,
 	isWasmAsset,
 	OFFLINE_FALLBACK_URL,
@@ -44,6 +45,15 @@ describe("service worker cache policy", () => {
 		for (const path of ["/", "/tools", "/tools/compress-image", "/categories/image", "/about"]) {
 			expect(isBypassed(path)).toBe(false);
 		}
+	});
+
+	test("only claims requests for its own origin", () => {
+		const origin = "https://tools.quadbits.app";
+		expect(isOwnOrigin("https://tools.quadbits.app/tools", origin)).toBe(true);
+		expect(isOwnOrigin("https://tools.quadbits.app", origin)).toBe(true);
+		expect(isOwnOrigin("https://example.com/tools", origin)).toBe(false);
+		expect(isOwnOrigin("https://tools.quadbits.app.evil.test/", origin)).toBe(false);
+		expect(isOwnOrigin("not a url", origin)).toBe(false);
 	});
 
 	test("recognises hashed build output and wasm engines", () => {

@@ -1,0 +1,179 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261025T033049179Z-10758-1e36b9a9969a",
+  "runId": "20261025T033049179Z-10758-1e36b9a9969a",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-sw.pw.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-install.pw.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "packages/engines/src/graphic/rawpng.ts",
+        "detail": "10 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      },
+      {
+        "code": "baseline_snapshot_unreadable",
+        "stage": "baseline-read",
+        "target": "tests/browser/graphic-tools.pw.ts",
+        "detail": "file is missing from task baseline",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-sw.pw.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "tests/browser/probe-install.pw.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "packages/engines/src/graphic/rawpng.ts",
+        "detail": "candidate_limit_exceeded: 10 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "baseline-read",
+        "target": "tests/browser/graphic-tools.pw.ts",
+        "detail": "baseline_snapshot_unreadable: file is missing from task baseline",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "5f3840890a3c855b86a8fc7f853f20ea1bab9b70",
+  "diffHash": "f78050c3acf64a1c5921ac3ae2c24d9b592a2c70f8fd51091376906dd9a441af",
+  "rulesVersion": "unavailable",
+  "sessionHash": "5ccabd602809193219f6de34b040906e59a10ca328de528374e323f555aa23a3",
+  "reportRef": ".mimosa/reports/task-review-session_18f0866c155e5a6aada9a89d66c5006f-20261025T033049179Z-10758-1e36b9a9969a.json",
+  "events": [],
+  "observedFindingIds": [
+    "mimosa-803cc4cba713c34cd8d9ca03",
+    "mimosa-c69bb86b6b84f027313e01b1"
+  ],
+  "verifiedFiles": [
+    {
+      "file": "apps/web/src/pwa/rules.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/pwa/rules.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/pwa/service-worker.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "scripts/build-sw.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/lib/site.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/pwa/manifest.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/lib/pwa.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/components/pwa-manager.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/components/pwa-install-button.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/routes/__root.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/components/site-header.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/server.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/scripts/generate-pwa-icons.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/browser/pwa.pw.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/browser/graphic-tools.pw.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/ui/src/primitives/tabs.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/image/codecs.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/appicon.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/graphic.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-25T03:30:49.361Z"
+}

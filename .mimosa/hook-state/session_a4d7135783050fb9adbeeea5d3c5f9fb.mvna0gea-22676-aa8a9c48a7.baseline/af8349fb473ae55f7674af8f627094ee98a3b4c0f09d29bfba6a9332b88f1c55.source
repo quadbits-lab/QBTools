@@ -426,7 +426,7 @@ export async function generateAppIconSet(
 				);
 				files.push({
 					name: `${prefixAndroid}res/mipmap-${layer.density}/ic_launcher_monochrome.png`,
-					blob: encodeRawPng(mono.data, mono.width, mono.height, { processing }),
+					blob: await encodeRawPng(mono.data, mono.width, mono.height, { processing }),
 					mimeType: "image/png",
 				});
 			}
@@ -469,9 +469,12 @@ export async function generateAppIconSet(
 				{
 					name: `${prefixAndroid}res/mipmap-${layer.density}/ic_launcher_round.png`,
 					blob: round.pixels
-						? encodeRawPng(circleMask(round.pixels, layer.legacy), layer.legacy, layer.legacy, {
-								processing,
-							})
+						? await encodeRawPng(
+								circleMask(round.pixels, layer.legacy),
+								layer.legacy,
+								layer.legacy,
+								{ processing },
+							)
 						: square.blob,
 					mimeType: "image/png",
 				},

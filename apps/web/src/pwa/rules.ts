@@ -57,6 +57,20 @@ export function isBypassed(pathname: string): boolean {
 	);
 }
 
+/**
+ * True when a request URL belongs to the site's own origin.
+ *
+ * Another origin is never ours to cache, not even a top-level navigation to a
+ * site that links here.
+ */
+export function isOwnOrigin(url: string, origin: string): boolean {
+	try {
+		return new URL(url).origin === origin;
+	} catch {
+		return false;
+	}
+}
+
 /** True for Vite's content-hashed build output. */
 export function isHashedAsset(pathname: string): boolean {
 	return pathname.startsWith(HASHED_ASSET_PREFIX);

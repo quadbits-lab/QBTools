@@ -93,20 +93,23 @@ export async function renderSvg(
 			bytes = rendered.asPng();
 		} else {
 			// Re-encode through the shared codecs (canvas-independent, works in workers).
-			pixels = new Uint8ClampedArray(rendered.pixels);
+			const rgba = new Uint8ClampedArray(rendered.pixels);
+			pixels = rgba;
+			// Canvas putImageData rejects plain objects, so build a real ImageData when possible.
+			const image =
+				typeof ImageData === "undefined"
+					? ({ data: rgba, width: rendered.width, height: rendered.height } as ImageData)
+					: new ImageData(rgba, rendered.width, rendered.height);
 			const { encodeImage } = await import("../image/codecs");
-			const blob = await encodeImage(
-				{ data: pixels, width: rendered.width, height: rendered.height } as ImageData,
-				{
-					...(options as {
-						signal?: AbortSignal;
-						onProgress?: (p: import("../processing").ProcessingProgress) => void;
-					}),
-					format: format as OptimizedFormat,
-					quality: request.quality ?? 0.9,
-					mode: request.optimize ? "optimized" : "fast",
-				},
-			);
+			const blob = await encodeImage(image, {
+				...(options as {
+					signal?: AbortSignal;
+					onProgress?: (p: import("../processing").ProcessingProgress) => void;
+				}),
+				format: format as OptimizedFormat,
+				quality: request.quality ?? 0.9,
+				mode: request.optimize ? "optimized" : "fast",
+			});
 			checkAbort(options.signal);
 			return { blob, width: rendered.width, height: rendered.height, pixels };
 		}

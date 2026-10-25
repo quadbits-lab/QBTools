@@ -37,6 +37,7 @@ import { DisciplineAccordion } from "#/components/category-accordion";
 import { CategoryCard } from "#/components/category-card";
 import { HeroHologram } from "#/components/hero-hologram";
 import { MobileFilterSheet } from "#/components/mobile-filter-sheet";
+import { MobileWhyCompare } from "#/components/mobile-why-compare";
 import { SearchBox } from "#/components/search-box";
 import { ToolCard } from "#/components/tool-card";
 import { ToolTag } from "#/components/tool-flags";
@@ -245,35 +246,12 @@ function PersonalShelf() {
 							onClick={() => recentTools.write([])}
 							aria-label="Clear recent history"
 							title="Clear recent history"
-							className={`${SHELF_CONTROL} hover:border-cat-rose-border hover:bg-cat-rose-bg hover:text-cat-rose-icon`}
+							className={`relative z-10 border-border/70 bg-background/60 backdrop-blur-md hover:border-cat-rose-border hover:bg-cat-rose-bg hover:text-cat-rose-icon ${SHELF_CONTROL}`}
 						>
 							<RotateCcw />
 						</Button>
 					)}
-					{list.length > 0 && (
-						<>
-							<Button
-								variant="outline"
-								size="icon"
-								className={`hidden sm:inline-flex ${SHELF_CONTROL}`}
-								disabled={!canPrev}
-								onClick={() => emblaApi?.scrollPrev()}
-								aria-label="Previous tools"
-							>
-								<ArrowLeft />
-							</Button>
-							<Button
-								variant="outline"
-								size="icon"
-								className={`hidden sm:inline-flex ${SHELF_CONTROL}`}
-								disabled={!canNext}
-								onClick={() => emblaApi?.scrollNext()}
-								aria-label="Next tools"
-							>
-								<ArrowRight />
-							</Button>
-						</>
-					)}
+
 					{user && (
 						<Segmented
 							label="Show"
@@ -287,6 +265,31 @@ function PersonalShelf() {
 							]}
 							className="min-w-0 flex-1 rounded-[10px] sm:flex-none"
 						/>
+					)}
+
+					{list.length > 0 && (canPrev || canNext) && (
+						<>
+							<Button
+								variant="outline"
+								size="icon"
+								className={`relative z-10 hidden border-border/70 bg-background/60 backdrop-blur-md hover:bg-background/80 disabled:border-border/60 disabled:bg-background/35 disabled:text-muted-foreground/45 disabled:opacity-100 sm:inline-flex ${SHELF_CONTROL}`}
+								disabled={!canPrev}
+								onClick={() => emblaApi?.scrollPrev()}
+								aria-label="Previous tools"
+							>
+								<ArrowLeft />
+							</Button>
+							<Button
+								variant="outline"
+								size="icon"
+								className={`relative z-10 hidden border-border/70 bg-background/60 backdrop-blur-md hover:bg-background/80 disabled:border-border/60 disabled:bg-background/35 disabled:text-muted-foreground/45 disabled:opacity-100 sm:inline-flex ${SHELF_CONTROL}`}
+								disabled={!canNext}
+								onClick={() => emblaApi?.scrollNext()}
+								aria-label="Next tools"
+							>
+								<ArrowRight />
+							</Button>
+						</>
 					)}
 				</div>
 			</div>
@@ -368,6 +371,7 @@ function ToolsDirectory() {
 	const [filtersOpen, setFiltersOpen] = useState(false);
 	const searchRef = useRef<HTMLInputElement>(null);
 	const mobileSearchRef = useRef<HTMLInputElement>(null);
+	const filterButtonRef = useRef<HTMLButtonElement>(null);
 
 	const filteredTools = useMemo(() => {
 		let list = [...tools];
@@ -420,7 +424,7 @@ function ToolsDirectory() {
 			/>
 
 			{/* Mobile filter dock: sticky search + sheet trigger, facet tokens below. */}
-			<div className="sticky top-16 z-30 mt-6 rounded-xl border border-border/70 bg-background/85 p-2 shadow-2xs backdrop-blur-xl sm:hidden">
+			<div className="sticky top-16 z-30 mt-6 rounded-xl border border-border/70 bg-background/90 p-2 shadow-2xs backdrop-blur-xl sm:hidden">
 				<div className="flex items-center gap-2">
 					<div className="relative min-w-0 flex-1">
 						<Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -451,6 +455,8 @@ function ToolsDirectory() {
 						onClick={() => setFiltersOpen(true)}
 						aria-label={activeFacetCount > 0 ? `Filters, ${activeFacetCount} active` : "Filters"}
 						aria-haspopup="dialog"
+						aria-expanded={filtersOpen}
+						ref={filterButtonRef}
 						className="relative h-11 w-11 shrink-0"
 					>
 						<SlidersHorizontal className="size-4" />
@@ -654,10 +660,10 @@ function ToolsDirectory() {
 				</div>
 			) : (
 				<>
-					<ul className="mt-3 flex flex-col gap-2 sm:hidden">
+					<ul className="mt-4 grid grid-cols-2 gap-2 sm:hidden">
 						{visible.map((tool) => (
-							<li key={tool.slug}>
-								<ToolCard tool={tool} variant="compact" />
+							<li key={tool.slug} className="min-w-0">
+								<ToolCard tool={tool} variant="tile" />
 							</li>
 						))}
 					</ul>
@@ -681,6 +687,7 @@ function ToolsDirectory() {
 				resultCount={filteredTools.length}
 				onReset={reset}
 				hasActiveFilters={filtering}
+				onAfterClose={() => filterButtonRef.current?.focus()}
 			/>
 
 			{collapsed && (
@@ -754,7 +761,7 @@ function HomePage() {
 			{/* Hero */}
 			<section className="relative">
 				<HeroHologram />
-				<div className="container-page relative z-10 flex flex-col items-center gap-4 pt-8 pb-10 text-center sm:gap-6 sm:pt-24 sm:pb-28">
+				<div className="container-page relative z-10 flex min-h-[60dvh] flex-col items-start justify-center gap-5 pt-16 pb-20 text-left sm:min-h-0 sm:items-center sm:gap-6 sm:pt-24 sm:pb-28 sm:text-center">
 					<div className="reveal inline-flex items-center gap-2 rounded-full border border-cat-emerald-border bg-cat-emerald-bg px-3 py-1 text-xs text-cat-emerald-fg sm:py-1.5">
 						<span className="size-2 shrink-0 animate-beacon rounded-full bg-cat-emerald-icon" />
 						<span className="sm:hidden">{tools.length} free client-side tools</span>
@@ -763,11 +770,11 @@ function HomePage() {
 						</span>
 					</div>
 
-					<h1 className="display reveal max-w-4xl text-[2rem] leading-[1.1] sm:text-[clamp(2.5rem,7vw,4rem)] sm:leading-none [animation-delay:80ms]">
+					<h1 className="display reveal max-w-4xl text-[2.75rem] leading-[1.25] sm:text-[clamp(2.5rem,7vw,4rem)] sm:leading-none [animation-delay:80ms] capitalize">
 						Fast, private tools that never leave your browser.
 					</h1>
 
-					<p className="reveal max-w-[340px] text-sm leading-5 text-muted-foreground sm:max-w-[720px] sm:text-lg sm:leading-7 [animation-delay:140ms]">
+					<p className="reveal max-w-[360px] text-[0.9375rem] leading-6 text-muted-foreground sm:max-w-[720px] sm:text-lg sm:leading-7 [animation-delay:140ms]">
 						<span className="sm:hidden">
 							Compress media, merge PDFs, format code, and encrypt files directly on your device.
 						</span>
@@ -788,40 +795,35 @@ function HomePage() {
 						))}
 					</ul>
 
-					<div className="reveal mt-1 w-full max-w-[640px] sm:mt-0 [animation-delay:260ms]">
+					<div className="reveal mt-2 w-full max-w-[640px] sm:mt-0 [animation-delay:260ms]">
 						<SearchBox
 							size="lg"
 							placeholder={`Search ${tools.length} tools — try “compress” or “pdf”`}
 						/>
 					</div>
 
-					<div className="reveal flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 [animation-delay:320ms]">
-						<span className="hidden pr-1 font-mono text-[0.625rem] font-medium uppercase tracking-[0.1em] text-subtle sm:inline">
-							Popular
-						</span>
+					{/* <div className="reveal hidden flex-wrap items-center justify-center gap-2 sm:flex [animation-delay:320ms]">
+
 						{QUICK.map(getTool)
 							.filter((t) => t !== undefined)
-							.map((tool, index) => (
+							.map((tool) => (
 								<Link
 									key={tool.slug}
 									to="/tools/$slug"
 									params={{ slug: tool.slug }}
-									className={cn(
-										"h-7 items-center gap-1.5 rounded-full border border-input bg-background/85 px-2.5 text-xs font-medium backdrop-blur-xs transition-colors hover:bg-accent sm:h-8 sm:px-3 sm:text-sm",
-										index >= 3 ? "hidden sm:inline-flex" : "inline-flex",
-									)}
+									className="inline-flex h-8 items-center gap-1.5 rounded-full border border-input bg-background/85 px-3 text-sm font-medium backdrop-blur-xs transition-colors hover:bg-accent"
 								>
 									<span
 										aria-hidden="true"
 										className={cn(
-											"size-1.5 shrink-0 rounded-full sm:size-2",
+											"size-2 shrink-0 rounded-full",
 											categoryStyles[tool.category].dot,
 										)}
 									/>
 									{tool.name}
 								</Link>
 							))}
-					</div>
+					</div> */}
 				</div>
 			</section>
 
@@ -898,7 +900,11 @@ function HomePage() {
 					description="Your files are processed on your device — not on someone else’s server."
 				/>
 
-				<div className="mt-8 grid gap-6 lg:grid-cols-2">
+				<div className="mt-6 sm:hidden">
+					<MobileWhyCompare browserSteps={BROWSER_STEPS} cloudSteps={CLOUD_STEPS} />
+				</div>
+
+				<div className="mt-8 hidden gap-6 sm:grid lg:grid-cols-2">
 					<CompareCard
 						tone="emerald"
 						title="QBTools in-browser engine"
@@ -913,21 +919,28 @@ function HomePage() {
 					/>
 				</div>
 
-				<div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+				<div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-6 lg:grid-cols-4">
 					{WHY.map((item) => {
 						const Icon = item.icon;
 						return (
 							<div
 								key={item.title}
-								className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5"
+								className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3.5 sm:gap-3 sm:rounded-lg sm:p-5"
 							>
 								<span
-									className={cn("grid size-10 place-items-center rounded-md border", item.tile)}
+									className={cn(
+										"grid size-9 place-items-center rounded-lg border sm:size-10 sm:rounded-md",
+										item.tile,
+									)}
 								>
-									<Icon className="size-5" aria-hidden="true" />
+									<Icon className="size-4 sm:size-5" aria-hidden="true" />
 								</span>
-								<h3 className="text-xl font-semibold tracking-[-0.025em]">{item.title}</h3>
-								<p className="text-sm text-muted-foreground">{item.text}</p>
+								<h3 className="text-sm leading-5 font-semibold tracking-[-0.02em] sm:text-xl sm:leading-7">
+									{item.title}
+								</h3>
+								<p className="text-xs leading-4 text-muted-foreground sm:text-sm sm:leading-5">
+									{item.text}
+								</p>
 							</div>
 						);
 					})}
