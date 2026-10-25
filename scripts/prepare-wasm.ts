@@ -70,6 +70,7 @@ for (const language of ["eng", "ara"]) {
 manifest.tessdata = `/wasm/${languageFolder}`;
 await copyPackage("ffmpeg", "@ffmpeg/ffmpeg", "dist/esm");
 await copyPackage("ffmpeg-core", "@ffmpeg/core", "dist/esm");
+await copyPackage("vtracer", "@visioncortex/vtracer", "pkg", (n) => n === "vtracer_wasm_bg.wasm");
 for (const name of [
 	"mediabunny",
 	"@mediabunny/aac-encoder",
@@ -77,6 +78,7 @@ for (const name of [
 	"@mediabunny/mp3-encoder",
 	"hash-wasm",
 	"@resvg/resvg-wasm",
+	"@visioncortex/vtracer",
 	"dompurify",
 	"opentype.js",
 	"upng-js",

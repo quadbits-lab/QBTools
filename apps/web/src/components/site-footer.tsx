@@ -4,7 +4,6 @@ import { ShieldCheck } from "lucide-react";
 import { SITE_NAME } from "#/lib/site";
 import { reopenConsent } from "./consent";
 import { Logo } from "./logo";
-import { ToolTag } from "./tool-flags";
 
 const LEGAL = [
 	{ to: "/privacy", label: "Privacy Policy" },

@@ -13,6 +13,7 @@ export const widgets: Record<string, Widget> = {
 	"resize-image": lazy(() => import("./resize-image")),
 	"convert-image": lazy(() => import("./convert-image")),
 	"remove-background": lazy(() => import("./remove-background")),
+	"png-to-svg": lazy(() => import("./png-to-svg")),
 	"merge-pdf": lazy(() => import("./merge-pdf")),
 	"split-pdf": lazy(() => import("./split-pdf")),
 	"compress-pdf": lazy(() => import("./compress-pdf")),

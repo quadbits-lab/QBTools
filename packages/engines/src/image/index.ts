@@ -229,3 +229,5 @@ export function compositeOn(
 	ctx.drawImage(cutout, 0, 0);
 	return out;
 }
+
+export * from "./vectorize";

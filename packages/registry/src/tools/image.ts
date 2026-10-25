@@ -530,4 +530,110 @@ export const imageTools: ToolDef[] = [
 		related: ["favicon-generator", "og-banner-maker", "convert-image"],
 		runtime: "browser",
 	},
+	{
+		slug: "png-to-svg",
+		category: "image",
+		name: "PNG to SVG",
+		title: "PNG to SVG Converter — Vectorize Images to SVG Online",
+		tagline: "Convert PNG and raster images to clean, scalable SVG vector graphics.",
+		description:
+			"Vectorize PNG, JPG and WebP images to scalable SVG vectors using client-side WebAssembly. Choose color or black-and-white, adjust curves, and download crisp SVG paths.",
+		icon: "file-code",
+		keywords: [
+			"png to svg",
+			"convert png to svg",
+			"image to svg",
+			"vectorize image",
+			"png to vector",
+			"svg converter",
+			"raster to vector",
+			"bitmap to svg",
+			"trace image",
+		],
+		howTo: [
+			{
+				title: "Upload image",
+				text: "Drop a PNG, JPG, or WebP graphic, logo, sketch, or illustration.",
+			},
+			{
+				title: "Choose tracing mode",
+				text: "Select a preset like Logo, Silhouette, or Illustration, or tweak colors and smoothing.",
+			},
+			{
+				title: "Inspect & export",
+				text: "Compare the vector output side by side with the original, copy SVG code, or download the SVG file.",
+			},
+		],
+		about: {
+			what: "Raster images (like PNGs) are grids of pixels that become blurry when enlarged. SVG files describe images using mathematical curves and shapes, staying crystal clear at any screen resolution or print size. QBTools vectorizes your images using client-side WebAssembly directly on your device.",
+			when: [
+				"You need an infinitely scalable vector logo from a PNG.",
+				"You want to convert hand-drawn sketches or signatures into digital vectors.",
+				"You need clean vector icons or illustrations for web design and printing.",
+				"You want smaller, responsive graphics for websites without pixelation.",
+			],
+		},
+		faqs: [
+			{
+				q: "Does vectorization happen in my browser?",
+				a: "Yes. Processing is powered by VTracer compiled to WebAssembly running locally on your device. Your images are never uploaded to any server.",
+			},
+			{
+				q: "Can I vectorize full-color images?",
+				a: "Yes. Unlike simple black-and-white tracers, QBTools supports multi-color hierarchical clustering with customizable color counts and smooth Bézier curve fitting.",
+			},
+			{
+				q: "What types of images work best?",
+				a: "Logos, icons, line art, silhouettes, illustrations, and pixel art produce the cleanest vector results. Complex real-world photographs will produce artistic, posterized vector graphics.",
+			},
+			{
+				q: "Can I copy the SVG code directly?",
+				a: "Yes. You can copy the raw SVG markup directly to your clipboard or download the SVG file with one click.",
+			},
+		],
+		related: ["convert-image", "resize-image", "compress-image", "remove-background"],
+		runtime: "browser",
+		popular: 8,
+		presets: [
+			{
+				slug: "png-to-vector",
+				title: "PNG to Vector Converter",
+				description:
+					"Turn PNG images into scalable vector graphics online for free. Processed privately in your browser.",
+				intro:
+					"Need to scale up a PNG without losing sharpness? Convert it to mathematical vector paths that look crisp at any size.",
+				keywords: ["png to vector", "convert png to vector", "png vectorizer"],
+				params: { preset: "logo" },
+			},
+			{
+				slug: "logo-to-svg",
+				title: "Convert Logo to SVG",
+				description:
+					"Convert raster logos to clean, multi-color SVG vector files with smooth curves.",
+				intro:
+					"Vectorize your company logo or icon into scalable SVG paths ready for websites, signs, and merchandise.",
+				keywords: ["logo to svg", "convert logo to svg", "vectorize logo"],
+				params: { preset: "logo" },
+			},
+			{
+				slug: "image-to-svg",
+				title: "Image to SVG Converter",
+				description: "Convert JPG, PNG, and WebP pictures to scalable SVG vector files in seconds.",
+				intro:
+					"Convert any raster picture to SVG with customizable curve smoothing, color clustering, and detail controls.",
+				keywords: ["image to svg", "picture to svg", "photo to svg"],
+				params: { preset: "photo" },
+			},
+			{
+				slug: "sketch-to-svg",
+				title: "Sketch & Line Art to SVG",
+				description:
+					"Convert signatures, drawings, and black & white sketches into clean vector art.",
+				intro:
+					"Trace black and white drawings, signatures, or scans into crisp monochrome SVG lines with adaptive lighting compensation.",
+				keywords: ["sketch to svg", "line art to svg", "signature to svg"],
+				params: { preset: "bw" },
+			},
+		],
+	},
 ];

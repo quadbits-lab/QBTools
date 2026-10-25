@@ -66,4 +66,3 @@ services:
 
 volumes:
   qbtools-data:
-
