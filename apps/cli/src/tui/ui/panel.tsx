@@ -2,9 +2,9 @@
  * Boxed panel with the label embedded in the top border — the console's
  * structural element:
  *
- *   ┌─ SYS:TELEMETRY ────────────────── ONLINE ─┐
- *   │ content                                  │
- *   └───────────────────────────────────────────┘
+ *   ╭─ SYS:TELEMETRY ───────────────────── ONLINE ─╮
+ *   │ content                                    │
+ *   ╰────────────────────────────────────────────╯
  *
  * The label and the right-hand tag live inside the border, so the frame never
  * shifts when a panel's content changes. A panel with a fixed height clips
@@ -36,9 +36,11 @@ export function Panel(props: PanelProps) {
 	const left = props.label ? `─ ${props.label} ` : "─";
 	const right = props.right ? ` ${props.right} ` : "";
 	const fill = Math.max(0, inner - left.length - right.length);
-	const top = `┌${left}${"─".repeat(fill)}${right}┐`;
-	const bottom = `└${"─".repeat(inner)}┘`;
-	const borderColor = props.accent ? theme.borderStrong : (props.borderColor ?? theme.border);
+	const top = `╭${left}${"─".repeat(fill)}${right}╮`;
+	const bottom = `╰${"─".repeat(inner)}╯`;
+	const borderColor = props.accent
+		? theme.border.strong
+		: (props.borderColor ?? theme.border.default);
 
 	return (
 		<Box flexDirection="column" width={width} flexShrink={0}>
@@ -69,9 +71,13 @@ export interface ChipProps {
 }
 
 export function Chip(props: ChipProps) {
-	const color = props.active ? theme.fg : props.dim ? theme.textSubtle : theme.textDim;
+	const color = props.active
+		? theme.surface.onChip
+		: props.dim
+			? theme.text.muted
+			: theme.text.secondary;
 	return (
-		<Text color={color} backgroundColor={props.active ? theme.muted : undefined}>
+		<Text color={color} backgroundColor={props.active ? theme.surface.chip : undefined}>
 			{`[${props.label}]`}
 		</Text>
 	);

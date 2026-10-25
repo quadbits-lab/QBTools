@@ -2,8 +2,9 @@
  * Board layout model — pure, no React.
  *
  * The tool catalogue is laid out as category blocks: a one-row header, a gap,
- * then card rows of `cols` cards. Cards are four rows tall with one blank row
- * between card rows; blocks are separated by one blank row.
+ * then card rows of `cols` cards. Cards are five rows tall (name, slug and
+ * availability status) with one blank row between card rows; blocks are
+ * separated by one blank row.
  *
  * Navigation works on card rows only, so moving down from the last row of one
  * category lands in the next category without special-casing the headers.
@@ -12,7 +13,7 @@
 import { categories, type ToolDef } from "@qbtools/registry";
 import { categoryCode } from "./categories";
 
-export const CARD_HEIGHT = 4;
+export const CARD_HEIGHT = 5;
 export const CARD_ROW_GAP = 1;
 export const HEADER_GAP = 1;
 export const BLOCK_GAP = 1;

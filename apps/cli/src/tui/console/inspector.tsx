@@ -14,7 +14,7 @@
 
 import type { ToolDef } from "@qbtools/registry";
 import { Box, Text } from "ink";
-import { accents, categoryAccent, theme } from "../theme";
+import { categoryColor, theme } from "../theme";
 import { Panel } from "../ui/panel";
 import { categoryCode } from "./categories";
 
@@ -39,13 +39,6 @@ const MODE_LABEL: Record<StripMode, string> = {
 	account: "▸ INSPECTOR: ACCOUNT",
 };
 
-const AVAILABILITY_COLOR: Record<string, string> = {
-	"+sharp": accents.amber,
-	"~ffmpeg": accents.amber,
-	"▸ server": accents.indigo,
-	local: accents.emerald,
-};
-
 /** Width of the fields zone for a given strip width (shared with the console). */
 export function fieldsWidth(outerWidth: number): number {
 	const inner = Math.max(20, outerWidth - 4);
@@ -54,7 +47,7 @@ export function fieldsWidth(outerWidth: number): number {
 }
 
 export function InspectorStrip(props: InspectorStripProps) {
-	const accent = props.tool ? accents[categoryAccent(props.tool.category)] : theme.borderStrong;
+	const accent = props.tool ? categoryColor(props.tool.category) : theme.border.strong;
 	const contentHeight = Math.max(3, props.height - 2);
 	const inner = Math.max(20, props.width - 4);
 	const fullWidth = props.mode !== "details" && props.mode !== "tool";
@@ -68,7 +61,6 @@ export function InspectorStrip(props: InspectorStripProps) {
 				width={props.width}
 				height={props.height}
 				accent
-				borderColor={accent}
 			>
 				<Box flexDirection="column" height={contentHeight} overflow="hidden" flexShrink={0}>
 					{props.body}
@@ -86,7 +78,6 @@ export function InspectorStrip(props: InspectorStripProps) {
 			width={props.width}
 			height={props.height}
 			accent
-			borderColor={accent}
 		>
 			<Box flexDirection="row" height={contentHeight} overflow="hidden" flexShrink={0}>
 				<Zone width={identityWidth} height={contentHeight} first>
@@ -144,7 +135,7 @@ function Zone(props: {
 			flexShrink={0}
 			paddingX={1}
 			borderStyle="single"
-			borderColor={theme.border}
+			borderColor={theme.border.default}
 			borderLeft={!props.first}
 			borderTop={false}
 			borderBottom={false}
@@ -160,7 +151,7 @@ function ZoneTitle(props: { label: string; color: string }) {
 	return (
 		<>
 			<Text color={props.color}>{"◆ "}</Text>
-			<Text color={theme.textSubtle} bold>
+			<Text color={theme.text.secondary} bold>
 				{props.label}
 			</Text>
 		</>
@@ -175,9 +166,9 @@ function IdentityZone(props: {
 }) {
 	if (!props.tool) {
 		return (
-			<Text color={theme.textSubtle}>
+			<Text color={theme.text.muted}>
 				No tool selected{"\n"}
-				<Text color={theme.textSubtle}>type to filter the board</Text>
+				<Text color={theme.text.muted}>type to filter the board</Text>
 			</Text>
 		);
 	}
@@ -187,22 +178,19 @@ function IdentityZone(props: {
 				{props.tool.name}
 			</Text>
 			{"\n"}
-			<Text color={theme.textSubtle}>
+			<Text color={theme.text.muted}>
 				{`${categoryCode(props.tool.category)}:${props.tool.slug}`}
 			</Text>
 			{props.compact ? null : (
 				<>
 					{"\n"}
-					<Text color={theme.textDim}>{props.tool.tagline}</Text>
+					<Text color={theme.text.primary}>{props.tool.tagline}</Text>
 				</>
 			)}
 			{props.availability ? (
 				<>
 					{"\n"}
-					<Text
-						color={AVAILABILITY_COLOR[props.availability.label] ?? theme.textDim}
-						backgroundColor={theme.muted}
-					>
+					<Text color={theme.surface.onChip} backgroundColor={theme.surface.chip}>
 						{` ${props.availability.label} `}
 					</Text>
 				</>
@@ -212,26 +200,26 @@ function IdentityZone(props: {
 }
 
 function CliZone(props: { tool: ToolDef | undefined; accent: string; compact: boolean }) {
-	if (!props.tool) return <Text color={theme.textSubtle}>—</Text>;
+	if (!props.tool) return <Text color={theme.text.muted}>—</Text>;
 	return (
 		<Text>
 			<ZoneTitle label="CLI INVOCATION" color={props.accent} />
 			{"\n"}
-			<Text backgroundColor={theme.muted}>
-				<Text color={accents.emerald} bold>
+			<Text backgroundColor={theme.surface.chip}>
+				<Text color={theme.surface.onChip} bold>
 					{" $ "}
 				</Text>
-				<Text color={theme.fg} bold>
+				<Text color={theme.surface.onChip} bold>
 					qbtools
 				</Text>
-				<Text color={theme.textSubtle}>{" run "}</Text>
-				<Text color={props.accent}>{props.tool.slug}</Text>{" "}
+				<Text color={theme.surface.onChip}>{" run "}</Text>
+				<Text color={theme.surface.onChip}>{props.tool.slug}</Text>{" "}
 			</Text>
 			{props.compact ? null : (
 				<>
 					{"\n"}
-					<Text color={theme.textSubtle}>
-						{"▸ Enter opens the form"} <Text color={accents.indigo}>{"·"}</Text> Ctrl+R runs
+					<Text color={theme.text.secondary}>
+						{"▸ Enter opens the form"} <Text color={theme.text.accent}>{"·"}</Text> Ctrl+R runs
 						anywhere
 					</Text>
 				</>
@@ -254,21 +242,22 @@ function FlagsZone(props: {
 			{flags.length > 0 ? (
 				flags.map((flag, index) => (
 					<Text key={flag.name}>
-						{index > 0 ? <Text color={theme.textSubtle}>{"  "}</Text> : null}
-						<Text color={theme.textSubtle}>{"--"}</Text>
-						<Text color={accents.sky}>{flag.name}</Text>
+						{index > 0 ? <Text color={theme.text.muted}>{"  "}</Text> : null}
+						<Text color={theme.text.muted}>{"--"}</Text>
+						{/* Tokens read in the brightest tone; placeholders sit back in the quiet cyan. */}
+						<Text color={theme.status.warning}>{flag.name}</Text>
 						{flag.placeholder ? (
-							<Text color={accents.violet}>{` <${flag.placeholder}>`}</Text>
+							<Text color={theme.ui.symbol}>{` <${flag.placeholder}>`}</Text>
 						) : null}
 					</Text>
 				))
 			) : (
-				<Text color={theme.textDim}>no flags</Text>
+				<Text color={theme.text.muted}>no flags</Text>
 			)}
 			{props.availability && !props.compact ? (
 				<>
 					{"\n"}
-					<Text color={theme.textSubtle}>{`▸ ${props.availability.hint}`}</Text>
+					<Text color={theme.text.secondary}>{`▸ ${props.availability.hint}`}</Text>
 				</>
 			) : null}
 		</Text>

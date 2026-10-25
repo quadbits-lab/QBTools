@@ -51,8 +51,8 @@ describe("buildBoard", () => {
 
 	test("lays out headers, gaps and card rows", () => {
 		const board = buildBoard(sample, 2);
-		// image header at 0, gap, rows at 2 / 7 / 12, block gap, pdf header at 17
-		expect(board.rowY).toEqual([2, 7, 12, 19]);
+		// image header at 0, gap, rows at 2 / 8 / 14, block gap, pdf header at 20
+		expect(board.rowY).toEqual([2, 8, 14, 22]);
 		expect(board.cardRows.map((row) => row.map((entry) => entry.slug))).toEqual([
 			["a", "b"],
 			["c", "d"],
@@ -62,14 +62,14 @@ describe("buildBoard", () => {
 		const pdfHeader = board.items.find(
 			(item) => item.kind === "header" && item.categoryId === "pdf",
 		);
-		expect(pdfHeader?.y).toBe(12 + CARD_HEIGHT + 1);
+		expect(pdfHeader?.y).toBe(14 + CARD_HEIGHT + 1);
 		expect(HEADER_GAP).toBe(1);
 	});
 
 	test("find returns the row, column and y of a card", () => {
 		const board = buildBoard(sample, 2);
-		expect(board.find("d")).toEqual({ row: 1, col: 1, y: 7 });
-		expect(board.find("f")).toEqual({ row: 3, col: 0, y: 19 });
+		expect(board.find("d")).toEqual({ row: 1, col: 1, y: 8 });
+		expect(board.find("f")).toEqual({ row: 3, col: 0, y: 22 });
 		expect(board.find("nope")).toBeUndefined();
 	});
 
@@ -101,7 +101,7 @@ describe("buildBoard", () => {
 		expect(board.snapOffset(0)).toBe(0);
 		expect(board.snapOffset(1)).toBe(0); // inside the header gap
 		expect(board.snapOffset(3)).toBe(2); // inside the first card row
-		expect(board.snapOffset(8)).toBe(7);
+		expect(board.snapOffset(9)).toBe(8); // inside the second card row
 		expect(board.snapOffset(12345)).toBe(board.rowY.at(-1) ?? 0);
 	});
 

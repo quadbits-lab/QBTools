@@ -16,7 +16,7 @@ import { type RunnerField, type RunnerOutput, UnavailableError } from "../../run
 import { activeProfile, loadConfig, recordRecent } from "../../services/config";
 import { type FileSuggestion, suggestFiles } from "../../services/file-suggest";
 import { setCancelHandler } from "../cancel";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import { CARD_KEY_PRIORITY, Select, TextArea, TextInput, useKeyHandler } from "../ui";
 
 export interface ToolFormProps {
@@ -200,7 +200,7 @@ export function ToolForm(props: ToolFormProps) {
 		{ priority: CARD_KEY_PRIORITY },
 	);
 
-	if (!tool) return <Text color={theme.destructive}>Unknown tool: {props.slug}</Text>;
+	if (!tool) return <Text color={theme.status.error}>Unknown tool: {props.slug}</Text>;
 
 	const runFocused = focusIndex === runRow;
 
@@ -220,9 +220,9 @@ export function ToolForm(props: ToolFormProps) {
 							const focused = focusIndex === index;
 							return (
 								<Box key={field.name} flexDirection="column" marginBottom={1} flexShrink={0}>
-									<Text color={focused ? theme.fg : theme.textDim}>
+									<Text color={focused ? theme.text.primary : theme.text.secondary}>
 										{`${focused ? "▸" : " "} ${field.label}`}
-										{field.required ? <Text color={accents.rose}>*</Text> : null}
+										{field.required ? <Text color={theme.status.error}>*</Text> : null}
 									</Text>
 									<FieldInput
 										field={field}
@@ -242,7 +242,7 @@ export function ToolForm(props: ToolFormProps) {
 												<Text
 													key={suggestion.path}
 													color={
-														suggestionIdx === suggestIndex ? accents.emerald : theme.textSubtle
+														suggestionIdx === suggestIndex ? theme.status.success : theme.text.muted
 													}
 												>
 													{`${suggestionIdx === suggestIndex ? "›" : " "} ${
@@ -261,20 +261,20 @@ export function ToolForm(props: ToolFormProps) {
 
 			<Box flexShrink={0} marginTop={0}>
 				<Text
-					color={runFocused ? theme.bg : accents.emerald}
-					backgroundColor={runFocused ? accents.emerald : undefined}
+					color={runFocused ? theme.surface.onHighlight : theme.status.success}
+					backgroundColor={runFocused ? theme.status.success : undefined}
 				>
 					{runFocused ? " ▸ Run  (Enter) " : " ▸ Run  (Tab to run · Ctrl+R anywhere) "}
 				</Text>
 			</Box>
 			{running ? (
 				<Box flexShrink={0}>
-					<Text color={theme.textDim}>{`⠋ ${running}`}</Text>
+					<Text color={theme.text.secondary}>{`⠋ ${running}`}</Text>
 				</Box>
 			) : null}
 			{error ? (
 				<Box flexShrink={0}>
-					<Text color={theme.destructive}>{`✗ ${error}`}</Text>
+					<Text color={theme.status.error}>{`✗ ${error}`}</Text>
 				</Box>
 			) : null}
 		</Box>

@@ -1,11 +1,13 @@
 /**
- * The header panel — the hero. The QBTOOLS CLI wordmark in half-block pixel
- * letters beside three lines of copy: the name and version, the runtime
- * facts, and the working directory, framed like every other instrument-panel
- * section.
+ * The header panel — the hero. The QBTOOLS CLI wordmark and the
+ * details block (name and version, runtime facts, working directory) share
+ * the width evenly — the three gaps (left edge, between the blocks, right
+ * edge) are equal, so the pair floats centered like one composition —
+ * framed like every other instrument-panel section, centered vertically.
  *
- * The wordmark sits beside the copy on wide terminals and stacks above it on
- * narrow ones.
+ * On narrow terminals the two blocks stack and center as one column. The
+ * details lines open on a full-block rail; each carries its own mark — gem
+ * for identity, lamp for the runtime, pointer for the path.
  */
 
 import { Box, Text } from "ink";
@@ -28,22 +30,37 @@ export interface HeaderProps {
 
 const NAME = "QBTools CLI";
 
+/** The gem before the name — the active blue, like the category names below. */
+const MARK = "◆";
+
+/** Half-width block divider at the start of the details lines — one thin bar per row. */
+const RAIL = "▌";
+
+/** Runtime lamp (the local-mode dot's glyph) and the pointer before the path. */
+const RUN_MARK = "●";
+const PATH_MARK = "▸";
+
 export function Header(props: HeaderProps) {
 	const wide = props.width >= 92;
-	// Vertical breathing room — one blank row above and below the content —
-	// whenever the given height goes beyond the art (granted by the console
-	// on roomy terminals; short ones keep the content flush in the frame).
-	const minRows = wide ? LOGO_HEIGHT : LOGO_HEIGHT + 3;
+
+	// The copy runs three rows; the smaller art leaves room for air around the
+	// content — the wide layout spreads evenly (the padding is the spacing
+	// itself), the narrow stack pads before centering.
+
+	const minRows = wide ? LOGO_HEIGHT : LOGO_HEIGHT + 4;
+
 	const padY = props.height - 2 - minRows >= 2 ? 1 : 0;
 
 	return (
 		<Panel width={props.width} height={props.height} label="QB-CORE" right={props.status} accent>
 			<Box
+				width="100%"
+				flexGrow={1}
 				flexDirection={wide ? "row" : "column"}
-				gap={wide ? 2 : 0}
-				alignItems={wide ? "center" : "flex-start"}
-				flexShrink={0}
-				paddingX={wide ? 2 : 1}
+				justifyContent={wide ? "space-evenly" : "center"}
+				alignItems="center"
+				gap={wide ? 0 : 1}
+				paddingX={wide ? 0 : 2}
 				paddingY={padY}
 			>
 				<Box flexDirection="column" flexShrink={0}>
@@ -57,16 +74,28 @@ export function Header(props: HeaderProps) {
 						</Text>
 					))}
 				</Box>
-				<Box flexDirection="column" flexGrow={1} flexBasis={0} flexShrink={1}>
+				<Box flexDirection="column" flexShrink={0}>
 					<Text>
-						<Text color={theme.fg} bold>
+						<Text color={theme.border.divider}>{`${RAIL}   `}</Text>
+						<Text color={theme.text.active}>{`${MARK} `}</Text>
+						<Text color={theme.text.primary} bold>
 							{NAME}
 						</Text>
-						<Text color={theme.textDim}>{`  v${props.version}`}</Text>
-						{"\n"}
-						<Text color={theme.textDim}>{`${props.platform} · ${props.toolCount} tools`}</Text>
-						{"\n"}
-						<Text color={theme.textSubtle}>{props.cwd}</Text>
+						<Text color={theme.text.secondary}>{`  v${props.version}`}</Text>
+					</Text>
+					<Text>
+						<Text color={theme.border.divider}>{`${RAIL}   `}</Text>
+						<Text color={theme.status.success}>{`${RUN_MARK} `}</Text>
+						<Text color={theme.text.muted}>{`${props.platform} · `}</Text>
+						<Text color={theme.text.primary} bold>
+							{props.toolCount}
+						</Text>
+						<Text color={theme.text.muted}>{" tools"}</Text>
+					</Text>
+					<Text>
+						<Text color={theme.border.divider}>{`${RAIL}   `}</Text>
+						<Text color={theme.ui.symbol}>{`${PATH_MARK} `}</Text>
+						<Text color={theme.text.muted}>{props.cwd}</Text>
 					</Text>
 				</Box>
 			</Box>

@@ -14,7 +14,7 @@ import {
 	scanTargets,
 } from "../../services/cleanup/clean";
 import { OS_LABELS } from "../../services/cleanup/targets";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import { CARD_KEY_PRIORITY, Select, Spinner, useKeyHandler } from "../ui";
 import { type ConsoleEvent, makeEvent } from "./events";
 
@@ -138,7 +138,7 @@ export function CleanupCard(props: CleanupCardProps) {
 	if (phase === "scan") {
 		return (
 			<Box flexDirection="column">
-				<Text color={theme.fg} bold>
+				<Text color={theme.text.primary} bold>
 					System cleanup
 				</Text>
 				<Spinner label={label} />
@@ -148,31 +148,31 @@ export function CleanupCard(props: CleanupCardProps) {
 	if (phase === "clean") {
 		return (
 			<Box flexDirection="column">
-				<Text color={theme.fg} bold>
+				<Text color={theme.text.primary} bold>
 					Cleaning…
 				</Text>
-				<Text color={theme.textDim}>{label}</Text>
+				<Text color={theme.text.secondary}>{label}</Text>
 			</Box>
 		);
 	}
 	if (phase === "done" || !report) {
 		return (
 			<Box flexDirection="column">
-				<Text color={theme.fg} bold>
+				<Text color={theme.text.primary} bold>
 					System cleanup
 				</Text>
-				<Text color={theme.textSubtle}>done — Esc to close</Text>
+				<Text color={theme.text.muted}>done — Esc to close</Text>
 			</Box>
 		);
 	}
 
 	return (
 		<Box flexDirection="column" flexShrink={0}>
-			<Text color={theme.fg} bold>
+			<Text color={theme.text.primary} bold>
 				{`System cleanup — ${OS_LABELS[report.os]}`}
 			</Text>
 			{phase === "confirm" ? (
-				<Text color={accents.rose}>Press Y to delete — Esc to go back.</Text>
+				<Text color={theme.status.error}>Press Y to delete — Esc to go back.</Text>
 			) : null}
 			<Select
 				options={options}
@@ -194,7 +194,7 @@ export function CleanupCard(props: CleanupCardProps) {
 					if (value === CLEAN_ROW && selected.size > 0) setPhase("confirm");
 				}}
 			/>
-			<Text color={theme.textSubtle}>
+			<Text color={theme.text.muted}>
 				{`Selection: ${formatBytes(selectedBytes)} in ${selected.size} item${selected.size === 1 ? "" : "s"}`}
 			</Text>
 		</Box>

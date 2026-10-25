@@ -6,13 +6,15 @@
  * pixel as the upper half (`▀`) and its bottom pixel as the lower half (`▄`)
  * of one full block (`█`).
  *
- * Achromatic by design: the mascot shares the wordmark's grayscale family
- * (`theme.logoRamp`) — bright `#f2f2f2` for solid body, `#777777` for shading —
- * so the icon matches the app's monochrome look.
+ * Palette tones only: the mascot shares the wordmark's family — Gemini's
+ * active blue for the solid body, its accent purple for shading — so the icon
+ * reads as part of the console's palette.
  */
 
-const BRIGHT = "#f2f2f2";
-const SHADE = "#777777";
+import { theme } from "../theme";
+
+const BRIGHT = theme.text.active;
+const SHADE = theme.text.accent;
 
 /** `×` = bright tone, `-` = shaded tone, space = empty. */
 const ART: string[] = [

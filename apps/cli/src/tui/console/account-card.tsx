@@ -7,7 +7,7 @@ import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
 import { loadAuth, type StoredAuth } from "../../services/auth-store";
 import { loadConfig, serverUrl } from "../../services/config";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import { CARD_KEY_PRIORITY, useKeyHandler } from "../ui";
 
 export interface AccountCardProps {
@@ -47,29 +47,29 @@ export function AccountCard(props: AccountCardProps) {
 	return (
 		<Box flexDirection="row" height={6} overflow="hidden" flexShrink={0}>
 			<Box flexDirection="column" width={first} paddingRight={2} flexShrink={0}>
-				<Text color={theme.fg} bold>
+				<Text color={theme.text.primary} bold>
 					Account
 				</Text>
 				{auth ? (
-					<Text color={accents.emerald}>
+					<Text color={theme.status.success}>
 						{`● ${auth.user?.email ?? auth.user?.name ?? "signed in"}`}
 					</Text>
 				) : (
 					<Text>
-						<Text color={accents.emerald}>●</Text>
-						<Text color={theme.textDim}> local mode — every tool runs offline</Text>
+						<Text color={theme.status.success}>●</Text>
+						<Text color={theme.text.secondary}> local mode — every tool runs offline</Text>
 					</Text>
 				)}
-				<Text color={theme.textSubtle}>{`Server: ${base || "(not set — optional)"}`}</Text>
+				<Text color={theme.text.muted}>{`Server: ${base || "(not set — optional)"}`}</Text>
 			</Box>
 			<Box flexDirection="column" width={second} paddingRight={2} flexShrink={0}>
-				<Text color={theme.textSubtle}>WHAT AN ACCOUNT UNLOCKS</Text>
+				<Text color={theme.text.muted}>WHAT AN ACCOUNT UNLOCKS</Text>
 				<Text>
 					{UNLOCKS.map(([title, detail], index) => (
 						<Text key={title}>
 							{index > 0 ? "\n" : ""}
-							<Text color={theme.textDim}>{`· ${title}`}</Text>
-							<Text color={theme.textSubtle}>{` — ${detail}`}</Text>
+							<Text color={theme.text.secondary}>{`· ${title}`}</Text>
+							<Text color={theme.text.secondary}>{` — ${detail}`}</Text>
 						</Text>
 					))}
 				</Text>
@@ -79,8 +79,8 @@ export function AccountCard(props: AccountCardProps) {
 				width={Math.max(24, props.width - 8 - first - second)}
 				flexShrink={0}
 			>
-				<Text color={theme.textSubtle}>CONNECT (OPTIONAL)</Text>
-				<Text color={theme.textDim}>
+				<Text color={theme.text.muted}>CONNECT (OPTIONAL)</Text>
+				<Text color={theme.text.secondary}>
 					{"dashboard → CLI API keys → create a key"}
 					{"\nthen run qbtools login --api-key qbk_…"}
 				</Text>

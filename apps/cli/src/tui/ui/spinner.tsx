@@ -5,7 +5,7 @@
 
 import { Text } from "ink";
 import { useEffect, useState } from "react";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 
 export const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"] as const;
 const SPINNER_INTERVAL_MS = 80;
@@ -30,8 +30,8 @@ export function Spinner(props: SpinnerProps) {
 	}, [props.frame]);
 	return (
 		<Text>
-			<Text color={accents.indigo}>{spinnerFrame(tick)}</Text>
-			{props.label ? <Text color={theme.textDim}> {props.label}</Text> : null}
+			<Text color={theme.text.accent}>{spinnerFrame(tick)}</Text>
+			{props.label ? <Text color={theme.text.secondary}> {props.label}</Text> : null}
 		</Text>
 	);
 }

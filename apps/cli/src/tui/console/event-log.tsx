@@ -8,7 +8,7 @@
  */
 
 import { Box, Text } from "ink";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import type { ConsoleEvent } from "./events";
 
 export interface EventLogProps {
@@ -22,23 +22,23 @@ export interface EventLogProps {
 
 /** Which stream a tag belongs to — each gets its own accent. */
 const TAG_COLOR: Record<string, string> = {
-	SYS_BOOT: accents.indigo,
-	SYS: accents.indigo,
-	NET_POLICIES: accents.teal,
-	RUN: accents.sky,
-	DONE: accents.emerald,
-	OPEN: accents.violet,
-	SEL: accents.sky,
-	HELP: accents.amber,
-	UPDATE: accents.amber,
-	ERR: accents.rose,
+	SYS_BOOT: theme.text.accent,
+	SYS: theme.text.accent,
+	NET_POLICIES: theme.ui.symbol,
+	RUN: theme.text.active,
+	DONE: theme.status.success,
+	OPEN: theme.text.accent,
+	SEL: theme.ui.symbol,
+	HELP: theme.status.warning,
+	UPDATE: theme.status.warning,
+	ERR: theme.status.error,
 };
 
 const LEVEL_COLOR: Record<ConsoleEvent["level"], string> = {
-	info: theme.textDim,
-	ok: accents.emerald,
-	warn: accents.amber,
-	error: accents.rose,
+	info: theme.text.primary,
+	ok: theme.status.success,
+	warn: theme.status.warning,
+	error: theme.status.error,
 };
 
 /** Priority marker before the message; plain info stays unmarked. */
@@ -85,7 +85,7 @@ export function EventLog(props: EventLogProps) {
 		<Box flexDirection="column">
 			{visible.map((row, index) =>
 				row.detail ? (
-					<Text key={index} color={theme.textSubtle}>
+					<Text key={index} color={theme.text.secondary}>
 						{`  ${truncate(row.text, limit - 2)}`}
 					</Text>
 				) : (
@@ -93,7 +93,7 @@ export function EventLog(props: EventLogProps) {
 				),
 			)}
 			{props.offset > 0 ? (
-				<Text color={theme.textSubtle}>{`… ${props.offset} more lines above`}</Text>
+				<Text color={theme.text.muted}>{`… ${props.offset} more lines above`}</Text>
 			) : null}
 		</Box>
 	);
@@ -110,11 +110,11 @@ function EventLine(props: { row: LogRow; limit: number }) {
 
 	return (
 		<Box flexDirection="row" flexShrink={0}>
-			<Text color={theme.textSubtle}>{`[${row.time}] `}</Text>
+			<Text color={theme.text.muted}>{`[${row.time}] `}</Text>
 			<Text color={tagColor} bold>
 				{row.tag}
 			</Text>
-			<Text color={theme.textSubtle}>{": "}</Text>
+			<Text color={theme.text.muted}>{": "}</Text>
 			<Text color={LEVEL_COLOR[row.level]} bold={row.level === "error"}>
 				{`${glyph}${truncate(row.text, budget)}`}
 			</Text>

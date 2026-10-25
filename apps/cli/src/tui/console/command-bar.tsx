@@ -2,14 +2,14 @@
  * The command bar — the prompt between the hero and the board.
  *
  * With terminal room to spare it becomes a dashed box (`⌘ PROMPT`) holding a
- * colored shell prompt, an amber arrow, the program name and key chips; on
+ * colored shell prompt, a purple arrow, the program name and key chips; on
  * short terminals the same prompt drops the frame and stays a single line.
  * In both variants the row never wraps: the shell and the hints give way
  * before the input does.
  */
 
 import { Box, Text } from "ink";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import { TextInput } from "../ui/text-input";
 
 export interface CommandBarProps {
@@ -64,7 +64,7 @@ function CompactPrompt(props: CommandBarProps) {
 	const size = sizePrompt(width - 2, 2, props.userAt, props.dir, props.program, props.hints);
 	return (
 		<Box paddingX={1} width={width} flexDirection="row" flexShrink={0} overflow="hidden">
-			<Text color={accents.sky} bold>
+			<Text color={theme.text.active} bold>
 				{"⌘ "}
 			</Text>
 			<PromptRow {...props} size={size} />
@@ -75,17 +75,17 @@ function CompactPrompt(props: CommandBarProps) {
 /** The framed prompt: dashed border with the label embedded in the top rule. */
 function BoxedPrompt(props: CommandBarProps) {
 	const width = Math.max(24, props.width);
-	const border = props.focused ? accents.sky : theme.borderStrong;
+	const border = props.focused ? theme.border.strong : theme.border.default;
 	const size = sizePrompt(width - 4, 0, props.userAt, props.dir, props.program, props.hints);
 
 	return (
 		<Box flexDirection="column" width={width} flexShrink={0}>
 			<Box flexShrink={0} flexDirection="row">
 				<Text color={border}>{`╭┄ `}</Text>
-				<Text color={props.focused ? accents.sky : theme.textSubtle} bold>
+				<Text color={props.focused ? theme.text.active : theme.text.muted} bold>
 					⌘
 				</Text>
-				<Text color={props.focused ? accents.sky : theme.textSubtle} bold>
+				<Text color={props.focused ? theme.text.active : theme.text.muted} bold>
 					{` PROMPT `}
 				</Text>
 				<Text color={border}>{`${"┄".repeat(Math.max(0, width - 13))}╮`}</Text>
@@ -185,26 +185,29 @@ function PromptRow(props: CommandBarProps & { size: PromptSize }) {
 		<Box flexDirection="row" flexShrink={0} overflow="hidden">
 			{shell.user ? (
 				<Box flexShrink={0}>
-					<Text color={accents.emerald}>{shell.user}</Text>
+					<Text color={theme.text.secondary}>{shell.user}</Text>
 				</Box>
 			) : null}
 			{shell.sep ? (
 				<Box flexShrink={0}>
-					<Text color={theme.textSubtle}>{shell.sep}</Text>
+					<Text color={theme.text.muted}>{shell.sep}</Text>
 				</Box>
 			) : null}
 			{shell.dir ? (
 				<Box flexShrink={0}>
-					<Text color={accents.sky}>{shell.dir}</Text>
+					<Text color={theme.text.active}>{shell.dir}</Text>
 				</Box>
 			) : null}
 			<Box flexShrink={0}>
-				<Text color={props.focused ? accents.amber : theme.textSubtle} bold={props.focused}>
+				<Text color={props.focused ? theme.text.accent : theme.text.muted} bold={props.focused}>
 					{" ❯ "}
 				</Text>
 			</Box>
 			<Box flexShrink={0}>
-				<Text color={props.focused ? theme.fg : theme.textDim} bold={props.focused}>
+				<Text
+					color={props.focused ? theme.text.primary : theme.text.secondary}
+					bold={props.focused}
+				>
 					{`${props.program} `}
 				</Text>
 			</Box>
@@ -234,13 +237,15 @@ function HintChips(props: { hints: Array<{ keys: string; label: string }>; focus
 			{props.hints.map((hint, index) => (
 				<Box key={hint.keys} marginLeft={index > 0 ? 2 : 0} flexShrink={0}>
 					<Text
-						backgroundColor={props.focused ? theme.muted : undefined}
-						color={props.focused ? accents.sky : theme.textSubtle}
+						backgroundColor={props.focused ? theme.surface.chip : undefined}
+						color={props.focused ? theme.surface.onChip : theme.text.muted}
 						bold
 					>
 						{` ${hintIcon(hint.keys)}`}
 					</Text>
-					<Text color={props.focused ? theme.textDim : theme.textSubtle}>{` ${hint.label}`}</Text>
+					<Text color={props.focused ? theme.text.secondary : theme.text.muted}>
+						{` ${hint.label}`}
+					</Text>
 				</Box>
 			))}
 		</Box>

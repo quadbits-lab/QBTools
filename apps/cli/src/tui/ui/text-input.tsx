@@ -116,7 +116,7 @@ export function TextInput(props: TextInputProps) {
 	if (!value && !focused) {
 		return (
 			<Box>
-				<Text color={theme.textSubtle}>{truncate(props.placeholder ?? "", width ?? 40)}</Text>
+				<Text color={theme.text.muted}>{truncate(props.placeholder ?? "", width ?? 40)}</Text>
 			</Box>
 		);
 	}
@@ -134,9 +134,9 @@ export function TextInput(props: TextInputProps) {
 	if (!focused) {
 		return (
 			<Box>
-				{prefix ? <Text color={theme.textSubtle}>…</Text> : null}
-				<Text color={theme.textDim}>{slice}</Text>
-				{suffix ? <Text color={theme.textSubtle}>…</Text> : null}
+				{prefix ? <Text color={theme.text.muted}>…</Text> : null}
+				<Text color={theme.text.secondary}>{slice}</Text>
+				{suffix ? <Text color={theme.text.muted}>…</Text> : null}
 			</Box>
 		);
 	}
@@ -145,18 +145,18 @@ export function TextInput(props: TextInputProps) {
 
 	return (
 		<Box>
-			{prefix ? <Text color={theme.textSubtle}>…</Text> : null}
+			{prefix ? <Text color={theme.text.muted}>…</Text> : null}
 			{value.length === 0 && props.placeholder ? (
-				<Text color={theme.textSubtle}>
+				<Text color={theme.text.muted}>
 					{truncate(props.placeholder, Math.max(1, (width ?? 40) - 2))}
 				</Text>
 			) : null}
-			<Text color={theme.fg}>
+			<Text color={theme.text.primary}>
 				{slice.slice(0, cursorIndex)}
 				<Text inverse>{slice.slice(cursorIndex, cursorIndex + 1) || " "}</Text>
 				{slice.slice(cursorIndex + 1)}
 			</Text>
-			{suffix ? <Text color={theme.textSubtle}>…</Text> : null}
+			{suffix ? <Text color={theme.text.muted}>…</Text> : null}
 		</Box>
 	);
 }

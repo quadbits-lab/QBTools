@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/qbtools"><img src="https://img.shields.io/badge/npm-qbtools-CB3837?style=flat-square&logo=npm&logoColor=white" alt="npm package qbtools" /></a>
+  <a href="https://www.npmjs.com/package/@quadbits.io/qbtools"><img src="https://img.shields.io/badge/npm-@quadbits.io%2Fqbtools-CB3837?style=flat-square&logo=npm&logoColor=white" alt="npm package @quadbits.io/qbtools" /></a>
   <a href="https://bun.sh"><img src="https://img.shields.io/badge/Bun-1.4+-black?style=flat-square&logo=bun&logoColor=white" alt="Bun 1.4+" /></a>
   <a href="https://github.com/vadimdemedes/ink"><img src="https://img.shields.io/badge/Ink-TUI-black?style=flat-square&logo=react&logoColor=61DAFB" alt="Built with Ink" /></a>
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript Strict" /></a>
@@ -46,13 +46,13 @@
 > [bun.sh](https://bun.sh). There is no Node fallback.
 
 ```bash
-npm i -g qbtools        # published package
+npm i -g @quadbits.io/qbtools   # published package
 ```
 
 Or run it without installing:
 
 ```bash
-npx qbtools@latest doctor
+npx @quadbits.io/qbtools@latest doctor
 ```
 
 From a checkout of this repo:
@@ -94,7 +94,7 @@ qbtools help                # everything else
 `qbtools` opens a console, not a screen-per-task app. The frame is fixed:
 
 <p align="center">
-  <img src="docs/assets/qbtools-cli-feature.png" alt="QBTools CLI — a TUI when you're exploring, a pipeline when you're working" width="100%" />
+  <img src="docs/assets/qbtools-cli-features.png" alt="QBTools CLI — a TUI when you're exploring, a pipeline when you're working" width="100%" />
 </p>
 
 **How it works:**

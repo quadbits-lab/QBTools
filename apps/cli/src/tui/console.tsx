@@ -24,7 +24,7 @@ import { checkForUpdate, updateHint } from "../services/update-check";
 import { CLI_VERSION } from "../version";
 import { cancelRunning } from "./cancel";
 import { AccountCard } from "./console/account-card";
-import { buildBoard, type Direction } from "./console/board";
+import { buildBoard, CARD_HEIGHT, type Direction } from "./console/board";
 import { categoryCode } from "./console/categories";
 import { CleanupCard } from "./console/cleanup-card";
 import { CommandBar } from "./console/command-bar";
@@ -126,6 +126,21 @@ export function Console() {
 		stripRows -= cut;
 		boardRows += cut;
 	}
+	// Five-row cards: keep the panel fold from slicing a card row — browse
+	// mode fits a header plus two full card rows, open-card mode a header
+	// plus the selected row. The log yields first (floor 3), then the strip
+	// (floor 4), mirroring the tiers above.
+	const minBoardRows = 4 + (card === "none" ? 2 : 1) * CARD_HEIGHT;
+	if (boardRows < minBoardRows) {
+		const cut = Math.min(minBoardRows - boardRows, Math.max(0, logRows - 3));
+		logRows -= cut;
+		boardRows += cut;
+	}
+	if (boardRows < minBoardRows) {
+		const cut = Math.min(minBoardRows - boardRows, Math.max(0, stripRows - 4));
+		stripRows -= cut;
+		boardRows += cut;
+	}
 	boardRows = Math.max(2, boardRows);
 	// Rows for cards: the panel's content minus the pinned footer row.
 	const boardViewport = Math.max(2, boardRows - 3);
@@ -179,8 +194,8 @@ export function Console() {
 		if (!position) return;
 		setBoardOffset((offset) => {
 			if (position.y < offset) return board.snapOffset(position.y);
-			if (position.y + 4 > offset + boardViewport) {
-				return board.snapOffset(position.y + 4 - boardViewport);
+			if (position.y + CARD_HEIGHT > offset + boardViewport) {
+				return board.snapOffset(position.y + CARD_HEIGHT - boardViewport);
 			}
 			return offset;
 		});

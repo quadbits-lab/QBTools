@@ -12,7 +12,7 @@ import {
 	loadConfig,
 	saveConfig,
 } from "../../services/config";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import { CARD_KEY_PRIORITY, Select, TextInput, useKeyHandler } from "../ui";
 import { type ConsoleEvent, makeEvent } from "./events";
 
@@ -87,7 +87,7 @@ export function SettingsCard(props: SettingsCardProps) {
 	);
 
 	if (!config) {
-		return <Text color={theme.textSubtle}>Loading settings…</Text>;
+		return <Text color={theme.text.muted}>Loading settings…</Text>;
 	}
 
 	const half = Math.max(24, Math.floor((props.width - 4) / 2));
@@ -96,7 +96,7 @@ export function SettingsCard(props: SettingsCardProps) {
 		<Box flexDirection="column" height={7} overflow="hidden" flexShrink={0}>
 			<Box flexDirection="row" flexShrink={0}>
 				<Box flexDirection="column" width={half} paddingRight={2} flexShrink={0}>
-					<Text color={focusIndex === 0 ? theme.fg : theme.textDim}>
+					<Text color={focusIndex === 0 ? theme.text.primary : theme.text.secondary}>
 						{`${focusIndex === 0 ? "▸" : " "} Server URL (optional)`}
 					</Text>
 					<TextInput
@@ -108,7 +108,7 @@ export function SettingsCard(props: SettingsCardProps) {
 					/>
 				</Box>
 				<Box flexDirection="column" width={half} flexShrink={0}>
-					<Text color={focusIndex === 1 ? theme.fg : theme.textDim}>
+					<Text color={focusIndex === 1 ? theme.text.primary : theme.text.secondary}>
 						{`${focusIndex === 1 ? "▸" : " "} Output directory`}
 					</Text>
 					<TextInput
@@ -122,7 +122,7 @@ export function SettingsCard(props: SettingsCardProps) {
 			</Box>
 			<Box flexDirection="row" marginTop={1} flexShrink={0}>
 				<Box flexDirection="column" width={half} paddingRight={2} flexShrink={0}>
-					<Text color={focusIndex === 2 ? theme.fg : theme.textDim}>
+					<Text color={focusIndex === 2 ? theme.text.primary : theme.text.secondary}>
 						{`${focusIndex === 2 ? "▸" : " "} Check npm for updates`}
 					</Text>
 					<Select
@@ -137,10 +137,10 @@ export function SettingsCard(props: SettingsCardProps) {
 					/>
 				</Box>
 				<Box flexDirection="column" width={half} flexShrink={0}>
-					<Text color={focusIndex === saveRow ? accents.emerald : theme.textSubtle}>
+					<Text color={focusIndex === saveRow ? theme.status.success : theme.text.muted}>
 						{focusIndex === saveRow ? "▸ Save (Enter)" : "  Save (Tab, then Enter)"}
 					</Text>
-					<Text color={theme.textSubtle}>
+					<Text color={theme.text.muted}>
 						{`Profile: ${effectiveProfileName(config)} · writes ~/.config/qbtools/config.json`}
 					</Text>
 				</Box>

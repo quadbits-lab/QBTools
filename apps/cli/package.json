@@ -1,6 +1,6 @@
 {
 	"name": "@quadbits.io/qbtools",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"type": "module",
 	"module": "src/bin.tsx",
 	"description": "QBTools in your terminal — 42 developer & productivity tools, system cleanup, and scripting-friendly output. Built with Ink.",

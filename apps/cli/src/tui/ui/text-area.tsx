@@ -166,7 +166,7 @@ export function TextArea(props: TextAreaProps) {
 	if (!value && !focused) {
 		return (
 			<Box>
-				<Text color={theme.textSubtle}>{props.placeholder ?? ""}</Text>
+				<Text color={theme.text.muted}>{props.placeholder ?? ""}</Text>
 			</Box>
 		);
 	}
@@ -197,9 +197,11 @@ export function TextArea(props: TextAreaProps) {
 			{window.map((row, index) => (
 				<Box key={`${index}-${row.text.slice(0, 8)}`}>
 					{!focused || row.cursorOffset === null ? (
-						<Text color={focused ? theme.fg : theme.textDim}>{row.text || " "}</Text>
+						<Text color={focused ? theme.text.primary : theme.text.secondary}>
+							{row.text || " "}
+						</Text>
 					) : (
-						<Text color={theme.fg}>
+						<Text color={theme.text.primary}>
 							{row.text.slice(0, row.cursorOffset)}
 							<Text inverse>{row.text.slice(row.cursorOffset, row.cursorOffset + 1) || " "}</Text>
 							{row.text.slice(row.cursorOffset + 1)}
@@ -208,7 +210,7 @@ export function TextArea(props: TextAreaProps) {
 				</Box>
 			))}
 			{visual.length > visibleRows ? (
-				<Text color={theme.textSubtle}>
+				<Text color={theme.text.muted}>
 					{`${visual.length - visibleRows} more line${visual.length - visibleRows === 1 ? "" : "s"}`}
 				</Text>
 			) : null}

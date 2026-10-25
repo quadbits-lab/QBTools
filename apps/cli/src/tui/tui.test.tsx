@@ -16,6 +16,7 @@ import { cleanup, render } from "ink-testing-library";
 import { App } from "./app";
 import { CommandBar } from "./console/command-bar";
 import { formatEvent, makeEvent } from "./console/events";
+import { CATEGORY_COLORS, categoryColor, GRADIENT, PALETTE, theme } from "./theme";
 import { KeyRouterProvider } from "./ui";
 import { LOGO_ICON_HEIGHT, LOGO_ICON_ROWS, LOGO_ICON_WIDTH } from "./ui/app-logo";
 import { LOGO_HEIGHT, LOGO_LINES, LOGO_ROWS, LOGO_WIDTH, renderWordmark } from "./ui/ascii-logo";
@@ -42,36 +43,76 @@ async function prepareEnv(): Promise<void> {
 }
 
 function frame(element: React.ReactNode): string {
+	// Pin the console size — ambient pty heights differ between contexts and
+	// ink's renderToString clips to them; the pin makes static frames full and
+	// deterministic. afterEach restores the env between tests.
+	process.env.QBTOOLS_TUI_SIZE = "120x40";
 	return renderToString(element, { columns: 120 });
+}
+
+/** ANSI codes (SGR + cursor moves) split colored runs; stripped for exact matches. */
+// biome-ignore lint/suspicious/noControlCharactersInRegex: matches ANSI escape codes
+const CSI = /\x1B\[[0-9;:]*[A-Za-z]/g;
+
+function plain(value: string | undefined): string {
+	return value?.replace(CSI, "") ?? "";
+}
+
+/** Every `#rrggbb` reachable from a value — used to keep the palette closed. */
+function hexes(value: unknown, out: string[] = []): string[] {
+	if (typeof value === "string") {
+		if (/^#[0-9a-f]{6}$/i.test(value)) out.push(value);
+	} else if (Array.isArray(value)) {
+		for (const item of value) hexes(item, out);
+	} else if (value && typeof value === "object") {
+		for (const item of Object.values(value)) hexes(item, out);
+	}
+	return out;
+}
+
+/** WCAG relative luminance of a `#rrggbb` color. */
+function luminance(hex: string): number {
+	const value = hex.replace("#", "");
+	const channels = [0, 2, 4].map((offset) => {
+		const channel = Number.parseInt(value.slice(offset, offset + 2), 16) / 255;
+		return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+	});
+	const [r = 0, g = 0, b = 0] = channels;
+	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** WCAG contrast ratio between two `#rrggbb` colors. */
+function contrast(a: string, b: string): number {
+	const values = [luminance(a), luminance(b)].sort((left, right) => right - left);
+	const lighter = values[0] ?? 0;
+	const darker = values[1] ?? 0;
+	return (lighter + 0.05) / (darker + 0.05);
 }
 
 describe("wordmark", () => {
 	test("every row has the same width", () => {
 		const widths = new Set(LOGO_LINES.map((line) => line.length));
 		expect(widths.size).toBe(1);
-		expect(LOGO_WIDTH).toBe(60);
-		expect(LOGO_HEIGHT).toBe(5);
+		expect(LOGO_WIDTH).toBe(44);
+		expect(LOGO_HEIGHT).toBe(3);
 	});
 
 	test("renders the words it is given", () => {
 		const lines = renderWordmark("QB");
-		expect(lines).toHaveLength(5);
-		expect(lines[0]).toBe("▄▀▀▀▀▄ ▀▀▀▀▄");
-		expect(lines[4]).toBe(" ▀▀▀▀▄ ▀▄▄▄▀");
+		expect(lines).toHaveLength(3);
+		expect(lines[0]).toBe("█▀█  █▀▄");
+		expect(lines[2]).toBe("▀▀█▄ █▄█");
 	});
 
-	test("runs span the logo and stay achromatic", () => {
+	test("runs span the logo and stay in the palette", () => {
 		for (const runs of LOGO_ROWS) {
 			const width = runs.reduce((sum, run) => sum + run.text.length, 0);
 			expect(width).toBe(LOGO_WIDTH);
 		}
+		const tones = new Set<string>(PALETTE);
 		for (const hue of LOGO_ROWS.flat().flatMap((run) => [run.color, run.background])) {
 			if (hue === undefined) continue;
-			const red = Number.parseInt(hue.slice(1, 3), 16);
-			const green = Number.parseInt(hue.slice(3, 5), 16);
-			const blue = Number.parseInt(hue.slice(5, 7), 16);
-			expect(red).toBe(green);
-			expect(green).toBe(blue);
+			expect(tones.has(hue.toLowerCase())).toBe(true);
 		}
 	});
 });
@@ -90,31 +131,88 @@ describe("app logo", () => {
 		expect(LOGO_ICON_WIDTH).toBe(13);
 	});
 
-	test("the mascot is rendered in achromatic tones", () => {
+	test("the mascot is rendered in palette tones", () => {
 		const colors = new Set(
 			LOGO_ICON_ROWS.flat()
 				.map((run) => run.color)
 				.filter((color) => color !== undefined),
 		);
 		expect(colors.size).toBe(2);
+		const tones = new Set<string>(PALETTE);
 		for (const color of colors) {
-			const red = Number.parseInt(color.slice(1, 3), 16);
-			const green = Number.parseInt(color.slice(3, 5), 16);
-			const blue = Number.parseInt(color.slice(5, 7), 16);
-			expect(red).toBe(green);
-			expect(green).toBe(blue);
+			expect(tones.has(color.toLowerCase())).toBe(true);
 		}
+	});
+});
+
+describe("theme", () => {
+	const TONES = new Set<string>(PALETTE);
+
+	test("the palette is a unique set of lowercase hex colors", () => {
+		expect(TONES.size).toBe(PALETTE.length);
+		for (const color of PALETTE) expect(color).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	test("every color token comes from the closed palette", () => {
+		const colors = hexes({
+			theme,
+			gradient: GRADIENT,
+			categories: CATEGORY_COLORS,
+			wordmark: LOGO_ROWS,
+			mascot: LOGO_ICON_ROWS,
+		});
+		expect(colors.length).toBeGreaterThan(10);
+		for (const color of colors) expect(TONES.has(color)).toBe(true);
+	});
+
+	test("grounds the chrome in Gemini's default dark theme", () => {
+		expect(theme.text.primary).toBe("#ffffff");
+		expect(theme.text.secondary).toBe("#afafaf");
+		expect(theme.border.default).toBe("#878787");
+		expect(theme.surface.chip).toBe("#5f5f5f");
+		expect(theme.ui.gradient).toEqual(["#4796e4", "#847ace", "#c3677f"]);
+	});
+
+	test("copy stays legible on every fill", () => {
+		const pairs: Array<[string, string]> = [
+			[theme.text.primary, theme.surface.onHighlight],
+			[theme.text.secondary, theme.surface.onHighlight],
+			[theme.text.muted, theme.surface.onHighlight],
+			[theme.surface.onHighlight, theme.surface.highlight],
+			[theme.surface.onChip, theme.surface.chip],
+			[theme.surface.onHighlight, theme.status.success],
+			[theme.surface.onHighlight, theme.text.accent],
+			[theme.surface.onHighlight, theme.text.active],
+		];
+		for (const [copy, fill] of pairs) {
+			expect(contrast(copy, fill)).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
+	test("every registry category resolves to a palette hue", () => {
+		const categories = [
+			"image",
+			"pdf",
+			"text",
+			"calculators",
+			"generators",
+			"media",
+			"security",
+			"developer",
+		];
+		for (const category of categories) expect(TONES.has(categoryColor(category))).toBe(true);
+		expect(categoryColor("not-a-category")).toBe(theme.text.active);
 	});
 });
 
 describe("console frame", () => {
 	test("header carries the logo, title and version", async () => {
 		await prepareEnv();
-		const output = frame(<App />);
+		const output = plain(frame(<App />));
 		expect(output).toContain("QBTools CLI");
 		for (const line of LOGO_LINES) expect(output).toContain(line);
 		expect(output).toContain("42 tools");
-		expect(output).toContain("v0.2.0");
+		expect(output).toContain("v0.3.0");
 		expect(output).toContain("QB-CORE");
 		expect(output).toContain("TELESCOPE: TOOLS");
 		expect(output).toContain("SYS_STREAM: RING_BUFFER");
@@ -230,8 +328,8 @@ describe("console interaction", () => {
 		await delay(80);
 		stdin.write("\r");
 		await delay(200);
-		expect(lastFrame()).toContain("OPEN: img:og-banner-maker");
-		expect(lastFrame()).toContain("INSPECTOR: OPEN");
+		expect(plain(lastFrame())).toContain("OPEN: img:og-banner-maker");
+		expect(plain(lastFrame())).toContain("INSPECTOR: OPEN");
 	});
 
 	test("arrows move across the card grid", async () => {
@@ -255,7 +353,7 @@ describe("console interaction", () => {
 		await delay(120);
 		stdin.write("\r");
 		await delay(200);
-		expect(lastFrame()).toContain("OPEN: txt:word-counter");
+		expect(plain(lastFrame())).toContain("OPEN: txt:word-counter");
 		expect(lastFrame()).toContain("Word Counter");
 	});
 

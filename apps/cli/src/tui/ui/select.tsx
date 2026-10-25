@@ -8,7 +8,7 @@
 
 import { Box, Text } from "ink";
 import { useEffect, useState } from "react";
-import { accents, theme } from "../theme";
+import { theme } from "../theme";
 import { useKeyHandler, WIDGET_KEY_PRIORITY } from "./key-router";
 
 export interface SelectOption {
@@ -105,7 +105,7 @@ export function Select(props: SelectProps) {
 	if (options.length === 0) {
 		return (
 			<Box>
-				<Text color={theme.textSubtle}>{props.emptyMessage ?? "Nothing to show."}</Text>
+				<Text color={theme.text.muted}>{props.emptyMessage ?? "Nothing to show."}</Text>
 			</Box>
 		);
 	}
@@ -117,7 +117,7 @@ export function Select(props: SelectProps) {
 			options.find((option) => option.value === value) ?? options[cursor] ?? options[0];
 		return (
 			<Box>
-				<Text color={theme.textDim}>{selectedOption?.label ?? ""}</Text>
+				<Text color={theme.text.secondary}>{selectedOption?.label ?? ""}</Text>
 			</Box>
 		);
 	}
@@ -129,7 +129,7 @@ export function Select(props: SelectProps) {
 
 	return (
 		<Box flexDirection="column">
-			{start > 0 ? <Text color={theme.textSubtle}>{`↑ ${start} more`}</Text> : null}
+			{start > 0 ? <Text color={theme.text.muted}>{`↑ ${start} more`}</Text> : null}
 			{window.map((option, index) => {
 				const absolute = start + index;
 				const isCursor = absolute === cursor;
@@ -138,22 +138,24 @@ export function Select(props: SelectProps) {
 				const isChecked = props.checked?.has(option.value) === true;
 				return (
 					<Box key={option.value} flexDirection="column">
-						{showGroup ? <Text color={theme.textSubtle}>{`  ${option.group}`}</Text> : null}
+						{showGroup ? <Text color={theme.text.muted}>{`  ${option.group}`}</Text> : null}
 						<Box>
-							{isCursor ? <Text color={accents.indigo}>▸ </Text> : <Text> </Text>}
+							{isCursor ? <Text color={theme.text.accent}>▸ </Text> : <Text> </Text>}
 							{multi && option.checkable !== false ? (
-								<Text color={isChecked ? accents.emerald : theme.textSubtle}>
+								<Text color={isChecked ? theme.status.success : theme.text.muted}>
 									{isChecked ? "[x] " : "[ ] "}
 								</Text>
 							) : null}
-							<Text color={isCursor ? theme.fg : theme.textDim}>{option.label}</Text>
-							{option.hint ? <Text color={theme.textSubtle}>{`  ${option.hint}`}</Text> : null}
+							<Text color={isCursor ? theme.text.primary : theme.text.secondary}>
+								{option.label}
+							</Text>
+							{option.hint ? <Text color={theme.text.muted}>{`  ${option.hint}`}</Text> : null}
 						</Box>
 					</Box>
 				);
 			})}
 			{start + window.length < options.length ? (
-				<Text color={theme.textSubtle}>{`↓ ${options.length - start - window.length} more`}</Text>
+				<Text color={theme.text.muted}>{`↓ ${options.length - start - window.length} more`}</Text>
 			) : null}
 		</Box>
 	);

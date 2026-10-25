@@ -1,69 +1,48 @@
 /**
  * The QBTools CLI wordmark — the hero logo.
  *
- * Letters are 10-pixel-tall bitmap outlines drawn from a glyph table, then
- * rendered at half resolution through the ▀/▄ pairing trick: each of the 5
- * output rows carries two pixel rows, so a two-tone grayscale gradient falls
- * down the letters (a solid pixel spanning both halves renders as ▀ with the
- * two shades, never as ▄/█, which could only ever show one). Achromatic by
- * design, like the rest of the console.
+ * Letters are 6-pixel-tall bitmap blocks drawn from a glyph table, then
+ * rendered at half resolution through the ▀/▄ pairing trick: each of the 3
+ * output rows carries two pixel rows, so a two-tone gradient falls down the
+ * letters (a solid pixel spanning both halves renders as ▀ with the two
+ * shades, never as ▄/█, which could only ever show one). Palette tones only —
+ * Gemini's logo gradient, blue → purple → rose, two pixel rows per stop, so
+ * the mark reads as the same ramp as the rest of the console.
  *
- * Glyph widths vary (round letters six pixels, stems three) so the
- * proportions stay natural; the total width is derived from the table, never
- * hand-typed, and every output row spans it exactly.
+ * Three-pixel stems keep the mark compact enough to sit beside the copy on
+ * one line; the total width is derived from the table, never hand-typed, and
+ * every output row spans it exactly.
  */
 
-const GLYPH_HEIGHT = 10;
+import { GRADIENT } from "../theme";
 
-/** Bright → dark, one shade per pixel row (two shades per output row). */
+const GLYPH_HEIGHT = 6;
+
+/** Gemini's logo gradient, top → bottom: two pixel rows per stop. */
 const RAMP = [
-	"#f2f2f2",
-	"#e8e8e8",
-	"#dcdcdc",
-	"#d0d0d0",
-	"#c4c4c4",
-	"#a8a8a8",
-	"#909090",
-	"#787878",
-	"#646464",
-	"#525252",
+	GRADIENT[0],
+	GRADIENT[0],
+	GRADIENT[1],
+	GRADIENT[1],
+	GRADIENT[2],
+	GRADIENT[2],
 ] as const;
 
 /** Width of the blank between words, in pixels. (Glyph gaps are one pixel.) */
 const WORD_GAP = 3;
 
-/** Ten rows each. `#` = ink, `.` = empty. */
+/** `GLYPH_HEIGHT` rows each. `#` = ink, `.` = empty. */
 const GLYPHS: Record<string, string[]> = {
-	Q: [
-		".####.",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		".####.",
-		"....##",
-	],
-	B: ["####.", "#...#", "#...#", "#...#", "####.", "#...#", "#...#", "#...#", "#...#", "####."],
-	T: ["###", ".#.", ".#.", ".#.", ".#.", ".#.", ".#.", ".#.", ".#.", ".#."],
-	O: [
-		".####.",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		"#....#",
-		".####.",
-	],
-	L: ["#...", "#...", "#...", "#...", "#...", "#...", "#...", "#...", "#...", "####"],
-	S: [".###.", "#...#", "#....", "#....", ".###.", "....#", "....#", "#...#", "#...#", ".###."],
-	C: [".###.", "#...#", "#....", "#....", "#....", "#....", "#....", "#....", "#...#", ".###."],
-	I: ["###", ".#.", ".#.", ".#.", ".#.", ".#.", ".#.", ".#.", ".#.", "###"],
+	// Q is one pixel wider than its siblings so the tail can poke out of the
+	// bowl — at 3px it would be swallowed by the bottom edge and read as O.
+	Q: ["###.", "#.#.", "#.#.", "#.#.", "###.", "..##"],
+	B: ["##.", "#.#", "##.", "#.#", "#.#", "###"],
+	T: ["###", ".#.", ".#.", ".#.", ".#.", ".#."],
+	O: ["###", "#.#", "#.#", "#.#", "#.#", "###"],
+	L: ["#..", "#..", "#..", "#..", "#..", "###"],
+	S: ["###", "#..", "###", "..#", "..#", "###"],
+	C: ["###", "#..", "#..", "#..", "#..", "###"],
+	I: ["###", ".#.", ".#.", ".#.", ".#.", "###"],
 	" ": Array.from({ length: GLYPH_HEIGHT }, () => ".".repeat(WORD_GAP)),
 };
 
