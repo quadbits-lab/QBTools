@@ -1,4 +1,4 @@
-# 🛠️ QBTools — Free, Private Everyday Web Tools
+# 🛠️ QBTools — Files Stay Yours
 
 <p align="center">
   <img src="docs/assets/qbtools-github-banner.png" alt="QBTools — Fast, private, browser-first tools that just work" width="100%" />
