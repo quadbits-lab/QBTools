@@ -68,7 +68,7 @@ export interface RunnerResult {
 	summary: string;
 	outputs: RunnerOutput[];
 	/** Structured payload for `--json`. */
-	data?: Record<string, unknown>;
+	data?: object;
 }
 
 /** Thrown when a tool's optional dependency/server is missing. Exit code 2. */

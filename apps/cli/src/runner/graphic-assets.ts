@@ -4,7 +4,7 @@
  * apps/web's copies). resvg's wasm self-resolves headlessly via initResvg.
  */
 
-import type { GraphicAssets } from "@qbtools/engines/graphic/fonts";
+import type { GraphicAssets } from "@qbtools/engines/graphic";
 
 function fontUrl(
 	provider: "@fontsource" | (string & {}),
@@ -39,4 +39,7 @@ export const CLI_GRAPHIC_ASSETS: GraphicAssets = {
 	pathFontUrls: {
 		"inter-700": fontUrl("@fontsource", "inter", "inter-latin-700-normal.woff"),
 	},
+	// resvg's own headless branch hands fetch() a bare fs path, which Bun
+	// rejects; an explicit file:// wasmUrl takes the working fetch branch.
+	wasmUrl: `file://${Bun.resolveSync("@resvg/resvg-wasm/index_bg.wasm", import.meta.dir)}`,
 };

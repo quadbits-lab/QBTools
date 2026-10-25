@@ -1,7 +1,6 @@
 export const SITE_NAME = "QBTools";
-export const SITE_TAGLINE = "Fast, private tools that never leave your browser";
-export const SITE_DESCRIPTION =
-	"Free, private browser tools for everyday workflows — compress media, merge PDFs, format code, and encrypt files. 100% client-side with zero server uploads.";
+export const SITE_TAGLINE = "Fast, Private Tools That Never Leave Your Browser";
+export const SITE_DESCRIPTION = "Free, private browser tools for everyday workflows — compress media, merge PDFs, format code, and encrypt files. 100% client-side with zero server uploads.";
 export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:8310").replace(
 	/\/$/,
 	"",

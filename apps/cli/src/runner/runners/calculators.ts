@@ -67,15 +67,15 @@ export const bmiCalculator: ToolRunner = {
 		const result = calculateBmi(num(values, "weight", 0), num(values, "height", 0));
 		if (!result) throw new Error("Enter a realistic weight and height.");
 		return {
-			summary: `BMI ${result.value.toFixed(1)} — ${result.category}`,
+			summary: `BMI ${result.bmi.toFixed(1)} — ${result.label}`,
 			outputs: [
 				{
 					type: "table",
 					columns: ["Metric", "Value"],
 					rows: [
-						["BMI", result.value.toFixed(1)],
-						["Category", result.category],
-						["Healthy range", "18.5 – 24.9"],
+						["BMI", result.bmi.toFixed(1)],
+						["Category", result.label],
+						["Healthy weight range", `${result.healthyMinKg.toFixed(1)} – ${result.healthyMaxKg.toFixed(1)} kg`],
 					],
 				},
 			],
@@ -173,7 +173,7 @@ export const gpaCalculator: ToolRunner = {
 			if (!Number.isFinite(credits) || !Number.isFinite(points) || credits <= 0) {
 				throw new Error(`Couldn't parse "${pair}" — use credits:points like 3:3.7`);
 			}
-			if (points < scale.min || points > scale.max) {
+			if (points <= 0 || points > scale.max) {
 				throw new Error(`Points ${points} are outside the ${scale.max}-point scale.`);
 			}
 			courses.push({ credits, points });

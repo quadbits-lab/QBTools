@@ -29,7 +29,7 @@ export function GitHubRepoBadge({
 			aria-label={`GitHub repository: ${GITHUB_REPO_SLUG}`}
 			title={`${GITHUB_REPO_SLUG} on GitHub`}
 			className={cn(
-				"group inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-field px-3 text-xs font-medium text-foreground control-raise transition-[background-color,border-color,color,transform] duration-150 hover:border-foreground/25 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-safe:active:scale-[0.97]",
+				"group rounded-md inline-flex h-9 shrink-0 items-center justify-center gap-2 border border-border bg-field px-3 text-xs font-medium text-foreground control-raise transition-[background-color,border-color,color,transform] duration-150 hover:border-foreground/25 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-safe:active:scale-[0.97]",
 				className,
 			)}
 		>

@@ -10,12 +10,14 @@ import { cn } from "../lib/utils";
  * Heights: sm 36, md 40, lg 48.
  */
 export const buttonVariants = cva(
-	"inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-[transform,background-color,border-color,color,opacity] duration-150 ease-out [-webkit-tap-highlight-color:transparent] motion-safe:enabled:active:scale-[0.96] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+	"inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-[transform,translate,scale,background-color,border-color,color,box-shadow,opacity] duration-150 ease-out [-webkit-tap-highlight-color:transparent] motion-safe:enabled:active:scale-[0.96] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
-				default: "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90",
-				primary: "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90",
+				default:
+					"bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90 hover:shadow-hover motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 active:shadow-2xs",
+				primary:
+					"bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90 hover:shadow-hover motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 active:shadow-2xs",
 				secondary:
 					"border-border bg-secondary text-secondary-foreground control-raise hover:bg-accent",
 				outline:

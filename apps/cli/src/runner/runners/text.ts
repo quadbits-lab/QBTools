@@ -53,7 +53,7 @@ export const wordCounter: ToolRunner = {
 								rows: stats.topKeywords.map((keyword) => [
 									keyword.word,
 									String(keyword.count),
-									`${(keyword.density * 100).toFixed(1)}%`,
+									`${keyword.density.toFixed(1)}%`,
 								]),
 							},
 						]

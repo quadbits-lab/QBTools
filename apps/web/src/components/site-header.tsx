@@ -158,13 +158,14 @@ export function SiteHeader() {
 				</div>
 
 				{/* Right Side Actions */}
-				<div className="flex items-center gap-1.5 sm:gap-2.5">
+				<div className="flex items-center gap-1.5 sm:gap-2">
+					{/* Glass field: translucent tint over the blurred header, distinct from the action buttons. */}
 					<Button
 						type="button"
 						variant="outline"
 						size="sm"
 						onClick={open}
-						className="group hidden w-44 justify-start gap-2.5 px-3 text-xs font-normal text-muted-foreground hover:text-foreground md:flex lg:w-52 xl:w-56"
+						className="group hidden w-44 justify-start gap-2.5 border-[color:var(--search-field-border)] bg-[color:var(--search-field-bg)] px-3 text-xs font-normal text-muted-foreground backdrop-blur-[4px] hover:border-[color:var(--search-field-border-hover)] hover:bg-[color:var(--search-field-bg-hover)] hover:text-foreground md:flex lg:w-52 xl:w-56"
 					>
 						<Search className="size-3.5 text-muted-foreground transition-colors group-hover:text-foreground" />
 						<span className="truncate">Search tools…</span>
@@ -187,7 +188,7 @@ export function SiteHeader() {
 
 					<ThemeToggle />
 
-					<PwaInstallButton />
+					{/* <PwaInstallButton /> */}
 
 					<UserMenu />
 
@@ -215,7 +216,7 @@ export function SiteHeader() {
 								setMenuOpen(false);
 								open();
 							}}
-							className="flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-md border border-border bg-field px-3.5 text-sm text-muted-foreground control-raise transition-colors hover:bg-accent hover:text-foreground"
+							className="flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-md border border-[color:var(--search-field-border)] bg-[color:var(--search-field-bg)] px-3.5 text-sm text-muted-foreground backdrop-blur-[4px] control-raise transition-colors hover:border-[color:var(--search-field-border-hover)] hover:bg-[color:var(--search-field-bg-hover)] hover:text-foreground"
 						>
 							<Search className="size-4 text-muted-foreground" />
 							<span>Search tools…</span>

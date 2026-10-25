@@ -4,6 +4,25 @@
 /* Tailwind must scan workspace packages that ship JSX. */
 @source "../../../packages/ui/src";
 
+/* Header search field: translucent glass over the blurred header bar. Dark uses
+   the specified tint; light keeps the same hue at lower alpha so the field reads
+   as a soft gray surface instead of a dark box on white. Hover lifts the tint
+   one step instead of swapping in an opaque fill. */
+:root,
+.dark {
+	--search-field-bg: #2929291f;
+	--search-field-border: #3737378c;
+	--search-field-bg-hover: #2e2e2e5c;
+	--search-field-border-hover: #373737b3;
+}
+
+.light {
+	--search-field-bg: #29292914;
+	--search-field-border: #3737372e;
+	--search-field-bg-hover: #2929291f;
+	--search-field-border-hover: #3737373d;
+}
+
 /* Page container: 1280px max with a 4vw gutter (min 16px). */
 @utility container-page {
 	width: 100%;

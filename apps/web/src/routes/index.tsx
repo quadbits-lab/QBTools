@@ -413,7 +413,7 @@ function ToolsDirectory() {
 		<section
 			id="tools-directory"
 			aria-labelledby="tools-explorer"
-			className="container-page relative z-10 pt-20 sm:pt-28"
+			className="container-page relative z-10 pt-20 sm:py-38"
 		>
 			<SectionHead
 				index={1}
@@ -835,7 +835,7 @@ function HomePage() {
 			<section
 				id="categories"
 				aria-labelledby="categories-title"
-				className="ambient-band mt-32 scroll-mt-16 py-26 sm:mt-48 sm:py-48"
+				className="ambient-band mt-32 scroll-mt-16 py-26 sm:mt-0 sm:py-38"
 			>
 				<div className="container-page">
 					<SectionHead

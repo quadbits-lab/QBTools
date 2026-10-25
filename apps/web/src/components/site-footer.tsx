@@ -36,7 +36,7 @@ export function SiteFooter() {
 	const moreCategories = categories.slice(half);
 
 	return (
-		<footer className="mt-24 border-t border-border bg-card ambient-band overflow-hidden">
+		<footer className="mt-0 border-t border-border bg-card ambient-band overflow-hidden">
 			<div className="container-page grid grid-cols-2 gap-x-6 gap-y-10 py-12 md:grid-cols-[1.4fr_repeat(4,1fr)] md:gap-12">
 				<div className="col-span-2 flex flex-col items-start gap-3 md:col-span-1">
 					<Logo />
