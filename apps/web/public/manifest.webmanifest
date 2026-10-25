@@ -1,23 +1,73 @@
 {
-	"name": "QBTools — Free tools that just work",
+	"id": "/",
+	"name": "QBTools — Fast, private tools that never leave your browser",
 	"short_name": "QBTools",
-	"description": "Free online tools: compress images, merge PDFs, calculators, QR codes and more. No signup.",
+	"description": "Free, private browser tools for everyday workflows — compress media, merge PDFs, format code, and encrypt files. 100% client-side with zero server uploads.",
+	"lang": "en",
+	"dir": "ltr",
 	"start_url": "/",
+	"scope": "/",
 	"display": "standalone",
-	"background_color": "#ffffff",
-	"theme_color": "#ffffff",
+	"display_override": ["standalone", "minimal-ui", "browser"],
+	"orientation": "any",
+	"background_color": "#111111",
+	"theme_color": "#1f1f1f",
+	"categories": ["utilities", "productivity", "graphics", "developer"],
+	"prefer_related_applications": false,
 	"icons": [
 		{
 			"src": "/web-app-manifest-192x192.png",
 			"sizes": "192x192",
 			"type": "image/png",
-			"purpose": "maskable"
+			"purpose": "any"
 		},
 		{
 			"src": "/web-app-manifest-512x512.png",
 			"sizes": "512x512",
 			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/icons/maskable-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
 			"purpose": "maskable"
+		},
+		{
+			"src": "/icons/maskable-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Compress image",
+			"short_name": "Compress",
+			"description": "Shrink an image without uploading it anywhere.",
+			"url": "/tools/compress-image",
+			"icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png" }]
+		},
+		{
+			"name": "Merge PDF",
+			"short_name": "Merge PDF",
+			"description": "Combine several PDF files into one.",
+			"url": "/tools/merge-pdf",
+			"icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png" }]
+		},
+		{
+			"name": "QR code generator",
+			"short_name": "QR code",
+			"description": "Create a QR code for any link or text.",
+			"url": "/tools/qr-code-generator",
+			"icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png" }]
+		},
+		{
+			"name": "All tools",
+			"short_name": "Tools",
+			"description": "Browse every QBTools tool.",
+			"url": "/tools",
+			"icons": [{ "src": "/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png" }]
 		}
 	]
 }

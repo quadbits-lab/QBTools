@@ -4,9 +4,10 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun ../../scripts/prepare-wasm.ts && bun --bun vite dev --port 8310",
-		"build": "bun ../../scripts/prepare-wasm.ts && bun --bun vite build && bun ../../scripts/prepare-server.ts",
+		"dev": "bun ../../scripts/prepare-wasm.ts && bun ../../scripts/build-sw.ts && bun --bun vite dev --port 8310",
+		"build": "bun ../../scripts/prepare-wasm.ts && bun ../../scripts/build-sw.ts && bun --bun vite build && bun ../../scripts/prepare-server.ts",
 		"start": "bun run server.ts",
+		"icons": "bun scripts/generate-pwa-icons.ts",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {

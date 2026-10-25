@@ -1,0 +1,52 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { renderSvg } from "@qbtools/engines/graphic";
+
+// Generate the maskable PWA icons from the existing app artwork.
+//
+// Android applies a mask (circle, squircle, …) that can crop up to 20% off
+// every side, so the monogram is scaled down and centred on an opaque
+// background. The output is committed; this script only needs re-running when
+// the artwork changes.
+const root = join(import.meta.dir, "..");
+const artworkPath = join(root, "public/web-app-manifest-512x512.png");
+const outputDirectory = join(root, "public/icons");
+
+/** Fraction of the canvas the mark occupies. */
+const SCALE = 0.7;
+/** Opaque backdrop, so the mark reads on any launcher background. */
+const BACKGROUND = "#ffffff";
+const SIZES = [192, 512];
+
+const artwork = (await readFile(artworkPath)).toString("base64");
+
+function maskableSvg(size: number): string {
+	const side = Math.round(size * SCALE);
+	const offset = Math.round((size - side) / 2);
+	return [
+		`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`,
+		`<rect width="${size}" height="${size}" fill="${BACKGROUND}"/>`,
+		`<image x="${offset}" y="${offset}" width="${side}" height="${side}" preserveAspectRatio="xMidYMid meet" href="data:image/png;base64,${artwork}" xlink:href="data:image/png;base64,${artwork}"/>`,
+		"</svg>",
+	].join("");
+}
+
+await mkdir(outputDirectory, { recursive: true });
+const assets = {
+	wasmUrl: `file://${Bun.resolveSync("@resvg/resvg-wasm/index_bg.wasm", import.meta.dir)}`,
+};
+for (const size of SIZES) {
+	const { blob } = await renderSvg(
+		{
+			svg: maskableSvg(size),
+			width: size,
+			height: size,
+			format: "png",
+		},
+		{ assets },
+	);
+	const bytes = new Uint8Array(await blob.arrayBuffer());
+	const target = join(outputDirectory, `maskable-${size}.png`);
+	await writeFile(target, bytes);
+	console.info(`Wrote ${target} (${bytes.byteLength} bytes).`);
+}

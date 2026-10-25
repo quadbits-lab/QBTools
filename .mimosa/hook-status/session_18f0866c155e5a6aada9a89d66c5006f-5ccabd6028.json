@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-10-25T03:07:51.839Z",
+  "sessionId": "session_18f0866c155e5a6aada9a89d66c5006f",
+  "event": "PostToolUse",
+  "toolName": "Write",
+  "file": "tests/browser/pwa.pw.ts",
+  "outcome": "clear",
+  "coverage": "complete",
+  "findingCount": 0,
+  "durationMs": 3,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

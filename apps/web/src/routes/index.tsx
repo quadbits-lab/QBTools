@@ -246,35 +246,12 @@ function PersonalShelf() {
 							onClick={() => recentTools.write([])}
 							aria-label="Clear recent history"
 							title="Clear recent history"
-							className={`${SHELF_CONTROL} hover:border-cat-rose-border hover:bg-cat-rose-bg hover:text-cat-rose-icon`}
+							className={`relative z-10 border-border/70 bg-background/60 backdrop-blur-md hover:border-cat-rose-border hover:bg-cat-rose-bg hover:text-cat-rose-icon ${SHELF_CONTROL}`}
 						>
 							<RotateCcw />
 						</Button>
 					)}
-					{list.length > 0 && (
-						<>
-							<Button
-								variant="outline"
-								size="icon"
-								className={`hidden sm:inline-flex ${SHELF_CONTROL}`}
-								disabled={!canPrev}
-								onClick={() => emblaApi?.scrollPrev()}
-								aria-label="Previous tools"
-							>
-								<ArrowLeft />
-							</Button>
-							<Button
-								variant="outline"
-								size="icon"
-								className={`hidden sm:inline-flex ${SHELF_CONTROL}`}
-								disabled={!canNext}
-								onClick={() => emblaApi?.scrollNext()}
-								aria-label="Next tools"
-							>
-								<ArrowRight />
-							</Button>
-						</>
-					)}
+
 					{user && (
 						<Segmented
 							label="Show"
@@ -288,6 +265,31 @@ function PersonalShelf() {
 							]}
 							className="min-w-0 flex-1 rounded-[10px] sm:flex-none"
 						/>
+					)}
+
+					{list.length > 0 && (canPrev || canNext) && (
+						<>
+							<Button
+								variant="outline"
+								size="icon"
+								className={`relative z-10 hidden border-border/70 bg-background/60 backdrop-blur-md hover:bg-background/80 disabled:border-border/60 disabled:bg-background/35 disabled:text-muted-foreground/45 disabled:opacity-100 sm:inline-flex ${SHELF_CONTROL}`}
+								disabled={!canPrev}
+								onClick={() => emblaApi?.scrollPrev()}
+								aria-label="Previous tools"
+							>
+								<ArrowLeft />
+							</Button>
+							<Button
+								variant="outline"
+								size="icon"
+								className={`relative z-10 hidden border-border/70 bg-background/60 backdrop-blur-md hover:bg-background/80 disabled:border-border/60 disabled:bg-background/35 disabled:text-muted-foreground/45 disabled:opacity-100 sm:inline-flex ${SHELF_CONTROL}`}
+								disabled={!canNext}
+								onClick={() => emblaApi?.scrollNext()}
+								aria-label="Next tools"
+							>
+								<ArrowRight />
+							</Button>
+						</>
 					)}
 				</div>
 			</div>
@@ -800,10 +802,8 @@ function HomePage() {
 						/>
 					</div>
 
-					<div className="reveal hidden flex-wrap items-center justify-center gap-2 sm:flex [animation-delay:320ms]">
-						<span className="pr-1 font-mono text-[0.625rem] font-medium uppercase tracking-[0.1em] text-subtle">
-							Popular
-						</span>
+					{/* <div className="reveal hidden flex-wrap items-center justify-center gap-2 sm:flex [animation-delay:320ms]">
+
 						{QUICK.map(getTool)
 							.filter((t) => t !== undefined)
 							.map((tool) => (
@@ -823,7 +823,7 @@ function HomePage() {
 									{tool.name}
 								</Link>
 							))}
-					</div>
+					</div> */}
 				</div>
 			</section>
 

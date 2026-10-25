@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { categoryStyles, iconFor } from "#/lib/icons";
 import { useCommandPalette } from "./command-palette";
 import { Logo } from "./logo";
+import { PwaInstallButton } from "./pwa-install-button";
 import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
 
@@ -182,6 +183,8 @@ export function SiteHeader() {
 					</Button>
 
 					<ThemeToggle />
+
+					<PwaInstallButton />
 
 					<UserMenu />
 
