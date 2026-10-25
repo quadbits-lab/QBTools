@@ -6,6 +6,7 @@ import { ArrowRight, ChevronDown, Menu, Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { categoryStyles, iconFor } from "#/lib/icons";
 import { useCommandPalette } from "./command-palette";
+import { GitHubRepoBadge } from "./github-repo-badge";
 import { Logo } from "./logo";
 import { PwaInstallButton } from "./pwa-install-button";
 import { ThemeToggle } from "./theme-toggle";
@@ -163,7 +164,7 @@ export function SiteHeader() {
 						variant="outline"
 						size="sm"
 						onClick={open}
-						className="group hidden w-44 justify-start gap-2.5 px-3 text-xs font-normal text-muted-foreground hover:text-foreground md:flex lg:w-56"
+						className="group hidden w-44 justify-start gap-2.5 px-3 text-xs font-normal text-muted-foreground hover:text-foreground md:flex lg:w-52 xl:w-56"
 					>
 						<Search className="size-3.5 text-muted-foreground transition-colors group-hover:text-foreground" />
 						<span className="truncate">Search tools…</span>
@@ -181,6 +182,8 @@ export function SiteHeader() {
 					>
 						<Search className="size-4" />
 					</Button>
+
+					<GitHubRepoBadge collapseLabel className="hidden sm:inline-flex" />
 
 					<ThemeToggle />
 
@@ -240,6 +243,8 @@ export function SiteHeader() {
 								<ArrowRight className="size-4 text-muted-foreground" />
 							</Link>
 						</div>
+
+						<GitHubRepoBadge className="self-start" onClick={() => setMenuOpen(false)} />
 
 						{/* Categories Grid */}
 						<div className="border-t border-border/50 pt-3">

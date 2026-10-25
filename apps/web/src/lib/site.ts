@@ -7,6 +7,9 @@ export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:8310
 	"",
 );
 export const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL ?? "hello@quadbits.io";
+/** Public source repository, linked from the header and footer badges. */
+export const GITHUB_REPO_URL = "https://github.com/Quadbits-Lab/QBTools";
+export const GITHUB_REPO_SLUG = "Quadbits-Lab/QBTools";
 /** Matches the dark theme background (oklch 0.18 monochrome gray). */
 export const THEME_COLOR = "#1f1f1f";
 /** Matches the light theme background. */

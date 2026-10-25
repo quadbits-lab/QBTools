@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-10-25T04:36:45.782Z",
+  "sessionId": "session_a4d7135783050fb9adbeeea5d3c5f9fb",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "/Users/quadbits/RD/QBTools/apps/cli/src/runner/runners/pdf.ts",
+  "outcome": "inconclusive",
+  "coverage": "partial",
+  "findingCount": 0,
+  "durationMs": 2,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

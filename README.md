@@ -23,9 +23,11 @@
 
 ---
 
-### 📑 Quick Links
+### 📑 Table of Contents
 
-[✨ Key Highlights](#-key-highlights) • [🧰 Tools Catalog (42)](#-complete-tools-catalog) • [🚀 Quick Start](#-quick-start) • [📐 Architecture](#-system-architecture) • [📂 Monorepo Layout](#-monorepo-layout) • [🐳 Docker Deploy](#-docker-deployment) • [🔒 Privacy & Security](#-privacy--security) • [⚙️ Configuration](#️-configuration)
+| 🌟 **Product Overview** | 💻 **Developer Guide** | 🚀 **Ops & Reference** |
+| :--- | :--- | :--- |
+| • [✨ Key Highlights](#-key-highlights)<br/>• [🧰 Tools Catalog (42)](#-complete-tools-catalog)<br/>• [📐 System Architecture](#-system-architecture)<br/>• [🔒 Privacy & Security](#-privacy--security) | • [🚀 Quick Start Guide](#-quick-start)<br/>• [💻 CLI Commands](#-cli-commands-cheatsheet)<br/>• [📂 Monorepo Layout](#-monorepo-layout)<br/>• [🛠️ Adding a New Tool](#️-step-by-step-adding-a-new-tool) | • [🐳 Docker Deployment](#-docker-deployment)<br/>• [⚙️ Environment Config](#️-configuration)<br/>• [📖 Deep-Dive Docs](#-documentation)<br/>• [🐙 GitHub Repo](https://github.com/Quadbits-Lab/QBTools) |
 
 ---
 
@@ -159,38 +161,51 @@ QBTools includes **42 high-performance tools** organized into 8 intuitive catego
 
 ```mermaid
 flowchart TD
-    subgraph Browser ["Client Browser (Zero-Upload Sandbox)"]
+    subgraph Browser ["Client Browser (Zero-Upload Sandbox · 100% Client-Side)"]
+        direction TB
         UI["React 19 / TanStack Router UI"]
         WorkerPool["Web Workers & WASM Engine"]
         
-        UI -->|File Input| WorkerPool
-        WorkerPool -->|resvg-wasm| Resvg["SVG & Icon Rasterizer"]
-        WorkerPool -->|ormbg ONNX| ONNX["AI Background Remover"]
-        WorkerPool -->|ffmpeg.wasm| FFmpeg["Audio & Video Transcoding"]
-        WorkerPool -->|pdf-lib| PDF["PDF Assembly & OCR"]
-        WorkerPool -->|WebCrypto| Crypto["AES-256-GCM / SHA-256"]
+        UI -->|"File Input"| WorkerPool
         
-        WorkerPool -->|Instant Processed Output| UI
-    end
-
-    subgraph Server ["Server Runtime (Bun + Docker)"]
-        SSR["TanStack Start SSR (:8310)"]
-        SQLite[("SQLite (bun:sqlite + Drizzle)\nWaitlist, Contacts, Leads")]
-        AI["AI Grammar / Paraphrase\n(Anthropic SDK)"]
-        
-        subgraph PrivateCloud ["Optional Private Cloud (Signed-in)"]
-            Auth["Better Auth (GitHub OAuth)"]
-            PGlite[("PGlite User State\nFavorites, History")]
-            RustFS[("RustFS / S3 Object Store\nEncrypted Media Backup")]
+        subgraph WASM ["Local WASM & Client-Side Processing Engines"]
+            direction LR
+            Resvg["resvg-wasm<br/>SVG & Icon Rasterizer"]
+            ONNX["ormbg ONNX<br/>AI Background Remover"]
+            FFmpeg["ffmpeg.wasm<br/>Audio & Video Transcoding"]
+            PDF["pdf-lib<br/>PDF Assembly & OCR"]
+            Crypto["WebCrypto<br/>AES-256-GCM / SHA-256"]
         end
+        
+        WorkerPool --> WASM
+        WASM -->|"Instant Local Output"| UI
     end
 
-    UI -.->|Page Request / SSR| SSR
-    UI -.->|AI Requests Only (Opt-in)| AI
-    UI -.->|Explicit Save / Backup| Auth
-    Auth --> PGlite
-    Auth --> RustFS
-    SSR --> SQLite
+    subgraph Server ["Server Runtime (Bun + Docker · Optional Self-Hosted Services)"]
+        direction TB
+        subgraph ServerCore ["Public Server Endpoints"]
+            direction LR
+            SSR["TanStack Start SSR (:8310)"]
+            SQLite[("SQLite (bun:sqlite + Drizzle)<br/>Waitlist, Contacts, Leads")]
+            AI["AI Grammar / Paraphrase<br/>(Anthropic SDK · Opt-in)"]
+        end
+
+        subgraph PrivateCloud ["Optional Private Cloud (Signed-in Users)"]
+            direction LR
+            Auth["Better Auth<br/>(GitHub OAuth)"]
+            PGlite[("PGlite User State<br/>Favorites & History")]
+            RustFS[("RustFS / S3 Object Store<br/>Encrypted Media Backup")]
+        end
+
+        SSR --> SQLite
+        Auth --> PGlite
+        Auth --> RustFS
+    end
+
+    PDF ~~~ SSR
+    UI -.->|"Page Request / SSR"| SSR
+    UI -.->|"AI Requests Only (Opt-in)"| AI
+    UI -.->|"Explicit Save / Backup"| Auth
 ```
 
 ---
@@ -206,7 +221,7 @@ flowchart TD
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/quadbits/QBTools.git
+git clone https://github.com/Quadbits-Lab/QBTools.git
 cd QBTools
 bun install
 ```

@@ -1,5 +1,5 @@
 import { LIMITS, type ProcessingOptions, progress } from "../processing";
-import { getQpdf, runQpdf } from "./qpdf";
+import { getQpdf, runQpdf, stageInput } from "./qpdf";
 
 export type ProtectMode = "protect" | "unlock";
 export interface ProtectRequest {
@@ -40,8 +40,7 @@ export async function protectPdf(
 	progress(options, mode === "protect" ? "Encrypting PDF…" : "Removing password…");
 	let mounted = false;
 	try {
-		qpdf.FS.mount(qpdf.WORKERFS, { blobs: [{ name: "source.pdf", data: file }] }, "/input");
-		mounted = true;
+		mounted = await stageInput(qpdf, file);
 		if (mode === "unlock") {
 			// Exit 3 means the file is encrypted and this password opens it. qpdf reports 2 for
 			// both a wrong password and an unencrypted file, so tell those apart by hand.

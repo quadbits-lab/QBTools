@@ -18,6 +18,7 @@ COPY package.json bun.lock bunfig.toml ./
 # than the 1.7 pinned above, so the list is explicit: keep it in sync with the
 # `workspaces` field in package.json (apps/* + packages/*).
 COPY apps/web/package.json apps/web/
+COPY apps/cli/package.json apps/cli/
 COPY packages/ui/package.json packages/ui/
 COPY packages/registry/package.json packages/registry/
 COPY packages/engines/package.json packages/engines/

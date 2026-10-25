@@ -1,0 +1,112 @@
+import { describe, expect, test } from "bun:test";
+import { tools } from "@qbtools/registry";
+import { CLI_VERSION } from "../version";
+import { runHeadless } from "./run";
+
+function capture() {
+	const out: string[] = [];
+	const err: string[] = [];
+	return {
+		out,
+		err,
+		io: {
+			out: (line?: string) => out.push(line ?? ""),
+			err: (line?: string) => err.push(line ?? ""),
+		},
+	};
+}
+
+describe("runHeadless", () => {
+	test("version prints name and semver", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["version"], io)).toBe(0);
+		expect(out[0]).toBe(`qbtools ${CLI_VERSION}`);
+	});
+
+	test("version --json is valid JSON", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["version", "--json"], io)).toBe(0);
+		expect(JSON.parse(out[0])).toEqual({ name: "qbtools", version: CLI_VERSION });
+	});
+
+	test("help lists every command", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["help"], io)).toBe(0);
+		const text = out.join("\n");
+		for (const name of ["version", "list", "help", "completions"]) {
+			expect(text).toContain(name);
+		}
+	});
+
+	test("unknown command exits 1 with a hint", async () => {
+		const { io, err } = capture();
+		expect(await runHeadless(["frobnicate"], io)).toBe(1);
+		expect(err.join("\n")).toContain("Unknown command: frobnicate");
+	});
+
+	test("no arguments exits 1 with guidance", async () => {
+		const { io, err } = capture();
+		expect(await runHeadless([], io)).toBe(1);
+		expect(err.join("\n")).toContain("qbtools help");
+	});
+});
+
+describe("list command", () => {
+	test("prints every registry tool grouped by category", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["list"], io)).toBe(0);
+		const text = out.join("\n");
+		for (const tool of tools) {
+			expect(text).toContain(tool.slug);
+		}
+	});
+
+	test("--category filters to one group", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["list", "--category", "calculators"], io)).toBe(0);
+		const text = out.join("\n");
+		expect(text).toContain("age-calculator");
+		expect(text).not.toContain("merge-pdf");
+	});
+
+	test("unknown category exits 1", async () => {
+		const { io } = capture();
+		expect(await runHeadless(["list", "--category", "nope"], io)).toBe(1);
+	});
+
+	test("--json emits one row per tool", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["list", "--json"], io)).toBe(0);
+		const rows = JSON.parse(out[0]) as Array<{ slug: string }>;
+		expect(rows).toHaveLength(tools.length);
+	});
+});
+
+describe("completions command", () => {
+	test("zsh script references compdef and tool slugs", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["completions", "zsh"], io)).toBe(0);
+		const text = out.join("\n");
+		expect(text).toContain("#compdef qbtools");
+		expect(text).toContain("word-counter");
+	});
+
+	test("bash script registers the complete handler", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["completions", "bash"], io)).toBe(0);
+		const text = out.join("\n");
+		expect(text).toContain("complete -F _qbtools qbtools");
+	});
+
+	test("fish script uses complete -c", async () => {
+		const { io, out } = capture();
+		expect(await runHeadless(["completions", "fish"], io)).toBe(0);
+		const text = out.join("\n");
+		expect(text).toContain("complete -c qbtools");
+	});
+
+	test("unsupported shell exits 1", async () => {
+		const { io } = capture();
+		expect(await runHeadless(["completions", "powershell"], io)).toBe(1);
+	});
+});

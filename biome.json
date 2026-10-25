@@ -14,7 +14,8 @@
 			"!**/drizzle/meta",
 			"!**/*.css",
 			"!apps/web/public/js/script.js",
-			"!**/.mimosa"
+			"!**/.mimosa",
+			"!**/.zcode"
 		]
 	},
 	"formatter": {

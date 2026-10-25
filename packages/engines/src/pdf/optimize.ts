@@ -1,6 +1,6 @@
 import { PDFDocument } from "pdf-lib";
 import { LIMITS, type ProcessingOptions, progress } from "../processing";
-import { getQpdf, runQpdf } from "./qpdf";
+import { getQpdf, runQpdf, stageInput } from "./qpdf";
 export interface OptimizedPdf {
 	blob: Blob;
 	decreased: boolean;
@@ -28,8 +28,7 @@ export async function optimizePdf(
 	progress(options, "Optimizing PDF structure…");
 	let mounted = false;
 	try {
-		qpdf.FS.mount(qpdf.WORKERFS, { blobs: [{ name: "source.pdf", data: file }] }, "/input");
-		mounted = true;
+		mounted = await stageInput(qpdf, file);
 		const args = [
 			"/input/source.pdf",
 			"--object-streams=generate",
