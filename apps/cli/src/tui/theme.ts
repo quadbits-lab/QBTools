@@ -14,7 +14,7 @@ export const theme = {
 	textDim: "#b7b7b7",
 	textSubtle: "#8f8f8f",
 	border: "#191919",
-	borderStrong: "#2e2e2e",
+	borderStrong: "#3a3a3a",
 	input: "#373737",
 	destructive: "#f87171",
 	success: "#e5e5e5",
@@ -31,6 +31,20 @@ export const accents = {
 } as const;
 
 export type AccentId = keyof typeof accents;
+
+/** Vertical brightness ramp for the wordmark, top → bottom — monochrome grayscale. */
+export const logoRamp = ["#f2f2f2", "#c9c9c9", "#a0a0a0", "#777777", "#525252"] as const;
+
+/** Dark tint of each accent, used as the selected card's background fill. */
+export const accentTints: Record<AccentId, string> = {
+	emerald: "#0f2b20",
+	rose: "#2b1520",
+	indigo: "#191c33",
+	amber: "#2a2110",
+	violet: "#1f1830",
+	sky: "#0f242e",
+	teal: "#0e2a26",
+};
 
 /** web (apps/web/src/lib/icons.tsx) → CLI accent, per registry category. */
 export const CATEGORY_ACCENTS: Record<string, AccentId> = {

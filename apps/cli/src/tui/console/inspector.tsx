@@ -26,7 +26,8 @@ export interface InspectorStripProps {
 	mode: StripMode;
 	tool: ToolDef | undefined;
 	availability?: { label: string; hint: string };
-	flags?: string[];
+	/** Command-line flags of the selected runner, as name + placeholder. */
+	flags?: Array<{ name: string; placeholder: string }>;
 	body?: React.ReactNode;
 }
 
@@ -114,7 +115,12 @@ export function InspectorStrip(props: InspectorStripProps) {
 							)}
 							height={contentHeight}
 						>
-							<FlagsZone availability={props.availability} flags={props.flags} compact={compact} />
+							<FlagsZone
+								availability={props.availability}
+								flags={props.flags}
+								compact={compact}
+								accent={accent}
+							/>
 						</Zone>
 					</>
 				)}
@@ -146,6 +152,18 @@ function Zone(props: {
 		>
 			{props.children}
 		</Box>
+	);
+}
+
+/** A zone's header: an accent gem before the label, so the zones read apart. */
+function ZoneTitle(props: { label: string; color: string }) {
+	return (
+		<>
+			<Text color={props.color}>{"◆ "}</Text>
+			<Text color={theme.textSubtle} bold>
+				{props.label}
+			</Text>
+		</>
 	);
 }
 
@@ -197,16 +215,25 @@ function CliZone(props: { tool: ToolDef | undefined; accent: string; compact: bo
 	if (!props.tool) return <Text color={theme.textSubtle}>—</Text>;
 	return (
 		<Text>
-			<Text color={theme.textSubtle}>CLI INVOCATION</Text>
+			<ZoneTitle label="CLI INVOCATION" color={props.accent} />
 			{"\n"}
 			<Text backgroundColor={theme.muted}>
-				<Text color={props.accent}> $ </Text>
-				<Text color={theme.fg}>{`qbtools run ${props.tool.slug} `}</Text>
+				<Text color={accents.emerald} bold>
+					{" $ "}
+				</Text>
+				<Text color={theme.fg} bold>
+					qbtools
+				</Text>
+				<Text color={theme.textSubtle}>{" run "}</Text>
+				<Text color={props.accent}>{props.tool.slug}</Text>{" "}
 			</Text>
 			{props.compact ? null : (
 				<>
 					{"\n"}
-					<Text color={theme.textSubtle}>Enter opens the form · Ctrl+R runs anywhere</Text>
+					<Text color={theme.textSubtle}>
+						{"▸ Enter opens the form"} <Text color={accents.indigo}>{"·"}</Text> Ctrl+R runs
+						anywhere
+					</Text>
 				</>
 			)}
 		</Text>
@@ -215,18 +242,33 @@ function CliZone(props: { tool: ToolDef | undefined; accent: string; compact: bo
 
 function FlagsZone(props: {
 	availability?: { label: string; hint: string };
-	flags?: string[];
+	flags?: Array<{ name: string; placeholder: string }>;
 	compact: boolean;
+	accent: string;
 }) {
+	const flags = props.flags ?? [];
 	return (
 		<Text>
-			<Text color={theme.textSubtle}>SYNOPSIS / FLAGS</Text>
+			<ZoneTitle label="SYNOPSIS / FLAGS" color={props.accent} />
 			{"\n"}
-			<Text color={theme.textDim}>{props.flags?.length ? props.flags.join("  ") : "no flags"}</Text>
+			{flags.length > 0 ? (
+				flags.map((flag, index) => (
+					<Text key={flag.name}>
+						{index > 0 ? <Text color={theme.textSubtle}>{"  "}</Text> : null}
+						<Text color={theme.textSubtle}>{"--"}</Text>
+						<Text color={accents.sky}>{flag.name}</Text>
+						{flag.placeholder ? (
+							<Text color={accents.violet}>{` <${flag.placeholder}>`}</Text>
+						) : null}
+					</Text>
+				))
+			) : (
+				<Text color={theme.textDim}>no flags</Text>
+			)}
 			{props.availability && !props.compact ? (
 				<>
 					{"\n"}
-					<Text color={theme.textSubtle}>{props.availability.hint}</Text>
+					<Text color={theme.textSubtle}>{`▸ ${props.availability.hint}`}</Text>
 				</>
 			) : null}
 		</Text>

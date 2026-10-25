@@ -44,7 +44,19 @@ type Card = "none" | "tool" | "cleanup" | "settings" | "account";
 
 const searchIndex = buildSearchIndex(tools);
 
-function shellPrompt(): string {
+function homeCwd(): string {
+	const home = homedir();
+	const cwd = process.cwd();
+	return cwd.startsWith(home) ? `~${cwd.slice(home.length)}` : cwd;
+}
+
+/** Shell-prompt parts: `user@host` and the home-abbreviated cwd. */
+interface PromptParts {
+	userAt: string;
+	dir: string;
+}
+
+function promptParts(): PromptParts {
 	let user = "user";
 	try {
 		user = userInfo().username;
@@ -57,11 +69,7 @@ function shellPrompt(): string {
 	} catch {
 		/* keep the default */
 	}
-	const home = homedir();
-	const cwd = process.cwd().startsWith(home)
-		? `~${process.cwd().slice(home.length)}`
-		: process.cwd();
-	return `${user}@${host} : ${cwd}$`;
+	return { userAt: `${user}@${host}`, dir: homeCwd() };
 }
 
 /** Sticky strip height per inspected mode. */
@@ -90,17 +98,23 @@ export function Console() {
 	const [logOffset, setLogOffset] = useState(0);
 	const [busy, setBusy] = useState(false);
 
-	const prompt = useMemo(() => shellPrompt(), []);
+	const prompt = useMemo(() => promptParts(), []);
+	const cwd = useMemo(() => homeCwd(), []);
 
 	// Layout: the board is full width; the inspector is a sticky strip below it.
 	// The budget always fits: when space is tight the log shrinks first, then
 	// the strip, and the board keeps at least four rows.
-	const headerRows = columns >= 92 ? 7 : 10;
+	// Luxury chrome — the padded hero and the framed prompt — needs spare rows:
+	// at 30 rows the board cannot give up any (the tests' frame), so the tiers
+	// keep the compact frame below 34 rows and go plush from there.
+	const roomy = rows >= 34;
+	const headerRows = columns >= 92 ? (roomy ? 9 : 7) : roomy ? 12 : 10;
+	const promptRows = roomy ? 3 : 1;
 	let logRows = card === "none" ? Math.max(3, Math.min(6, Math.floor(rows * 0.18))) : 3;
 	// Short terminals give the board the space: the log is the first to yield.
 	if (rows < 40) logRows = Math.min(logRows, 3);
 	let stripRows = Math.max(6, Math.min(STRIP_ROWS[stripMode(card)], Math.floor(rows * 0.42)));
-	const fixedRows = headerRows + 1 + 1; // header + command bar + status bar
+	const fixedRows = headerRows + promptRows + 1; // header + prompt + status bar
 	let boardRows = rows - fixedRows - stripRows - (logRows + 2);
 	if (boardRows < 4) {
 		const cut = Math.min(4 - boardRows, Math.max(0, logRows - 2));
@@ -399,7 +413,10 @@ export function Console() {
 	const availability = selectedTool ? availabilityFor(selectedTool.slug) : undefined;
 	const runner = selectedTool ? RUNNERS.get(selectedTool.slug) : undefined;
 	const flags =
-		runner?.fields.map((field) => `--${field.name} <${flagPlaceholder(field.kind)}>`) ?? [];
+		runner?.fields.map((field) => ({
+			name: field.name,
+			placeholder: flagPlaceholder(field.kind),
+		})) ?? [];
 
 	return (
 		<Box flexDirection="column" width={columns} height={rows}>
@@ -410,10 +427,13 @@ export function Console() {
 				platform={`bun · ${process.platform}-${process.arch}`}
 				toolCount={tools.length}
 				status={busy ? "RUNNING" : "LOCAL"}
+				cwd={cwd}
 			/>
 			<CommandBar
 				width={columns}
-				shell={prompt}
+				boxed={roomy}
+				userAt={prompt.userAt}
+				dir={prompt.dir}
 				program="qbtools"
 				value={query}
 				onChange={setQuery}

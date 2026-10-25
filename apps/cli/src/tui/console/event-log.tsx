@@ -1,11 +1,15 @@
 /**
  * The event log panel — the ring buffer at the bottom of the console.
  * System events and tool results share the same stream, newest last.
+ *
+ * A line reads in three tones: the timestamp stays subtle, the tag carries
+ * its own accent (per stream kind), and the message is colored by priority —
+ * errors pop, warnings flag, plain info stays quiet.
  */
 
 import { Box, Text } from "ink";
 import { accents, theme } from "../theme";
-import { type ConsoleEvent, formatEvent } from "./events";
+import type { ConsoleEvent } from "./events";
 
 export interface EventLogProps {
 	width: number;
@@ -16,6 +20,20 @@ export interface EventLogProps {
 	offset: number;
 }
 
+/** Which stream a tag belongs to — each gets its own accent. */
+const TAG_COLOR: Record<string, string> = {
+	SYS_BOOT: accents.indigo,
+	SYS: accents.indigo,
+	NET_POLICIES: accents.teal,
+	RUN: accents.sky,
+	DONE: accents.emerald,
+	OPEN: accents.violet,
+	SEL: accents.sky,
+	HELP: accents.amber,
+	UPDATE: accents.amber,
+	ERR: accents.rose,
+};
+
 const LEVEL_COLOR: Record<ConsoleEvent["level"], string> = {
 	info: theme.textDim,
 	ok: accents.emerald,
@@ -23,15 +41,38 @@ const LEVEL_COLOR: Record<ConsoleEvent["level"], string> = {
 	error: accents.rose,
 };
 
+/** Priority marker before the message; plain info stays unmarked. */
+const LEVEL_GLYPH: Record<ConsoleEvent["level"], string> = {
+	info: "",
+	ok: "✔ ",
+	warn: "⚠ ",
+	error: "✖ ",
+};
+
+interface LogRow {
+	time: string;
+	tag: string;
+	level: ConsoleEvent["level"];
+	text: string;
+	detail: boolean;
+	detailText?: string;
+}
+
 export function EventLog(props: EventLogProps) {
-	const flat: Array<{ text: string; level: ConsoleEvent["level"]; detail: boolean }> = [];
+	const flat: LogRow[] = [];
 	for (const event of props.events) {
-		flat.push({ text: formatEvent(event), level: event.level, detail: false });
+		flat.push({
+			time: event.time,
+			tag: event.tag,
+			level: event.level,
+			text: event.text,
+			detail: false,
+		});
 		for (const line of event.detail ?? []) {
 			// A detail may carry several lines (a rendered table) — each one is
 			// its own row so the ring buffer stays line-aligned.
 			for (const part of line.split("\n")) {
-				flat.push({ text: part, level: event.level, detail: true });
+				flat.push({ time: "", tag: "", level: event.level, text: part, detail: true });
 			}
 		}
 	}
@@ -42,14 +83,41 @@ export function EventLog(props: EventLogProps) {
 
 	return (
 		<Box flexDirection="column">
-			{visible.map((line, index) => (
-				<Text key={index} color={line.detail ? theme.textSubtle : LEVEL_COLOR[line.level]}>
-					{line.detail ? `  ${truncate(line.text, limit - 2)}` : truncate(line.text, limit)}
-				</Text>
-			))}
+			{visible.map((row, index) =>
+				row.detail ? (
+					<Text key={index} color={theme.textSubtle}>
+						{`  ${truncate(row.text, limit - 2)}`}
+					</Text>
+				) : (
+					<EventLine key={index} row={row} limit={limit} />
+				),
+			)}
 			{props.offset > 0 ? (
 				<Text color={theme.textSubtle}>{`… ${props.offset} more lines above`}</Text>
 			) : null}
+		</Box>
+	);
+}
+
+/** One event, painted in three segments so the stream stays one line. */
+function EventLine(props: { row: LogRow; limit: number }) {
+	const { row } = props;
+	const tagColor = TAG_COLOR[row.tag] ?? LEVEL_COLOR[row.level];
+	const glyph = LEVEL_GLYPH[row.level];
+	// "[time] tag: " leaves this many columns for the message.
+	const prefix = `[${row.time}] ${row.tag}: `.length;
+	const budget = Math.max(8, props.limit - prefix - glyph.length);
+
+	return (
+		<Box flexDirection="row" flexShrink={0}>
+			<Text color={theme.textSubtle}>{`[${row.time}] `}</Text>
+			<Text color={tagColor} bold>
+				{row.tag}
+			</Text>
+			<Text color={theme.textSubtle}>{": "}</Text>
+			<Text color={LEVEL_COLOR[row.level]} bold={row.level === "error"}>
+				{`${glyph}${truncate(row.text, budget)}`}
+			</Text>
 		</Box>
 	);
 }

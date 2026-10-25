@@ -23,7 +23,7 @@ QBTools monorepo — by hand the first time, then automatically from CI.
 | Executable | `bin: { qbtools: ./dist/bin.js }` — first line is `#!/usr/bin/env bun` |
 | Runtime | **Bun ≥ 1.4 only.** There is no Node fallback; users need Bun on `PATH` |
 | Build | `bun run build:package` → `scripts/build-package.ts` → `dist/bin.js` (+ `.map`) |
-| Shipped files | `dist/bin.js`, `dist/bin.js.map`, `README.md`, `docs/` (≈ 376 kB) |
+| Shipped files | `dist/bin.js`, `dist/bin.js.map`, `README.md`, `docs/` (≈ 690 kB) |
 
 ### Bundling strategy
 
@@ -109,9 +109,10 @@ bun run build:package
 npm pack --dry-run
 ```
 
-Expected: package `qbtools@<version>`, **7 files**, ≈ 376 kB —
-`README.md`, `dist/bin.js`, `dist/bin.js.map`, `docs/{features,tutorials,npm-deployment}.md`,
-`package.json`. Anything over a few MB means something unintended is included.
+Expected: package `qbtools@<version>`, **8 files**, ≈ 690 kB —
+`README.md`, `dist/bin.js`, `dist/bin.js.map`, `docs/assets/qbtools-cli-banner.png`,
+`docs/{features,tutorials,npm-deployment}.md`, `package.json`. Anything over a few MB means
+something unintended is included.
 
 ```bash
 # 3. Prove it installs and runs from a clean project (no monorepo on the path)
@@ -260,7 +261,7 @@ the repo. Remember the shebang: **Bun must be installed**, otherwise `qbtools` f
 - [ ] `npm view qbtools` still 404 (name free) or you own it
 - [ ] `apps/cli/package.json` version == `CLI_VERSION` in `src/version.ts`
 - [ ] `bun run typecheck` and tests green (media test failures resolved)
-- [ ] `npm pack --dry-run` → 7 files, a few hundred kB, no `dist/qbtools`
+- [ ] `npm pack --dry-run` → 8 files, a few hundred kB, no `dist/qbtools`
 - [ ] Clean-project install + `version` / `run` / `doctor` works
 - [ ] `NPM_TOKEN` secret present and unexpired
 - [ ] Tag `vX.Y.Z` matches the version, pushed → workflow green

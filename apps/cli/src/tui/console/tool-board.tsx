@@ -8,7 +8,7 @@
 
 import type { ToolDef } from "@qbtools/registry";
 import { Box, Text } from "ink";
-import { accents, categoryAccent, theme } from "../theme";
+import { accents, accentTints, categoryAccent, theme } from "../theme";
 import { type BoardItem, type BoardModel, CARD_HEIGHT } from "./board";
 
 export interface ToolBoardProps {
@@ -124,8 +124,17 @@ function CardRow(props: {
 }
 
 export function ToolCard(props: { tool: ToolDef; width: number; selected: boolean }) {
-	const accent = accents[categoryAccent(props.tool.category)];
+	const accentId = categoryAccent(props.tool.category);
+	const borderColor = props.selected ? accents[accentId] : theme.borderStrong;
+	// Ink paints `backgroundColor` only over the content area — with a real
+	// border the glyph cells keep the terminal background and read as a black
+	// ring around the fill. The border is hand-drawn so the tint on the box
+	// runs edge to edge, behind the glyphs.
+	const tint = props.selected ? accentTints[accentId] : undefined;
 	const inner = Math.max(4, props.width - 4);
+	const rule = "─".repeat(Math.max(0, props.width - 2));
+	const name = truncate(props.tool.name, inner).padEnd(inner);
+	const slug = truncate(props.tool.slug, inner).padEnd(inner);
 
 	return (
 		<Box
@@ -133,16 +142,22 @@ export function ToolCard(props: { tool: ToolDef; width: number; selected: boolea
 			height={CARD_HEIGHT}
 			flexShrink={0}
 			flexDirection="column"
-			borderStyle="round"
-			borderColor={props.selected ? accent : theme.border}
-			paddingX={1}
+			backgroundColor={tint}
 		>
-			<Text color={props.selected ? theme.fg : theme.textDim} bold={props.selected}>
-				{truncate(props.tool.name, inner)}
+			<Text color={borderColor}>{`╭${rule}╮`}</Text>
+			<Text>
+				<Text color={borderColor}>│</Text>
+				<Text color={props.selected ? theme.fg : theme.textDim} bold={props.selected}>
+					{` ${name} `}
+				</Text>
+				<Text color={borderColor}>│</Text>
 			</Text>
-			<Text color={props.selected ? theme.textDim : theme.textSubtle}>
-				{truncate(props.tool.slug, inner)}
+			<Text>
+				<Text color={borderColor}>│</Text>
+				<Text color={props.selected ? theme.textDim : theme.textSubtle}>{` ${slug} `}</Text>
+				<Text color={borderColor}>│</Text>
 			</Text>
+			<Text color={borderColor}>{`╰${rule}╯`}</Text>
 		</Box>
 	);
 }

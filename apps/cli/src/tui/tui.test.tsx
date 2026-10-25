@@ -14,8 +14,11 @@ import { setTimeout as delay } from "node:timers/promises";
 import { renderToString } from "ink";
 import { cleanup, render } from "ink-testing-library";
 import { App } from "./app";
+import { CommandBar } from "./console/command-bar";
 import { formatEvent, makeEvent } from "./console/events";
-import { LOGO_HEIGHT, LOGO_LINES, LOGO_WIDTH, renderWordmark } from "./ui/ascii-logo";
+import { KeyRouterProvider } from "./ui";
+import { LOGO_ICON_HEIGHT, LOGO_ICON_ROWS, LOGO_ICON_WIDTH } from "./ui/app-logo";
+import { LOGO_HEIGHT, LOGO_LINES, LOGO_ROWS, LOGO_WIDTH, renderWordmark } from "./ui/ascii-logo";
 
 const savedEnv = { ...process.env };
 let configDir: string;
@@ -46,14 +49,61 @@ describe("wordmark", () => {
 	test("every row has the same width", () => {
 		const widths = new Set(LOGO_LINES.map((line) => line.length));
 		expect(widths.size).toBe(1);
-		expect(LOGO_WIDTH).toBe(54);
+		expect(LOGO_WIDTH).toBe(60);
 		expect(LOGO_HEIGHT).toBe(5);
 	});
 
 	test("renders the words it is given", () => {
 		const lines = renderWordmark("QB");
 		expect(lines).toHaveLength(5);
-		expect(lines[0]).toBe("#### ####");
+		expect(lines[0]).toBe("▄▀▀▀▀▄ ▀▀▀▀▄");
+		expect(lines[4]).toBe(" ▀▀▀▀▄ ▀▄▄▄▀");
+	});
+
+	test("runs span the logo and stay achromatic", () => {
+		for (const runs of LOGO_ROWS) {
+			const width = runs.reduce((sum, run) => sum + run.text.length, 0);
+			expect(width).toBe(LOGO_WIDTH);
+		}
+		for (const hue of LOGO_ROWS.flat().flatMap((run) => [run.color, run.background])) {
+			if (hue === undefined) continue;
+			const red = Number.parseInt(hue.slice(1, 3), 16);
+			const green = Number.parseInt(hue.slice(3, 5), 16);
+			const blue = Number.parseInt(hue.slice(5, 7), 16);
+			expect(red).toBe(green);
+			expect(green).toBe(blue);
+		}
+	});
+});
+
+describe("app logo", () => {
+	test("squashes the mascot to five double-height rows", () => {
+		expect(LOGO_ICON_HEIGHT).toBe(5);
+		expect(LOGO_ICON_ROWS).toHaveLength(5);
+	});
+
+	test("every row spans the full art width", () => {
+		for (const runs of LOGO_ICON_ROWS) {
+			const width = runs.reduce((sum, run) => sum + run.text.length, 0);
+			expect(width).toBe(LOGO_ICON_WIDTH);
+		}
+		expect(LOGO_ICON_WIDTH).toBe(13);
+	});
+
+	test("the mascot is rendered in achromatic tones", () => {
+		const colors = new Set(
+			LOGO_ICON_ROWS.flat()
+				.map((run) => run.color)
+				.filter((color) => color !== undefined),
+		);
+		expect(colors.size).toBe(2);
+		for (const color of colors) {
+			const red = Number.parseInt(color.slice(1, 3), 16);
+			const green = Number.parseInt(color.slice(3, 5), 16);
+			const blue = Number.parseInt(color.slice(5, 7), 16);
+			expect(red).toBe(green);
+			expect(green).toBe(blue);
+		}
 	});
 });
 
@@ -61,12 +111,22 @@ describe("console frame", () => {
 	test("header carries the logo, title and version", async () => {
 		await prepareEnv();
 		const output = frame(<App />);
-		expect(output).toContain("QBTools CLI - Private By Default");
-		expect(output).toContain("Zero server calls.");
+		expect(output).toContain("QBTools CLI");
+		for (const line of LOGO_LINES) expect(output).toContain(line);
+		expect(output).toContain("42 tools");
+		expect(output).toContain("v0.2.0");
 		expect(output).toContain("QB-CORE");
 		expect(output).toContain("TELESCOPE: TOOLS");
 		expect(output).toContain("SYS_STREAM: RING_BUFFER");
 		expect(output).toContain("NETWORK EGRESS");
+	});
+
+	test("boots with a colored single-line prompt", async () => {
+		await prepareEnv();
+		const output = frame(<App />);
+		expect(output).toContain("⌘");
+		expect(output).toContain("❯");
+		expect(output).toContain("⏎");
 	});
 
 	test("groups the tools into category blocks of cards", async () => {
@@ -78,6 +138,56 @@ describe("console frame", () => {
 		expect(output).toContain(".img (8)");
 		expect(output).toContain("compress-image");
 		expect(output).toContain("Showing 42 of 42 tools");
+	});
+});
+
+describe("prompt bar", () => {
+	const HINTS = [
+		{ keys: "<Enter>", label: "Run" },
+		{ keys: "<Tab>", label: "Next" },
+		{ keys: "<C-?>", label: "Help" },
+	];
+
+	function promptFrame(boxed: boolean, width: number): string {
+		return renderToString(
+			<KeyRouterProvider>
+				<CommandBar
+					width={width}
+					boxed={boxed}
+					userAt="quadbits@Alans-MacBook-Pro-2"
+					dir="~/RD/QBTools/apps/cli"
+					program="qbtools"
+					value=""
+					onChange={() => {}}
+					focused
+					hints={HINTS}
+				/>
+			</KeyRouterProvider>,
+			{ columns: width },
+		);
+	}
+
+	test("the framed prompt draws label, arrow and key chips", () => {
+		const output = promptFrame(true, 100);
+		const lines = output.trimEnd().split("\n");
+		expect(output).toContain("⌘ PROMPT");
+		expect(output).toContain("❯");
+		expect(output).toContain("⏎");
+		expect(output).toContain("╰┄┄");
+		expect(lines).toHaveLength(3); // label + one prompt row + bottom rule
+	});
+
+	test("the compact prompt stays on one line with chips", () => {
+		const lines = promptFrame(false, 100).trimEnd().split("\n");
+		expect(lines).toHaveLength(1);
+		expect(lines[0]).toContain("❯");
+		expect(lines[0]).toContain("⏎");
+	});
+
+	test("the shell yields before the line wraps", () => {
+		const output = promptFrame(false, 60);
+		expect(output.trimEnd().split("\n")).toHaveLength(1);
+		expect(output).toContain("❯");
 	});
 });
 
