@@ -1,0 +1,25 @@
+/**
+ * Key routing: OpenTUI inputs consume their own keystrokes, so the shell
+ * registers one useKeyboard handler and dispatches here. Screens register a
+ * handler on mount and clear it on unmount; the shell handles true globals
+ * (Esc / ? / /) before delegating.
+ */
+
+export interface DispatchKey {
+	name: string;
+	ctrl?: boolean;
+	shift?: boolean;
+	meta?: boolean;
+}
+
+type Handler = ((key: DispatchKey) => void) | null;
+
+let current: Handler = null;
+
+export function setKeyHandler(handler: Handler): void {
+	current = handler;
+}
+
+export function dispatchKey(key: DispatchKey): void {
+	current?.(key);
+}

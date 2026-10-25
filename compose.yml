@@ -69,6 +69,9 @@ services:
     image: rustfs/rustfs:latest
     volumes:
       - rustfs-data:/data
+    ports:
+      - "8315:9000"
+      - "8316:9001"
     environment:
       - RUSTFS_ACCESS_KEY
       - RUSTFS_SECRET_KEY

@@ -1,12 +1,11 @@
 /**
- * `qbtools run <slug> [flags]` — shared execution bridge between headless
- * flags / stdin and the runner core. Also powers the TUI's run button.
+ * `qbtools run <slug> [flags]` — headless flag bridge into runner core with
+ * stdin/stdout piping. Rendering helpers live here so the TUI reuses them.
  */
 
+import { runTool, CancelledError } from "../../runner/execute";
 import { readInputFiles } from "../../runner/files";
-import { availabilityFor, runnerFor, WEB_ONLY_TOOLS } from "../../runner/map";
 import {
-	type RunnerContext,
 	type RunnerOutput,
 	type RunnerResult,
 	type ToolRunner,
@@ -45,10 +44,7 @@ async function valuesFromArgs(
 		if (field.kind === "file" || field.kind === "files") {
 			if (field.name === "in") {
 				// --in may be repeated; also accept positional leftovers after the slug
-				const paths = [
-					...args.positional.slice(1),
-					...(args.flags.get("in") === true ? [] : flattenFlag(args, "in")),
-				];
+				const paths = [...args.positional.slice(1), ...flattenFlag(args, "in")];
 				if (paths.length) values.in = await readInputFiles(paths);
 			}
 			continue;
@@ -92,7 +88,7 @@ export function formatTable(columns: string[], rows: string[][]): string {
 	].join("\n");
 }
 
-function renderOutput(output: RunnerOutput): string {
+export function renderOutput(output: RunnerOutput): string {
 	switch (output.type) {
 		case "text":
 		case "markdown":
@@ -128,22 +124,8 @@ export async function executeRunner(
 	options: { stdin?: string; io: CommandIO },
 ): Promise<{ code: number; result?: RunnerResult }> {
 	const { io } = options;
-	const runner = runnerFor(slug);
-	if (WEB_ONLY_TOOLS.has(slug)) {
-		io.err(`"${slug}" runs in the browser. Open it with: qbtools open ${slug}`);
-		return { code: EXIT_UNAVAILABLE };
-	}
-	if (!runner) {
-		io.err(`Unknown tool: ${slug}. Run ` + "`qbtools list` to see every tool.");
-		return { code: EXIT_ERROR };
-	}
-
 	const config = await loadConfig();
 	const profile = activeProfile(config);
-	const controller = new AbortController();
-	const onSigint = () => controller.abort();
-	process.on("SIGINT", onSigint);
-
 	const outDir = getString(args, "outdir") ?? profile.outputDir;
 	const outPath = getString(args, "out");
 	const reportProgress = (entry: { label: string; fraction: number | null }) => {
@@ -153,31 +135,30 @@ export async function executeRunner(
 	};
 
 	try {
-		const values = await valuesFromArgs(runner, args, options.stdin ?? "");
-		const ctx: RunnerContext = {
+		const { runnerFor } = await import("../../runner/map");
+		const runnerDef = runnerFor(slug);
+		const values = runnerDef ? await valuesFromArgs(runnerDef, args, options.stdin ?? "") : {};
+		const result = await runTool(slug, {
 			values,
 			outDir,
 			outPath,
-			signal: controller.signal,
-			onProgress: (progress) => reportProgress(progress),
-		};
-		const result = await runner.run(ctx);
+			onProgress: reportProgress,
+		});
 		await recordRecent(slug);
 		return { code: EXIT_OK, result };
 	} catch (error) {
+		if (error instanceof CancelledError) {
+			io.err("\nCancelled.");
+			return { code: EXIT_ERROR };
+		}
 		if (error instanceof UnavailableError) {
 			io.err(error.message);
 			return { code: EXIT_UNAVAILABLE };
 		}
 		const message = error instanceof Error ? error.message : String(error);
-		if (message === "Cancelled" || (error as Error)?.name === "AbortError") {
-			io.err("\nCancelled.");
-			return { code: EXIT_ERROR };
-		}
 		io.err(`${slug} failed: ${message}`);
 		return { code: EXIT_ERROR };
 	} finally {
-		process.off("SIGINT", onSigint);
 		if (process.stderr.isTTY) process.stderr.write("\r\x1b[K");
 	}
 }
