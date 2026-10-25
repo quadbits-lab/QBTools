@@ -1,0 +1,162 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261025T015546873Z-43705-a7f37ef4018d",
+  "runId": "20261025T015546873Z-43705-a7f37ef4018d",
+  "runStatus": "inconclusive",
+  "coverage": {
+    "status": "partial",
+    "reasons": [
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "scripts/font-probe.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "scripts/route-smoke.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "apps/web/src/tools/app-icon-generator/index.tsx",
+        "detail": "3 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "scripts/font-probe.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "scripts/route-smoke.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affectsCompletion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "apps/web/src/tools/app-icon-generator/index.tsx",
+        "detail": "candidate_limit_exceeded: 3 changed reviewable file(s) were not scanned because the limit is 20",
+        "affectsCompletion": true
+      }
+    ]
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "b46954192df002aa3e01d9bdb33c8fdf132b8e6d",
+  "diffHash": "cd66fa2aac3474bc821c8105163b95c6ed38073c9bf3282546cd76a0c42ec26d",
+  "rulesVersion": "unavailable",
+  "sessionHash": "dbab84342906658e8bd67046c3ad38cc63e98d4632dd6499b0378e0994bb60de",
+  "reportRef": ".mimosa/reports/task-review-session_283bb059ee2768091adbf49049bd5fa1-20261025T015546873Z-43705-a7f37ef4018d.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "packages/engines/src/graphic/types.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/fonts.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/compose.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/resvg.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/defaults.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/projects.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/icns.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/appicon.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/index.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/lib/graphic-assets.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "packages/engines/src/graphic/graphic.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/tools/og-banner-maker/editor-canvas.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/tools/og-banner-maker/inspector/element-sections.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/tools/og-banner-maker/inspector/export-sections.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/tools/og-banner-maker/inspector-panel.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/tools/og-banner-maker/index.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/lib/design-history.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/lib/graphic-preview.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "apps/web/src/tools/app-icon-generator/preview-stage.tsx",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-25T01:55:47.083Z"
+}

@@ -6,16 +6,29 @@ import {
 	composeIconSvg,
 	composeOgSvg,
 	escapeXml,
+	layoutOg,
+	ogElementBoxes,
 	svgDataUrl,
 	textLayer,
 	vectorNestedLayer,
 	wrapTextLines,
 } from "./compose";
-import { defaultIconDesign, defaultOgDesign } from "./defaults";
+import { defaultIconDesign, defaultOgDesign, OG_TEMPLATES } from "./defaults";
 import { generateFaviconSet } from "./favicon";
+import { measureTextWidth } from "./fonts";
+import { buildIcns, icnsChunkTypes } from "./icns";
 import { buildIco, validateIco } from "./ico";
 import { parseDesign, projectFileName, QBDESIGN_VERSION, serializeDesign } from "./projects";
-import type { ArtworkData, DesignProject, IconDesign, OgDesign } from "./types";
+import { renderDesign } from "./render-design";
+import type {
+	ArtworkData,
+	DesignProject,
+	GeneratedAsset,
+	IconDesign,
+	OgDesign,
+	TextFont,
+	TextStyle,
+} from "./types";
 
 const repoRoot = `${import.meta.dir}/../../../..`;
 const TEST_ASSETS = {
@@ -25,6 +38,13 @@ const TEST_ASSETS = {
 		"anton-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/anton/files/anton-latin-400-normal.woff2`,
 		"dmmono-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/dm-mono/files/dm-mono-latin-400-normal.woff2`,
 		"dmmono-500": `file://${repoRoot}/apps/web/node_modules/@fontsource/dm-mono/files/dm-mono-latin-500-normal.woff2`,
+		"bebas-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2`,
+		"caveat-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/caveat/files/caveat-latin-400-normal.woff2`,
+		"caveat-700": `file://${repoRoot}/apps/web/node_modules/@fontsource/caveat/files/caveat-latin-700-normal.woff2`,
+		"playfair-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/playfair-display/files/playfair-display-latin-400-normal.woff2`,
+		"playfair-700": `file://${repoRoot}/apps/web/node_modules/@fontsource/playfair-display/files/playfair-display-latin-700-normal.woff2`,
+		"space-grotesk-400": `file://${repoRoot}/apps/web/node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-400-normal.woff2`,
+		"space-grotesk-700": `file://${repoRoot}/apps/web/node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2`,
 	},
 	pathFontUrls: {
 		"inter-700": `file://${repoRoot}/apps/web/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff`,
@@ -73,6 +93,28 @@ describe("ico", () => {
 
 	test("rejects truncated ICO", () => {
 		expect(validateIco(new Uint8Array([1, 2, 3, 4]))).toBeNull();
+	});
+});
+
+describe("icns", () => {
+	test("container header and chunk walk round-trip", () => {
+		const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1, 2, 3, 4]);
+		const bytes = buildIcns([
+			{ type: "ic07", png },
+			{ type: "ic10", png },
+		]);
+		const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+		expect(view.getUint32(0, false)).toBe(0x69636e73);
+		expect(view.getUint32(4, false)).toBe(bytes.byteLength);
+		expect(bytes.byteLength).toBe(8 + 2 * (8 + png.length));
+		expect(icnsChunkTypes(bytes)).toEqual(["ic07", "ic10"]);
+	});
+
+	test("rejects damaged containers", () => {
+		expect(icnsChunkTypes(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7]))).toEqual([]);
+		const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1, 2, 3, 4]);
+		const truncated = buildIcns([{ type: "ic07", png }]).subarray(0, 10);
+		expect(icnsChunkTypes(truncated)).toEqual([]);
 	});
 });
 
@@ -174,6 +216,131 @@ describe("compose", () => {
 	});
 });
 
+describe("og layout", () => {
+	const baseStyle = {
+		text: "Hello",
+		font: "Inter" as TextFont,
+		size: 48,
+		color: "#fff",
+		fontWeight: 700,
+		letterSpacing: 0,
+		lineHeight: 1.2,
+		align: "left" as const,
+		x: 0,
+		y: 0.2,
+		width: 0.8,
+	};
+
+	test("layout drives element boxes for every template", () => {
+		for (const template of OG_TEMPLATES) {
+			const design = defaultOgDesign(template);
+			design.hero.placement.source = fakeRaster();
+			const layout = layoutOg(design);
+			const boxes = ogElementBoxes(design);
+			expect(boxes.title).not.toBeNull();
+			expect(boxes.hero).not.toBeNull();
+			expect(boxes.title).toEqual(layout.title);
+			expect(boxes.hero).toEqual(layout.hero);
+		}
+	});
+
+	test("multi-line title anchors by full block height and stays inside the frame", () => {
+		// A wrapping headline used to anchor on a single line's height, pushing
+		// its last line over the subtitle in the default gradient design.
+		const design = defaultOgDesign("gradient");
+		const layout = layoutOg(design);
+		const frame = layout.textFrame;
+		const title = layout.title;
+		expect(title).not.toBeNull();
+		if (!title || !frame) return;
+		expect(title.h).toBeGreaterThan(design.title.size); // wrapped past one line
+		expect(title.y + title.h).toBeLessThanOrEqual(frame.y + frame.h + 0.5);
+		// textLayer anchors identically to layoutOg.
+		const { svg } = composeOgSvg(design);
+		const firstBaseline = title.y + design.title.size;
+		expect(svg).toContain(`y="${firstBaseline.toFixed(2)}"`);
+	});
+
+	test("default designs never overlap glyphs between title, subtitle and badge", () => {
+		const ink = (style: TextStyle, tf: { x: number; y: number; w: number; h: number }) => {
+			const blockW = Math.max(style.width * tf.w, 40);
+			const lines = wrapTextLines(style.text, style.font, style.fontWeight, style.size, blockW);
+			if (!lines.length) return null;
+			const inkW = Math.max(
+				...lines.map((l) => measureTextWidth(l, style.font, style.fontWeight, style.size)),
+			);
+			const blockH = Math.max(style.size, lines.length * style.size * style.lineHeight);
+			const blockX = tf.x + style.x * Math.max(0, tf.w - blockW);
+			const blockY = tf.y + style.y * Math.max(0, tf.h - blockH);
+			const x =
+				style.align === "center"
+					? blockX + (blockW - inkW) / 2
+					: style.align === "right"
+						? blockX + blockW - inkW
+						: blockX;
+			return { x, y: blockY, w: inkW, h: blockH };
+		};
+		const overlap = (
+			a: { x: number; y: number; w: number; h: number },
+			b: { x: number; y: number; w: number; h: number },
+		) =>
+			Math.min(a.x + a.w, b.x + b.w) > Math.max(a.x, b.x) &&
+			Math.min(a.y + a.h, b.y + b.h) > Math.max(a.y, b.y);
+
+		for (const template of OG_TEMPLATES) {
+			const design = defaultOgDesign(template);
+			const layout = layoutOg(design);
+			const title = ink(design.title, layout.textFrame);
+			const sub = ink(design.subtitle, layout.textFrame);
+			const badge = layout.badge;
+			if (title && sub) expect(overlap(title, sub), `${template} title/subtitle`).toBe(false);
+			if (title && badge) expect(overlap(title, badge), `${template} title/badge`).toBe(false);
+			if (sub && badge) expect(overlap(sub, badge), `${template} subtitle/badge`).toBe(false);
+		}
+	});
+
+	test("hidden elements produce no boxes and no markup", () => {
+		const design = defaultOgDesign("gradient");
+		design.subtitle = { ...design.subtitle, text: "Secret line", show: false };
+		design.badge = { ...design.badge, text: "TAG", show: false };
+		expect(ogElementBoxes(design).subtitle).toBeNull();
+		expect(ogElementBoxes(design).badge).toBeNull();
+		const { svg } = composeOgSvg(design);
+		expect(svg).not.toContain("Secret line");
+		expect(svg).not.toContain("TAG");
+	});
+
+	test("text outline uses paint-order stroke and opacity wraps a group", () => {
+		const outlined = textLayer(
+			{ ...baseStyle, outline: { color: "#000000", width: 4 } },
+			{ x: 0, y: 0, w: 1000, h: 500 },
+		);
+		expect(outlined).toContain('paint-order="stroke"');
+		expect(outlined).toContain('stroke="#000000"');
+
+		const faded = textLayer({ ...baseStyle, opacity: 0.5 }, { x: 0, y: 0, w: 1000, h: 500 });
+		expect(faded).toContain('<g opacity="0.500">');
+	});
+
+	test("split-image layout keeps the text frame left of the hero", () => {
+		const design = defaultOgDesign("split-image");
+		design.hero.placement.source = fakeRaster();
+		const layout = layoutOg(design);
+		expect(layout.hero).not.toBeNull();
+		expect(layout.hero?.x).toBeGreaterThan(layout.textFrame.x + layout.textFrame.w);
+	});
+
+	test("overlay scrim is limited to the hero box for partial heroes", () => {
+		const design = defaultOgDesign("event");
+		design.hero.placement.source = fakeRaster();
+		design.overlay = 0.4;
+		const layout = layoutOg(design);
+		expect(layout.scrim).not.toBeNull();
+		expect(layout.scrim?.box).toEqual(layout.hero ?? undefined);
+		expect(layout.scrim?.opacity).toBeCloseTo(0.2, 5);
+	});
+});
+
 function fakeRaster(): ArtworkData {
 	return {
 		kind: "raster",
@@ -227,6 +394,33 @@ describe("projects", () => {
 		expect(projectFileName("og-banner", "My Post!! Banner")).toBe(
 			"my-post-banner-og-banner.qbdesign.json",
 		);
+	});
+
+	test("projects saved before text upgrades normalize safely", async () => {
+		const design = defaultOgDesign("gradient");
+		const legacyTitle = { ...design.title, font: "Ghost" as TextFont };
+		delete legacyTitle.show;
+		delete legacyTitle.opacity;
+		delete legacyTitle.outline;
+		const legacySubtitle = { ...design.subtitle };
+		delete legacySubtitle.show;
+		const payload = JSON.stringify({
+			format: "qbdesign",
+			version: 1,
+			tool: "og-banner",
+			settings: {
+				tool: "og-banner",
+				design: { ...design, title: legacyTitle, subtitle: legacySubtitle },
+			},
+			meta: { name: "old", savedAt: "" },
+		});
+		const parsed = await parseDesign(new Blob([payload]));
+		const restored = (parsed.settings as { design: OgDesign }).design;
+		expect(restored.title.show).toBe(true);
+		expect(restored.title.opacity).toBe(1);
+		expect(restored.title.outline).toBeNull();
+		expect(restored.title.font).toBe("Inter");
+		expect(restored.subtitle.show).toBe(true);
 	});
 });
 
@@ -437,9 +631,11 @@ describe("app icon generation end to end", () => {
 		expect(play.byteLength).toBeGreaterThan(200);
 		expect(play.byteLength).toBeLessThan(1024 * 1024);
 		expect(result.zip).toBeDefined();
+		// The 2px fake raster must trip the source-quality warning.
+		expect(result.warnings.some((w) => w.kind === "low-resolution")).toBe(true);
 	}, 60000);
 
-	test("ios-only set has no android folders", async () => {
+	test("ios-only set has no android folders or stray readmes", async () => {
 		const design = defaultIconDesign("app-icon");
 		const result = await generateAppIconSet(
 			design,
@@ -455,5 +651,71 @@ describe("app icon generation end to end", () => {
 		const names = result.files.map((f) => f.name);
 		expect(names.some((n) => n.startsWith("AppIcon.appiconset/"))).toBe(true);
 		expect(names.some((n) => n.includes("res/"))).toBe(false);
+		expect(names.some((n) => n.startsWith("android/"))).toBe(false);
+		expect(names).not.toContain("README-MANIFEST.md");
 	}, 60000);
+
+	test("macos-only kit contains the iconset and a valid icns", async () => {
+		const design = defaultIconDesign("app-icon");
+		design.artwork.source = fakeRaster();
+		const result = await generateAppIconSet(
+			design,
+			{
+				platforms: ["macos"],
+				iosDarkMode: { enabled: false, background: { type: "none" }, foreground: "#ffffff" },
+				iosTintedMode: { enabled: false, background: { type: "none" }, foreground: "#ffffff" },
+				monochrome: { mode: "alpha", threshold: 128 },
+				optimize: false,
+			},
+			{ assets: TEST_ASSETS },
+		);
+		const names = result.files.map((f) => f.name);
+		expect(names).toContain("AppIcon.appiconset/icon_16x16.png");
+		expect(names).toContain("AppIcon.appiconset/icon_512x512@2x.png");
+		expect(names).toContain("AppIcon.appiconset/Contents.json");
+		expect(names).toContain("AppIcon.icns");
+		expect(names).toContain("README-MACOS.md");
+		expect(
+			names.some((n) => n.includes("res/") || n.startsWith("ios/") || n.includes("AppIconLegacy")),
+		).toBe(false);
+		const contents = JSON.parse(
+			await must(
+				result.files.find((f) => f.name === "AppIcon.appiconset/Contents.json") as GeneratedAsset,
+				"macos Contents.json",
+			).blob.text(),
+		) as { images: Array<{ idiom: string; filename: string }> };
+		expect(contents.images).toHaveLength(10);
+		for (const image of contents.images) {
+			expect(image.idiom).toBe("mac");
+			expect(names).toContain(`AppIcon.appiconset/${image.filename}`);
+		}
+		const icnsBytes = new Uint8Array(
+			await must(
+				result.files.find((f) => f.name === "AppIcon.icns") as GeneratedAsset,
+				"AppIcon.icns",
+			).blob.arrayBuffer(),
+		);
+		expect(icnsChunkTypes(icnsBytes)).toEqual([
+			"ic11",
+			"ic12",
+			"ic07",
+			"ic13",
+			"ic08",
+			"ic14",
+			"ic09",
+			"ic10",
+		]);
+	}, 60000);
+
+	test("renders designs using the extended font set", async () => {
+		const design = defaultOgDesign("minimal");
+		design.title = { ...design.title, font: "Space Grotesk" };
+		design.subtitle = { ...design.subtitle, font: "Playfair Display" };
+		const result = await renderDesign(
+			{ tool: "og-banner", design },
+			{ width: 240, height: 126, preview: true, format: "png", quality: 0.9 },
+			{ assets: TEST_ASSETS },
+		);
+		expect(result.blob.size).toBeGreaterThan(100);
+	}, 30000);
 });

@@ -13,7 +13,8 @@
 			"!**/routeTree.gen.ts",
 			"!**/drizzle/meta",
 			"!**/*.css",
-			"!apps/web/public/js/script.js"
+			"!apps/web/public/js/script.js",
+			"!**/.mimosa"
 		]
 	},
 	"formatter": {

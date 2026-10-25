@@ -394,7 +394,7 @@ export const imageTools: ToolDef[] = [
 				intro:
 					"1200 × 630 is the size Facebook, LinkedIn and most chat apps use for link previews. Design one below and export it in seconds.",
 				keywords: ["og image 1200x630", "og image size", "link preview image"],
-				params: { width: 1200, height: 630 },
+				params: { width: 1200, height: 630, template: "gradient" },
 			},
 			{
 				slug: "twitter-banner",
@@ -404,7 +404,14 @@ export const imageTools: ToolDef[] = [
 				intro:
 					"Wide links, player cards and header images look best at 1500 × 500. Pick a template, tweak the layout, export a crisp 2× PNG.",
 				keywords: ["twitter banner size", "1500x500", "twitter card image"],
-				params: { width: 1500, height: 500 },
+				params: {
+					width: 1500,
+					height: 500,
+					template: "gradient",
+					from: "#0ea5e9",
+					to: "#22c55e",
+					angle: 120,
+				},
 			},
 		],
 	},
@@ -473,10 +480,10 @@ export const imageTools: ToolDef[] = [
 		slug: "app-icon-generator",
 		category: "image",
 		name: "App Icon Generator",
-		title: "App Icon Generator — iOS & Android Icon Kits Online",
-		tagline: "Build iOS asset catalogs and Android adaptive icons.",
+		title: "App Icon Generator — iOS, Android & macOS Icon Kits Online",
+		tagline: "Build iOS asset catalogs, Android adaptive icons and macOS .icns.",
 		description:
-			"Generate iOS AppIcon.appiconset (modern + legacy) and Android adaptive, monochrome and legacy launcher icons from one design. Free, private.",
+			"Generate iOS appiconsets (modern + legacy), Android adaptive/monochrome icons and the macOS set with .icns from one design. Free, private, browser-only.",
 		icon: "shapes",
 		keywords: [
 			"app icon generator",
@@ -486,6 +493,8 @@ export const imageTools: ToolDef[] = [
 			"adaptive icon maker",
 			"play store icon",
 			"flutter app icon",
+			"macos app icon",
+			"icns generator",
 		],
 		howTo: [
 			{
@@ -494,19 +503,19 @@ export const imageTools: ToolDef[] = [
 			},
 			{
 				title: "Check previews",
-				text: "Toggle iOS squircle and Android circle/squircle masks plus safe-zone guides before exporting.",
+				text: "Review real iOS Dark/Tinted renders, Android masks with safe-zone guides and the macOS rounded square before exporting.",
 			},
 			{
 				title: "Export kits",
-				text: "Download the iOS appiconset, Android adaptive resources, or both in one ZIP.",
+				text: "Download iOS appiconsets, Android adaptive resources and the macOS icon set with .icns in one ZIP.",
 			},
 		],
 		about: {
-			what: "App stores want precise icon kits: a 1024 px iOS catalog with Dark and Tinted variants, and Android adaptive layers with foreground, background and monochrome drawables. QBTools builds both from one browser-local design.",
+			what: "App stores want precise icon kits: a 1024 px iOS catalog with Dark and Tinted variants, Android adaptive layers with foreground, background and monochrome drawables, and a macOS icon set with a ready-made .icns. QBTools builds all three from one browser-local design.",
 			when: [
 				"Publishing an app and Xcode wants icon-…png files for every slot.",
 				"Android 13 themed icons are missing from your resources.",
-				"The Play Store rejects your 512 px listing icon.",
+				"Your Mac app or Electron build needs an AppIcon.icns file.",
 			],
 		},
 		faqs: [
@@ -523,8 +532,8 @@ export const imageTools: ToolDef[] = [
 				a: "Android 13+ themed icons tint your icon with the wallpaper colors. You can generate it from source alpha or a luminance threshold.",
 			},
 			{
-				q: "Are rounded corners baked into iOS icons?",
-				a: "No. iOS icons stay square in the catalog; the system rounds them at runtime. Preview masks are appearance only.",
+				q: "What does the macOS export include?",
+				a: "An AppIcon.appiconset with every slot from 16 px to 1024 px plus a standalone AppIcon.icns (ic07–ic10 chunks) that drops straight into Electron or manual app bundles.",
 			},
 		],
 		related: ["favicon-generator", "og-banner-maker", "convert-image"],

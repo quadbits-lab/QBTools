@@ -223,7 +223,7 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 									<div
 										aria-hidden
 										className={cn(
-											"pointer-events-none absolute inset-0 border-2 border-dashed border-sky-400/60",
+											"pointer-events-none absolute inset-0 border-2 border-dashed border-foreground/50",
 											shape === "circle" && "rounded-full",
 											shape === "squircle" && "rounded-[28%]",
 											shape === "rounded-square" && "rounded-xl",

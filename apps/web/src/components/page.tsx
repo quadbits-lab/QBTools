@@ -33,7 +33,7 @@ export function PageHero({
 }) {
 	return (
 		<header className={cn("border-b border-border", className)}>
-			<div className="container-page py-16 sm:py-24">
+			<div className="container-page py-16 sm:py-26">
 				{eyebrow && <Kicker>{eyebrow}</Kicker>}
 				<h1 className="display mt-5 max-w-4xl text-4xl text-balance sm:text-6xl">{title}</h1>
 				{description && (

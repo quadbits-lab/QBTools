@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "mimosa-finding-history/v1",
+  "runId": "20261025T015546873Z-43705-a7f37ef4018d",
+  "runStatus": "inconclusive",
+  "errors": [
+    "candidate-select:scripts/font-probe.ts: changed_file_unreadable: observed changed file no longer exists or cannot be read",
+    "candidate-select:scripts/route-smoke.ts: changed_file_unreadable: observed changed file no longer exists or cannot be read",
+    "candidate-select:apps/web/src/tools/app-icon-generator/index.tsx: candidate_limit_exceeded: 3 changed reviewable file(s) were not scanned because the limit is 20"
+  ],
+  "target": ".",
+  "revision": "b46954192df002aa3e01d9bdb33c8fdf132b8e6d",
+  "diffHash": "cd66fa2aac3474bc821c8105163b95c6ed38073c9bf3282546cd76a0c42ec26d",
+  "rulesVersion": "unavailable",
+  "recordedAt": "2026-10-25T01:55:46.873Z",
+  "timing": {
+    "startedAt": "2026-10-25T01:55:46.203Z",
+    "completedAt": "2026-10-25T01:55:46.873Z",
+    "durationMs": 670
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "modelCalls": 0,
+    "measurement": "known-zero"
+  },
+  "findings": {
+    "total": 0,
+    "bySeverity": {},
+    "byStatus": {}
+  },
+  "coverage": {
+    "status": "partial",
+    "reasonCounts": {
+      "changed_file_unreadable": 2,
+      "candidate_limit_exceeded": 1,
+      "project_check_failed": 3
+    }
+  },
+  "evidenceBoundary": "static_only",
+  "immutableReport": ".mimosa/reports/task-review-session_283bb059ee2768091adbf49049bd5fa1-20261025T015546873Z-43705-a7f37ef4018d.json"
+}

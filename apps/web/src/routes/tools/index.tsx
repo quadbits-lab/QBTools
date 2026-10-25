@@ -60,14 +60,18 @@ function AllToolsPage() {
 			<div className="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-6">
 				<div>
 					<span className="label-mono !text-subtle">Directory</span>
-					<h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">All Tools</h1>
+					<h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] sm:text-3xl">All Tools</h1>
 					<p className="mt-2 text-base text-muted-foreground sm:text-lg">
 						{tools.length} free browser tools. Fast, private, and zero server uploads.
 					</p>
 				</div>
 
 				{/* View mode */}
-				<div className="flex gap-1 rounded-lg bg-muted p-1" role="group" aria-label="View mode">
+				<div
+					className="flex gap-1 rounded-lg border border-border/60 bg-segment p-1"
+					role="group"
+					aria-label="View mode"
+				>
 					{(
 						[
 							["grid", "Grid view", Grid],
@@ -83,7 +87,7 @@ function AllToolsPage() {
 							className={cn(
 								"grid size-8 cursor-pointer place-items-center rounded-md transition-colors",
 								viewMode === mode
-									? "bg-card text-foreground shadow-card"
+									? "bg-segment-active text-foreground shadow-card"
 									: "text-muted-foreground hover:text-foreground",
 							)}
 						>

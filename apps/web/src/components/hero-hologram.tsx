@@ -106,13 +106,12 @@ export function HeroHologram({ className }: { className?: string }) {
 			const onVisibility = () => syncRunning();
 			window.addEventListener("scroll", onScroll, { passive: true });
 			window.addEventListener("resize", onResize);
+			window.addEventListener("pointermove", onPointerMove, { passive: true });
+			window.addEventListener("pointerdown", onPointerMove, { passive: true });
 			cleanups.push(() => window.removeEventListener("scroll", onScroll));
 			cleanups.push(() => window.removeEventListener("resize", onResize));
-
-			if (!coarseQuery.matches) {
-				window.addEventListener("pointermove", onPointerMove, { passive: true });
-				cleanups.push(() => window.removeEventListener("pointermove", onPointerMove));
-			}
+			cleanups.push(() => window.removeEventListener("pointermove", onPointerMove));
+			cleanups.push(() => window.removeEventListener("pointerdown", onPointerMove));
 
 			if (typeof ResizeObserver !== "undefined") {
 				const resizeObserver = new ResizeObserver(onResize);

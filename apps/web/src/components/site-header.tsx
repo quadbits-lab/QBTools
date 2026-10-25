@@ -51,15 +51,15 @@ export function SiteHeader() {
 				Skip to content
 			</a>
 
-			<div className="container-page flex h-16 items-center justify-between gap-3 sm:gap-6">
+			<div className="container-page flex h-16 items-center justify-between gap-2 sm:gap-6">
 				{/* Brand Logo & Desktop Nav */}
 				<div className="flex items-center gap-3 md:gap-6 lg:gap-8">
-					<Logo className="transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] [&_img]:h-[22px] max-sm:[&_img]:h-3 max-sm:[&_img]:max-w-20 max-sm:[&_img]:object-contain" />
+					<Logo className="transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98] [&_img]:h-[24px] [&_img]:md:h-[22px] max-sm:[&_img]:h-[clamp(15px,5vw,20px)] max-sm:[&_img]:max-w-[116px] max-sm:[&_img]:object-contain" />
 
 					<nav aria-label="Main" className="hidden items-center gap-1.5 lg:flex">
 						<Link
 							to="/tools"
-							className="rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95"
+							className="rounded-md px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-[background-color,color,scale] duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95"
 							activeProps={{ className: "!text-foreground !bg-muted/80 shadow-2xs font-semibold" }}
 						>
 							All tools
@@ -73,7 +73,7 @@ export function SiteHeader() {
 								aria-expanded={catOpen}
 								aria-haspopup="true"
 								className={cn(
-									"flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
+									"flex cursor-pointer items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-[background-color,color,scale] duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95",
 									catOpen
 										? "bg-muted/80 font-semibold text-foreground shadow-2xs"
 										: "text-muted-foreground",
@@ -147,7 +147,7 @@ export function SiteHeader() {
 
 						<Link
 							to="/privacy"
-							className="rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-all duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95"
+							className="rounded-md px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-[background-color,color,scale] duration-150 hover:bg-muted/70 hover:text-foreground active:scale-95"
 							activeProps={{ className: "!text-foreground !bg-muted/80 shadow-2xs font-semibold" }}
 						>
 							Privacy
@@ -156,37 +156,39 @@ export function SiteHeader() {
 				</div>
 
 				{/* Right Side Actions */}
-				<div className="flex items-center gap-2 sm:gap-2.5">
-					<button
+				<div className="flex items-center gap-1.5 sm:gap-2.5">
+					<Button
 						type="button"
+						variant="outline"
+						size="sm"
 						onClick={open}
-						className="group hidden h-9 w-44 cursor-pointer items-center gap-2.5 rounded-full border border-border/70 bg-muted/30 px-3.5 text-xs text-muted-foreground shadow-2xs transition-all duration-150 hover:border-border hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:flex lg:w-56"
+						className="group hidden w-44 justify-start gap-2.5 px-3 text-xs font-normal text-muted-foreground hover:text-foreground md:flex lg:w-56"
 					>
 						<Search className="size-3.5 text-muted-foreground transition-colors group-hover:text-foreground" />
 						<span className="truncate">Search tools…</span>
 						<kbd className="ml-auto inline-flex h-5 select-none items-center rounded border border-border/70 bg-background/90 px-1.5 font-mono text-[10px] font-medium text-subtle shadow-2xs transition-colors group-hover:border-border">
 							⌘K
 						</kbd>
-					</button>
+					</Button>
 
 					<Button
 						variant="outline"
 						size="icon-sm"
 						onClick={open}
 						aria-label="Search tools"
-						className="size-9 rounded-full border-border/70 bg-background hover:bg-muted/60 md:hidden"
+						className="md:hidden"
 					>
 						<Search className="size-4" />
 					</Button>
 
-					<ThemeToggle className="size-9 rounded-full border-border/70 bg-background hover:bg-muted/60" />
+					<ThemeToggle />
 
 					<UserMenu />
 
 					<Button
 						variant="outline"
 						size="icon-sm"
-						className="size-9 rounded-full border-border/70 bg-background hover:bg-muted/60 lg:hidden"
+						className="lg:hidden"
 						aria-label={menuOpen ? "Close menu" : "Open menu"}
 						aria-expanded={menuOpen}
 						onClick={() => setMenuOpen((v) => !v)}
@@ -207,7 +209,7 @@ export function SiteHeader() {
 								setMenuOpen(false);
 								open();
 							}}
-							className="flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-xl border border-border/70 bg-muted/30 px-3.5 text-sm text-muted-foreground transition-colors hover:bg-muted/60"
+							className="flex h-10 w-full cursor-pointer items-center gap-2.5 rounded-md border border-border bg-field px-3.5 text-sm text-muted-foreground control-raise transition-colors hover:bg-accent hover:text-foreground"
 						>
 							<Search className="size-4 text-muted-foreground" />
 							<span>Search tools…</span>
@@ -221,7 +223,7 @@ export function SiteHeader() {
 							<Link
 								to="/tools"
 								onClick={() => setMenuOpen(false)}
-								className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+								className="flex items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
 							>
 								<span>All tools</span>
 								<ArrowRight className="size-4 text-muted-foreground" />
@@ -229,7 +231,7 @@ export function SiteHeader() {
 							<Link
 								to="/privacy"
 								onClick={() => setMenuOpen(false)}
-								className="flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted/60"
+								className="flex items-center justify-between rounded-md px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
 							>
 								<span>Privacy</span>
 								<ArrowRight className="size-4 text-muted-foreground" />

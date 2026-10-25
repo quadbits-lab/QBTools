@@ -1,32 +1,52 @@
-import { type CategoryId, categories, getTool, tools, toolsInCategory } from "@qbtools/registry";
+import {
+	type CategoryId,
+	categories,
+	categoryById,
+	getTool,
+	isCategoryId,
+	tools,
+	toolsInCategory,
+} from "@qbtools/registry";
 import { Badge } from "@qbtools/ui/badge";
 import { Button } from "@qbtools/ui/button";
+import { Carousel, type CarouselApi, CarouselContent, CarouselItem } from "@qbtools/ui/carousel";
 import { Input } from "@qbtools/ui/input";
 import { Segmented } from "@qbtools/ui/segmented";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@qbtools/ui/select";
 import { cn } from "@qbtools/ui/utils";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+	ArrowLeft,
 	ArrowRight,
 	Compass,
 	Globe,
 	Heart,
 	KeyRound,
+	Pin,
 	RotateCcw,
 	Search,
 	SearchX,
 	ShieldCheck,
+	SlidersHorizontal,
 	X,
 	Zap,
 } from "lucide-react";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "#/components/account-provider";
+import { DisciplineAccordion } from "#/components/category-accordion";
 import { CategoryCard } from "#/components/category-card";
-import { FilterChip } from "#/components/filter-chip";
 import { HeroHologram } from "#/components/hero-hologram";
+import { MobileFilterSheet } from "#/components/mobile-filter-sheet";
+import { MobileWhyCompare } from "#/components/mobile-why-compare";
 import { SearchBox } from "#/components/search-box";
+import { ToolCard } from "#/components/tool-card";
 import { ToolTag } from "#/components/tool-flags";
 import { ShelfToolCard, ShowcaseToolCard } from "#/components/tool-showcase-card";
+import {
+	DIRECTORY_TAG_OPTIONS,
+	type DirectorySort,
+	type DirectoryTag,
+} from "#/lib/directory-filters";
 import { categoryShortName, categoryStyles } from "#/lib/icons";
 import { favoriteTools, recentTools } from "#/lib/local-store";
 import { seo } from "#/lib/seo";
@@ -151,13 +171,16 @@ function SectionHead({
 				</p>
 				{action}
 			</div>
-			<h2 id={id} className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+			<h2 id={id} className="text-3xl font-semibold tracking-[-0.03em] sm:text-3xl">
 				{title}
 			</h2>
 			{description && <p className="text-base text-muted-foreground sm:text-lg">{description}</p>}
 		</div>
 	);
 }
+
+/** Quiet icon control for the workspace header: lifted surface, muted icon, accent on hover. */
+const SHELF_CONTROL = "shrink-0 rounded-[10px] text-muted-foreground hover:text-foreground";
 
 /** Favorites and recent tools, shown only once there is something to show. */
 function PersonalShelf() {
@@ -167,7 +190,29 @@ function PersonalShelf() {
 	const favorites = user ? rawFavorites : [];
 	const [tab, setTab] = useState<"all" | "favorites" | "recent">("all");
 	const [mounted, setMounted] = useState(false);
-	useEffect(() => setMounted(true), []);
+	const [stagger, setStagger] = useState(true);
+	const [emblaApi, setEmblaApi] = useState<CarouselApi>();
+	const [canPrev, setCanPrev] = useState(false);
+	const [canNext, setCanNext] = useState(false);
+	useEffect(() => {
+		setMounted(true);
+		const t = setTimeout(() => setStagger(false), 900);
+		return () => clearTimeout(t);
+	}, []);
+	useEffect(() => {
+		if (!emblaApi) return;
+		const onSelect = () => {
+			setCanPrev(emblaApi.canScrollPrev());
+			setCanNext(emblaApi.canScrollNext());
+		};
+		onSelect();
+		emblaApi.on("select", onSelect);
+		emblaApi.on("reInit", onSelect);
+		return () => {
+			emblaApi.off("select", onSelect);
+			emblaApi.off("reInit", onSelect);
+		};
+	}, [emblaApi]);
 
 	const allSlugs = [...new Set([...favorites, ...recent])];
 	const slugs = tab === "favorites" && user ? favorites : tab === "recent" ? recent : allSlugs;
@@ -175,73 +220,144 @@ function PersonalShelf() {
 	if (!mounted || allSlugs.length === 0) return null;
 
 	return (
-		<section id="workspace" aria-labelledby="your-tools" className="container-page pt-12 sm:pt-16">
-			<div className="rounded-2xl border border-border bg-card/50 p-4 sm:p-5">
-				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<p className="label-mono !text-subtle">Your workspace</p>
-						<h2 id="your-tools" className="mt-1 text-xl font-semibold tracking-[-0.02em]">
-							{user ? "Pinned & recent tools" : "Recent tools"}
-						</h2>
-					</div>
-					<div className="flex w-full items-center gap-2 sm:w-auto">
-						{user && (
-							<Segmented
-								label="Show"
-								value={tab}
-								onChange={setTab}
-								options={[
-									{ value: "all", label: `All ${allSlugs.length}` },
-									{ value: "favorites", label: `Saved ${favorites.length}` },
-									{ value: "recent", label: `Recent ${recent.length}` },
-								]}
-								className="min-w-0 flex-1 sm:flex-none"
-							/>
-						)}
-						{recent.length > 0 && (
+		<section
+			id="workspace"
+			aria-labelledby="your-tools"
+			className="container-page relative z-10 pt-16 sm:pt-24"
+		>
+			<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6">
+				<div className="flex flex-col gap-2">
+					<p className="label-mono flex items-center gap-2 !text-subtle">
+						Your workspace
+						<span aria-hidden="true" className="inline-block h-px w-6 bg-border" />
+						<span>
+							{allSlugs.length} tool{allSlugs.length === 1 ? "" : "s"}
+						</span>
+					</p>
+					<h2 id="your-tools" className="text-3xl font-semibold tracking-[-0.03em] sm:text-3xl">
+						{user ? "Pinned & recent tools" : "Recent tools"}
+					</h2>
+				</div>
+				<div className="flex w-full items-center gap-2 sm:w-auto">
+					{recent.length > 0 && (
+						<Button
+							variant="outline"
+							size="icon"
+							onClick={() => recentTools.write([])}
+							aria-label="Clear recent history"
+							title="Clear recent history"
+							className={`${SHELF_CONTROL} hover:border-cat-rose-border hover:bg-cat-rose-bg hover:text-cat-rose-icon`}
+						>
+							<RotateCcw />
+						</Button>
+					)}
+					{list.length > 0 && (
+						<>
 							<Button
 								variant="outline"
-								size="icon-sm"
-								onClick={() => recentTools.write([])}
-								aria-label="Clear recent history"
-								title="Clear recent history"
-								className="shrink-0"
+								size="icon"
+								className={`hidden sm:inline-flex ${SHELF_CONTROL}`}
+								disabled={!canPrev}
+								onClick={() => emblaApi?.scrollPrev()}
+								aria-label="Previous tools"
 							>
-								<RotateCcw />
+								<ArrowLeft />
 							</Button>
-						)}
-					</div>
-				</div>
-
-				<div className="mt-4">
-					{list.length === 0 ? (
-						<p className="rounded-xl border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
-							{tab === "favorites" && user
-								? "No saved tools yet. Star a tool to pin it here."
-								: "No recent tools yet. Open a tool and it will appear here."}
-						</p>
-					) : (
-						<div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-							{list.slice(0, 6).map((tool) => (
-								<ShelfToolCard key={tool.slug} tool={tool} />
-							))}
-						</div>
+							<Button
+								variant="outline"
+								size="icon"
+								className={`hidden sm:inline-flex ${SHELF_CONTROL}`}
+								disabled={!canNext}
+								onClick={() => emblaApi?.scrollNext()}
+								aria-label="Next tools"
+							>
+								<ArrowRight />
+							</Button>
+						</>
+					)}
+					{user && (
+						<Segmented
+							label="Show"
+							size="toolbar"
+							value={tab}
+							onChange={setTab}
+							options={[
+								{ value: "all", label: `All ${allSlugs.length}` },
+								{ value: "favorites", label: `Saved ${favorites.length}` },
+								{ value: "recent", label: `Recent ${recent.length}` },
+							]}
+							className="min-w-0 flex-1 rounded-[10px] sm:flex-none"
+						/>
 					)}
 				</div>
+			</div>
+
+			<div className="mt-4">
+				{list.length === 0 ? (
+					<div className="flex flex-col items-center rounded-xl border border-dashed border-border bg-card/40 px-4 py-8 text-center">
+						<span
+							aria-hidden="true"
+							className="grid size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground"
+						>
+							<Pin className="size-4" />
+						</span>
+						<p className="mt-3 text-sm font-medium text-foreground">
+							{tab === "favorites" && user ? "No saved tools yet" : "No recent tools yet"}
+						</p>
+						<p className="mt-1 text-sm text-muted-foreground">
+							{tab === "favorites" && user
+								? "Star a tool to pin it here."
+								: "Open a tool and it will appear here."}
+						</p>
+					</div>
+				) : (
+					<Carousel
+						key={`${tab}-${list.length}`}
+						opts={{ align: "start", containScroll: "trimSnaps" }}
+						setApi={setEmblaApi}
+						className="focus-visible:outline-none"
+					>
+						<CarouselContent className="-ml-3">
+							{list.slice(0, 6).map((tool, i) => (
+								<CarouselItem
+									key={tool.slug}
+									className={cn(
+										"pl-3 sm:basis-1/2 lg:basis-1/3",
+										list.length > 1 ? "basis-[88%]" : "basis-full",
+									)}
+								>
+									<ShelfToolCard tool={tool} index={i} stagger={stagger} className="h-full" />
+								</CarouselItem>
+							))}
+						</CarouselContent>
+					</Carousel>
+				)}
 			</div>
 		</section>
 	);
 }
 
-type TagFilter = "all" | "popular" | "browser" | "ai";
-type SortBy = "popular" | "name" | "category";
+type TagFilter = DirectoryTag;
+type SortBy = DirectorySort;
 
-const TAG_OPTIONS: ReadonlyArray<{ value: TagFilter; label: string }> = [
-	{ value: "all", label: "All" },
-	{ value: "popular", label: "Popular" },
-	{ value: "browser", label: "Private" },
-	{ value: "ai", label: "AI" },
-];
+const TAG_OPTIONS = DIRECTORY_TAG_OPTIONS;
+
+/** Removable token for one active directory filter. */
+function ActiveFilter({ label, onRemove }: { label: string; onRemove: () => void }) {
+	return (
+		<span className="inline-flex h-7 items-center gap-1 rounded-full border border-border bg-card pr-0.5 pl-2.5 text-xs text-muted-foreground">
+			{label}
+			<button
+				type="button"
+				onClick={onRemove}
+				aria-label={`Remove ${label} filter`}
+				className="grid size-5 cursor-pointer place-items-center rounded-full transition-colors duration-150 hover:bg-accent hover:text-foreground"
+			>
+				<X className="size-3" aria-hidden="true" />
+			</button>
+		</span>
+	);
+}
 
 /** Directory: category and tag filters, live search, sort, and a card grid. */
 function ToolsDirectory() {
@@ -250,6 +366,10 @@ function ToolsDirectory() {
 	const [tagFilter, setTagFilter] = useState<TagFilter>("all");
 	const [sortBy, setSortBy] = useState<SortBy>("popular");
 	const [expanded, setExpanded] = useState(false);
+	const [filtersOpen, setFiltersOpen] = useState(false);
+	const searchRef = useRef<HTMLInputElement>(null);
+	const mobileSearchRef = useRef<HTMLInputElement>(null);
+	const filterButtonRef = useRef<HTMLButtonElement>(null);
 
 	const filteredTools = useMemo(() => {
 		let list = [...tools];
@@ -282,11 +402,16 @@ function ToolsDirectory() {
 		setTagFilter("all");
 	};
 
+	const activeFacetCount =
+		(activeCategory !== "all" ? 1 : 0) +
+		(tagFilter !== "all" ? 1 : 0) +
+		(searchQuery.trim() !== "" ? 1 : 0);
+
 	return (
 		<section
 			id="tools-directory"
 			aria-labelledby="tools-explorer"
-			className="container-page pt-16 sm:pt-24"
+			className="container-page relative z-10 pt-20 sm:pt-28"
 		>
 			<SectionHead
 				index={1}
@@ -296,68 +421,166 @@ function ToolsDirectory() {
 				description={`${tools.length} tools across ${activeCategories.length} disciplines. Everything runs in your browser.`}
 			/>
 
-			<div className="mt-8 rounded-xl border border-border bg-card/40 p-4 sm:p-5">
-				<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-					<div className="relative w-full lg:max-w-md">
+			{/* Mobile filter dock: sticky search + sheet trigger, facet tokens below. */}
+			<div className="sticky top-16 z-30 mt-6 rounded-xl border border-border/70 bg-background/90 p-2 shadow-2xs backdrop-blur-xl sm:hidden">
+				<div className="flex items-center gap-2">
+					<div className="relative min-w-0 flex-1">
 						<Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
+							ref={mobileSearchRef}
 							type="search"
 							aria-label="Search tools"
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							placeholder="Search tools…"
-							className="h-10 pl-9 [&::-webkit-search-cancel-button]:hidden"
+							className="h-11 pr-10 pl-9 [&::-webkit-search-cancel-button]:hidden"
 						/>
-						{searchQuery && (
+						{searchQuery ? (
 							<button
 								type="button"
 								onClick={() => setSearchQuery("")}
 								aria-label="Clear search"
-								className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+								className="absolute top-1/2 right-1.5 grid size-8 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
+							>
+								<X className="size-4" />
+							</button>
+						) : null}
+					</div>
+					<Button
+						type="button"
+						variant="outline"
+						size="icon"
+						onClick={() => setFiltersOpen(true)}
+						aria-label={activeFacetCount > 0 ? `Filters, ${activeFacetCount} active` : "Filters"}
+						aria-haspopup="dialog"
+						aria-expanded={filtersOpen}
+						ref={filterButtonRef}
+						className="relative h-11 w-11 shrink-0"
+					>
+						<SlidersHorizontal className="size-4" />
+						{activeFacetCount > 0 ? (
+							<span
+								aria-hidden="true"
+								className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-primary font-mono text-[0.625rem] font-medium text-primary-foreground"
+							>
+								{activeFacetCount}
+							</span>
+						) : null}
+					</Button>
+				</div>
+
+				{filtering ? (
+					<div className="mt-2 flex items-center gap-1.5 overflow-x-auto px-0.5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+						{searchQuery.trim() !== "" && (
+							<ActiveFilter label={`“${searchQuery.trim()}”`} onRemove={() => setSearchQuery("")} />
+						)}
+						{activeCategory !== "all" && (
+							<ActiveFilter
+								label={categoryShortName(categoryById[activeCategory].name)}
+								onRemove={() => setActiveCategory("all")}
+							/>
+						)}
+						{tagFilter !== "all" && (
+							<ActiveFilter
+								label={TAG_OPTIONS.find((o) => o.value === tagFilter)?.label ?? tagFilter}
+								onRemove={() => setTagFilter("all")}
+							/>
+						)}
+					</div>
+				) : null}
+			</div>
+
+			<div className="mt-8 hidden sm:block">
+				<div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+					<div className="relative w-full lg:max-w-md lg:flex-1">
+						<Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							ref={searchRef}
+							type="search"
+							aria-label="Search tools"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							placeholder="Search tools…"
+							className="h-10 pr-10 pl-9 [&::-webkit-search-cancel-button]:hidden"
+						/>
+						{searchQuery ? (
+							<button
+								type="button"
+								onClick={() => {
+									setSearchQuery("");
+									searchRef.current?.focus();
+								}}
+								aria-label="Clear search"
+								className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
 							>
 								<X className="size-3.5" />
 							</button>
-						)}
+						) : null}
 					</div>
-					<Select value={sortBy} onValueChange={(val) => setSortBy(val as SortBy)}>
-						<SelectTrigger aria-label="Sort tools" className="h-10 w-full sm:w-[170px]">
-							<SelectValue placeholder="Sort: Popular" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="popular">Sort: Popular</SelectItem>
-							<SelectItem value="name">Sort: Name (A–Z)</SelectItem>
-							<SelectItem value="category">Sort: Category</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-
-				<div className="mt-4 flex flex-col gap-3 border-t border-border/70 pt-4">
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-						<span className="label-mono shrink-0 !text-subtle sm:mt-2 sm:w-24">Discipline</span>
-						<div role="group" aria-label="Tool categories" className="flex flex-wrap gap-2">
-							<FilterChip
-								label="All"
-								count={tools.length}
-								active={activeCategory === "all"}
-								onClick={() => setActiveCategory("all")}
-								className="h-9 shrink-0"
-							/>
-							{activeCategories.map((c) => (
-								<FilterChip
-									key={c.id}
-									label={categoryShortName(c.name)}
-									count={toolsInCategory(c.id).length}
-									category={c.id}
-									active={activeCategory === c.id}
-									onClick={() => setActiveCategory(c.id)}
-									className="h-9 shrink-0"
-								/>
-							))}
-						</div>
-					</div>
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-						<span className="label-mono shrink-0 !text-subtle sm:w-24">Show</span>
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap lg:ml-auto lg:flex-nowrap">
+						<Select
+							value={activeCategory}
+							onValueChange={(val) => setActiveCategory(isCategoryId(val) ? val : "all")}
+						>
+							<SelectTrigger aria-label="Discipline" className="h-10 w-full sm:w-[208px]">
+								<div className="flex min-w-0 flex-1 items-center gap-2">
+									<span
+										aria-hidden="true"
+										className={cn(
+											"size-2 shrink-0 rounded-full",
+											activeCategory === "all" ? "bg-primary" : categoryStyles[activeCategory].dot,
+										)}
+									/>
+									<span className="truncate">
+										{activeCategory === "all"
+											? "All disciplines"
+											: categoryShortName(categoryById[activeCategory].name)}
+									</span>
+									<span className="ml-auto font-mono text-xs text-muted-foreground">
+										{activeCategory === "all"
+											? tools.length
+											: toolsInCategory(activeCategory).length}
+									</span>
+								</div>
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">
+									<span className="flex w-full items-center gap-2">
+										<span aria-hidden="true" className="size-2 rounded-full bg-primary" />
+										<span>All disciplines</span>
+										<span className="ml-auto font-mono text-xs text-muted-foreground">
+											{tools.length}
+										</span>
+									</span>
+								</SelectItem>
+								{activeCategories.map((c) => (
+									<SelectItem key={c.id} value={c.id}>
+										<span className="flex w-full items-center gap-2">
+											<span
+												aria-hidden="true"
+												className={cn("size-2 rounded-full", categoryStyles[c.id].dot)}
+											/>
+											<span>{categoryShortName(c.name)}</span>
+											<span className="ml-auto font-mono text-xs text-muted-foreground">
+												{toolsInCategory(c.id).length}
+											</span>
+										</span>
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<Select value={sortBy} onValueChange={(val) => setSortBy(val as SortBy)}>
+							<SelectTrigger aria-label="Sort tools" className="h-10 w-full sm:w-[170px]">
+								<SelectValue placeholder="Sort: Popular" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="popular">Sort: Popular</SelectItem>
+								<SelectItem value="name">Sort: Name (A–Z)</SelectItem>
+								<SelectItem value="category">Sort: Category</SelectItem>
+							</SelectContent>
+						</Select>
 						<Segmented
+							size="toolbar"
 							label="Filter tools by type"
 							value={tagFilter}
 							onChange={setTagFilter}
@@ -368,20 +591,37 @@ function ToolsDirectory() {
 				</div>
 			</div>
 
-			<div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+			<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 sm:mt-6">
 				<p className="text-sm text-muted-foreground" aria-live="polite">
 					Showing <span className="font-medium text-foreground">{visible.length}</span> of{" "}
 					{tools.length} tools
 				</p>
-				{filtering && filteredTools.length > 0 && (
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={reset}
-						className="h-8 px-2 text-muted-foreground hover:text-foreground"
-					>
-						<RotateCcw /> Reset filters
-					</Button>
+				{filtering && (
+					<div className="hidden flex-wrap items-center gap-1.5 sm:flex">
+						{searchQuery.trim() !== "" && (
+							<ActiveFilter label={`“${searchQuery.trim()}”`} onRemove={() => setSearchQuery("")} />
+						)}
+						{activeCategory !== "all" && (
+							<ActiveFilter
+								label={categoryShortName(categoryById[activeCategory].name)}
+								onRemove={() => setActiveCategory("all")}
+							/>
+						)}
+						{tagFilter !== "all" && (
+							<ActiveFilter
+								label={TAG_OPTIONS.find((o) => o.value === tagFilter)?.label ?? tagFilter}
+								onRemove={() => setTagFilter("all")}
+							/>
+						)}
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={reset}
+							className="h-7 px-2 text-muted-foreground hover:text-foreground"
+						>
+							<RotateCcw className="size-3.5" /> Reset all
+						</Button>
+					</div>
 				)}
 			</div>
 
@@ -397,18 +637,66 @@ function ToolsDirectory() {
 					<Button variant="outline" size="sm" className="mt-4" onClick={reset}>
 						Clear filters
 					</Button>
+					<div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+						<span className="pr-1 font-mono text-[0.625rem] font-medium tracking-[0.1em] text-subtle uppercase">
+							Try
+						</span>
+						{tools
+							.filter((t) => t.popular !== undefined)
+							.slice(0, 3)
+							.map((tool) => (
+								<Link
+									key={tool.slug}
+									to="/tools/$slug"
+									params={{ slug: tool.slug }}
+									className="inline-flex h-8 items-center rounded-full border border-input bg-background px-3 text-sm font-medium transition-colors duration-150 hover:bg-accent"
+								>
+									{tool.name}
+								</Link>
+							))}
+					</div>
 				</div>
 			) : (
-				<div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{visible.map((tool) => (
-						<ShowcaseToolCard key={tool.slug} tool={tool} />
-					))}
-				</div>
+				<>
+					<ul className="mt-4 grid grid-cols-2 gap-2 sm:hidden">
+						{visible.map((tool) => (
+							<li key={tool.slug} className="min-w-0">
+								<ToolCard tool={tool} variant="tile" />
+							</li>
+						))}
+					</ul>
+					<div className="mt-4 hidden grid-cols-1 gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+						{visible.map((tool) => (
+							<ShowcaseToolCard key={tool.slug} tool={tool} />
+						))}
+					</div>
+				</>
 			)}
+
+			<MobileFilterSheet
+				open={filtersOpen}
+				onOpenChange={setFiltersOpen}
+				activeCategory={activeCategory}
+				onCategoryChange={setActiveCategory}
+				tagFilter={tagFilter}
+				onTagFilterChange={setTagFilter}
+				sortBy={sortBy}
+				onSortChange={setSortBy}
+				resultCount={filteredTools.length}
+				onReset={reset}
+				hasActiveFilters={filtering}
+				onAfterClose={() => filterButtonRef.current?.focus()}
+			/>
 
 			{collapsed && (
 				<div className="mt-8 flex justify-center">
-					<Button variant="outline" size="lg" arrow onClick={() => setExpanded(true)}>
+					<Button
+						variant="outline"
+						size="lg"
+						arrow
+						onClick={() => setExpanded(true)}
+						className="w-full sm:w-auto"
+					>
 						Show all {tools.length} tools
 					</Button>
 				</div>
@@ -469,24 +757,32 @@ function HomePage() {
 	return (
 		<>
 			{/* Hero */}
-			<section className="relative isolate">
+			<section className="relative">
 				<HeroHologram />
-				<div className="container-page relative z-10 flex flex-col items-center gap-6 pt-16 pb-20 text-center sm:pt-24 sm:pb-28">
-					<div className="reveal inline-flex items-center gap-2 rounded-full border border-cat-emerald-border bg-cat-emerald-bg px-3 py-1.5 text-xs text-cat-emerald-fg">
-						<span className="size-2 animate-beacon rounded-full bg-cat-emerald-icon" />
-						<span>{tools.length} free browser tools · 100% client-side · zero telemetry</span>
+				<div className="container-page relative z-10 flex min-h-[60dvh] flex-col items-start justify-center gap-5 pt-16 pb-20 text-left sm:min-h-0 sm:items-center sm:gap-6 sm:pt-24 sm:pb-28 sm:text-center">
+					<div className="reveal inline-flex items-center gap-2 rounded-full border border-cat-emerald-border bg-cat-emerald-bg px-3 py-1 text-xs text-cat-emerald-fg sm:py-1.5">
+						<span className="size-2 shrink-0 animate-beacon rounded-full bg-cat-emerald-icon" />
+						<span className="sm:hidden">{tools.length} free client-side tools</span>
+						<span className="hidden sm:inline">
+							{tools.length} free browser tools · 100% client-side · zero telemetry
+						</span>
 					</div>
 
-					<h1 className="display reveal max-w-4xl text-[clamp(2.5rem,7vw,4rem)] [animation-delay:80ms]">
-						Free tools that just work.
+					<h1 className="display reveal max-w-4xl text-[2.75rem] leading-[1.25] sm:text-[clamp(2.5rem,7vw,4rem)] sm:leading-none [animation-delay:80ms] capitalize">
+						Fast, private tools that never leave your browser.
 					</h1>
 
-					<p className="reveal max-w-[720px] text-lg leading-7 text-muted-foreground [animation-delay:140ms]">
-						Compress photos, merge PDFs, generate QR codes, count words and calculate EMI — all
-						processed locally in your browser. No uploads, no signup.
+					<p className="reveal max-w-[360px] text-[0.9375rem] leading-6 text-muted-foreground sm:max-w-[720px] sm:text-lg sm:leading-7 [animation-delay:140ms]">
+						<span className="sm:hidden">
+							Compress media, merge PDFs, format code, and encrypt files directly on your device.
+						</span>
+						<span className="hidden sm:inline">
+							Compress media, merge PDFs, format code, and encrypt files directly on your machine.
+							100% client-side, zero server uploads, and no signup required.
+						</span>
 					</p>
 
-					<ul className="reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-3 [animation-delay:200ms]">
+					<ul className="reveal hidden flex-wrap items-center justify-center gap-x-8 gap-y-3 sm:flex [animation-delay:200ms]">
 						{VALUE_PROPS.map(({ icon: Icon, label, tile }) => (
 							<li key={label} className="flex items-center gap-2 text-sm font-medium">
 								<span className={cn("grid size-7 place-items-center rounded-md border", tile)}>
@@ -497,14 +793,14 @@ function HomePage() {
 						))}
 					</ul>
 
-					<div className="reveal w-full max-w-[640px] [animation-delay:260ms]">
+					<div className="reveal mt-2 w-full max-w-[640px] sm:mt-0 [animation-delay:260ms]">
 						<SearchBox
 							size="lg"
-							placeholder={`Search ${tools.length} tools — try “compress image” or “merge pdf”`}
+							placeholder={`Search ${tools.length} tools — try “compress” or “pdf”`}
 						/>
 					</div>
 
-					<div className="reveal flex flex-wrap items-center justify-center gap-2 [animation-delay:320ms]">
+					<div className="reveal hidden flex-wrap items-center justify-center gap-2 sm:flex [animation-delay:320ms]">
 						<span className="pr-1 font-mono text-[0.625rem] font-medium uppercase tracking-[0.1em] text-subtle">
 							Popular
 						</span>
@@ -515,11 +811,14 @@ function HomePage() {
 									key={tool.slug}
 									to="/tools/$slug"
 									params={{ slug: tool.slug }}
-									className="inline-flex h-8 items-center gap-1.5 rounded-full border border-input bg-background px-3 text-sm font-medium transition-colors hover:bg-accent"
+									className="inline-flex h-8 items-center gap-1.5 rounded-full border border-input bg-background/85 px-3 text-sm font-medium backdrop-blur-xs transition-colors hover:bg-accent"
 								>
 									<span
 										aria-hidden="true"
-										className={cn("size-2 rounded-full", categoryStyles[tool.category].dot)}
+										className={cn(
+											"size-2 shrink-0 rounded-full",
+											categoryStyles[tool.category].dot,
+										)}
 									/>
 									{tool.name}
 								</Link>
@@ -536,7 +835,7 @@ function HomePage() {
 			<section
 				id="categories"
 				aria-labelledby="categories-title"
-				className="mt-16 scroll-mt-16 border-y border-border bg-muted/40 py-16 sm:mt-24 sm:py-24"
+				className="ambient-band mt-32 scroll-mt-16 py-26 sm:mt-48 sm:py-48"
 			>
 				<div className="container-page">
 					<SectionHead
@@ -554,7 +853,9 @@ function HomePage() {
 						}
 					/>
 
-					<ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+					<DisciplineAccordion categories={activeCategories} />
+
+					<ul className="mt-10 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-4">
 						{activeCategories.map((category, index) => (
 							<li key={category.id}>
 								<CategoryCard
@@ -566,7 +867,7 @@ function HomePage() {
 						))}
 					</ul>
 
-					<div className="mt-4 flex flex-col gap-6 rounded-xl border border-border bg-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+					<div className="mt-4 hidden flex-col gap-6 rounded-xl border border-card bg-card/50 p-6 sm:flex sm:flex-row sm:items-center sm:justify-between sm:p-8">
 						<div className="flex items-start gap-4">
 							<span className="grid size-11 shrink-0 place-items-center rounded-lg border border-cat-emerald-border bg-cat-emerald-bg text-cat-emerald-icon">
 								<Compass className="size-5" aria-hidden="true" />
@@ -590,7 +891,7 @@ function HomePage() {
 			</section>
 
 			{/* Why QBTools */}
-			<section aria-labelledby="why" className="container-page py-16 sm:py-24">
+			<section aria-labelledby="why" className="container-page py-26 sm:py-48">
 				<SectionHead
 					index={3}
 					kicker="Privacy by architecture"
@@ -599,7 +900,11 @@ function HomePage() {
 					description="Your files are processed on your device — not on someone else’s server."
 				/>
 
-				<div className="mt-8 grid gap-6 lg:grid-cols-2">
+				<div className="mt-6 sm:hidden">
+					<MobileWhyCompare browserSteps={BROWSER_STEPS} cloudSteps={CLOUD_STEPS} />
+				</div>
+
+				<div className="mt-8 hidden gap-6 sm:grid lg:grid-cols-2">
 					<CompareCard
 						tone="emerald"
 						title="QBTools in-browser engine"
@@ -614,21 +919,28 @@ function HomePage() {
 					/>
 				</div>
 
-				<div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+				<div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-6 lg:grid-cols-4">
 					{WHY.map((item) => {
 						const Icon = item.icon;
 						return (
 							<div
 								key={item.title}
-								className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5"
+								className="flex flex-col gap-2.5 rounded-xl border border-border bg-card p-3.5 sm:gap-3 sm:rounded-lg sm:p-5"
 							>
 								<span
-									className={cn("grid size-10 place-items-center rounded-md border", item.tile)}
+									className={cn(
+										"grid size-9 place-items-center rounded-lg border sm:size-10 sm:rounded-md",
+										item.tile,
+									)}
 								>
-									<Icon className="size-5" aria-hidden="true" />
+									<Icon className="size-4 sm:size-5" aria-hidden="true" />
 								</span>
-								<h3 className="text-xl font-semibold tracking-[-0.025em]">{item.title}</h3>
-								<p className="text-sm text-muted-foreground">{item.text}</p>
+								<h3 className="text-sm leading-5 font-semibold tracking-[-0.02em] sm:text-xl sm:leading-7">
+									{item.title}
+								</h3>
+								<p className="text-xs leading-4 text-muted-foreground sm:text-sm sm:leading-5">
+									{item.text}
+								</p>
 							</div>
 						);
 					})}

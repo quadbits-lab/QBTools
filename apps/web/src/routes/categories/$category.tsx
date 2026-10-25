@@ -58,7 +58,7 @@ function CategoryPage() {
 					<Icon className="size-10" />
 				</span>
 				<div>
-					<h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+					<h1 className="text-3xl font-semibold tracking-[-0.03em] sm:text-3xl">
 						Free {category.name.toLowerCase()}
 					</h1>
 					<p className="mt-2 max-w-3xl text-lg text-muted-foreground">{category.description}</p>

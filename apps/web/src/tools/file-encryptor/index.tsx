@@ -145,7 +145,7 @@ export default function FileEncryptor() {
 					{/* Selected File Details */}
 					<div className="flex items-center justify-between border-b border-border pb-4">
 						<div className="flex items-center gap-3">
-							<span className="grid size-10 place-items-center border border-teal-500/30 bg-teal-500/10 text-teal-400">
+							<span className="grid size-10 place-items-center border border-border bg-muted/60 text-foreground">
 								{mode === "encrypt" ? (
 									<FileUp className="size-5" />
 								) : (
@@ -177,10 +177,10 @@ export default function FileEncryptor() {
 									className={cn(
 										"text-[0.625rem]",
 										password.length >= 12
-											? "text-emerald-400 font-semibold"
+											? "text-foreground font-semibold"
 											: password.length >= 8
-												? "text-amber-400"
-												: "text-rose-400",
+												? "text-muted-foreground"
+												: "text-subtle",
 									)}
 								>
 									{password.length >= 12 ? "Strong" : password.length >= 8 ? "Moderate" : "Weak"}
@@ -260,8 +260,8 @@ export default function FileEncryptor() {
 
 					{/* Result Download Panel */}
 					{result && (
-						<div className="mt-2 flex flex-col gap-4 border border-emerald-500/30 bg-emerald-500/10 p-5">
-							<div className="flex items-center gap-2.5 text-emerald-400">
+						<div className="mt-2 flex flex-col gap-4 border border-border bg-muted/40 p-5">
+							<div className="flex items-center gap-2.5 text-foreground">
 								<CheckCircle2 className="size-5" />
 								<span className="font-medium text-sm">
 									{mode === "encrypt"
@@ -270,7 +270,7 @@ export default function FileEncryptor() {
 								</span>
 							</div>
 
-							<div className="flex items-center justify-between border-t border-emerald-500/20 pt-3 text-xs">
+							<div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs">
 								<span className="truncate text-foreground font-medium">{result.filename}</span>
 								<span className="text-muted-foreground">{formatBytes(result.size)}</span>
 							</div>
@@ -278,7 +278,7 @@ export default function FileEncryptor() {
 							<Button
 								size="lg"
 								onClick={() => downloadBlob(result.blob, result.filename)}
-								className="w-full bg-emerald-500 text-black hover:bg-emerald-400 font-medium"
+								className="w-full font-medium"
 							>
 								<Download className="size-4" /> Download {result.filename}
 							</Button>

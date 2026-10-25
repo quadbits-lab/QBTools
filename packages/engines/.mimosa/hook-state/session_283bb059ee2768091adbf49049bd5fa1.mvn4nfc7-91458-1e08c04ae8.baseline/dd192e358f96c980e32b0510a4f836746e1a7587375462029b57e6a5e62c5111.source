@@ -1,0 +1,46 @@
+/* Throwaway: measure white-ink row bands in the OG preview PNG to detect text collision. */
+import UPNG from "upng-js";
+import { readFileSync } from "node:fs";
+
+const buf = readFileSync("/Users/quadbits/RD/QBTools/test-results/og-preview-only.png");
+const img = UPNG.decode(buf);
+const rgba = UPNG.toRGBA8(img)[0] as ArrayBuffer;
+const w = img.width;
+const h = img.height;
+const px = new Uint8Array(rgba);
+
+// Per row: count near-white pixels (text ink) — gradient bg is indigo/purple, never near-white.
+const rows: number[] = [];
+for (let y = 0; y < h; y++) {
+	let count = 0;
+	for (let x = 0; x < w; x++) {
+		const i = (y * w + x) * 4;
+		if (px[i] > 235 && px[i + 1] > 235 && px[i + 2] > 235) count++;
+	}
+	rows.push(count);
+}
+
+// Find contiguous ink bands (rows with >5 white px).
+const bands: { start: number; end: number; peak: number }[] = [];
+let cur: { start: number; end: number; peak: number } | null = null;
+for (let y = 0; y < h; y++) {
+	if (rows[y] > 5) {
+		if (!cur) cur = { start: y, end: y, peak: rows[y] };
+		else {
+			cur.end = y;
+			cur.peak = Math.max(cur.peak, rows[y]);
+		}
+	} else if (cur) {
+		bands.push(cur);
+		cur = null;
+	}
+}
+if (cur) bands.push(cur);
+
+console.log(`image ${w}x${h}`);
+for (const b of bands) {
+	console.log(`band y=${b.start}..${b.end} (h=${b.end - b.start + 1}, peak=${b.peak} px/row)`);
+}
+for (let i = 1; i < bands.length; i++) {
+	console.log(`gap band${i - 1}->band${i}: ${bands[i].start - bands[i - 1].end - 1}px`);
+}

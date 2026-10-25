@@ -1,9 +1,11 @@
 /**
- * GLSL ES 1.00 sources for the landing-hero hologram.
+ * GLSL ES 1.00 sources for the landing-hero 3D wireframe terrain & perspective
+ * enclosure.
  *
  * Deliberately WebGL1-compatible so the same program runs on both context
- * types. One fullscreen triangle, no textures, no derivatives, at most two
- * bounded loops: the entire scene is procedural.
+ * types. Combines an analytical 3D wireframe room enclosure, parallax star/dust
+ * specks in the void, and a multi-crossing 3D undulating wireframe terrain mesh
+ * with glowing vertex nodes and interactive pointer wave physics.
  */
 
 export const VERTEX_SHADER = /* glsl */ `
@@ -39,6 +41,12 @@ float hash21(vec2 p) {
 	return fract(p.x * p.y);
 }
 
+vec2 hash22(vec2 p) {
+	vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));
+	p3 += dot(p3, p3.yzx + 33.33);
+	return fract((p3.xx + p3.yz) * p3.zy);
+}
+
 float valueNoise(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = fract(p);
@@ -56,84 +64,306 @@ float gridMask(vec2 coord, float width) {
 	return 1.0 - smoothstep(0.0, width, min(d.x, d.y));
 }
 
-/** One translucent ribbon of the aurora; index shifts frequency and height. */
-float auroraBand(float x, float y, float index, float drift) {
-	float freq = 1.15 + index * 0.65;
-	float wave = sin(x * freq + drift * (1.0 + index * 0.35) + index * 1.7);
-	wave += 0.45 * sin(x * freq * 2.3 - drift * 1.6 + index * 3.4);
-	float bandY = 0.14 + index * 0.11 + wave * (0.05 + index * 0.012);
-	return exp(-abs(y - bandY) * (17.0 - index * 3.5)) * (0.42 - index * 0.09);
+/**
+ * 3D undulating terrain heightfield y = f(x, z) + interactive cursor wave.
+ * Adapts peak placement and elevation for portrait/mobile aspect ratios.
+ * Returns vec2(height, cursorActivity).
+ */
+vec2 terrainField(vec2 xz, vec2 ptrXZ, float time, float portrait) {
+	/* Flowing multi-octave organic hills with 2x wave ridge density:
+	   taller sculpted peaks toward the right and left flanks, rolling waves
+	   across the foreground. */
+	vec2 q = xz * vec2(1.55, 1.48) + vec2(-time * 0.24, time * 0.18);
+	float w1 = sin(q.x * 1.85 + cos(q.y * 1.75 + time * 0.26));
+	float w2 = cos(q.x * 2.95 - q.y * 2.45 - time * 0.35) * 0.54;
+	float w3 = sin((q.x + q.y) * 4.2 + time * 0.5) * 0.28;
+	float n = (valueNoise(q * 2.25) - 0.5) * 0.78;
+
+	/* Pull the sculpted flank peaks inward on portrait screens so both ridges
+	   frame the mobile viewport instead of sitting off-screen. */
+	float peakX = mix(1.55, 0.92, portrait);
+	float rightPeak = exp(-pow(xz.x - peakX, 2.0) * 0.65 - pow(xz.y - 0.15, 2.0) * 0.38) * 0.72;
+	float leftPeak = exp(-pow(xz.x + peakX * 1.05, 2.0) * 0.8 - pow(xz.y + 0.35, 2.0) * 0.45) * 0.52;
+	float flankLift = smoothstep(0.25, mix(2.6, 1.45, portrait), abs(xz.x)) * 0.34;
+
+	/* Interactive pointer / autonomous roving wave: lifts a smooth 3D peak + ripple. */
+	float dPtr = length(xz - ptrXZ);
+	float cursorPeak = exp(-dPtr * dPtr * 0.95) * 0.46;
+	float cursorRipple = exp(-dPtr * 0.8) * sin(dPtr * 6.5 - time * 4.8) * 0.1;
+	float activity = clamp(exp(-dPtr * dPtr * 0.55) + exp(-abs(dPtr - 1.3) * 2.2) * 0.35, 0.0, 1.0);
+
+	/* Lift base elevation slightly on portrait screens so the wave sits right
+	   behind the search bar and popular pills. */
+	float baseH = mix(-1.10, -0.78, portrait);
+	float h = baseH
+		+ (w1 * 0.26 + w2 * 0.20 + w3 * 0.12 + n * 0.24) * (0.58 + flankLift)
+		+ rightPeak
+		+ leftPeak
+		+ cursorPeak
+		+ cursorRipple;
+
+	return vec2(h, activity);
+}
+
+/**
+ * Sparse floating dust / star specks in the dark central void.
+ */
+float starParticles(vec2 uv, float time, vec2 pointer, float quality) {
+	float acc = 0.0;
+	for (int layer = 0; layer < 2; layer++) {
+		if (quality > 0.5 || layer == 0) {
+			float fl = float(layer);
+			float scale = 18.0 + fl * 14.0;
+			vec2 drift = vec2(time * (0.04 + fl * 0.03), -time * (0.025 + fl * 0.02));
+			vec2 p = uv * scale + drift + pointer * (0.35 + fl * 0.25);
+			vec2 cell = floor(p);
+			vec2 local = fract(p) - 0.5;
+			vec2 rnd = hash22(cell + fl * 73.1);
+			vec2 offset = (rnd - 0.5) * 0.72;
+			float d = length(local - offset);
+			float radius = 0.028 + rnd.x * 0.035;
+			float twinkle = 0.55 + 0.45 * sin(time * (1.2 + rnd.y * 2.5) + rnd.x * 6.283);
+			float speck = (1.0 - smoothstep(radius * 0.3, radius, d)) * step(0.62, rnd.y);
+			acc += speck * twinkle * (0.38 - fl * 0.12);
+		}
+	}
+	return acc;
+}
+
+/**
+ * Analytical 3D perspective wireframe room enclosure (left wall, right wall,
+ * top ceiling, and inner frame edges) with an ambient luminance blend.
+ * Returns vec2(wireframeLine, ambientGlow).
+ */
+vec2 roomWireframe(vec3 ro, vec3 rd, float xScale, float portrait, vec2 pointer, float time) {
+	/* Match horizontal wall distance to ceiling height in camera space so the
+	   left, right, and top perspective grid walls meet cleanly at the corners
+	   and extend inward to frame the hero on both sides. */
+	float xWall = xScale * mix(1.12, 1.05, portrait);
+	float yCeil = ro.y + mix(1.06, 0.98, portrait);
+	float yFloor = ro.y - mix(1.42, 1.28, portrait);
+	float zMin = -2.25;
+	float zMax = mix(0.48, 0.55, portrait);
+
+	float lineAcc = 0.0;
+	float ambientAcc = 0.0;
+
+	/* Left & Right perspective grid walls (x = -xWall and x = +xWall). */
+	if (abs(rd.x) > 0.0001) {
+		float side = sign(rd.x);
+		float tWall = (side * xWall - ro.x) / rd.x;
+		if (tWall > 0.0) {
+			vec3 pos = ro + rd * tWall;
+			if (pos.y <= yCeil && pos.y >= yFloor && pos.z >= zMin && pos.z <= zMax) {
+				vec2 wallUV = vec2(pos.z * 3.8, pos.y * 4.0);
+				float g = gridMask(wallUV, 0.018);
+				/* Inner back, top, and bottom perspective rails of the side wall. */
+				float railTop = 1.0 - smoothstep(0.0, 0.018, abs(pos.y - yCeil));
+				float railBottom = 1.0 - smoothstep(0.0, 0.018, abs(pos.y - yFloor));
+				float railBack = 1.0 - smoothstep(0.0, 0.022, abs(pos.z - zMax));
+				float rails = max(max(railTop, railBottom), railBack);
+
+				/* Smooth ambient blend from outer edge into the inner frame and floor. */
+				float depthFade = smoothstep(zMax + 0.1, zMin + 0.3, pos.z);
+				float innerSoft = smoothstep(zMax + 0.04, zMax - 0.22, pos.z);
+				float bottomFade = smoothstep(yFloor - 0.05, yFloor + 0.35, pos.y);
+				float ptrHighlight = 0.78 + 0.22 * clamp(side * pointer.x, 0.0, 1.0);
+
+				float mask = bottomFade * ptrHighlight;
+				lineAcc = max(
+					lineAcc,
+					(g * (0.42 + 0.45 * depthFade) * innerSoft + rails * 0.72) * mask
+				);
+				ambientAcc = max(ambientAcc, (0.25 + 0.75 * depthFade) * innerSoft * bottomFade * 0.08);
+			}
+		}
+	}
+
+	/* Top perspective ceiling grid (y = +yCeil). */
+	if (rd.y > 0.0001) {
+		float tCeil = (yCeil - ro.y) / rd.y;
+		if (tCeil > 0.0) {
+			vec3 pos = ro + rd * tCeil;
+			if (abs(pos.x) <= xWall && pos.z >= zMin && pos.z <= zMax) {
+				vec2 ceilUV = vec2(pos.x * 3.6, pos.z * 3.8);
+				float g = gridMask(ceilUV, 0.018);
+				float railBack = 1.0 - smoothstep(0.0, 0.022, abs(pos.z - zMax));
+				float railSide = 1.0 - smoothstep(0.0, 0.018, abs(abs(pos.x) - xWall));
+
+				float depthFade = smoothstep(zMax + 0.1, zMin + 0.3, pos.z);
+				float innerSoft = smoothstep(zMax + 0.04, zMax - 0.22, pos.z);
+				float ptrHighlight = 0.78 + 0.22 * clamp(pointer.y, 0.0, 1.0);
+
+				lineAcc = max(
+					lineAcc,
+					(g * (0.42 + 0.45 * depthFade) * innerSoft + max(railBack, railSide) * 0.72) * ptrHighlight
+				);
+				ambientAcc = max(ambientAcc, (0.25 + 0.75 * depthFade) * innerSoft * 0.07);
+			}
+		}
+	}
+
+	/* Subtle travelling ambient wave along the room depth (+15% opacity boost). */
+	float zWave = 0.88 + 0.12 * sin(time * 0.9);
+	return vec2(lineAcc * 0.125 * zWave, ambientAcc * 0.25 * zWave);
+}
+
+/**
+ * Evaluate the wireframe lines, glowing vertex dots, and data pulses at a
+ * 3D surface hit point on the undulating terrain mesh.
+ */
+vec3 shadeTerrainHit(vec3 hitPos, float t, float act, float crossingIndex, float time) {
+	float gridScale = 13.6;
+	vec2 gCoord = hitPos.xz * gridScale;
+
+	/* Local cell coordinates for wireframe lines and vertex intersections. */
+	vec2 dCell = abs(fract(gCoord - 0.5) - 0.5);
+	float distToLine = min(dCell.x, dCell.y);
+	float distToVertex = length(dCell);
+
+	/* Perspective-scaled anti-aliased line width and vertex dot radius for 2x dense mesh. */
+	float lw = clamp(0.028 + t * 0.005, 0.026, 0.056);
+	float wire = 1.0 - smoothstep(0.0, lw, distToLine);
+	float wireGlow = exp(-distToLine * 20.0) * 0.12;
+
+	/* Crisp glowing vertex dot at every (x, z) grid intersection. */
+	float dotRadius = clamp(0.085 + t * 0.006 + act * 0.024, 0.08, 0.135);
+	float vertexCore = 1.0 - smoothstep(dotRadius * 0.35, dotRadius, distToVertex);
+	float vertexHalo = exp(-distToVertex * 10.5) * (0.22 + act * 0.32);
+
+	/* Travelling data pulses along the wireframe tracks. */
+	float pulseX = exp(-abs(fract(hitPos.x * 0.45 - time * 0.24) - 0.5) * 16.0) * step(dCell.y, lw * 1.4);
+	float pulseZ = exp(-abs(fract(hitPos.z * 0.45 + time * 0.20) - 0.5) * 16.0) * step(dCell.x, lw * 1.4);
+	float dataPulse = max(pulseX, pulseZ);
+
+	/* Distance and edge attenuation in 3D world space. */
+	float zFade = smoothstep(3.2, 0.5, hitPos.z) * smoothstep(-2.35, -1.55, hitPos.z);
+	float xFade = 1.0 - smoothstep(2.3, 3.3, abs(hitPos.x));
+	/* Secondary (back-slope) crossings are slightly dimmer for natural depth. */
+	float layerWeight = (crossingIndex < 0.5 ? 1.0 : 0.52) * zFade * xFade;
+
+	/* Strictly grayscale monochrome wireframe + bright white/silver vertex nodes. */
+	vec3 lineColor = mix(uColorC, uColorA, clamp(0.35 + act * 0.55 + dataPulse * 0.45, 0.0, 1.0));
+	vec3 dotColor = mix(uColorB, uColorA, clamp(0.65 + act * 0.35, 0.0, 1.0));
+
+	vec3 contrib = lineColor * (wire * 0.56 + wireGlow + dataPulse * 0.36)
+		+ dotColor * (vertexCore * 1.18 + vertexHalo);
+
+	return contrib * layerWeight;
 }
 
 void main() {
 	vec2 frag = gl_FragCoord.xy / max(uResolution, vec2(1.0));
 	float aspect = uResolution.x / max(uResolution.y, 1.0);
-	vec2 p = (frag * 2.0 - 1.0) * vec2(aspect, 1.0);
+	/* Portrait factor (0 on desktop landscape, up to 1 on narrow mobile viewports). */
+	float portrait = clamp((1.05 - aspect) * 1.35, 0.0, 1.0);
+	/* Widen effective horizontal FOV on mobile portrait so the 3D terrain waves
+	   and perspective walls frame the screen instead of clipping off the sides. */
+	float xScale = max(aspect, mix(aspect, 0.82, portrait));
+	vec2 p = (frag * 2.0 - 1.0) * vec2(xScale, 1.0);
 
 	float scroll = clamp(uScroll, 0.0, 1.0);
-	vec2 pointer = clamp(uPointer, -1.0, 1.0);
 	float quality = step(0.5, uQuality);
 
-	/* Aurora ribbons: slow ambient drift plus a slower scroll parallax. */
-	float drift = uTime * 0.055 + scroll * 0.35;
-	float auroraY = p.y + scroll * 0.9;
-	float aurora = auroraBand(p.x, auroraY, 0.0, drift);
-	aurora += auroraBand(p.x, auroraY, 1.0, drift);
-	if (quality > 0.5) aurora += auroraBand(p.x, auroraY, 2.0, drift);
-	float haze = valueNoise(vec2(p.x * 1.7 + drift, p.y * 2.4 - drift * 0.6));
-	aurora += haze * smoothstep(-0.4, 0.55, auroraY) * 0.28;
-
-	vec3 auroraColor = mix(uColorA, uColorB, smoothstep(-0.8, 0.8, p.x + pointer.x * 0.06));
-	vec3 col = uBackground + auroraColor * aurora * 0.22 * uIntensity;
-
-	/* Perspective grid floor, projected analytically below the horizon. */
-	float horizon = -0.18 - scroll * 0.85 + pointer.y * 0.02;
-	float below = horizon - p.y;
-	float floorFade = smoothstep(0.0, 0.035, below);
-	float depth = 1.0 / max(below, 0.02);
-	vec2 plane = vec2(
-		p.x * depth * 0.78 + pointer.x * 0.35,
-		depth * 1.45 + scroll * 2.6
+	/* Blend user pointer with a gentle autonomous roving wave on mobile/idle
+	   so touch devices always exhibit dynamic 3D wave motion and parallax. */
+	vec2 autoPointer = vec2(sin(uTime * 0.55) * 0.55, cos(uTime * 0.42) * 0.32);
+	float ptrLen = length(uPointer);
+	vec2 pointer = clamp(
+		mix(autoPointer * (1.0 - quality * 0.7), uPointer, clamp(ptrLen * 2.5 + quality * 0.65, 0.0, 1.0)),
+		-1.0,
+		1.0
 	);
-	float minorFade = 1.0 - smoothstep(2.5, 9.0, depth);
-	float majorFade = 1.0 - smoothstep(6.0, 15.0, depth);
-	float minor = gridMask(plane, 0.03);
-	float major = gridMask(plane * 0.25, 0.008);
-	vec3 gridColor = mix(uColorB, uColorA, smoothstep(0.02, 0.32, below));
-	col += gridColor * (minor * 0.07 * minorFade + major * 0.3 * majorFade) * floorFade * uIntensity;
 
-	/* Glowing horizon and a soft pool of light under it. */
-	col += mix(uColorA, uColorC, 0.45) * exp(-abs(below) * 22.0) * 0.14 * uIntensity;
-	col += mix(uColorC, uBackground, 0.35) * exp(-max(below, 0.0) * 7.0) * 0.04 * uIntensity;
+	/* 3D perspective camera with subtle mouse/auto parallax and scroll response. */
+	vec3 ro = vec3(
+		pointer.x * 0.26,
+		mix(0.32, 0.20, portrait) + pointer.y * 0.12 - scroll * 0.28,
+		mix(-2.55, -2.35, portrait)
+	);
+	vec3 rd = normalize(vec3(
+		p.x * 0.88 - pointer.x * 0.06,
+		p.y * 0.88 + mix(0.08, 0.22, portrait) - pointer.y * 0.05 + scroll * 0.14,
+		1.65
+	));
 
-	/* Holographic scan bar plus fine scanlines. */
-	float sweep = exp(-abs(fract(uTime * 0.04 + scroll * 0.25) - frag.y) * 90.0);
-	col += mix(uColorB, uColorC, 0.5) * sweep * 0.05 * uIntensity;
-	float scan = 0.5 + 0.5 * sin(frag.y * uResolution.y * 1.6 + uTime * 1.4);
-	col *= 1.0 - scan * 0.01 * uIntensity;
+	/* Project the active pointer onto the terrain plane for interactive 3D waves. */
+	vec3 rdPtr = normalize(vec3(pointer.x * xScale * 0.88, pointer.y * 0.88 + 0.12, 1.65));
+	float tPtr = (mix(-0.95, -0.72, portrait) - ro.y) / min(rdPtr.y, -0.08);
+	vec2 ptrXZ = clamp(ro.xz + rdPtr.xz * clamp(tPtr, 0.5, 5.5), vec2(-2.6), vec2(2.6));
 
-	if (quality > 0.5) {
-		float grain = hash21(gl_FragCoord.xy + fract(uTime) * 91.7);
-		col += (grain - 0.5) * 0.014 * uIntensity;
+	/* Base color is strictly the body background token (--background). */
+	vec3 col = uBackground;
+
+	/* 1. Perspective 3D wireframe room enclosure (top & side walls) with ambient blend. */
+	vec2 room = roomWireframe(ro, rd, xScale, portrait, pointer, uTime);
+	vec3 wallTone = mix(uColorC, uColorA, clamp(0.35 + frag.y * 0.45, 0.0, 1.0));
+	col += (wallTone * room.x + mix(uColorC, uColorB, 0.5) * room.y) * uIntensity;
+
+	/* 2. Sparse drifting micro-particles in the open void (1 layer on mobile, 2 on desktop). */
+	float specks = starParticles(p, uTime, pointer, quality);
+	float speckMask = smoothstep(-0.35, 0.25, p.y);
+	col += uColorB * specks * speckMask * 0.45 * uIntensity;
+
+	/* 3. Raymarch the 3D undulating wireframe terrain with translucent multi-ridge crossings. */
+	float tMin = 0.65;
+	float tMax = 5.6;
+	vec3 accumTerrain = vec3(0.0);
+	float crossings = 0.0;
+
+	/* Only march rays that can intersect the lower terrain volume. */
+	if (rd.y < 0.34) {
+		float dt = (tMax - tMin) / 48.0;
+		float t = tMin;
+		vec3 prevPos = ro + rd * t;
+		vec2 prevField = terrainField(prevPos.xz, ptrXZ, uTime, portrait);
+		float prevDiff = prevPos.y - prevField.x;
+
+		for (int i = 0; i < 48; i++) {
+			if (crossings < 3.0 && (quality > 0.5 || i < 32)) {
+				t += dt;
+				vec3 pos = ro + rd * t;
+				vec2 field = terrainField(pos.xz, ptrXZ, uTime, portrait);
+				float diff = pos.y - field.x;
+
+				/* Detect surface crossing (front slope or secondary ridge behind it). */
+				if ((prevDiff > 0.0 && diff <= 0.0) || (prevDiff < 0.0 && diff >= 0.0)) {
+					float frac = clamp(prevDiff / (prevDiff - diff), 0.0, 1.0);
+					float hitT = (t - dt) + dt * frac;
+					vec3 hitPos = ro + rd * hitT;
+					float hitAct = mix(prevField.y, field.y, frac);
+
+					accumTerrain += shadeTerrainHit(hitPos, hitT, hitAct, crossings, uTime);
+					crossings += 1.0;
+				}
+
+				prevPos = pos;
+				prevField = field;
+				prevDiff = diff;
+			}
+		}
 	}
 
-	/* Quiet the busiest detail right behind the headline and copy. */
-	vec2 safe = (p - vec2(0.0, 0.3)) * vec2(0.62, 0.95);
-	float protect = 1.0 - 0.6 * exp(-dot(safe, safe) * 2.4);
+	col += accumTerrain * 0.70 * uIntensity;
+
+	/* Quiet the central typography stage so the hero headline and subtitle have
+	   crisp contrast against pure --background. */
+	vec2 safe = (p - vec2(0.0, 0.22)) * vec2(0.62, 1.15);
+	float protect = 1.0 - 0.65 * exp(-dot(safe, safe) * 2.4);
 	col = mix(uBackground, col, protect);
 
-	/* Tone-map only the added glow so the base background stays exact. Light
-	   themes composite the field as a neutral tint: additive light cannot show
-	   on white, and a grayscale field has no hue to preserve. */
-	vec3 glow = max(col - uBackground, 0.0);
-	vec3 mapped = vec3(1.0) - exp(-glow * 1.55);
-	float peak = max(max(mapped.r, mapped.g), mapped.b);
-	vec3 tint = mix(uBackground, uColorA, clamp(peak * 1.6, 0.0, 1.0) * 0.7);
-	col = mix(uBackground + mapped, tint, uLight);
+	/* Tone-map added luminance so the base background remains exact in both
+	   dark and light themes (strictly neutral grayscale). */
+	vec3 delta = max(col - uBackground, 0.0);
+	vec3 darkCol = uBackground + (vec3(1.0) - exp(-delta * 1.55));
+	float lum = dot(delta, vec3(0.299, 0.587, 0.114));
+	vec3 lightTint = mix(uBackground, uColorA, clamp(lum * 2.1, 0.0, 0.34));
+	col = mix(darkCol, lightTint, uLight);
 
-	/* Fade into the page background at the top, bottom and sides. */
-	float edgeX = smoothstep(0.0, 0.14, frag.x) * (1.0 - smoothstep(0.86, 1.0, frag.x));
-	float edgeY = smoothstep(0.0, 0.13, frag.y) * (1.0 - smoothstep(0.72, 1.0, frag.y));
+	/* Seamless blend into the body background (--background) at top, bottom, and sides,
+	   keeping the outer perspective grid walls visible while softly feathering the boundary. */
+	float edgeX = smoothstep(0.0, 0.025, frag.x) * (1.0 - smoothstep(0.975, 1.0, frag.x));
+	float edgeY = smoothstep(0.0, 0.34, frag.y) * (1.0 - smoothstep(0.96, 1.0, frag.y));
 	col = mix(uBackground, col, edgeX * edgeY);
 
 	gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);

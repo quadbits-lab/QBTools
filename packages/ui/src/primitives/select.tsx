@@ -16,7 +16,7 @@ export function SelectTrigger({
 		<SelectPrimitive.Trigger
 			data-slot="select-trigger"
 			className={cn(
-				"flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-xs transition-[border-color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 [&>span]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+				"flex h-10 w-full items-center justify-between gap-2 rounded-md border border-field-border bg-field px-3 py-2 text-sm text-foreground shadow-xs transition-[border-color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40 [&>span]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
 				className,
 			)}
 			{...props}
@@ -155,7 +155,7 @@ export function NativeSelect({ className, children, ...props }: React.ComponentP
 	return (
 		<select
 			className={cn(
-				"h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground transition-[border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40 aria-invalid:border-destructive bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 viewBox=%220 0 24 24%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-9 [&>option]:bg-popover [&>option]:text-popover-foreground",
+				"h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-field-border bg-field px-3 text-sm text-foreground placeholder:text-muted-foreground transition-[border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40 aria-invalid:border-destructive bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 viewBox=%220 0 24 24%22><path d=%22m6 9 6 6 6-6%22/></svg>')] bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-9 [&>option]:bg-popover [&>option]:text-popover-foreground",
 				className,
 			)}
 			{...props}

@@ -1,8 +1,9 @@
-/** iOS and Android app icon development kits: asset catalogs, adaptive XML, launcher PNGs. */
+/** iOS, Android and macOS app icon development kits: asset catalogs, adaptive XML, ICNS, launcher PNGs. */
 import { downloadZip } from "client-zip";
 import { checkAbort, type ProcessingOptions, progress } from "../processing";
 import { composeIconSvg } from "./compose";
 import type { GraphicAssets } from "./fonts";
+import { buildIcns, ICNS_ENTRIES } from "./icns";
 import { encodeRawPng } from "./rawpng";
 import { renderSvg } from "./resvg";
 import type {
@@ -33,11 +34,15 @@ function opaque(bg: BackgroundSpec, fallback = "#ffffff"): BackgroundSpec {
 /** Re-tint vector/icon artwork from the base foreground color to a variant color. */
 export function recolorArtwork(art: IconDesign["artwork"]["source"], from: string, to: string) {
 	if (!art || art.kind === "raster" || !from || !to || from === to) return art;
-	if (!art.src.includes(from)) return art;
-	return { ...art, src: art.src.split(from).join(to) };
+	const replaceAll = (needle: string): string | null =>
+		art.src.includes(needle) ? art.src.split(needle).join(to) : null;
+	const recolored =
+		replaceAll(from) ?? replaceAll(from.toLowerCase()) ?? replaceAll(from.toUpperCase());
+	return recolored === null ? art : { ...art, src: recolored };
 }
 
-function variantDesign(
+/** Build a variant design (background/foreground overrides) — shared with live previews. */
+export function variantDesign(
 	base: IconDesign,
 	background: BackgroundSpec,
 	foreground: string,
@@ -62,7 +67,11 @@ interface IosVariant {
 async function renderPngBlob(
 	design: IconDesign,
 	size: number,
-	options: { processing: ProcessingOptions & { assets?: GraphicAssets }; pixels?: boolean },
+	options: {
+		processing: ProcessingOptions & { assets?: GraphicAssets };
+		pixels?: boolean;
+		optimize?: boolean;
+	},
 ): Promise<{ blob: Blob; pixels: Uint8ClampedArray | null }> {
 	checkAbort(options.processing.signal);
 	const { blob, pixels } = await renderSvg(
@@ -72,6 +81,7 @@ async function renderPngBlob(
 			height: size,
 			format: "png",
 			pixels: options.pixels,
+			optimize: options.optimize ?? false,
 		},
 		options.processing,
 	);
@@ -186,6 +196,43 @@ Install: replace the folder in \`Assets.xcassets\` and build. The modern catalog
 `;
 }
 
+/** macOS asset-catalog icon slots: classic iconset filenames with 1x/2x scales. */
+const MACOS_SLOTS = [
+	{ file: "icon_16x16.png", size: "16x16", scale: "1x", px: 16 },
+	{ file: "icon_16x16@2x.png", size: "16x16", scale: "2x", px: 32 },
+	{ file: "icon_32x32.png", size: "32x32", scale: "1x", px: 32 },
+	{ file: "icon_32x32@2x.png", size: "32x32", scale: "2x", px: 64 },
+	{ file: "icon_128x128.png", size: "128x128", scale: "1x", px: 128 },
+	{ file: "icon_128x128@2x.png", size: "128x128", scale: "2x", px: 256 },
+	{ file: "icon_256x256.png", size: "256x256", scale: "1x", px: 256 },
+	{ file: "icon_256x256@2x.png", size: "256x256", scale: "2x", px: 512 },
+	{ file: "icon_512x512.png", size: "512x512", scale: "1x", px: 512 },
+	{ file: "icon_512x512@2x.png", size: "512x512", scale: "2x", px: 1024 },
+] as const;
+
+const MACOS_UNIQUE_SIZES = [16, 32, 64, 128, 256, 512, 1024] as const;
+
+function macosContents(): string {
+	const images = MACOS_SLOTS.map((slot) => ({
+		filename: slot.file,
+		idiom: "mac",
+		scale: slot.scale,
+		size: slot.size,
+	}));
+	return JSON.stringify({ images, info: { author: "xcode", version: 1 } }, null, 2);
+}
+
+function macOsInstructions(): string {
+	return `# macOS app icons
+
+- **AppIcon.appiconset**: the full 16–1024 px icon set with a valid \`Contents.json\` — replace the folder inside your \`Assets.xcassets\` in Xcode.
+- **AppIcon.icns**: a ready-made ICNS file (ic07–ic10 chunks) for non-catalog workflows — Electron (\`icon\` in electron-builder), Qt, or manual bundles.
+- Corners stay square; macOS applies its own rounding and squircle mask at runtime.
+
+Manual bundles: copy \`AppIcon.icns\` into \`Resources/\` and set \`CFBundleIconFile\` to \`AppIcon.icns\` in Info.plist.
+`;
+}
+
 /** Android monochrome layer from source alpha or luminance threshold. */
 export function monochromePixels(
 	pixels: Uint8ClampedArray,
@@ -229,7 +276,7 @@ function circleMask(pixels: Uint8ClampedArray, size: number): Uint8ClampedArray 
 	return out;
 }
 
-/** Generate iOS/Android development kits. Platforms map to folder prefixes. */
+/** Generate iOS/Android/macOS development kits. Platforms map to folder prefixes. */
 export async function generateAppIconSet(
 	base: IconDesign,
 	options: AppIconExportOptions,
@@ -237,8 +284,23 @@ export async function generateAppIconSet(
 ): Promise<GeneratedAssetSet> {
 	const warnings: DesignWarning[] = [];
 	const files: GeneratedAsset[] = [];
-	const prefixIos = options.platforms.includes("android") ? "ios/" : "";
-	const prefixAndroid = options.platforms.includes("ios") ? "android/" : "";
+	const multi = options.platforms.length > 1;
+	const prefixIos = multi ? "ios/" : "";
+	const prefixAndroid = multi ? "android/" : "";
+	const prefixMacos = multi ? "macos/" : "";
+	const optimize = options.optimize;
+
+	// Source quality heads-up before any heavy work.
+	const source = base.artwork.source;
+	if (source?.kind === "raster" && source.intrinsicWidth && source.intrinsicHeight) {
+		const smallest = Math.min(source.intrinsicWidth, source.intrinsicHeight);
+		if (smallest < 1024) {
+			warnings.push({
+				kind: "low-resolution",
+				message: `The source image is ${smallest} px on its short edge — icons render at up to 1024 px and may look soft.`,
+			});
+		}
+	}
 
 	// iOS --------------------------------------------------------------
 	if (options.platforms.includes("ios")) {
@@ -271,7 +333,10 @@ export async function generateAppIconSet(
 		const legacyBg = opaque(base.background);
 		for (const variant of variants) {
 			checkAbort(processing.signal);
-			const { blob } = await renderPngBlob(variant.design, IOS_SALES_PX, { processing });
+			const { blob } = await renderPngBlob(variant.design, IOS_SALES_PX, {
+				processing,
+				optimize,
+			});
 			files.push({
 				name: `${prefixIos}AppIcon.appiconset/AppIcon${variant.name}.png`,
 				blob,
@@ -290,7 +355,7 @@ export async function generateAppIconSet(
 		const legacyDesign = variantDesign(base, legacyBg, base.foreground);
 		const rendered = new Map<number, Blob>();
 		for (const size of uniqueSizes) {
-			const { blob } = await renderPngBlob(legacyDesign, size, { processing });
+			const { blob } = await renderPngBlob(legacyDesign, size, { processing, optimize });
 			rendered.set(size, blob);
 		}
 		for (const slot of legacySlots) {
@@ -325,8 +390,8 @@ export async function generateAppIconSet(
 		};
 		for (const layer of ANDROID_DENSITIES) {
 			checkAbort(processing.signal);
-			const fg = await renderPngBlob(foregroundDesign, layer.size, { processing });
-			const bg = await renderPngBlob(backgroundDesign, layer.size, { processing });
+			const fg = await renderPngBlob(foregroundDesign, layer.size, { processing, optimize });
+			const bg = await renderPngBlob(backgroundDesign, layer.size, { processing, optimize });
 			files.push(
 				{
 					name: `${prefixAndroid}res/mipmap-${layer.density}/ic_launcher_foreground.png`,
@@ -384,7 +449,7 @@ export async function generateAppIconSet(
 		const legacyDesign = variantDesign(base, opaque(base.background), base.foreground);
 		for (const layer of ANDROID_DENSITIES) {
 			checkAbort(processing.signal);
-			const square = await renderPngBlob(legacyDesign, layer.legacy, { processing });
+			const square = await renderPngBlob(legacyDesign, layer.legacy, { processing, optimize });
 			const round = await renderSvg(
 				{
 					svg: composeIconSvg(legacyDesign),
@@ -414,7 +479,7 @@ export async function generateAppIconSet(
 		}
 
 		progress(processing, "Rendering Google Play icon…");
-		const play = await renderPngBlob(legacyDesign, 512, { processing });
+		const play = await renderPngBlob(legacyDesign, 512, { processing, optimize });
 		if (play.blob.size > 1024 * 1024) {
 			warnings.push({
 				kind: "generic",
@@ -430,16 +495,61 @@ export async function generateAppIconSet(
 		});
 	}
 
+	// macOS -------------------------------------------------------------
+	if (options.platforms.includes("macos")) {
+		progress(processing, "Rendering macOS icon set…");
+		const macDesign = variantDesign(base, opaque(base.background), base.foreground);
+		const rendered = new Map<number, Blob>();
+		for (const size of MACOS_UNIQUE_SIZES) {
+			checkAbort(processing.signal);
+			const { blob } = await renderPngBlob(macDesign, size, { processing, optimize });
+			rendered.set(size, blob);
+		}
+		for (const slot of MACOS_SLOTS) {
+			files.push({
+				name: `${prefixMacos}AppIcon.appiconset/${slot.file}`,
+				blob: rendered.get(slot.px) as Blob,
+				mimeType: "image/png",
+			});
+		}
+		files.push({
+			name: `${prefixMacos}AppIcon.appiconset/Contents.json`,
+			blob: new Blob([macosContents()], { type: "application/json" }),
+			mimeType: "application/json",
+		});
+
+		progress(processing, "Packing AppIcon.icns…");
+		const entries = [];
+		for (const { type, size } of ICNS_ENTRIES) {
+			const blob = rendered.get(size) as Blob;
+			entries.push({ type, png: new Uint8Array(await blob.arrayBuffer()) });
+		}
+		files.push({
+			name: `${prefixMacos}AppIcon.icns`,
+			blob: new Blob([buildIcns(entries) as BlobPart], { type: "image/icns" }),
+			mimeType: "image/icns",
+		});
+	}
+
 	progress(processing, "Writing instructions…");
-	files.push({
-		name: `${prefixAndroid}README-MANIFEST.md`,
-		blob: new Blob([androidManifestInstructions()], { type: "text/markdown" }),
-		mimeType: "text/markdown",
-	});
+	if (options.platforms.includes("android")) {
+		files.push({
+			name: `${prefixAndroid}README-MANIFEST.md`,
+			blob: new Blob([androidManifestInstructions()], { type: "text/markdown" }),
+			mimeType: "text/markdown",
+		});
+	}
 	if (options.platforms.includes("ios")) {
 		files.push({
 			name: `${prefixIos}README-IOS.md`,
 			blob: new Blob([iOSInstructions()], { type: "text/markdown" }),
+			mimeType: "text/markdown",
+		});
+	}
+	if (options.platforms.includes("macos")) {
+		files.push({
+			name: `${prefixMacos}README-MACOS.md`,
+			blob: new Blob([macOsInstructions()], { type: "text/markdown" }),
 			mimeType: "text/markdown",
 		});
 	}
@@ -463,6 +573,7 @@ export async function generateAppIconSet(
 			text: [
 				options.platforms.includes("ios") ? iOSInstructions() : "",
 				options.platforms.includes("android") ? androidManifestInstructions() : "",
+				options.platforms.includes("macos") ? macOsInstructions() : "",
 			]
 				.filter(Boolean)
 				.join("\n\n"),

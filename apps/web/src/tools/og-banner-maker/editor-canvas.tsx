@@ -1,0 +1,247 @@
+/**
+ * Canvas stage for the OG Banner Maker: rendered preview image, element
+ * selection/move overlays with resize handles, and the toolbar row.
+ * Pointer math lives in index.tsx; this component stays presentational.
+ */
+
+import type { DesignWarning } from "@qbtools/engines/graphic";
+import { Button } from "@qbtools/ui/button";
+import { cn } from "@qbtools/ui/utils";
+import { Eraser, Loader2, Redo2, Undo2 } from "lucide-react";
+
+export type ElementKind = "title" | "subtitle" | "badge" | "logo" | "hero";
+export type ElementBox = { x: number; y: number; w: number; h: number };
+export type CanvasSize = { width: number; height: number };
+export type HandleSide = "e" | "w" | "n" | "se";
+
+export const ELEMENT_LABELS: Record<ElementKind, string> = {
+	title: "Title",
+	subtitle: "Subtitle",
+	badge: "Badge",
+	logo: "Logo",
+	hero: "Hero",
+};
+
+/** Which resize handles each fixed element exposes; hero handles are template-driven. */
+const FIXED_HANDLES: Partial<Record<ElementKind, HandleSide[]>> = {
+	title: ["e", "se"],
+	subtitle: ["e", "se"],
+	badge: ["se"],
+	logo: ["se"],
+};
+
+/** Render order back-to-front so text overlays stay clickable above hero images. */
+const OVERLAY_ORDER: ElementKind[] = ["hero", "badge", "logo", "title", "subtitle"];
+
+export function EditorCanvas({
+	aspectRatio,
+	canvas,
+	previewUrl,
+	previewBusy,
+	hasPreview,
+	boxes,
+	selected,
+	onSelect,
+	onPointerDown,
+	onElementPointerDown,
+	onHandlePointerDown,
+	heroHandles = [],
+	onUndo,
+	onRedo,
+	onReset,
+	canUndo,
+	canRedo,
+	warnings,
+}: {
+	aspectRatio: string;
+	canvas: CanvasSize;
+	previewUrl?: string;
+	previewBusy: boolean;
+	hasPreview: boolean;
+	boxes: Partial<Record<ElementKind, ElementBox | null>>;
+	selected: ElementKind | null;
+	onSelect: (kind: ElementKind | null) => void;
+	onPointerDown?: (kind: ElementKind) => (event: React.PointerEvent<HTMLDivElement>) => void;
+	onElementPointerDown?: (kind: ElementKind, event: React.PointerEvent<HTMLDivElement>) => void;
+	onHandlePointerDown?: (
+		kind: ElementKind,
+		side: HandleSide,
+		event: React.PointerEvent<HTMLSpanElement>,
+	) => void;
+	heroHandles?: HandleSide[];
+	onUndo: () => void;
+	onRedo: () => void;
+	onReset: () => void;
+	canUndo: boolean;
+	canRedo: boolean;
+	warnings: DesignWarning[];
+}) {
+	const uniqueWarnings = [...new Map(warnings.map((w) => [w.message, w])).values()];
+	// A full-bleed hero covers every other element — it stays selectable via
+	// the chips but must not swallow clicks meant for text on top of it.
+	const heroFullBleed =
+		boxes.hero != null &&
+		boxes.hero.w >= canvas.width * 0.95 &&
+		boxes.hero.h >= canvas.height * 0.95;
+
+	return (
+		<div className="flex min-w-0 flex-col gap-3">
+			<div className="group relative overflow-hidden rounded-xl bg-muted/60 shadow-card ring-1 ring-inset ring-border">
+				<div
+					className="relative w-full select-none bg-surface-2"
+					style={{ aspectRatio }}
+					role="application"
+					aria-label="Banner editor canvas"
+				>
+					{hasPreview ? (
+						<img
+							src={previewUrl}
+							alt="Banner preview"
+							className="pointer-events-none size-full object-contain outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
+							draggable={false}
+						/>
+					) : (
+						<div className="grid size-full place-items-center">
+							<Loader2 className="size-6 animate-spin text-subtle" />
+						</div>
+					)}
+
+					<span className="label-mono pointer-events-none absolute top-3 left-3 rounded-full bg-background/80 px-2.5 py-1 text-subtle backdrop-blur-sm">
+						{canvas.width} × {canvas.height} px
+					</span>
+
+					{previewBusy && hasPreview ? (
+						<span className="absolute top-3 right-3 flex items-center gap-1.5 rounded-full bg-background/80 px-2.5 py-1 text-xs text-muted-foreground backdrop-blur-sm">
+							<Loader2 className="size-3 animate-spin" /> Rendering
+						</span>
+					) : null}
+
+					{OVERLAY_ORDER.map((kind) => {
+						const box = boxes[kind];
+						if (!box) return null;
+						const handles =
+							kind === "hero" ? (heroFullBleed ? [] : heroHandles) : (FIXED_HANDLES[kind] ?? []);
+						const interactive = !(kind === "hero" && heroFullBleed);
+						return (
+							<div
+								key={kind}
+								onPointerDown={
+									interactive
+										? (e) => {
+												if (onPointerDown) onPointerDown(kind)(e);
+												else onElementPointerDown?.(kind, e);
+											}
+										: undefined
+								}
+								onClick={interactive ? () => onSelect(kind) : undefined}
+								onKeyDown={
+									interactive
+										? (e) => {
+												if (e.key !== " " && e.key !== "Enter") return;
+												e.preventDefault();
+												onSelect(kind);
+											}
+										: undefined
+								}
+								tabIndex={interactive ? 0 : -1}
+								role="button"
+								aria-disabled={!interactive}
+								aria-label={`Select ${ELEMENT_LABELS[kind]}`}
+								aria-pressed={selected === kind}
+								className={cn(
+									"absolute touch-none rounded-sm transition-[outline-color,opacity] duration-150",
+									interactive
+										? cn(
+												"cursor-grab outline-offset-1 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-ring active:cursor-grabbing",
+												selected === kind
+													? "opacity-100 outline-2 outline-ring"
+													: "opacity-80 outline-1 outline-dashed outline-border/60 hover:opacity-100 hover:outline-foreground/60",
+											)
+										: "pointer-events-none opacity-0",
+								)}
+								style={{
+									left: `${(box.x / canvas.width) * 100}%`,
+									top: `${(box.y / canvas.height) * 100}%`,
+									width: `${(box.w / canvas.width) * 100}%`,
+									height: `${(box.h / canvas.height) * 100}%`,
+								}}
+							>
+								{selected === kind
+									? handles.map((side) => (
+											<span
+												key={side}
+												onPointerDown={(e) => onHandlePointerDown?.(kind, side, e)}
+												aria-label={`Resize ${ELEMENT_LABELS[kind]} from ${side} handle`}
+												role="button"
+												tabIndex={0}
+												className={cn(
+													"absolute z-10 size-3 cursor-pointer touch-none rounded-[3px] border border-emerald-200 bg-emerald-400 after:absolute after:inset-[-10px] after:content-['']",
+													side === "e" &&
+														"top-1/2 right-0 -translate-y-1/2 translate-x-1/2 cursor-ew-resize",
+													side === "w" &&
+														"top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize",
+													side === "n" &&
+														"top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize",
+													side === "se" &&
+														"right-0 bottom-0 translate-x-1/2 translate-y-1/2 cursor-nwse-resize",
+												)}
+											/>
+										))
+									: null}
+							</div>
+						);
+					})}
+				</div>
+			</div>
+
+			{/* Toolbar -------------------------------------------------- */}
+			<div className="flex flex-wrap items-center gap-2">
+				<Button variant="ghost" size="sm" onClick={onUndo} disabled={!canUndo} title="Undo (⌘Z)">
+					<Undo2 /> Undo
+				</Button>
+				<Button variant="ghost" size="sm" onClick={onRedo} disabled={!canRedo} title="Redo (⌘⇧Z)">
+					<Redo2 /> Redo
+				</Button>
+				<Button variant="ghost" size="sm" onClick={onReset} title="Reset template defaults">
+					<Eraser /> Reset
+				</Button>
+				<div className="ml-auto flex flex-wrap gap-1">
+					{(Object.keys(ELEMENT_LABELS) as ElementKind[]).map((kind) => (
+						<button
+							key={kind}
+							type="button"
+							onClick={() => onSelect(selected === kind ? null : kind)}
+							aria-pressed={selected === kind}
+							className={cn(
+								"cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-150 [-webkit-tap-highlight-color:transparent]",
+								selected === kind
+									? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/40 ring-inset"
+									: "text-muted-foreground hover:bg-muted hover:text-foreground active:bg-muted",
+							)}
+						>
+							{ELEMENT_LABELS[kind]}
+						</button>
+					))}
+				</div>
+			</div>
+
+			<p className="text-xs text-muted-foreground">
+				Tap an element on the canvas to edit it — drag to move, use the corner and edge handles to
+				resize. Arrow keys nudge (⇧ for larger steps); ⌘Z / ⌘⇧Z undo and redo.
+			</p>
+
+			{uniqueWarnings.length > 0 ? (
+				<details className="rounded-lg border border-input bg-surface-2 px-3 py-2 text-sm">
+					<summary className="label-mono cursor-pointer text-subtle select-none">
+						{uniqueWarnings.length} layout warning{uniqueWarnings.length > 1 ? "s" : ""}
+					</summary>
+					<ul className="mt-2 list-disc space-y-1 pl-4 text-muted-foreground">
+						{uniqueWarnings.map((w) => (
+							<li key={w.message}>{w.message}</li>
+						))}
+					</ul>
+				</details>
+			) : null}
+		</div>
+	);
+}

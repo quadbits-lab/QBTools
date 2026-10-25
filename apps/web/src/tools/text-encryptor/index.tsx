@@ -193,9 +193,9 @@ export default function TextEncryptor() {
 
 				{/* Output Panel */}
 				{output && (
-					<div className="mt-2 flex flex-col gap-3 border border-teal-500/30 bg-teal-500/10 p-5">
+					<div className="mt-2 flex flex-col gap-3 border border-border bg-muted/40 p-5">
 						<div className="flex items-center justify-between">
-							<span className="flex items-center gap-2 text-xs font-mono text-teal-400 font-semibold uppercase">
+							<span className="flex items-center gap-2 text-xs font-mono text-foreground font-semibold uppercase">
 								<CheckCircle2 className="size-4" />
 								{mode === "encrypt" ? "Ciphertext Output" : "Decrypted Secret Note"}
 							</span>
@@ -205,7 +205,7 @@ export default function TextEncryptor() {
 								className="flex items-center gap-1.5 text-xs font-mono text-foreground hover:underline cursor-pointer"
 							>
 								{copied ? (
-									<Check className="size-3.5 text-emerald-400" />
+									<Check className="size-3.5 text-foreground" />
 								) : (
 									<Copy className="size-3.5" />
 								)}
@@ -217,7 +217,7 @@ export default function TextEncryptor() {
 							readOnly
 							value={output}
 							rows={4}
-							className="w-full border border-teal-500/30 bg-background/90 p-3 font-mono text-xs select-all outline-none"
+							className="w-full border border-border bg-background/90 p-3 font-mono text-xs select-all outline-none"
 						/>
 					</div>
 				)}

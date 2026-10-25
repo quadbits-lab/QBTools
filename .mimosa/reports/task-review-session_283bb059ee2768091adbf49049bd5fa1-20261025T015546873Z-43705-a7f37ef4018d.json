@@ -1,0 +1,926 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261025T015546873Z-43705-a7f37ef4018d",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "candidate-select",
+      "target": "scripts/font-probe.ts",
+      "reason": "changed_file_unreadable: observed changed file no longer exists or cannot be read"
+    },
+    {
+      "stage": "candidate-select",
+      "target": "scripts/route-smoke.ts",
+      "reason": "changed_file_unreadable: observed changed file no longer exists or cannot be read"
+    },
+    {
+      "stage": "candidate-select",
+      "target": "apps/web/src/tools/app-icon-generator/index.tsx",
+      "reason": "candidate_limit_exceeded: 3 changed reviewable file(s) were not scanned because the limit is 20"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 350,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 23
+    },
+    "change_tracking": {
+      "touched_observed": 25,
+      "touched_retained": 25,
+      "truncated": false,
+      "bash_mutation": false,
+      "bash_discovered": 0,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 23,
+      "selected_files": 20,
+      "limit": 20,
+      "truncated": true
+    },
+    "scanning": {
+      "required_files": 19,
+      "scanned_files": 19,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "changed_file_unreadable": 2,
+      "candidate_limit_exceeded": 1,
+      "project_check_failed": 3
+    },
+    "reasons": [
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "scripts/font-probe.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "changed_file_unreadable",
+        "stage": "candidate-select",
+        "target": "scripts/route-smoke.ts",
+        "detail": "observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "apps/web/src/tools/app-icon-generator/index.tsx",
+        "detail": "3 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "scripts/font-probe.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "scripts/route-smoke.ts",
+        "detail": "changed_file_unreadable: observed changed file no longer exists or cannot be read",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "apps/web/src/tools/app-icon-generator/index.tsx",
+        "detail": "candidate_limit_exceeded: 3 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-10-25T01:55:46.873Z",
+  "session_id": "session_283bb059ee2768091adbf49049bd5fa1",
+  "target": ".",
+  "revision": "b46954192df002aa3e01d9bdb33c8fdf132b8e6d",
+  "rules_version": "unavailable",
+  "diff_hash": "cd66fa2aac3474bc821c8105163b95c6ed38073c9bf3282546cd76a0c42ec26d",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 19,
+    "changed_files": [
+      {
+        "file": "apps/web/src/lib/design-history.ts",
+        "ranges": [
+          {
+            "start": 25,
+            "end": 25
+          },
+          {
+            "start": 27,
+            "end": 28
+          },
+          {
+            "start": 81,
+            "end": 85
+          },
+          {
+            "start": 132,
+            "end": 132
+          }
+        ],
+        "before_hash": "b9fa9d9bcd0d47b62e3cfcd66ad73f1b3ca2a8f58ae2607df4c4b38000f8b3aa",
+        "after_hash": "ed0daa3d288b058b4335303d5c33ac90618ce9043c66f9d22df071b84ec448c2"
+      },
+      {
+        "file": "apps/web/src/lib/graphic-assets.ts",
+        "ranges": [
+          {
+            "start": 7,
+            "end": 12
+          },
+          {
+            "start": 24,
+            "end": 31
+          },
+          {
+            "start": 50,
+            "end": 52
+          },
+          {
+            "start": 57,
+            "end": 60
+          }
+        ],
+        "before_hash": "cbcc33ae9e3f6ca9668f2d79e877b05535fe8015c72cd9b0b11cfad87c3a098e",
+        "after_hash": "056bc1c53ffd9efaae627d5f5b1a362e20ad7b415aefecfc23af10483fe40f38"
+      },
+      {
+        "file": "apps/web/src/lib/graphic-preview.ts",
+        "ranges": [
+          {
+            "start": 65,
+            "end": 67
+          },
+          {
+            "start": 71,
+            "end": 159
+          }
+        ],
+        "before_hash": "d145e5c3e518b8cf67530e4c2e8bfe714d103e3e2184cb61fcd6f16919e2560c",
+        "after_hash": "2a0a2b84345581965b790a920ff6a9c9d0c6c318328eb1e70a76bcaef47c47cd"
+      },
+      {
+        "file": "apps/web/src/tools/app-icon-generator/preview-stage.tsx",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 265
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "b15c308c2e73f63da44375c30cc8da90103a93b50882803c9ad89e7871e7180e"
+      },
+      {
+        "file": "apps/web/src/tools/og-banner-maker/editor-canvas.tsx",
+        "ranges": [
+          {
+            "start": 2,
+            "end": 4
+          },
+          {
+            "start": 15,
+            "end": 15
+          },
+          {
+            "start": 17,
+            "end": 17
+          },
+          {
+            "start": 25,
+            "end": 35
+          },
+          {
+            "start": 46,
+            "end": 48
+          },
+          {
+            "start": 64,
+            "end": 71
+          },
+          {
+            "start": 80,
+            "end": 85
+          },
+          {
+            "start": 109,
+            "end": 111
+          },
+          {
+            "start": 118,
+            "end": 193
+          },
+          {
+            "start": 229,
+            "end": 230
+          }
+        ],
+        "before_hash": "9fa1bdc5e01544ea2fbaf7be6bdfdcaacc6f52dfd2094bea33c762c581232ae4",
+        "after_hash": "41f8aa01ac3e33253d84ea228cc0935415de96368a4d44e342f83a726a995476"
+      },
+      {
+        "file": "apps/web/src/tools/og-banner-maker/index.tsx",
+        "ranges": [
+          {
+            "start": 11,
+            "end": 11
+          },
+          {
+            "start": 16,
+            "end": 18
+          },
+          {
+            "start": 29,
+            "end": 30
+          },
+          {
+            "start": 34,
+            "end": 35
+          },
+          {
+            "start": 40,
+            "end": 40
+          },
+          {
+            "start": 43,
+            "end": 80
+          },
+          {
+            "start": 83,
+            "end": 87
+          },
+          {
+            "start": 100,
+            "end": 106
+          },
+          {
+            "start": 108,
+            "end": 124
+          },
+          {
+            "start": 172,
+            "end": 173
+          },
+          {
+            "start": 175,
+            "end": 175
+          },
+          {
+            "start": 229,
+            "end": 267
+          },
+          {
+            "start": 271,
+            "end": 289
+          },
+          {
+            "start": 291,
+            "end": 294
+          },
+          {
+            "start": 296,
+            "end": 296
+          },
+          {
+            "start": 299,
+            "end": 299
+          },
+          {
+            "start": 301,
+            "end": 302
+          },
+          {
+            "start": 304,
+            "end": 305
+          },
+          {
+            "start": 311,
+            "end": 311
+          },
+          {
+            "start": 321,
+            "end": 321
+          },
+          {
+            "start": 327,
+            "end": 329
+          },
+          {
+            "start": 336,
+            "end": 433
+          },
+          {
+            "start": 435,
+            "end": 435
+          },
+          {
+            "start": 438,
+            "end": 482
+          },
+          {
+            "start": 492,
+            "end": 492
+          },
+          {
+            "start": 496,
+            "end": 496
+          },
+          {
+            "start": 502,
+            "end": 503
+          },
+          {
+            "start": 513,
+            "end": 515
+          },
+          {
+            "start": 519,
+            "end": 520
+          },
+          {
+            "start": 528,
+            "end": 528
+          },
+          {
+            "start": 531,
+            "end": 533
+          }
+        ],
+        "before_hash": "c4e568c0631a4cabf3677b8a9c63d3ca76f3d5231beb43387639d03889cf4b36",
+        "after_hash": "82c48fdf77f19715dec398c1601205717e8282a043bb2ff698dbe656b7f094f0"
+      },
+      {
+        "file": "apps/web/src/tools/og-banner-maker/inspector-panel.tsx",
+        "ranges": [
+          {
+            "start": 5,
+            "end": 5
+          },
+          {
+            "start": 7,
+            "end": 7
+          },
+          {
+            "start": 9,
+            "end": 18
+          },
+          {
+            "start": 23,
+            "end": 23
+          },
+          {
+            "start": 26,
+            "end": 28
+          },
+          {
+            "start": 50,
+            "end": 51
+          },
+          {
+            "start": 54,
+            "end": 56
+          },
+          {
+            "start": 78,
+            "end": 79
+          },
+          {
+            "start": 93,
+            "end": 95
+          },
+          {
+            "start": 99,
+            "end": 123
+          },
+          {
+            "start": 152,
+            "end": 152
+          }
+        ],
+        "before_hash": "72edb87bd13caa6733ae86d3895a4a455189af16fb376c4c905446d8b817fc9e",
+        "after_hash": "1c71e18a477dc71d07fc6a6ff580721b307d38b537e003cc04f5db77dfa820a0"
+      },
+      {
+        "file": "apps/web/src/tools/og-banner-maker/inspector/element-sections.tsx",
+        "ranges": [
+          {
+            "start": 5,
+            "end": 5
+          },
+          {
+            "start": 12,
+            "end": 12
+          },
+          {
+            "start": 128,
+            "end": 128
+          },
+          {
+            "start": 205,
+            "end": 205
+          },
+          {
+            "start": 209,
+            "end": 209
+          },
+          {
+            "start": 256,
+            "end": 256
+          },
+          {
+            "start": 268,
+            "end": 268
+          },
+          {
+            "start": 279,
+            "end": 279
+          }
+        ],
+        "before_hash": "ef027aa59777583316b73bdf37965991a172e0b07ae0707de4289d5fabc10e45",
+        "after_hash": "09c8585fea831304c968479a2f56740b2615f6544dc409e70537204344e121d4"
+      },
+      {
+        "file": "apps/web/src/tools/og-banner-maker/inspector/export-sections.tsx",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 182
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "c0ba42e0332622e1df41c5a56a08cd40732ab89ed7bc11af76a057a2bc762980"
+      },
+      {
+        "file": "packages/engines/src/graphic/appicon.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 1
+          },
+          {
+            "start": 6,
+            "end": 6
+          },
+          {
+            "start": 37,
+            "end": 41
+          },
+          {
+            "start": 44,
+            "end": 45
+          },
+          {
+            "start": 70,
+            "end": 74
+          },
+          {
+            "start": 84,
+            "end": 84
+          },
+          {
+            "start": 199,
+            "end": 235
+          },
+          {
+            "start": 279,
+            "end": 279
+          },
+          {
+            "start": 287,
+            "end": 303
+          },
+          {
+            "start": 336,
+            "end": 339
+          },
+          {
+            "start": 358,
+            "end": 358
+          },
+          {
+            "start": 393,
+            "end": 394
+          },
+          {
+            "start": 452,
+            "end": 452
+          },
+          {
+            "start": 482,
+            "end": 482
+          },
+          {
+            "start": 498,
+            "end": 533
+          },
+          {
+            "start": 535,
+            "end": 541
+          },
+          {
+            "start": 549,
+            "end": 555
+          },
+          {
+            "start": 576,
+            "end": 576
+          }
+        ],
+        "before_hash": "04f00d71103699f533f8b366cc4feee588cc57cc921bea8bedb07b71e2951d9a",
+        "after_hash": "e80ed322c7e5945479bdeb312eda237d73d80821d8b61ac08afde9a21de126a2"
+      },
+      {
+        "file": "packages/engines/src/graphic/compose.ts",
+        "ranges": [
+          {
+            "start": 214,
+            "end": 214
+          },
+          {
+            "start": 233,
+            "end": 241
+          },
+          {
+            "start": 312,
+            "end": 331
+          },
+          {
+            "start": 333,
+            "end": 335
+          },
+          {
+            "start": 337,
+            "end": 337
+          },
+          {
+            "start": 341,
+            "end": 342
+          },
+          {
+            "start": 344,
+            "end": 347
+          },
+          {
+            "start": 365,
+            "end": 366
+          },
+          {
+            "start": 371,
+            "end": 371
+          },
+          {
+            "start": 375,
+            "end": 375
+          },
+          {
+            "start": 377,
+            "end": 377
+          },
+          {
+            "start": 384,
+            "end": 384
+          },
+          {
+            "start": 386,
+            "end": 387
+          },
+          {
+            "start": 389,
+            "end": 389
+          },
+          {
+            "start": 391,
+            "end": 391
+          },
+          {
+            "start": 394,
+            "end": 394
+          },
+          {
+            "start": 397,
+            "end": 399
+          },
+          {
+            "start": 406,
+            "end": 406
+          },
+          {
+            "start": 412,
+            "end": 412
+          },
+          {
+            "start": 418,
+            "end": 418
+          },
+          {
+            "start": 427,
+            "end": 434
+          },
+          {
+            "start": 439,
+            "end": 451
+          },
+          {
+            "start": 453,
+            "end": 481
+          },
+          {
+            "start": 497,
+            "end": 497
+          },
+          {
+            "start": 501,
+            "end": 508
+          },
+          {
+            "start": 511,
+            "end": 518
+          },
+          {
+            "start": 520,
+            "end": 525
+          },
+          {
+            "start": 529,
+            "end": 529
+          },
+          {
+            "start": 531,
+            "end": 533
+          },
+          {
+            "start": 537,
+            "end": 540
+          },
+          {
+            "start": 545,
+            "end": 568
+          }
+        ],
+        "before_hash": "9006fcabf15de45353d52111fc8a9b1230250ef6f49e2be4a5ef2ee41722b558",
+        "after_hash": "d509b39741dda9ae4900fbf838c75e2689542045a41faf12f6798dbaa76c79be"
+      },
+      {
+        "file": "packages/engines/src/graphic/defaults.ts",
+        "ranges": [
+          {
+            "start": 54,
+            "end": 55
+          },
+          {
+            "start": 60,
+            "end": 62
+          }
+        ],
+        "before_hash": "d1d8817290ac2e0264257a4592fa2ac92578a4d734f0c2af74eeb8b5c2de9229",
+        "after_hash": "e2053d608569fce7f049b0107d4119d38f1564c953ad97ba6da32f9905367fdd"
+      },
+      {
+        "file": "packages/engines/src/graphic/fonts.ts",
+        "ranges": [
+          {
+            "start": 2,
+            "end": 16
+          },
+          {
+            "start": 24,
+            "end": 30
+          },
+          {
+            "start": 33,
+            "end": 43
+          },
+          {
+            "start": 60,
+            "end": 66
+          },
+          {
+            "start": 69,
+            "end": 88
+          },
+          {
+            "start": 111,
+            "end": 111
+          },
+          {
+            "start": 119,
+            "end": 127
+          },
+          {
+            "start": 129,
+            "end": 137
+          }
+        ],
+        "before_hash": "e1267108aa109674b3ae34c779655675b67500813daf1419f6aeaf89accc2b3f",
+        "after_hash": "7a90579f63cdab37375930e9fd4f9d5ac6e371764367d3cba2e50419144e033e"
+      },
+      {
+        "file": "packages/engines/src/graphic/graphic.test.ts",
+        "ranges": [
+          {
+            "start": 9,
+            "end": 10
+          },
+          {
+            "start": 16,
+            "end": 16
+          },
+          {
+            "start": 18,
+            "end": 18
+          },
+          {
+            "start": 21,
+            "end": 29
+          },
+          {
+            "start": 39,
+            "end": 45
+          },
+          {
+            "start": 97,
+            "end": 118
+          },
+          {
+            "start": 217,
+            "end": 286
+          },
+          {
+            "start": 341,
+            "end": 367
+          },
+          {
+            "start": 577,
+            "end": 578
+          },
+          {
+            "start": 581,
+            "end": 581
+          },
+          {
+            "start": 597,
+            "end": 650
+          },
+          {
+            "start": 652,
+            "end": 663
+          }
+        ],
+        "before_hash": "407b61bf83adf250b3ee27677a9a9553f5cd84695120b50307a7a916d0d4b9df",
+        "after_hash": "270b1af974c225b45bb37bd614419227d556a5d17f643817f10da30a0309e19a"
+      },
+      {
+        "file": "packages/engines/src/graphic/icns.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 60
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "d8835c1fbeea494ca6987363cc2561dd79c31a0a4d7c31d439828986025432ee"
+      },
+      {
+        "file": "packages/engines/src/graphic/index.ts",
+        "ranges": [
+          {
+            "start": 8,
+            "end": 8
+          }
+        ],
+        "before_hash": "beacbbc9fec22a9261a61da705c4262580006d97620fad6b57f29f9bfa9e9796",
+        "after_hash": "ed0fa20b61c53dd4018c6f06cf3f61b8eb4e5d8e6b08ba320e84d3ff00fb925b"
+      },
+      {
+        "file": "packages/engines/src/graphic/projects.ts",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 5
+          },
+          {
+            "start": 34,
+            "end": 77
+          },
+          {
+            "start": 131,
+            "end": 134
+          },
+          {
+            "start": 139,
+            "end": 139
+          }
+        ],
+        "before_hash": "281119612cc159bf2ad2b8b533e351799c0c6bc9adc31879de9422fdc801738e",
+        "after_hash": "e5abf88d636af632ee1f25fc4e0ff69632ab615162332f6da1312cb55c0cffd7"
+      },
+      {
+        "file": "packages/engines/src/graphic/resvg.ts",
+        "ranges": [
+          {
+            "start": 5,
+            "end": 5
+          },
+          {
+            "start": 122,
+            "end": 122
+          }
+        ],
+        "before_hash": "ea11b9c9b7923bcaa9b3d9c52762e0681cafa074535350fb3de7c71222ed1dae",
+        "after_hash": "cdcacb5df475dacb02f895f47c5eb9347c97b12ff3b7ed284047c60808e2dfe4"
+      },
+      {
+        "file": "packages/engines/src/graphic/types.ts",
+        "ranges": [
+          {
+            "start": 53,
+            "end": 60
+          },
+          {
+            "start": 76,
+            "end": 81
+          },
+          {
+            "start": 221,
+            "end": 221
+          }
+        ],
+        "before_hash": "d81ee758e98aa84aa9b31c963a79b726c3c94d357d2836597c00532ecb681454",
+        "after_hash": "6e80b57963214502b58e340548620102cfa6a48462b9c3977a01d9d0a87b939b"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-10-25T01:55:46.203Z",
+    "completed_at": "2026-10-25T01:55:46.873Z",
+    "duration_ms": 670,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 670,
+    "peakMemoryBytes": 230785024,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 19,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-session_283bb059ee2768091adbf49049bd5fa1-20261025T015546873Z-43705-a7f37ef4018d.json",
+    "latest_report": ".mimosa/reports/task-review-session_283bb059ee2768091adbf49049bd5fa1.json",
+    "history_summary": ".mimosa/history/run-20261025T015546873Z-43705-a7f37ef4018d.json"
+  }
+}

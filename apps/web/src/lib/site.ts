@@ -1,7 +1,7 @@
 export const SITE_NAME = "QBTools";
-export const SITE_TAGLINE = "Free tools that just work";
+export const SITE_TAGLINE = "Fast, private tools that never leave your browser";
 export const SITE_DESCRIPTION =
-	"Free online tools for everyday tasks — compress images, merge PDFs, count words, calculate EMI, make QR codes and more. No signup, private and fast.";
+	"Free, private browser tools for everyday workflows — compress media, merge PDFs, format code, and encrypt files. 100% client-side with zero server uploads.";
 export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "http://localhost:8310").replace(
 	/\/$/,
 	"",

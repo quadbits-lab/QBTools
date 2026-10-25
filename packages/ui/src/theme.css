@@ -1,7 +1,7 @@
 /*
  * QBTools design tokens.
- * ShadCN-style semantic tokens on a clean neutral base, with one accent per
- * tool discipline (emerald, rose, indigo, amber, violet, sky, teal).
+ * ShadCN-style semantic tokens on a clean neutral base, styled in an
+ * elegant monochrome grayscale aesthetic.
  * Mirrors the "QBTools Redesign" Figma variables (Color Light/Dark, Spacing,
  * Radius). Legacy token names (surface, critical, positive, ...) are kept as
  * aliases so existing tool widgets keep working.
@@ -30,15 +30,25 @@
 	--secondary-foreground: #f8f8f8;
 	--muted: #292929;
 	--muted-foreground: #b7b7b7;
-	--subtle: #8f8f8f; /* labels & indices */
+	--subtle: #8f8f8f;
+	/* labels & indices */
 	--accent: #2e2e2e;
 	--accent-foreground: #f8f8f8;
 	--destructive: #f87171;
 	--destructive-foreground: #0d0d0d;
-	--success: #34d399;
-	--warning: #fbbf24;
-	--border: #292929;
+	--success: #e5e5e5;
+	--warning: #d4d4d4;
+	--border: #191919;
 	--input: #373737;
+	--field: #1b1b1b;
+	--field-border: #191919;
+	--segment: #181818;
+	--segment-active: #2f2f2f;
+	--control-highlight: rgb(255 255 255 / 0.07);
+	--control-shadow: rgb(0 0 0 / 0.45);
+	--band: #151515;
+	--band-glow: rgb(255 255 255 / 0.04);
+	--band-grid: rgb(255 255 255 / 0.028);
 	--ring: #f8f8f8;
 	--veil: rgb(17 17 17 / 0.85);
 
@@ -47,35 +57,35 @@
 	--sidebar-accent: #292929;
 	--sidebar-border: #292929;
 
-	/* Category accents: soft fill, hairline, icon and text colors. */
-	--cat-emerald-bg: rgb(16 185 129 / 0.14);
-	--cat-emerald-border: rgb(16 185 129 / 0.35);
+	/* Category accents: monochrome backgrounds, borders, and text, with colored icons only. */
+	--cat-emerald-bg: rgb(255 255 255 / 0.05);
+	--cat-emerald-border: rgb(255 255 255 / 0.15);
 	--cat-emerald-icon: #34d399;
-	--cat-emerald-fg: #6ee7b7;
-	--cat-rose-bg: rgb(244 63 94 / 0.14);
-	--cat-rose-border: rgb(244 63 94 / 0.35);
+	--cat-emerald-fg: #d4d4d4;
+	--cat-rose-bg: rgb(255 255 255 / 0.05);
+	--cat-rose-border: rgb(255 255 255 / 0.15);
 	--cat-rose-icon: #fb7185;
-	--cat-rose-fg: #fda4af;
-	--cat-indigo-bg: rgb(99 102 241 / 0.14);
-	--cat-indigo-border: rgb(99 102 241 / 0.35);
+	--cat-rose-fg: #d4d4d4;
+	--cat-indigo-bg: rgb(255 255 255 / 0.05);
+	--cat-indigo-border: rgb(255 255 255 / 0.15);
 	--cat-indigo-icon: #818cf8;
-	--cat-indigo-fg: #a5b4fc;
-	--cat-amber-bg: rgb(245 158 11 / 0.14);
-	--cat-amber-border: rgb(245 158 11 / 0.35);
+	--cat-indigo-fg: #d4d4d4;
+	--cat-amber-bg: rgb(255 255 255 / 0.05);
+	--cat-amber-border: rgb(255 255 255 / 0.15);
 	--cat-amber-icon: #fbbf24;
-	--cat-amber-fg: #fcd34d;
-	--cat-violet-bg: rgb(139 92 246 / 0.14);
-	--cat-violet-border: rgb(139 92 246 / 0.35);
+	--cat-amber-fg: #d4d4d4;
+	--cat-violet-bg: rgb(255 255 255 / 0.05);
+	--cat-violet-border: rgb(255 255 255 / 0.15);
 	--cat-violet-icon: #a78bfa;
-	--cat-violet-fg: #c4b5fd;
-	--cat-sky-bg: rgb(14 165 233 / 0.14);
-	--cat-sky-border: rgb(14 165 233 / 0.35);
+	--cat-violet-fg: #d4d4d4;
+	--cat-sky-bg: rgb(255 255 255 / 0.05);
+	--cat-sky-border: rgb(255 255 255 / 0.15);
 	--cat-sky-icon: #38bdf8;
-	--cat-sky-fg: #7dd3fc;
-	--cat-teal-bg: rgb(20 184 166 / 0.14);
-	--cat-teal-border: rgb(20 184 166 / 0.35);
+	--cat-sky-fg: #d4d4d4;
+	--cat-teal-bg: rgb(255 255 255 / 0.05);
+	--cat-teal-border: rgb(255 255 255 / 0.15);
 	--cat-teal-icon: #2dd4bf;
-	--cat-teal-fg: #5eead4;
+	--cat-teal-fg: #d4d4d4;
 
 	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.3);
 	--elevation-hover: 0 12px 30px -10px rgb(0 0 0 / 0.55);
@@ -103,10 +113,19 @@
 	--accent-foreground: #0d0d0d;
 	--destructive: #dc2626;
 	--destructive-foreground: #ffffff;
-	--success: #059669;
-	--warning: #d97706;
+	--success: #171717;
+	--warning: #404040;
 	--border: #e4e4e4;
 	--input: #dbdbdb;
+	--field: #fafafa;
+	--field-border: #e5e5e5;
+	--segment: #f2f2f2;
+	--segment-active: #ffffff;
+	--control-highlight: rgb(255 255 255 / 0.9);
+	--control-shadow: rgb(0 0 0 / 0.06);
+	--band: #f7f7f7;
+	--band-glow: rgb(255 255 255 / 0.6);
+	--band-grid: rgb(0 0 0 / 0.036);
 	--ring: #0d0d0d;
 	--veil: rgb(255 255 255 / 0.82);
 
@@ -115,34 +134,35 @@
 	--sidebar-accent: #f2f2f2;
 	--sidebar-border: #e4e4e4;
 
-	--cat-emerald-bg: rgb(16 185 129 / 0.1);
-	--cat-emerald-border: rgb(16 185 129 / 0.3);
+	/* Category accents: monochrome backgrounds, borders, and text, with colored icons only. */
+	--cat-emerald-bg: rgb(0 0 0 / 0.04);
+	--cat-emerald-border: rgb(0 0 0 / 0.12);
 	--cat-emerald-icon: #059669;
-	--cat-emerald-fg: #047857;
-	--cat-rose-bg: rgb(244 63 94 / 0.1);
-	--cat-rose-border: rgb(244 63 94 / 0.3);
+	--cat-emerald-fg: #262626;
+	--cat-rose-bg: rgb(0 0 0 / 0.04);
+	--cat-rose-border: rgb(0 0 0 / 0.12);
 	--cat-rose-icon: #e11d48;
-	--cat-rose-fg: #be123c;
-	--cat-indigo-bg: rgb(99 102 241 / 0.1);
-	--cat-indigo-border: rgb(99 102 241 / 0.3);
+	--cat-rose-fg: #262626;
+	--cat-indigo-bg: rgb(0 0 0 / 0.04);
+	--cat-indigo-border: rgb(0 0 0 / 0.12);
 	--cat-indigo-icon: #4f46e5;
-	--cat-indigo-fg: #4338ca;
-	--cat-amber-bg: rgb(245 158 11 / 0.1);
-	--cat-amber-border: rgb(245 158 11 / 0.3);
+	--cat-indigo-fg: #262626;
+	--cat-amber-bg: rgb(0 0 0 / 0.04);
+	--cat-amber-border: rgb(0 0 0 / 0.12);
 	--cat-amber-icon: #d97706;
-	--cat-amber-fg: #b45309;
-	--cat-violet-bg: rgb(139 92 246 / 0.1);
-	--cat-violet-border: rgb(139 92 246 / 0.3);
+	--cat-amber-fg: #262626;
+	--cat-violet-bg: rgb(0 0 0 / 0.04);
+	--cat-violet-border: rgb(0 0 0 / 0.12);
 	--cat-violet-icon: #7c3aed;
-	--cat-violet-fg: #6d28d9;
-	--cat-sky-bg: rgb(14 165 233 / 0.1);
-	--cat-sky-border: rgb(14 165 233 / 0.3);
+	--cat-violet-fg: #262626;
+	--cat-sky-bg: rgb(0 0 0 / 0.04);
+	--cat-sky-border: rgb(0 0 0 / 0.12);
 	--cat-sky-icon: #0284c7;
-	--cat-sky-fg: #0369a1;
-	--cat-teal-bg: rgb(20 184 166 / 0.1);
-	--cat-teal-border: rgb(20 184 166 / 0.3);
+	--cat-sky-fg: #262626;
+	--cat-teal-bg: rgb(0 0 0 / 0.04);
+	--cat-teal-border: rgb(0 0 0 / 0.12);
 	--cat-teal-icon: #0d9488;
-	--cat-teal-fg: #0f766e;
+	--cat-teal-fg: #262626;
 
 	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.06);
 	--elevation-hover: 0 12px 30px -10px rgb(0 0 0 / 0.18);
@@ -176,6 +196,10 @@
 	--color-warning: var(--warning);
 	--color-border: var(--border);
 	--color-input: var(--input);
+	--color-field: var(--field);
+	--color-field-border: var(--field-border);
+	--color-segment: var(--segment);
+	--color-segment-active: var(--segment-active);
 	--color-ring: var(--ring);
 	--color-veil: var(--veil);
 	--color-sidebar: var(--sidebar);
@@ -244,15 +268,18 @@
 	* {
 		@apply border-border;
 	}
+
 	html {
 		font-size: 100%;
 		-webkit-text-size-adjust: 100%;
 	}
+
 	body {
 		@apply bg-background text-foreground font-sans antialiased;
 		font-size: 1rem;
 		line-height: 1.5;
 	}
+
 	h1,
 	h2,
 	h3,
@@ -261,17 +288,22 @@
 		letter-spacing: -0.02em;
 		line-height: 1.15;
 	}
+
 	:focus-visible {
 		@apply outline-2 outline-offset-2 outline-ring;
 	}
+
 	::selection {
 		background: var(--foreground);
 		color: var(--background);
 	}
+
 	input[type="range"] {
 		accent-color: var(--foreground);
 	}
+
 	@media (prefers-reduced-motion: reduce) {
+
 		*,
 		*::before,
 		*::after {
@@ -282,6 +314,37 @@
 }
 
 /* Mono uppercase label: section kickers, form labels, indices like [01]. */
+/* Ambient band: tinted section with a faint light gradient and grid, masked so it melts into the page. */
+@utility ambient-band {
+	position: relative;
+	isolation: isolate;
+
+	&::before {
+		content: "";
+		opacity: 0.5;
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		pointer-events: none;
+		background-color: var(--band);
+		/* Glow + grid are tuned to sit at 80% intensity of the base pattern. */
+		background-image:
+			radial-gradient(80% 60% at 50% 0%, var(--band-glow), transparent 70%),
+			linear-gradient(to right, var(--band-grid) 1px, transparent 1px),
+			linear-gradient(to bottom, var(--band-grid) 1px, transparent 1px);
+		background-size:
+			auto,
+			48px 48px,
+			48px 48px;
+		background-position: center top;
+		/* mask-image: linear-gradient(to bottom,
+				transparent 0,
+				#000 14%,
+				#000 86%,
+				transparent 100%); */
+	}
+}
+
 @utility label-mono {
 	font-family: var(--font-mono);
 	font-size: 0.75rem;
@@ -299,6 +362,13 @@
 	line-height: 1;
 }
 
+/* Raised control: hairline top highlight + short drop shadow, one step off the page. */
+@utility control-raise {
+	box-shadow:
+		inset 0 1px 0 var(--control-highlight),
+		0 1px 2px var(--control-shadow);
+}
+
 /* Reveal: 12px rise + 4px blur over 300ms. */
 @utility reveal {
 	animation: qb-reveal 300ms var(--ease-out-soft) both;
@@ -310,6 +380,7 @@
 		transform: translateY(12px);
 		filter: blur(4px);
 	}
+
 	to {
 		opacity: 1;
 		transform: none;

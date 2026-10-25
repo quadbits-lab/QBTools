@@ -5,6 +5,7 @@ export * from "./compose";
 export * from "./defaults";
 export * from "./favicon";
 export * from "./fonts";
+export * from "./icns";
 export * from "./ico";
 export * from "./projects";
 export * from "./rawpng";

@@ -10,17 +10,20 @@ import { cn } from "../lib/utils";
  * Heights: sm 36, md 40, lg 48.
  */
 export const buttonVariants = cva(
-	"inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-[transform,background-color,border-color,color,opacity] duration-150 ease-out active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+	"inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-[transform,background-color,border-color,color,opacity] duration-150 ease-out [-webkit-tap-highlight-color:transparent] motion-safe:enabled:active:scale-[0.96] disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
-				default: "bg-primary text-primary-foreground hover:bg-primary/90",
-				primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-				secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/70",
-				outline: "border-input bg-background text-foreground hover:bg-accent",
+				default: "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90",
+				primary: "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90",
+				secondary:
+					"border-border bg-secondary text-secondary-foreground control-raise hover:bg-accent",
+				outline:
+					"border-border bg-field text-foreground control-raise hover:border-foreground/25 hover:bg-accent",
 				ghost: "text-foreground hover:bg-accent",
-				destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-				critical: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+				destructive:
+					"bg-destructive text-destructive-foreground shadow-2xs hover:bg-destructive/90",
+				critical: "bg-destructive text-destructive-foreground shadow-2xs hover:bg-destructive/90",
 				link: "h-auto rounded-none border-0 border-b border-input px-0 pb-0.5 text-foreground hover:border-foreground active:scale-100",
 			},
 			size: {

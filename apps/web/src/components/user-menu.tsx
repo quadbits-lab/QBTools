@@ -34,7 +34,7 @@ export function UserMenu({ className }: { className?: string } = {}) {
 			<span
 				role="status"
 				aria-label="Checking account"
-				className="h-9 w-20 animate-pulse rounded-full bg-muted/60"
+				className="h-9 w-20 animate-pulse rounded-md bg-muted/60"
 			/>
 		);
 
@@ -44,10 +44,7 @@ export function UserMenu({ className }: { className?: string } = {}) {
 				asChild
 				variant="default"
 				size="sm"
-				className={cn(
-					"h-9 rounded-full px-4 text-xs font-semibold shadow-2xs transition-all duration-150 hover:shadow-sm",
-					className,
-				)}
+				className={cn("h-9 rounded-md px-4 text-xs font-semibold", className)}
 			>
 				<a href="/login" className="flex items-center gap-1.5">
 					<UserRound className="size-3.5" />
@@ -70,7 +67,7 @@ export function UserMenu({ className }: { className?: string } = {}) {
 				onClick={() => setOpen((v) => !v)}
 				aria-expanded={open}
 				aria-haspopup="true"
-				className="flex h-9 cursor-pointer items-center gap-2 rounded-full border border-border/70 bg-background/80 px-2.5 text-xs font-medium shadow-2xs transition-all duration-150 hover:border-border hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3 sm:text-sm"
+				className="flex h-9 cursor-pointer items-center gap-2 rounded-md border border-border bg-field px-2.5 text-xs font-medium control-raise transition-[background-color,border-color,color] duration-150 hover:border-foreground/25 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:px-3 sm:text-sm"
 			>
 				{user.image ? (
 					<img

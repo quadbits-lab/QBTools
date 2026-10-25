@@ -4,27 +4,11 @@ import { decodeImage, drawToCanvas, scaleToFit } from "@qbtools/engines/image";
 import type { VectorizeOptions, VectorizePreset } from "@qbtools/engines/vectorize";
 import { Badge } from "@qbtools/ui/badge";
 import { Button } from "@qbtools/ui/button";
-import { Field } from "@qbtools/ui/label";
 import { Segmented } from "@qbtools/ui/segmented";
 import { Slider } from "@qbtools/ui/slider";
 import { Switch } from "@qbtools/ui/switch";
-import { cn, formatBytes } from "@qbtools/ui/utils";
-import {
-	Check,
-	Code2,
-	Columns2,
-	Copy,
-	Download,
-	Eye,
-	ImageIcon,
-	Layers,
-	Loader2,
-	RotateCcw,
-	Sliders,
-	Sparkles,
-	ZoomIn,
-	ZoomOut,
-} from "lucide-react";
+import { formatBytes } from "@qbtools/ui/utils";
+import { Check, Copy, Download, Loader2, RotateCcw, Sparkles, ZoomIn, ZoomOut } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { FileDrop } from "#/components/kit/file-drop";
 import { Notice } from "#/components/kit/notice";
@@ -60,7 +44,6 @@ export default function PngToSvg({ params }: ToolWidgetProps) {
 	const [autoColors, setAutoColors] = useState<boolean>(true);
 	const [binaryThreshold, setBinaryThreshold] = useState<number>(128);
 	const [adaptive, setAdaptive] = useState<boolean>(true);
-	const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
 	// Result state
 	const [svgOutput, setSvgOutput] = useState<string | null>(null);
@@ -85,26 +68,37 @@ export default function PngToSvg({ params }: ToolWidgetProps) {
 
 	// Initialize Web Worker and preload WASM url
 	useEffect(() => {
-		const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
-		worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
-			const data = event.data;
-			if (data.type === "result") {
-				const blob = new Blob([data.svg], { type: "image/svg+xml;charset=utf-8" });
-				setSvgOutput(data.svg);
-				setSvgBlob(blob);
-				setStats({
-					pathsCount: data.pathsCount,
-					colorsCount: data.colorsCount,
-					durationMs: data.durationMs,
-					sizeBytes: blob.size,
-				});
+		let worker: Worker | null = null;
+		try {
+			worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+			worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+				const data = event.data;
+				if (data.type === "result") {
+					const blob = new Blob([data.svg], { type: "image/svg+xml;charset=utf-8" });
+					setSvgOutput(data.svg);
+					setSvgBlob(blob);
+					setStats({
+						pathsCount: data.pathsCount,
+						colorsCount: data.colorsCount,
+						durationMs: data.durationMs,
+						sizeBytes: blob.size,
+					});
+					setStatus("ready");
+				} else if (data.type === "error") {
+					setError(data.message);
+					setStatus("ready");
+				}
+			};
+			worker.onerror = (e) => {
+				console.error("Vectorize worker error:", e);
+				setError("Background vectorizer error. Please try again.");
 				setStatus("ready");
-			} else if (data.type === "error") {
-				setError(data.message);
-				setStatus("ready");
-			}
-		};
-		workerRef.current = worker;
+			};
+			workerRef.current = worker;
+		} catch (err: unknown) {
+			console.error("Failed to start vectorizer worker:", err);
+			setError("Failed to initialize background worker.");
+		}
 
 		void assetBase("vtracer")
 			.then((base) => {
@@ -115,7 +109,7 @@ export default function PngToSvg({ params }: ToolWidgetProps) {
 			});
 
 		return () => {
-			worker.terminate();
+			worker?.terminate();
 		};
 	}, []);
 
@@ -200,8 +194,10 @@ export default function PngToSvg({ params }: ToolWidgetProps) {
 				height: fit.height,
 			});
 			setStatus("ready");
-		} catch (err: any) {
-			setError(err?.message || "Failed to read image. Please try another file.");
+		} catch (err: unknown) {
+			setError(
+				err instanceof Error ? err.message : "Failed to read image. Please try another file.",
+			);
 			setStatus("idle");
 		}
 	}, []);
@@ -666,7 +662,7 @@ export default function PngToSvg({ params }: ToolWidgetProps) {
 								className="gap-1.5"
 							>
 								{copied ? (
-									<Check className="h-4 w-4 text-emerald-500" />
+									<Check className="h-4 w-4 text-foreground" />
 								) : (
 									<Copy className="h-4 w-4" />
 								)}

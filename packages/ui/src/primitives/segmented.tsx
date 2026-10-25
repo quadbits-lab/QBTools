@@ -6,19 +6,26 @@ export function Segmented<T extends string>({
 	onChange,
 	options,
 	label,
+	size = "default",
 	className,
 }: {
 	value: T;
 	onChange: (value: T) => void;
 	options: ReadonlyArray<{ value: T; label: string }>;
 	label: string;
+	/** `toolbar` matches the 40px height of selects and inputs in a filter bar. */
+	size?: "default" | "toolbar";
 	className?: string;
 }) {
 	return (
 		<div
 			role="radiogroup"
 			aria-label={label}
-			className={cn("flex flex-wrap gap-1 rounded-lg bg-muted p-1", className)}
+			className={cn(
+				"flex flex-wrap border border-border/60 bg-segment",
+				size === "toolbar" ? "min-h-10 gap-1 rounded-[10px] p-[3px]" : "gap-1.5 rounded-xl p-1.5",
+				className,
+			)}
 		>
 			{options.map((option) => {
 				const active = option.value === value;
@@ -30,9 +37,10 @@ export function Segmented<T extends string>({
 						aria-checked={active}
 						onClick={() => onChange(option.value)}
 						className={cn(
-							"min-h-9 flex-1 cursor-pointer rounded-md px-3 text-sm font-medium transition-colors duration-150",
+							"flex flex-auto cursor-pointer items-center justify-center gap-1.5 text-sm font-medium whitespace-nowrap transition-[background-color,color,box-shadow,scale] duration-150 ease-out enabled:active:motion-safe:scale-[0.96]",
+							size === "toolbar" ? "h-8 rounded-md px-3" : "min-h-9 rounded-lg px-4",
 							active
-								? "bg-card text-foreground shadow-card"
+								? "bg-segment-active text-foreground shadow-card"
 								: "text-muted-foreground hover:text-foreground",
 						)}
 					>

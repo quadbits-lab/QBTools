@@ -41,11 +41,14 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
 			colorsCount: result.colorsCount,
 			durationMs: result.durationMs,
 		} satisfies WorkerResponse);
-	} catch (err: any) {
+	} catch (err: unknown) {
 		self.postMessage({
 			id,
 			type: "error",
-			message: err?.message || "Vectorization failed. Please check the image and try again.",
+			message:
+				err instanceof Error
+					? err.message
+					: "Vectorization failed. Please check the image and try again.",
 		} satisfies WorkerResponse);
 	}
 };

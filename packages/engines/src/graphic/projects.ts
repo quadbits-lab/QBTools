@@ -1,6 +1,8 @@
 /** Versioned `.qbdesign.json` project files (share and re-edit designs). */
 import { checkAbort, type ProcessingOptions } from "../processing";
-import type { DesignProject, DesignSettings, GraphicToolKind } from "./types";
+import { defaultOgDesign, OG_TEMPLATES } from "./defaults";
+import { TEXT_FONTS } from "./fonts";
+import type { DesignProject, DesignSettings, GraphicToolKind, OgDesign, TextStyle } from "./types";
 
 export const QBDESIGN_FORMAT = "qbdesign";
 export const QBDESIGN_VERSION = 1;
@@ -28,6 +30,50 @@ export function serializeDesign(project: DesignProject): Blob {
 }
 
 type UnknownRecord = Record<string, unknown>;
+
+function normalizedTextStyle(base: TextStyle, style: unknown): TextStyle {
+	const merged: TextStyle = { ...base, ...((style ?? {}) as Partial<TextStyle>) };
+	merged.font = TEXT_FONTS.includes(merged.font) ? merged.font : "Inter";
+	merged.show = merged.show !== false;
+	merged.opacity =
+		typeof merged.opacity === "number" ? Math.min(1, Math.max(0, merged.opacity)) : 1;
+	merged.outline =
+		merged.outline && typeof merged.outline === "object"
+			? {
+					color: typeof merged.outline.color === "string" ? merged.outline.color : "#000000",
+					width:
+						typeof merged.outline.width === "number"
+							? Math.min(40, Math.max(0, merged.outline.width))
+							: 0,
+				}
+			: null;
+	return merged;
+}
+
+/**
+ * Fill defaults for fields older projects predate (text visibility, opacity,
+ * outline) and validate enum-ish values so hand-edited files stay renderable.
+ */
+export function normalizeOgDesign(input: OgDesign): OgDesign {
+	const template = OG_TEMPLATES.includes(input.template) ? input.template : "gradient";
+	const base = defaultOgDesign(template);
+	const placement = input.hero?.placement ?? base.hero.placement;
+	return {
+		...base,
+		...input,
+		template,
+		canvas: input.canvas ?? base.canvas,
+		title: normalizedTextStyle(base.title, input.title),
+		subtitle: normalizedTextStyle(base.subtitle, input.subtitle),
+		badge: { ...base.badge, ...(input.badge ?? {}) },
+		logo: { ...base.logo, ...(input.logo ?? {}) },
+		hero: {
+			...base.hero,
+			...(input.hero ?? {}),
+			placement: { ...placement, source: placement.source ?? null },
+		},
+	};
+}
 
 /** Basic shape validation after format/version checks throw descriptive errors. */
 function validateSettings(settings: DesignSettings): void {
@@ -82,11 +128,15 @@ export async function parseDesign(
 		throw new Error("The project file is damaged.");
 	const settings = data.settings as DesignSettings;
 	validateSettings(settings);
+	const normalized: DesignSettings =
+		settings.tool === "og-banner"
+			? { tool: "og-banner", design: normalizeOgDesign(settings.design as OgDesign) }
+			: settings;
 	const meta = (data.meta as DesignProject["meta"]) ?? { name: "Imported design", savedAt: "" };
 	return {
 		device: tool,
 		version: QBDESIGN_VERSION,
-		settings,
+		settings: normalized,
 		meta: {
 			name: typeof meta.name === "string" ? meta.name : "Imported design",
 			savedAt: typeof meta.savedAt === "string" ? meta.savedAt : new Date().toISOString(),

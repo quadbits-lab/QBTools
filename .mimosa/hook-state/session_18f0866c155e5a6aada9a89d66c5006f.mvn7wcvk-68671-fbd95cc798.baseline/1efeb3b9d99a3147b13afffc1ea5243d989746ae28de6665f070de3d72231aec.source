@@ -1,0 +1,92 @@
+import { type Category, toolsInCategory } from "@qbtools/registry";
+import { cn } from "@qbtools/ui/utils";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { categoryStyles, iconFor } from "#/lib/icons";
+
+/**
+ * Mobile-only discipline browser: one accordion row per discipline, single-open,
+ * with the first three tools and a link into the category page. Hidden at `sm`.
+ */
+export function DisciplineAccordion({ categories }: { categories: ReadonlyArray<Category> }) {
+	const [openCategory, setOpenCategory] = useState<string | null>(null);
+
+	return (
+		<ul className="mt-10 overflow-hidden rounded-xl border border-border bg-card/60 sm:hidden">
+			{categories.map((category, index) => {
+				const expanded = openCategory === category.id;
+				const panelId = `m-cat-${category.id}`;
+				const count = toolsInCategory(category.id).length;
+				const sample = toolsInCategory(category.id).slice(0, 3);
+				const Icon = iconFor(category.icon);
+				const style = categoryStyles[category.id];
+
+				return (
+					<li key={category.id} className="border-b border-border/70 last:border-b-0">
+						<button
+							type="button"
+							aria-expanded={expanded}
+							aria-controls={panelId}
+							onClick={() => setOpenCategory(expanded ? null : category.id)}
+							className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-150 hover:bg-accent/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none"
+						>
+							<span
+								className={cn(
+									"grid size-9 shrink-0 place-items-center rounded-md border",
+									style.tile,
+								)}
+							>
+								<Icon className="size-[18px]" aria-hidden="true" />
+							</span>
+							<span className="min-w-0 flex-1">
+								<span className="block truncate text-sm font-medium text-foreground">
+									{category.name}
+								</span>
+								<span className="label-mono mt-0.5 block !text-subtle">
+									{String(index + 1).padStart(2, "0")} · {count} tool{count === 1 ? "" : "s"}
+								</span>
+							</span>
+							<ChevronDown
+								aria-hidden="true"
+								className={cn(
+									"size-4 shrink-0 text-muted-foreground transition-transform motion-safe:duration-200",
+									expanded && "rotate-180",
+								)}
+							/>
+						</button>
+
+						{expanded && (
+							<div id={panelId} className="px-4 pb-4">
+								<p className="text-sm leading-5 text-muted-foreground">{category.tagline}</p>
+								<div className="mt-3 flex flex-col gap-0.5">
+									{sample.map((tool) => (
+										<Link
+											key={tool.slug}
+											to="/tools/$slug"
+											params={{ slug: tool.slug }}
+											className="flex items-center gap-2 rounded-md py-1.5 text-sm text-foreground/90 transition-colors duration-150 hover:text-foreground"
+										>
+											<span
+												aria-hidden="true"
+												className={cn("size-1 shrink-0 rounded-full", style.dot)}
+											/>
+											<span className="truncate">{tool.name}</span>
+										</Link>
+									))}
+								</div>
+								<Link
+									to="/categories/$category"
+									params={{ category: category.id }}
+									className="mt-3 inline-flex items-center gap-1.5 rounded-md px-1 text-sm font-medium text-foreground hover:text-primary"
+								>
+									Explore {count} tools <ArrowRight className="size-3.5" aria-hidden="true" />
+								</Link>
+							</div>
+						)}
+					</li>
+				);
+			})}
+		</ul>
+	);
+}

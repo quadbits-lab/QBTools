@@ -57,8 +57,8 @@ export function SearchBox({
 				</label>
 				<Search
 					className={cn(
-						"pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground",
-						size === "lg" ? "size-5" : "size-4",
+						"pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground sm:left-4",
+						size === "lg" ? "size-4 sm:size-5" : "size-4",
 					)}
 				/>
 				<input
@@ -94,8 +94,10 @@ export function SearchBox({
 						}
 					}}
 					className={cn(
-						"w-full rounded-lg border border-input bg-background pr-24 outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-search-cancel-button]:hidden",
-						size === "lg" ? "h-14 pl-12 text-base" : "h-12 pl-11 text-sm",
+						"w-full rounded-lg border border-field-border bg-field pr-11 outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring sm:pr-16 [&::-webkit-search-cancel-button]:hidden",
+						size === "lg"
+							? "h-12 pl-10 text-[0.9375rem] sm:h-14 sm:pl-12 sm:text-base"
+							: "h-11 pl-10 text-sm sm:h-12 sm:pl-11",
 					)}
 				/>
 				{query ? (

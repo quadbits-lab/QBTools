@@ -1,0 +1,50 @@
+{
+	"touched": [
+		"/Users/quadbits/RD/QBTools/apps/web/src/lib/graphic-assets.ts",
+		"/Users/quadbits/RD/QBTools/apps/web/src/tools/og-banner-maker/inspector/template-picker.tsx",
+		"/Users/quadbits/RD/QBTools/apps/web/src/tools/og-banner-maker/inspector/design-sections.tsx",
+		"/Users/quadbits/RD/QBTools/apps/web/src/tools/og-banner-maker/inspector/text-sections.tsx",
+		"/Users/quadbits/RD/QBTools/apps/web/src/tools/og-banner-maker/inspector/element-sections.tsx",
+		"/Users/quadbits/RD/QBTools/apps/web/src/tools/og-banner-maker/editor-canvas.tsx"
+	],
+	"bashMutation": false,
+	"reportedFindings": [],
+	"findingEvents": [],
+	"baseline": {
+		"storageId": "mvn4yl86-8845-266601d3ec",
+		"createdAt": "2026-10-25T01:15:16.854Z",
+		"files": {
+			"src/lib/graphic-assets.ts": {
+				"existed": true,
+				"snapshot": "9691a7b9e103e5cb788c57916314be00e18e90f508642d8a7dc18df9b6a660d5.source"
+			},
+			"src/tools/og-banner-maker/inspector/template-picker.tsx": { "existed": false },
+			"src/tools/og-banner-maker/inspector/design-sections.tsx": { "existed": false },
+			"src/tools/og-banner-maker/inspector/text-sections.tsx": { "existed": false },
+			"src/tools/og-banner-maker/inspector/element-sections.tsx": { "existed": false },
+			"src/tools/og-banner-maker/editor-canvas.tsx": {
+				"existed": true,
+				"snapshot": "40d76cea91ef64b74b80f4f64de6729ac3738f860d377cb16df2a76c69dfd615.source"
+			}
+		},
+		"complete": false,
+		"candidateLimit": 5000,
+		"discoveredFiles": 0,
+		"capturedFiles": 6,
+		"truncated": false,
+		"omittedAtLeast": 0,
+		"firstOmitted": "",
+		"errors": [
+			{
+				"stage": "baseline-capture",
+				"target": ".",
+				"reason": "global task baseline was unavailable; captured only the touched file"
+			}
+		]
+	},
+	"stateErrors": [],
+	"omittedReportedFindings": 0,
+	"omittedFindingEvents": 0,
+	"processing": null,
+	"updatedAt": "2026-10-25T02:03:59.035Z"
+}

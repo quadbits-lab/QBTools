@@ -38,9 +38,6 @@ export async function renderDesign(
 		settings.tool === "og-banner"
 			? composeOgSvg(settings.design as OgDesign)
 			: { svg: composeIconSvg(settings.design as IconDesign), warnings: [] };
-	if (settings.tool === "og-banner" && renderOptions.preview) {
-		// Full validation runs on export; previews surface layout warnings only.
-	}
 	progress(options, renderOptions.preview ? "Updating preview…" : "Rendering design…", null);
 	const { blob, width, height } = await renderSvg(
 		{

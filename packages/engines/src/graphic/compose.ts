@@ -211,16 +211,17 @@ export function vectorNestedLayer(
 
 /** Render a wrapped text block inside its frame. */
 export function textLayer(style: TextStyle, frame: Box, maxLines = 24): string {
-	if (!style.text.trim()) return "";
+	if (style.show === false || !style.text.trim()) return "";
 	const blockW = Math.max(style.width * frame.w, 40);
 	const lines = wrapTextLines(style.text, style.font, style.fontWeight, style.size, blockW).slice(
 		0,
 		maxLines,
 	);
 	const lineHeight = style.size * style.lineHeight;
+	const blockH = Math.max(style.size, lines.length * style.size * style.lineHeight);
 	const anchor = style.align === "left" ? "start" : style.align === "right" ? "end" : "middle";
 	const blockX = frame.x + style.x * Math.max(0, frame.w - blockW);
-	const blockY = frame.y + style.y * Math.max(0, frame.h - style.size);
+	const blockY = frame.y + style.y * Math.max(0, frame.h - blockH);
 	const anchorX =
 		anchor === "start" ? blockX : anchor === "middle" ? blockX + blockW / 2 : blockX + blockW;
 	const tspanAttrs = `x="${anchorX.toFixed(2)}" text-anchor="${anchor}"`;
@@ -230,11 +231,15 @@ export function textLayer(style: TextStyle, frame: Box, maxLines = 24): string {
 				`<tspan ${tspanAttrs} y="${(blockY + style.size + i * lineHeight).toFixed(2)}">${escapeXml(line)}</tspan>`,
 		)
 		.join("");
-	const family = style.font === "Inter" && style.fontWeight >= 600 ? "Inter Semi" : style.font;
-	return (
-		`<text font-family="${family}" font-size="${style.size.toFixed(2)}" font-weight="${style.fontWeight}"` +
-		` fill="${style.color}" letter-spacing="${style.letterSpacing.toFixed(2)}">${tspans}</text>`
-	);
+	const outline =
+		style.outline && style.outline.width > 0
+			? ` stroke="${style.outline.color}" stroke-width="${style.outline.width.toFixed(2)}"` +
+				` paint-order="stroke" stroke-linejoin="round"`
+			: "";
+	const text =
+		`<text font-family="${style.font}" font-size="${style.size.toFixed(2)}" font-weight="${style.fontWeight}"` +
+		` fill="${style.color}" letter-spacing="${style.letterSpacing.toFixed(2)}"${outline}>${tspans}</text>`;
+	return withOpacity(text, style.opacity ?? 1);
 }
 
 /** Render a badge (pill, square or underline) sized to its label. */
@@ -305,22 +310,42 @@ function lowResWarning(art: ArtworkData, box: Box, scale = 2): DesignWarning[] {
 	return [];
 }
 
-/**
- * Element boxes in canvas units — the exact math used by composeOgSvg, so
- * editor drag handles line up with the rendered output.
- */
-export function ogElementBoxes(design: OgDesign): {
-	title: Box;
-	subtitle: Box;
-	badge: Box;
-	logo: Box | null;
+/** Resolved geometry for one OG design — the single source of layout truth. */
+export interface OgLayout {
+	/** Content frame inside the canvas padding. */
+	frame: Box;
+	/** Frame the title/subtitle/badge position within (template-dependent). */
+	textFrame: Box;
 	hero: Box | null;
-} {
+	/** True when the hero covers the whole canvas (full-bleed scrim). */
+	heroFullBleed: boolean;
+	heroRadius: number;
+	/** White card drawn behind the hero (product-card template). */
+	heroCard: Box | null;
+	/** Dark scrim over the hero, resolved from the overlay slider. */
+	scrim: { box: Box; opacity: number } | null;
+	title: Box | null;
+	subtitle: Box | null;
+	badge: Box | null;
+	logo: Box | null;
+}
+
+/**
+ * Compute every element box for an OG design exactly once. composeOgSvg draws
+ * from this layout and ogElementBoxes surfaces it to the editor, so canvas
+ * overlays always match the rendered output.
+ */
+export function layoutOg(design: OgDesign): OgLayout {
 	const W = design.canvas.width;
 	const H = design.canvas.height;
 	const frame = contentFrame(W, H, design.padding);
+	const hero = design.hero.placement.source;
+
 	let heroBox: Box | null = null;
-	if (design.hero.placement.source) {
+	let heroFullBleed = false;
+	let heroRadius = 0;
+	let heroCard: Box | null = null;
+	if (hero) {
 		switch (design.template) {
 			case "split-image": {
 				const x = design.hero.x * (W - frame.x * 2);
@@ -338,53 +363,61 @@ export function ogElementBoxes(design: OgDesign): {
 				const cardX = (W - cardW) / 2 + design.hero.x * (W - cardW) * 0.4;
 				const cardY = (H - cardH) / 2;
 				const inset = cardW * 0.05;
+				heroCard = { x: cardX, y: cardY, w: cardW, h: cardH };
+				heroRadius = cardW * 0.04;
 				heroBox = { x: cardX + inset, y: cardY + inset, w: cardW - 2 * inset, h: cardH * 0.58 };
 				break;
 			}
 			default:
+				heroFullBleed = true;
 				heroBox = { x: 0, y: 0, w: W, h: H };
 		}
 	}
+
 	let textFrame = frame;
-	if (design.hero.placement.source && design.template === "split-image" && heroBox) {
+	if (hero && heroBox && design.template === "split-image") {
 		textFrame = {
 			x: frame.x,
 			y: frame.y,
 			w: Math.max(60, heroBox.x - frame.x - W * 0.04),
 			h: frame.h,
 		};
-	} else if (design.hero.placement.source && design.template === "product-card" && heroBox) {
+	} else if (hero && heroBox && design.template === "product-card") {
 		const inset = Math.max(8, heroBox.w * 0.06);
+		const left = heroBox.x - inset;
+		const right = heroBox.x + heroBox.w + inset;
 		textFrame = {
-			x: heroBox.x - inset,
+			x: left,
 			y: heroBox.y + heroBox.h + inset * 0.8,
-			w: Math.max(60, heroBox.w + 2 * inset),
+			w: Math.max(60, right - left),
 			h: Math.max(40, frame.y + frame.h - (heroBox.y + heroBox.h)),
 		};
-	} else if (design.hero.placement.source && design.template === "event" && heroBox) {
+	} else if (hero && heroBox && design.template === "event") {
 		textFrame = { x: frame.x, y: frame.y, w: frame.w, h: Math.max(40, heroBox.y - frame.y) };
 	}
-	const blockBox = (style: TextStyle): Box => {
+
+	const blockBox = (style: TextStyle): Box | null => {
+		if (style.show === false || !style.text.trim()) return null;
 		const blockW = Math.max(style.width * textFrame.w, 40);
 		const lines = wrapTextLines(style.text, style.font, style.fontWeight, style.size, blockW).slice(
 			0,
 			24,
 		);
-		const blockX = textFrame.x + style.x * Math.max(0, textFrame.w - blockW);
+		const blockH = Math.max(style.size, lines.length * style.size * style.lineHeight);
 		return {
-			x: blockX,
-			y: textFrame.y + style.y * Math.max(0, textFrame.h - style.size),
+			x: textFrame.x + style.x * Math.max(0, textFrame.w - blockW),
+			y: textFrame.y + style.y * Math.max(0, textFrame.h - blockH),
 			w: blockW,
-			h: Math.max(style.size, lines.length * style.size * style.lineHeight),
+			h: blockH,
 		};
 	};
+
 	let logoBox: Box | null = null;
 	if (design.logo.source) {
 		const art = design.logo.source;
 		const logoH = design.logo.height * H * 0.4;
 		const logoW = logoH * (art.width / Math.max(art.height, 1));
-		const maxLogoW = frame.w * 0.8;
-		const width = Math.min(logoW, maxLogoW);
+		const width = Math.min(logoW, frame.w * 0.8);
 		const height = width * (art.height / Math.max(art.width, 1));
 		logoBox = {
 			x: frame.x + design.logo.x * (frame.w - width),
@@ -393,20 +426,61 @@ export function ogElementBoxes(design: OgDesign): {
 			h: height,
 		};
 	}
-	const badgeW =
-		measureTextWidth(design.badge.text, "Inter", 700, design.badge.size) + design.badge.size * 1.6;
-	const badgeH = design.badge.size * 1.9;
-	return {
-		title: blockBox(design.title),
-		subtitle: blockBox(design.subtitle),
-		badge: {
+
+	let badge: Box | null = null;
+	if (design.badge.show && design.badge.text.trim()) {
+		const badgeW =
+			measureTextWidth(design.badge.text, "Inter", 700, design.badge.size) +
+			design.badge.size * 1.6;
+		const badgeH = design.badge.size * 1.9;
+		badge = {
 			x: textFrame.x + design.badge.x * Math.max(0, textFrame.w - badgeW),
 			y: textFrame.y + design.badge.y * Math.max(0, textFrame.h - badgeH - design.badge.size),
 			w: badgeW,
 			h: badgeH,
-		},
-		logo: logoBox,
+		};
+	}
+
+	const scrim =
+		hero && heroBox && design.overlay > 0
+			? heroFullBleed
+				? { box: { x: 0, y: 0, w: W, h: H }, opacity: design.overlay * 0.8 }
+				: { box: heroBox, opacity: design.overlay * 0.5 }
+			: null;
+
+	return {
+		frame,
+		textFrame,
 		hero: heroBox,
+		heroFullBleed,
+		heroRadius,
+		heroCard,
+		scrim,
+		title: blockBox(design.title),
+		subtitle: blockBox(design.subtitle),
+		badge,
+		logo: logoBox,
+	};
+}
+
+/**
+ * Element boxes in canvas units for editor overlays — derived from the same
+ * layout the composer draws from, so handles always match the render.
+ */
+export function ogElementBoxes(design: OgDesign): {
+	title: Box | null;
+	subtitle: Box | null;
+	badge: Box | null;
+	logo: Box | null;
+	hero: Box | null;
+} {
+	const layout = layoutOg(design);
+	return {
+		title: layout.title,
+		subtitle: layout.subtitle,
+		badge: layout.badge,
+		logo: layout.logo,
+		hero: layout.hero,
 	};
 }
 
@@ -422,140 +496,78 @@ export function ogContentFrame(design: OgDesign): Box {
 export function composeOgSvg(design: OgDesign): { svg: string; warnings: DesignWarning[] } {
 	const W = design.canvas.width;
 	const H = design.canvas.height;
-	const frame = contentFrame(W, H, design.padding);
+	const layout = layoutOg(design);
 	const parts: string[] = [];
 	const warnings: DesignWarning[] = [];
 
-	// 1. Hero layer per template.
-	const hero = design.hero.placement.source;
-	let heroBox: Box | null = null;
-	let heroRadius = 0;
-	let scrimArea: Box | null = null;
-	if (hero) {
-		switch (design.template) {
-			case "split-image": {
-				const x = design.hero.x * (W - frame.x * 2);
-				const w = Math.max(W * 0.12, design.hero.width * W);
-				heroBox = { x: frame.x + x, y: 0, w: w, h: H };
-				break;
-			}
-			case "event": {
-				const h = Math.max(H * 0.12, design.hero.width * H);
-				heroBox = { x: 0, y: H - h, w: W, h };
-				break;
-			}
-			case "product-card": {
-				const cardW = Math.min(W * 0.92, Math.max(W * 0.34, W * design.hero.width * 0.7));
-				const cardH = H * 0.86;
-				const cardX = (W - cardW) / 2 + design.hero.x * (W - cardW) * 0.4;
-				const cardY = (H - cardH) / 2;
-				const inset = cardW * 0.05;
-				heroBox = { x: cardX + inset, y: cardY + inset, w: cardW - 2 * inset, h: cardH * 0.58 };
-				heroRadius = cardW * 0.04;
-				scrimArea = heroBox;
-				// Text sits below the hero inside the card.
-				parts.push(
-					bgRect(W, H, design.background) +
-						`<rect x="${cardX.toFixed(2)}" y="${cardY.toFixed(2)}" width="${cardW.toFixed(2)}"` +
-						` height="${cardH.toFixed(2)}" rx="${heroRadius.toFixed(2)}" fill="#ffffff"/>`,
-				);
-				break;
-			}
-			default:
-				heroBox = { x: 0, y: 0, w: W, h: H };
-		}
-		if (heroBox) {
-			if (design.template !== "product-card") {
-				parts.push(bgRect(W, H, design.background));
-			}
-			parts.push(
-				withOpacity(
-					artworkLayer("hero", heroBox, design.hero.placement, heroRadius),
-					design.hero.opacity,
-				),
-			);
-			if (design.template === "photo-overlay") {
-				parts.push(
-					`<rect width="${W}" height="${H}" fill="#000000" opacity="${(design.overlay * 0.8).toFixed(3)}"/>`,
-				);
-			} else if (scrimArea) {
-				parts.push(
-					`<rect x="${scrimArea.x.toFixed(2)}" y="${scrimArea.y.toFixed(2)}"` +
-						` width="${scrimArea.w.toFixed(2)}" height="${scrimArea.h.toFixed(2)}"` +
-						` fill="#000000" opacity="${(design.overlay * 0.5).toFixed(3)}"/>`,
-				);
-			}
-		}
-	} else {
-		parts.push(bgRect(W, H, design.background));
-	}
-
-	// 2. Text frame depends on template.
-	let textFrame = frame;
-	if (hero && design.template === "split-image" && heroBox) {
-		textFrame = {
-			x: frame.x,
-			y: frame.y,
-			w: Math.max(60, heroBox.x - frame.x - W * 0.04),
-			h: frame.h,
-		};
-	}
-	if (hero && design.template === "product-card" && heroBox) {
-		const inset = Math.max(8, heroBox.w * 0.06);
-		const cardRight = heroBox.x + heroBox.w + inset;
-		const left = heroBox.x - inset;
-		textFrame = {
-			x: left,
-			y: heroBox.y + heroBox.h + inset * 0.8,
-			w: Math.max(60, cardRight - left),
-			h: Math.max(40, frame.y + frame.h - (heroBox.y + heroBox.h)),
-		};
-	}
-	if (hero && design.template === "event" && heroBox) {
-		textFrame = { x: frame.x, y: frame.y, w: frame.w, h: Math.max(40, heroBox.y - frame.y) };
-	}
-
-	// 3. Logo.
-	if (design.logo.source) {
-		const art = design.logo.source;
-		const logoH = design.logo.height * H * 0.4;
-		const logoW = logoH * (art.width / Math.max(art.height, 1));
-		const maxLogoW = frame.w * 0.8;
-		const width = Math.min(logoW, maxLogoW);
-		const height = width * (art.height / Math.max(art.width, 1));
-		const lx = frame.x + design.logo.x * (frame.w - width);
-		const ly = frame.y + design.logo.y * (frame.h - height);
+	// 1. Background; product-card draws a white card over it for the hero.
+	parts.push(bgRect(W, H, design.background));
+	if (layout.heroCard) {
 		parts.push(
-			`<image href="${artworkHref(art)}" x="${lx.toFixed(2)}" y="${ly.toFixed(2)}"` +
-				` width="${width.toFixed(2)}" height="${height.toFixed(2)}" preserveAspectRatio="xMidYMid meet"/>`,
+			`<rect x="${layout.heroCard.x.toFixed(2)}" y="${layout.heroCard.y.toFixed(2)}"` +
+				` width="${layout.heroCard.w.toFixed(2)}" height="${layout.heroCard.h.toFixed(2)}"` +
+				` rx="${layout.heroRadius.toFixed(2)}" fill="#ffffff"/>`,
 		);
 	}
 
-	// 4. Badge + text.
-	parts.push(badgeLayer(design.badge, textFrame));
-	parts.push(textLayer(design.title, textFrame));
-	parts.push(textLayer(design.subtitle, textFrame));
+	// 2. Hero artwork + scrim.
+	if (layout.hero && design.hero.placement.source) {
+		parts.push(
+			withOpacity(
+				artworkLayer("hero", layout.hero, design.hero.placement, layout.heroRadius),
+				design.hero.opacity,
+			),
+		);
+	}
+	if (layout.scrim) {
+		const s = layout.scrim;
+		parts.push(
+			`<rect x="${s.box.x.toFixed(2)}" y="${s.box.y.toFixed(2)}" width="${s.box.w.toFixed(2)}"` +
+				` height="${s.box.h.toFixed(2)}" fill="#000000" opacity="${s.opacity.toFixed(3)}"/>`,
+		);
+	}
+
+	// 3. Logo.
+	if (design.logo.source && layout.logo) {
+		parts.push(
+			`<image href="${artworkHref(design.logo.source)}" x="${layout.logo.x.toFixed(2)}"` +
+				` y="${layout.logo.y.toFixed(2)}" width="${layout.logo.w.toFixed(2)}"` +
+				` height="${layout.logo.h.toFixed(2)}" preserveAspectRatio="xMidYMid meet"/>`,
+		);
+	}
+
+	// 4. Badge + text layers (each skips itself when hidden or empty).
+	parts.push(badgeLayer(design.badge, layout.textFrame));
+	parts.push(textLayer(design.title, layout.textFrame));
+	parts.push(textLayer(design.subtitle, layout.textFrame));
 
 	// 5. Warnings.
 	const t = design.title;
 	const s = design.subtitle;
-	warnings.push(
-		...textOverflowWarnings(
-			t.text,
-			t.font,
-			t.fontWeight,
-			t.size,
-			Math.max(40, t.width * textFrame.w),
-		),
-		...textOverflowWarnings(
-			s.text,
-			s.font,
-			s.fontWeight,
-			s.size,
-			Math.max(40, s.width * textFrame.w),
-		),
-	);
-	if (hero) warnings.push(...lowResWarning(hero, heroBox ?? { x: 0, y: 0, w: W, h: H }));
+	if (t.show !== false)
+		warnings.push(
+			...textOverflowWarnings(
+				t.text,
+				t.font,
+				t.fontWeight,
+				t.size,
+				Math.max(40, t.width * layout.textFrame.w),
+			),
+		);
+	if (s.show !== false)
+		warnings.push(
+			...textOverflowWarnings(
+				s.text,
+				s.font,
+				s.fontWeight,
+				s.size,
+				Math.max(40, s.width * layout.textFrame.w),
+			),
+		);
+	if (design.hero.placement.source)
+		warnings.push(
+			...lowResWarning(design.hero.placement.source, layout.hero ?? { x: 0, y: 0, w: W, h: H }),
+		);
 
 	return {
 		svg:

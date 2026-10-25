@@ -2,7 +2,7 @@
 
 import type { OptimizedFormat } from "../image/codecs";
 import { checkAbort, type ProcessingOptions, progress } from "../processing";
-import type { FontKey, GraphicAssets } from "./fonts";
+import type { GraphicAssets } from "./fonts";
 import { gatherFontBuffers } from "./fonts";
 
 type ResvgModule = typeof import("@resvg/resvg-wasm");
@@ -72,7 +72,6 @@ export async function renderSvg(
 	options: ProcessingOptions & { assets?: GraphicAssets } = {},
 ): Promise<{ blob: Blob; width: number; height: number; pixels?: Uint8ClampedArray }> {
 	checkAbort(options.signal);
-	Object.assign;
 	if (request.width < 1 || request.height < 1) throw new Error("The canvas size is invalid.");
 	if (Math.max(request.width, request.height) > MAX_EDGE)
 		throw new Error("The longest edge cannot exceed 8192 pixels.");
@@ -119,11 +118,5 @@ export async function renderSvg(
 	}
 }
 
-export function fontFamilyKey(family: string, weight: number): FontKey {
-	if (family === "Anton") return "anton-400";
-	if (family === "DM Mono") return weight >= 500 ? "dmmono-500" : "dmmono-400";
-	return weight >= 600 ? "inter-700" : "inter-400";
-}
-
 // Re-exports keep worker code importing from a single module.
-export { FONT_RECORD, gatherFontBuffers, loadFontBuffer } from "./fonts";
+export { FONT_RECORD, fontFamilyKey, gatherFontBuffers, loadFontBuffer } from "./fonts";

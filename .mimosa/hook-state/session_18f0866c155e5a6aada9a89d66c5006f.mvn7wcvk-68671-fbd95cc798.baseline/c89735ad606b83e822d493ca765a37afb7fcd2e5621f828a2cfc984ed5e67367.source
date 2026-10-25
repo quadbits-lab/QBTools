@@ -1,0 +1,21 @@
+{
+	"name": "@qbtools/db",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./users": "./src/users.ts",
+		"./user-schema": "./src/user-schema.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit",
+		"backup": "bun src/backup.ts",
+		"users:backup": "bun src/user-backup.ts backup",
+		"users:restore": "bun src/user-backup.ts restore"
+	},
+	"dependencies": {
+		"@electric-sql/pglite": "0.5.11",
+		"drizzle-orm": "^0.45.4"
+	}
+}

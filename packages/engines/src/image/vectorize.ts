@@ -3,7 +3,6 @@
  * Converts PNG, JPEG, WebP, or raw RGBA pixels to scalable SVG vectors.
  */
 
-import { readFile } from "node:fs/promises";
 import { assetBase } from "../assets";
 import { checkAbort, type ProcessingOptions } from "../processing";
 
@@ -102,7 +101,7 @@ export async function initVtracer(
 				"@visioncortex/vtracer/pkg/vtracer_wasm_bg.wasm",
 				import.meta.dir,
 			);
-			wasmBuffer = await readFile(wasmPath);
+			wasmBuffer = await Bun.file(wasmPath).arrayBuffer();
 		} else {
 			// Browser / Worker environment: resolve from versioned same-origin assetBase
 			const base = await assetBase("vtracer");
@@ -121,6 +120,7 @@ export async function initVtracer(
 }
 
 function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEngine {
+	// biome-ignore lint/suspicious/noExplicitAny: wasm-bindgen exports
 	let wasm: any;
 	const cachedTextDecoder = new TextDecoder("utf-8", { ignoreBOM: true, fatal: true });
 	cachedTextDecoder.decode();
@@ -223,7 +223,7 @@ function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEng
 		return value;
 	}
 
-	function handleError(f: (...args: any[]) => any, args: any[]) {
+	function handleError(f: (...args: unknown[]) => unknown, args: unknown[]) {
 		try {
 			return f(...args);
 		} catch (e) {
@@ -242,7 +242,7 @@ function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEng
 		return getUint8ArrayMemory0().subarray(ptr >>> 0, (ptr >>> 0) + len);
 	}
 
-	const import0: Record<string, any> = {
+	const import0: Record<string, unknown> = {
 		__proto__: null,
 		__wbg_Error_92b29b0548f8b746: (arg0: number, arg1: number) =>
 			Error(getStringFromWasm0(arg0, arg1)),
@@ -269,7 +269,8 @@ function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEng
 			getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
 			getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
 		},
-		__wbg___wbindgen_in_aca499c5de7ff5e5: (arg0: any, arg1: any) => arg0 in arg1,
+		__wbg___wbindgen_in_aca499c5de7ff5e5: (arg0: PropertyKey, arg1: Record<PropertyKey, unknown>) =>
+			arg0 in arg1,
 		__wbg___wbindgen_is_bigint_2f76dc55065b4273: (arg0: unknown) => typeof arg0 === "bigint",
 		__wbg___wbindgen_is_function_1ff95bcc5517c252: (arg0: unknown) => typeof arg0 === "function",
 		__wbg___wbindgen_is_null_ea9085d691f535d3: (arg0: unknown) => arg0 === null,
@@ -277,9 +278,9 @@ function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEng
 			typeof val === "object" && val !== null,
 		__wbg___wbindgen_is_undefined_c05833b95a3cf397: (arg0: unknown) => arg0 === undefined,
 		__wbg___wbindgen_jsval_eq_e659fcf7b0e32763: (arg0: unknown, arg1: unknown) => arg0 === arg1,
-		__wbg___wbindgen_jsval_loose_eq_db4c3b15f63fc170: (arg0: any, arg1: any) =>
+		__wbg___wbindgen_jsval_loose_eq_db4c3b15f63fc170: (arg0: unknown, arg1: unknown) =>
 			// biome-ignore lint/suspicious/noDoubleEquals: wasm-bindgen loose equality
-			arg0 == arg1,
+			(arg0 as boolean) == (arg1 as boolean),
 		__wbg___wbindgen_number_get_394265ed1e1b84ee: (arg0: number, arg1: unknown) => {
 			const obj = arg1;
 			const ret = typeof obj === "number" ? obj : undefined;
@@ -299,31 +300,34 @@ function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEng
 		__wbg___wbindgen_throw_344f42d3211c4765: (arg0: number, arg1: number) => {
 			throw new Error(getStringFromWasm0(arg0, arg1));
 		},
-		__wbg_call_8a2dd23819f8a60a: function () {
-			return handleError((arg0: any, arg1: any) => arg0.call(arg1), arguments as any);
-		},
-		__wbg_done_89b2b13e91a60321: (arg0: any) => arg0.done,
-		__wbg_get_c7eb1f358a7654df: function () {
-			return handleError((arg0: any, arg1: any) => Reflect.get(arg0, arg1), arguments as any);
-		},
-		__wbg_get_unchecked_6e0ad6d2a41b06f6: (arg0: any, arg1: number) => arg0[arg1 >>> 0],
-		__wbg_get_with_ref_key_6412cf3094599694: (arg0: any, arg1: any) => arg0[arg1],
+		__wbg_call_8a2dd23819f8a60a: (arg0: (...args: unknown[]) => unknown, arg1: unknown) =>
+			handleError(() => arg0.call(arg1), []),
+		__wbg_done_89b2b13e91a60321: (arg0: { done?: boolean }) => arg0.done,
+		__wbg_get_c7eb1f358a7654df: (arg0: object, arg1: PropertyKey) =>
+			handleError(() => Reflect.get(arg0, arg1), []),
+		__wbg_get_unchecked_6e0ad6d2a41b06f6: (arg0: unknown[], arg1: number) => arg0[arg1 >>> 0],
+		__wbg_get_with_ref_key_6412cf3094599694: (
+			arg0: Record<PropertyKey, unknown>,
+			arg1: PropertyKey,
+		) => arg0[arg1],
 		__wbg_instanceof_ArrayBuffer_4480b9e0068a8adb: (arg0: unknown) => arg0 instanceof ArrayBuffer,
 		__wbg_instanceof_Uint8Array_309b927aaf7a3fc7: (arg0: unknown) => arg0 instanceof Uint8Array,
 		__wbg_isArray_0677c962b281d01a: (arg0: unknown) => Array.isArray(arg0),
 		__wbg_isSafeInteger_04f36e4056f1b851: (arg0: unknown) => Number.isSafeInteger(arg0),
 		__wbg_iterator_6f722e4a93058b71: () => Symbol.iterator,
-		__wbg_length_1f0964f4a5e2c6d8: (arg0: any) => arg0.length,
-		__wbg_length_370319915dc99107: (arg0: any) => arg0.length,
-		__wbg_new_cd45aabdf6073e84: (arg0: any) => new Uint8Array(arg0),
-		__wbg_next_6dbf2c0ac8cde20f: (arg0: any) => arg0.next,
-		__wbg_next_71f2aa1cb3d1e37e: function () {
-			return handleError((arg0: any) => arg0.next(), arguments as any);
-		},
-		__wbg_prototypesetcall_4770620bbe4688a0: (arg0: number, arg1: number, arg2: any) => {
+		__wbg_length_1f0964f4a5e2c6d8: (arg0: ArrayLike<unknown>) => arg0.length,
+		__wbg_length_370319915dc99107: (arg0: ArrayLike<unknown>) => arg0.length,
+		__wbg_new_cd45aabdf6073e84: (arg0: ArrayBuffer) => new Uint8Array(arg0),
+		__wbg_next_6dbf2c0ac8cde20f: (arg0: { next?: unknown }) => arg0.next,
+		__wbg_next_71f2aa1cb3d1e37e: (arg0: Iterator<unknown>) => handleError(() => arg0.next(), []),
+		__wbg_prototypesetcall_4770620bbe4688a0: (
+			arg0: number,
+			arg1: number,
+			arg2: ArrayLike<number>,
+		) => {
 			Uint8Array.prototype.set.call(getArrayU8FromWasm0(arg0, arg1), arg2);
 		},
-		__wbg_value_a5d5488a9589444a: (arg0: any) => arg0.value,
+		__wbg_value_a5d5488a9589444a: (arg0: { value?: unknown }) => arg0.value,
 		__wbindgen_cast_0000000000000001: (arg0: number, arg1: number) =>
 			getStringFromWasm0(arg0, arg1),
 		__wbindgen_cast_0000000000000002: (arg0: number) => BigInt.asUintN(64, BigInt(arg0)),
@@ -339,7 +343,9 @@ function createVtracerInstance(wasmSource: ArrayBuffer | Uint8Array): VtracerEng
 	};
 
 	const module = new WebAssembly.Module(wasmSource as BufferSource);
-	const instance = new WebAssembly.Instance(module, { "./vtracer_wasm_bg.js": import0 });
+	const instance = new WebAssembly.Instance(module, {
+		"./vtracer_wasm_bg.js": import0,
+	} as unknown as WebAssembly.Imports);
 	wasm = instance.exports;
 	wasm.__wbindgen_start();
 

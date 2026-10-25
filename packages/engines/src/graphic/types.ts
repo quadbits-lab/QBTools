@@ -50,7 +50,14 @@ export interface ArtworkPlacement {
 	crop: ArtworkCrop;
 }
 
-export type TextFont = "Inter" | "Anton" | "DM Mono";
+export type TextFont =
+	| "Inter"
+	| "Anton"
+	| "DM Mono"
+	| "Bebas Neue"
+	| "Space Grotesk"
+	| "Playfair Display"
+	| "Caveat";
 
 export interface TextStyle {
 	text: string;
@@ -66,6 +73,12 @@ export interface TextStyle {
 	x: number;
 	y: number;
 	width: number;
+	/** Element visibility; hidden elements render nothing and have no editor box. */
+	show?: boolean;
+	/** Fill opacity 0..1 (default 1). */
+	opacity?: number;
+	/** Stroke painted behind the fill via paint-order (resvg-safe text outline). */
+	outline?: { color: string; width: number } | null;
 }
 
 export type BadgeShape = "pill" | "square" | "underline";
@@ -205,7 +218,7 @@ export interface FaviconExportOptions {
 	optimize: boolean;
 }
 
-export type AppIconPlatform = "ios" | "android";
+export type AppIconPlatform = "ios" | "android" | "macos";
 
 export interface AppIconExportOptions {
 	platforms: AppIconPlatform[];

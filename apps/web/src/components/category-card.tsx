@@ -35,8 +35,7 @@ export function CategoryCard({
 			<span
 				aria-hidden="true"
 				className={cn(
-					"absolute top-0 right-5 left-5 h-px origin-left scale-x-0 opacity-0 transition-[transform,opacity] duration-300 group-hover:scale-x-100 group-hover:opacity-100 group-focus-visible:scale-x-100 group-focus-visible:opacity-100",
-					style.dot,
+					"absolute top-0 right-5 left-5 h-px origin-left scale-x-0 bg-foreground/40 opacity-0 transition-[transform,opacity] duration-300 group-hover:scale-x-100 group-hover:opacity-100 group-focus-visible:scale-x-100 group-focus-visible:opacity-100",
 				)}
 			/>
 

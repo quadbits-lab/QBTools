@@ -85,4 +85,14 @@ describe("image vectorizer (VTracer WASM)", () => {
 		expect(result.svg).toContain("<svg");
 		expect(result.pathsCount).toBeGreaterThanOrEqual(1);
 	});
+
+	test("vectorizes encoded image bytes", async () => {
+		// 1x1 valid PNG
+		const pngBase64 =
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+		const bytes = Uint8Array.from(Buffer.from(pngBase64, "base64"));
+		const result = await vectorizeBytes(bytes);
+		expect(result.svg).toContain("<svg");
+		expect(result.svg).toContain("</svg>");
+	});
 });
