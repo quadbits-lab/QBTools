@@ -1,7 +1,7 @@
 # 🛠️ QBTools — Free, Private Everyday Web Tools
 
 <p align="center">
-  <img src="docs/assets/hero.png" alt="QBTools — Fast, private, browser-first tools that just work" width="100%" />
+  <img src="docs/assets/qbtools-github-banner.png" alt="QBTools — Fast, private, browser-first tools that just work" width="100%" />
 </p>
 
 <p align="center">
