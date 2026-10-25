@@ -96,8 +96,10 @@ describe("executeRunner", () => {
 			{ io: SILENT_IO },
 		);
 		expect(code).toBe(0);
-		const path = (result?.data as { path: string }).path;
-		const bytes = await readFile(path);
+		const data = result?.data as { path?: string } | undefined;
+		const path = data?.path;
+		expect(path).toBeString();
+		const bytes = await readFile(path ?? "");
 		// PNG signature
 		expect([...bytes.slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
 		await rm(dir, { recursive: true, force: true });

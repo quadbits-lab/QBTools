@@ -1,10 +1,10 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-10-25T05:00:14.703Z",
+  "recordedAt": "2026-10-25T05:03:13.841Z",
   "sessionId": "session_a4d7135783050fb9adbeeea5d3c5f9fb",
   "event": "PostToolUse",
-  "toolName": "Write",
-  "file": "apps/cli/src/services/update-check.test.ts",
+  "toolName": "Edit",
+  "file": "apps/cli/src/runner/execute.test.ts",
   "outcome": "clear",
   "coverage": "complete",
   "findingCount": 0,

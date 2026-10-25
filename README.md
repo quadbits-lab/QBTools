@@ -25,8 +25,8 @@
 
 ### 📑 Table of Contents
 
-| 🌟 **Product Overview** | 💻 **Developer Guide** | 🚀 **Ops & Reference** |
-| :--- | :--- | :--- |
+| 🌟 **Product Overview**                                                                                                                                                                                  | 💻 **Developer Guide**                                                                                                                                                                                   | 🚀 **Ops & Reference**                                                                                                                                                                                   |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | • [✨ Key Highlights](#-key-highlights)<br/>• [🧰 Tools Catalog (42)](#-complete-tools-catalog)<br/>• [📐 System Architecture](#-system-architecture)<br/>• [🔒 Privacy & Security](#-privacy--security) | • [🚀 Quick Start Guide](#-quick-start)<br/>• [💻 CLI Commands](#-cli-commands-cheatsheet)<br/>• [📂 Monorepo Layout](#-monorepo-layout)<br/>• [🛠️ Adding a New Tool](#️-step-by-step-adding-a-new-tool) | • [🐳 Docker Deployment](#-docker-deployment)<br/>• [⚙️ Environment Config](#️-configuration)<br/>• [📖 Deep-Dive Docs](#-documentation)<br/>• [🐙 GitHub Repo](https://github.com/Quadbits-Lab/QBTools) |
 
 ---
