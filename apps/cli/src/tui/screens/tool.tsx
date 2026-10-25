@@ -1,25 +1,31 @@
 /**
  * Tool runner screen: schema-driven form → run → progress → results.
- * Focus is a form-managed index; Tab cycles, Enter runs when on the action
- * row, Esc hands control back to the shell.
+ * Focus is a form-managed index; Tab cycles fields, Enter/Ctrl+R runs,
+ * Esc is handled by the shell (back).
  */
 
-import { useEffect, useMemo, useState } from "react";
-import type { ToolDef } from "@qbtools/registry";
 import { getTool } from "@qbtools/registry";
+import { useEffect, useMemo, useState } from "react";
+import { CancelledError, runTool } from "../../runner/execute";
+import { readInputFiles, writeOutput } from "../../runner/files";
+import { availabilityFor, RUNNERS } from "../../runner/map";
+import {
+	type RunnerField,
+	type RunnerOutput,
+	type RunnerResult,
+	UnavailableError,
+} from "../../runner/types";
+import { activeProfile, loadConfig, recordRecent } from "../../services/config";
 import {
 	AvailabilityBadge,
-	ProgressBar,
-	OutputPanel,
 	FieldInput,
 	FieldLabel,
+	inputFocus,
+	OutputPanel,
+	ProgressBar,
 } from "../components";
-import { theme } from "../theme";
-import { accents } from "../theme";
-import { runTool, CancelledError } from "../../runner/execute";
-import { UnavailableError, type RunnerOutput, type RunnerResult } from "../../runner/types";
-import { readInputFiles } from "../../runner/files";
-import { activeProfile, loadConfig, recordRecent } from "../../services/config";
+import { setKeyHandler } from "../keys";
+import { accents, theme } from "../theme";
 
 type RunState =
 	| { phase: "idle" }
@@ -27,43 +33,49 @@ type RunState =
 	| { phase: "done"; result: RunnerResult; saved: string[] }
 	| { phase: "error"; message: string };
 
-export function ToolScreen(props: { slug: string; width: number }): React.ReactElement {
-	const tool = getTool(props.slug) as ToolDef | undefined;
+export function ToolScreen(props: { slug: string; width: number }) {
+	const tool = getTool(props.slug);
+	const fields = useMemo(() => RUNNERS.get(props.slug)?.fields ?? [], [props.slug]);
 	const [focusIndex, setFocusIndex] = useState(0);
 	const [values, setValues] = useState<Record<string, unknown>>({});
 	const [run, setRun] = useState<RunState>({ phase: "idle" });
-
-	const runnerFields = useMemo(() => {
-		// Resolve lazily via registry → map (avoids importing map at module top)
-		return getRunnerFields(props.slug);
-	}, [props.slug]);
+	const runRow = fields.length;
 
 	useEffect(() => {
-		setValues(initialValues(runnerFields));
+		setValues(initialValues(fields));
 		setFocusIndex(0);
 		setRun({ phase: "idle" });
-	}, [runnerFields]);
+	}, [fields]);
 
-	if (!tool) {
-		return <text fg={theme.destructive}>Unknown tool: {props.slug}</text>;
-	}
+	// Gates global hotkeys while a text-typed field owns the keyboard.
+	useEffect(() => {
+		const field = fields[focusIndex];
+		const typing = field !== undefined && field.kind !== "select" && field.kind !== "boolean";
+		inputFocus.tag = typing ? "input" : "none";
+		return () => {
+			inputFocus.tag = "none";
+		};
+	}, [focusIndex, fields]);
 
-	const availability = getAvailability(props.slug);
-	const totalRows = runnerFields.length + 1; // last row = Run action
+	const focusIndexRef = { current: focusIndex };
+	focusIndexRef.current = focusIndex;
+	const runPhaseRef = { current: run.phase };
+	runPhaseRef.current = run.phase;
+	const valuesRef = { current: values };
+	valuesRef.current = values;
 
 	async function doRun(): Promise<void> {
-		if (run.phase === "running") return;
+		if (runPhaseRef.current === "running") return;
 		const config = await loadConfig();
 		const profile = activeProfile(config);
-		// File fields hold typed paths; resolve to File objects before running.
-		const prepared: Record<string, unknown> = { ...values };
-		for (const field of runnerFields) {
+		// File fields hold typed paths; resolve them to File objects first.
+		const prepared: Record<string, unknown> = { ...valuesRef.current };
+		for (const field of fields) {
 			if (field.kind === "file" || field.kind === "files") {
 				const raw = prepared[field.name];
 				const paths = Array.isArray(raw) ? raw : typeof raw === "string" ? [raw] : [];
 				const cleaned = paths.map((path) => String(path).trim()).filter(Boolean);
-				if (!cleaned.length) continue;
-				prepared[field.name] = await readInputFiles(cleaned);
+				if (cleaned.length) prepared[field.name] = await readInputFiles(cleaned);
 			}
 			if (field.kind === "number") {
 				const raw = prepared[field.name];
@@ -82,7 +94,6 @@ export function ToolScreen(props: { slug: string; width: number }): React.ReactE
 			const saved: string[] = [];
 			for (const output of result.outputs as RunnerOutput[]) {
 				if (output.type === "image" || output.type === "file") {
-					const { writeOutput } = await import("../../runner/files");
 					const wrote = await writeOutput(
 						{ outDir: profile.outputDir, suggestedName: output.suggestedName },
 						output.bytes,
@@ -104,43 +115,52 @@ export function ToolScreen(props: { slug: string; width: number }): React.ReactE
 	}
 
 	useEffect(() => {
-		function onKey(key: { name: string; ctrl?: boolean; shift?: boolean }) {
-			if (run.phase === "running") {
-				if (key.name === "c" && key.ctrl) setRun({ phase: "error", message: "Cancelled." });
-				return;
+		const totalRows = fields.length + 1;
+		setKeyHandler((key) => {
+			if (key.name === "escape" || key.name === "return" || key.name === "enter") {
+				if (key.name !== "escape" && focusIndexRef.current === runRow) {
+					void doRun();
+					return;
+				}
 			}
 			if (key.name === "tab") {
-				setFocusIndex((index) => (index + 1) % totalRows);
-				return;
-			}
-			if (key.name === "tab" && key.shift) {
-				setFocusIndex((index) => (index - 1 + totalRows) % totalRows);
+				setFocusIndex((index) => (index + (key.shift ? -1 : 1) + totalRows) % totalRows);
 				return;
 			}
 			if (key.name === "r" && key.ctrl) {
 				void doRun();
 				return;
 			}
-			if ((key.name === "return" || key.name === "enter") && focusIndex === runnerFields.length) {
-				void doRun();
-			}
-		}
-		// registered via shell-level key handler; nothing here
-		void onKey;
-	}, [focusIndex, runnerFields, run.phase, values, totalRows]);
+		});
+		return () => setKeyHandler(null);
+	});
+
+	if (!tool) {
+		return <text fg={theme.destructive}>Unknown tool: {props.slug}</text>;
+	}
 
 	function setValue(name: string, value: unknown): void {
 		setValues((previous) => ({ ...previous, [name]: value }));
 	}
 
-	const innerWidth = Math.max(30, props.width - 2);
+	const innerWidth = Math.max(30, props.width - 4);
+	const onRunRow = focusIndex === runRow;
 
 	return (
-		<box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
 			<box flexDirection="column">
 				<text>
-					<span fg={theme.fg}><strong>{tool.name}</strong></span>
-					<span fg={theme.textSubtle}>  /{tool.slug}</span>
+					<span fg={theme.fg}>
+						<strong>{tool.name}</strong>
+					</span>
+					<span fg={theme.textSubtle}> /{tool.slug}</span>
 				</text>
 				<text fg={theme.textDim}>{tool.tagline}</text>
 				<AvailabilityBadge slug={props.slug} />
@@ -151,8 +171,8 @@ export function ToolScreen(props: { slug: string; width: number }): React.ReactE
 			) : null}
 
 			<box flexDirection="column" gap={1}>
-				{runnerFields.map((field, index) => (
-					<box key={field.name} flexDirection="column" width={innerWidth}>
+				{fields.map((field, index) => (
+					<box key={`${props.slug}-${field.name}`} flexDirection="column" width={innerWidth}>
 						<FieldLabel field={field} />
 						<FieldInput
 							field={field}
@@ -163,11 +183,8 @@ export function ToolScreen(props: { slug: string; width: number }): React.ReactE
 						/>
 					</box>
 				))}
-				<text
-					fg={focusIndex === runnerFields.length ? accents.emerald : theme.textDim}
-					style={{ attributes: focusIndex === runnerFields.length ? 1 : 0 }}
-				>
-					{focusIndex === runnerFields.length ? "▶ Run (Enter or Ctrl+R)" : "  Run (Tab here, then Enter)"}
+				<text fg={onRunRow ? accents.emerald : theme.textSubtle}>
+					{onRunRow ? "▶ Run (Enter or Ctrl+R)" : "  Run (Tab to this row, then Enter)"}
 				</text>
 			</box>
 
@@ -182,26 +199,12 @@ export function ToolScreen(props: { slug: string; width: number }): React.ReactE
 					</box>
 				</scrollbox>
 			) : null}
-			{run.phase === "error" ? (
-				<text fg={theme.destructive}>✗ {run.message}</text>
-			) : null}
+			{run.phase === "error" ? <text fg={theme.destructive}>✗ {run.message}</text> : null}
 		</box>
 	);
 }
 
-/* --- lookup helpers kept module-local so map import stays lazy --- */
-
-import { RUNNERS, availabilityFor } from "../../runner/map";
-
-function getRunnerFields(slug: string) {
-	return RUNNERS.get(slug)?.fields ?? [];
-}
-
-function getAvailability(slug: string) {
-	return availabilityFor(slug);
-}
-
-function initialValues(fields: ReturnType<typeof getRunnerFields>): Record<string, unknown> {
+function initialValues(fields: RunnerField[]): Record<string, unknown> {
 	const values: Record<string, unknown> = {};
 	for (const field of fields) {
 		if (field.default !== undefined) values[field.name] = field.default;

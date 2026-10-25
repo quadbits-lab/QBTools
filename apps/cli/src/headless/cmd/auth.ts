@@ -1,0 +1,176 @@
+/**
+ * Auth commands: login (API key), logout, whoami, and favorites/recents
+ * synchronization with the configured QBTools server.
+ */
+
+import {
+	ApiError,
+	getFavorites,
+	getRecents,
+	putFavorites,
+	putRecents,
+	whoami,
+} from "../../services/api";
+import { clearAuth, loadAuth, saveAuth } from "../../services/auth-store";
+import { loadConfig, saveConfig, serverUrl } from "../../services/config";
+import { getBool, getString } from "../args";
+import { type Command, EXIT_ERROR, EXIT_OK, EXIT_UNAVAILABLE } from "../command";
+
+export const loginCommand: Command = {
+	name: "login",
+	summary: "Sign in with a CLI API key (created in the web dashboard)",
+	flags: [
+		{ name: "api-key", arg: "value", description: "Use this API key (qbk_…)" },
+		{
+			name: "name",
+			arg: "value",
+			description: "Friendly name when creating a key from inside the flow",
+		},
+		{ name: "json", description: "Print the signed-in user as JSON" },
+	],
+	async run({ args, io }) {
+		const apiKey = getString(args, "api-key");
+		const config = await loadConfig();
+		const base = serverUrl(config);
+
+		if (!apiKey) {
+			io.out(`1. Open ${base}/dashboard/settings and find the "CLI API keys" card.`);
+			io.out("2. Create a key and copy it (the value is shown only once).");
+			io.out("3. Run: qbtools login --api-key qbk_…");
+			return EXIT_OK;
+		}
+		if (!apiKey.startsWith("qbk_")) {
+			io.err("That doesn't look like a QBTools CLI key (expected qbk_…).");
+			return EXIT_ERROR;
+		}
+		await saveAuth({
+			version: 1,
+			kind: "token",
+			token: apiKey,
+			savedAt: new Date().toISOString(),
+		});
+		try {
+			const user = await whoami();
+			await saveAuth({
+				version: 1,
+				kind: "token",
+				token: apiKey,
+				user: { id: user.id, name: user.name, email: user.email },
+				savedAt: new Date().toISOString(),
+			});
+			await syncFavoritesAndRecents(io, { quiet: false });
+			if (getBool(args, "json")) {
+				io.out(JSON.stringify(user, null, "\t"));
+			} else {
+				io.out(`Signed in as ${user.name ?? user.email ?? user.id} (API key).`);
+			}
+			return EXIT_OK;
+		} catch (error) {
+			await clearAuth();
+			if (error instanceof ApiError) {
+				io.err(error.message);
+				return error.status === 401 ? EXIT_UNAVAILABLE : EXIT_ERROR;
+			}
+			io.err(`Login failed: ${error instanceof Error ? error.message : String(error)}`);
+			return EXIT_ERROR;
+		}
+	},
+};
+
+export const logoutCommand: Command = {
+	name: "logout",
+	summary: "Forget stored credentials",
+	async run({ io }) {
+		const auth = await loadAuth();
+		if (!auth) {
+			io.out("Not signed in.");
+			return EXIT_OK;
+		}
+		await clearAuth();
+		io.out(
+			"Credentials removed from this machine. Revoke the key in the dashboard if it's still active.",
+		);
+		return EXIT_OK;
+	},
+};
+
+export const whoamiCommand: Command = {
+	name: "whoami",
+	summary: "Show the signed-in user and server",
+	flags: [{ name: "json", description: "Print as JSON" }],
+	async run({ args, io }) {
+		const auth = await loadAuth();
+		if (!auth) {
+			io.err("Not signed in. Create a key in the dashboard, then: qbtools login --api-key qbk_…");
+			return EXIT_UNAVAILABLE;
+		}
+		try {
+			const user = await whoami();
+			if (getBool(args, "json")) {
+				io.out(JSON.stringify(user, null, "\t"));
+				return EXIT_OK;
+			}
+			io.out(`Signed in as ${user.name ?? "(no name)"} <${user.email}> via ${user.authKind}`);
+			io.out(`Server: ${user.server}`);
+			return EXIT_OK;
+		} catch (error) {
+			if (error instanceof ApiError) {
+				io.err(error.message);
+				return error.status === 401 ? EXIT_UNAVAILABLE : EXIT_ERROR;
+			}
+			const config = await loadConfig();
+			io.err(`Server unreachable (${serverUrl(config)}). Check your connection or config.`);
+			return EXIT_ERROR;
+		}
+	},
+};
+
+/** Merge-and-push favorites; newest-first recents merge, capped both sides. */
+export async function syncFavoritesAndRecents(
+	io: { out(line?: string): void; err(line?: string): void },
+	options: { quiet?: boolean } = {},
+): Promise<void> {
+	const config = await loadConfig();
+	const note = (line: string) => {
+		if (!options.quiet) io.out(line);
+	};
+	try {
+		const [serverFavorites, serverRecents] = await Promise.all([getFavorites(), getRecents()]);
+		const mergedFavorites = [...new Set([...serverFavorites.slugs, ...config.favorites])];
+		// Local recents first: they are the freshest (recording happens at run time).
+		const mergedRecents = [...new Set([...config.recents, ...serverRecents.slugs])].slice(0, 10);
+		// Converge BOTH sides to the union: push when the server lacks anything,
+		// save locally when the server knew something the client didn't.
+		const serverFavoritesChanged = mergedFavorites.join(",") !== serverFavorites.slugs.join(",");
+		const serverRecentsChanged = mergedRecents.join(",") !== serverRecents.slugs.join(",");
+		const localFavoritesChanged = mergedFavorites.join(",") !== config.favorites.join(",");
+		const localRecentsChanged = mergedRecents.join(",") !== config.recents.join(",");
+		if (serverFavoritesChanged || serverRecentsChanged) {
+			await putFavorites(mergedFavorites);
+			await putRecents(mergedRecents);
+		}
+		if (
+			localFavoritesChanged ||
+			localRecentsChanged ||
+			serverFavoritesChanged ||
+			serverRecentsChanged
+		) {
+			await saveConfig({
+				...config,
+				favorites: mergedFavorites,
+				recents: mergedRecents,
+			});
+			note(
+				`Synced favorites (${mergedFavorites.length}) and recents (${mergedRecents.length}) with the server.`,
+			);
+		} else {
+			note("Favorites and recents already in sync.");
+		}
+	} catch (error) {
+		if (error instanceof ApiError && error.status === 401) throw error;
+		// Offline or server hiccup: local state stays authoritative, login keeps it.
+		note("Server unreachable — favorites kept locally and will sync on the next login.");
+	}
+}
+
+export const authCommands: Command[] = [loginCommand, logoutCommand, whoamiCommand];

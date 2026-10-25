@@ -1,38 +1,59 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Commands
 
-QBTools is a Bun workspace monorepo using TanStack Start, React, TypeScript, and Tailwind CSS.
-- `apps/web/src/routes/`: pages and server routes; `components/`: shared interface components; `server/`: server functions and configuration.
-- `apps/web/src/tools/<slug>/index.tsx`: individual tool widgets; `apps/web/public/`: static assets.
-- `packages/engines/`: framework-free processing logic; `packages/registry/`: tool metadata, categories, SEO copy, and search.
-- `packages/ui/`: design tokens and primitives; `packages/content/`: guides; `packages/db/`: SQLite schema, migrations, and backups.
-- Tests live beside source files as `*.test.ts`. Deployment lives in `docker/` and Compose files.
+Run from the repo root. Bun 1.4+ (workspace pinned to 1.4.3); `dev`/`build`/`typecheck` are orchestrated by Turborepo, `lint` is plain Biome.
 
-## Build, Test, and Development Commands
+- `bun install`
+- `bun run dev` — dev server at `http://localhost:8310` (strict port). The web `dev` script first runs `scripts/prepare-wasm.ts` + `scripts/build-sw.ts`; if `apps/web/public/wasm/` or `public/sw.js` are missing/stale, rerun via `bun run dev` — they are generated, never hand-edit them.
+- `bun test` — all unit tests. Focused: `bun test packages/engines/src/text/text.test.ts`
+- `bun run typecheck` — `tsc --noEmit` in every workspace package
+- `bun run lint` / `bun run format` — Biome `check` / `check --write`
+- `bun run build && bun run start` — production build + `apps/web/server.ts`
+- `bun run test:browser` — Playwright suite (see Testing)
+- `bun run cli` — OpenTUI terminal app in `apps/cli` (published as `qbtools` on npm)
 
-Run commands from the repository root with Bun 1.4 or newer (package manager pinned to 1.4.3).
-- `bun install`: install workspace dependencies.
-- `bun run dev`: start development at `http://localhost:8310`.
-- `bun test`: run all unit tests.
-- `bun run typecheck`: check TypeScript across workspaces.
-- `bun run lint`: run Biome checks; `bun run format`: apply formatting and automated fixes.
-- `bun run build && bun run start`: build and serve production locally.
+## Layout
 
-## Coding Style & Naming Conventions
+- `apps/web/` — TanStack Start app (React 19, Tailwind v4, Vite). `src/routes/` file-based routing; `src/tools/<slug>/index.tsx` lazily-loaded tool widgets; `src/server/` server functions (AI, auth, admin, rate limiting); `server.ts` production entry.
+- `apps/cli/` — terminal app reusing `@qbtools/engines` + `@qbtools/registry`. **Adding a tool requires CLI coverage too**: a runner in `apps/cli/src/runner/` + `map.ts`, or an explicit entry in `WEB_ONLY_TOOLS`. Enforced by `runner-map.test.ts`.
+- `packages/registry/` — `ToolDef` metadata per category in `src/tools/<category>.ts`; drives search index, sitemap, and recommendations automatically.
+- `packages/engines/` — framework-free processing logic. `packages/ui/` tokens + primitives; `packages/db/` SQLite/PGlite schemas; `packages/content/` guides.
 
-Use strict TypeScript, tab indentation, double quotes, and Biome's 100-character line width and import organization. Follow existing kebab-case filenames and tool slugs, PascalCase React components, and camelCase functions. Avoid editing generated `routeTree.gen.ts`. Keep processing logic in engines and load heavy browser dependencies lazily.
+## Adding a tool
 
-## Testing Guidelines
+1. `ToolDef` in `packages/registry/src/tools/<category>.ts`
+2. Engine logic + `*.test.ts` in `packages/engines/`
+3. Widget at `apps/web/src/tools/<slug>/index.tsx`, lazy entry in `apps/web/src/tools/widgets.ts` (parity enforced by `widgets.test.ts`)
+4. CLI runner or `WEB_ONLY_TOOLS` entry (see above)
+5. `bun test`, then `bun run typecheck` and `bun run lint`
 
-Use `bun:test` with descriptive `describe`/`test` cases and `expect` assertions. Run focused tests with, for example, `bun test packages/engines/src/text/text.test.ts`. Cover behavior, edge cases, and regressions; no numeric coverage threshold is configured.
+## Generated code & migrations
 
-When adding a tool, define its `ToolDef` in the registry, add engine logic and tests, create its widget, and register it in `apps/web/src/tools/widgets.ts`. The widget parity test checks registry alignment. Run tests, typecheck, lint, and build before submitting.
+- `apps/web/src/routeTree.gen.ts` is emitted by the TanStack Start Vite plugin on dev/build — do not edit.
+- `apps/web/public/wasm/` and `apps/web/public/sw.js` are build artifacts (gitignored).
+- DB migrations live as code in `packages/db/src/` and are applied programmatically by `migrate()` on DB creation — there is no drizzle-kit CLI. `bun run db:backup` does a safe online SQLite snapshot.
 
-## Commit & Pull Request Guidelines
+## Environment
 
-Recent commits use descriptive phase summaries such as `Phase 6-12 Updates, Bug Fixes, RBAC Auth`; no strict commit format is established. Prefer focused messages describing the change. PRs should explain behavior changes, link relevant issues, report validation, and include screenshots for interface changes.
+- `.env` is loaded from the **repo root** (Vite `envDir` in `apps/web/vite.config.ts`); values only apply when the corresponding process env var is unset. Compose files (`compose.yml`, `compose.dev.yml`) read the root `.env`. Full flag reference: `.env.example`.
+- Server config is zod-validated in `apps/web/src/server/env.ts` (`ADMIN_TOKEN` ≥ 16 chars or empty; AI/rate-limit knobs).
+- Turbo build passes through only `VITE_*` and `SITE_URL` plus the vars listed in `turbo.json` `globalPassThroughEnv` — new env vars used at build time must be added there or builds won't see them.
 
-## Security & Configuration
+## Testing
 
-Use `.env.example` for configuration; never commit secrets. Keep file processing browser-local and disclose server-bound AI requests. Preserve server-side validation, rate limits, and admin authorization checks.
+- Unit tests use `bun:test`, files named `*.test.ts` beside sources.
+- Browser tests: only `*.pw.ts` files under `tests/browser/`, run **serially** (`workers: 1`) across chromium/firefox/webkit. Playwright auto-starts the dev server on port 8311 unless `QBTOOLS_TEST_URL` points at an external server (e.g. the Docker container); setup waits for `/api/health` up to 30s.
+- Binary fixtures live in `tests/fixtures/` (regenerate with `scripts/generate-media-fixtures.sh`).
+
+## Coding Style
+
+Strict TypeScript. Biome: tabs, double quotes, 100-char lines, organized imports; linting is disabled for `packages/ui/src/primitives/**`. kebab-case filenames and tool slugs, PascalCase components, camelCase functions. Keep processing logic in `packages/engines/`; load heavy browser dependencies (WASM, ML models) lazily per tool.
+
+## Security
+
+Never commit secrets (`.env*` is gitignored except `.env.example`). File processing must stay browser-local; only AI grammar/paraphrase tools hit the server — keep those requests disclosed, character-capped, and IP rate-limited. Preserve server-side Zod validation, rate limits, and admin HMAC-cookie authorization in any change to `apps/web/src/server/`.
+
+## Commits & PRs
+
+No strict commit format — use focused, descriptive messages. PRs should explain behavior changes, link issues, report test/typecheck/lint results, and include screenshots for UI changes.

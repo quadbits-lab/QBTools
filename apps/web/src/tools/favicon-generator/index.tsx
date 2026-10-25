@@ -23,7 +23,7 @@ import { Field } from "@qbtools/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@qbtools/ui/tabs";
 import { cn, formatBytes } from "@qbtools/ui/utils";
 import { Download, FileArchive, Loader2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CopyButton } from "#/components/kit/copy-button";
 import { Notice } from "#/components/kit/notice";
 import { PrivacyNote } from "#/components/kit/privacy-note";
@@ -33,6 +33,7 @@ import { useGraphicPreview } from "#/lib/graphic-preview";
 import { ProcessingWorker } from "#/lib/processing/worker-client";
 import type { ToolWidgetProps } from "#/tools/types";
 import { ArtworkEditor, CropControls } from "./artwork";
+import { FaviconSnippets } from "./snippets";
 
 export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 	const [design, setDesign] = useState(() => defaultIconDesign("favicon"));
@@ -83,6 +84,19 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 	const preview = useGraphicPreview(design, renderPreview);
 	const previewUrl = useObjectUrl(preview.blob);
 
+	const maskableDesign = useMemo(
+		() => ({
+			...design,
+			artwork: {
+				...design.artwork,
+				padding: Math.max(design.artwork.padding, 0.26),
+			},
+		}),
+		[design],
+	);
+	const maskablePreview = useGraphicPreview(maskableDesign, renderPreview);
+	const maskableUrl = useObjectUrl(maskablePreview.blob);
+
 	const htmlSnippet = [
 		`<link rel="icon" href="${options.assetPath}favicon.ico" sizes="48x48">`,
 		`<link rel="icon" type="image/svg+xml" href="${options.assetPath}favicon.svg">`,
@@ -128,7 +142,7 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 		<div className="flex flex-col gap-8">
 			<PrivacyNote text="Your artwork is never uploaded. All icons are generated on this device." />
 
-			<div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
+			<div className="grid items-start gap-6 lg:grid-cols-[1fr_1fr]">
 				{/* Previews ------------------------------------------------ */}
 				<div className="flex flex-col gap-4">
 					<div className="border border-input bg-surface-2 p-6">
@@ -203,41 +217,44 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 					</div>
 
 					{/* Maskable */}
-					<div className="grid grid-cols-3 gap-3">
-						{["circle", "squircle", "rounded-square"].map((shape) => (
-							<div key={shape} className="flex flex-col items-center gap-1">
-								<div className="relative size-20">
-									{preview.blob ? (
-										<img
-											src={previewUrl}
-											alt={`${shape} mask preview`}
+					<div className="flex flex-col gap-2">
+						<span className="label-mono text-subtle">Maskable icon preview</span>
+						<div className="grid grid-cols-3 gap-3">
+							{["circle", "squircle", "rounded-square"].map((shape) => (
+								<div key={shape} className="flex flex-col items-center gap-1">
+									<div className="relative size-20">
+										{maskablePreview.blob || preview.blob ? (
+											<img
+												src={maskableUrl || previewUrl}
+												alt={`${shape} mask preview`}
+												className={cn(
+													"size-full",
+													shape === "circle" && "rounded-full",
+													shape === "squircle" && "rounded-[28%]",
+													shape === "rounded-square" && "rounded-xl",
+												)}
+												style={{ display: "block" }}
+											/>
+										) : null}
+										<div
+											aria-hidden
 											className={cn(
-												"size-full",
+												"pointer-events-none absolute inset-0 border-2 border-dashed border-foreground/50",
 												shape === "circle" && "rounded-full",
 												shape === "squircle" && "rounded-[28%]",
 												shape === "rounded-square" && "rounded-xl",
 											)}
-											style={{ display: "block" }}
 										/>
-									) : null}
-									<div
-										aria-hidden
-										className={cn(
-											"pointer-events-none absolute inset-0 border-2 border-dashed border-foreground/50",
-											shape === "circle" && "rounded-full",
-											shape === "squircle" && "rounded-[28%]",
-											shape === "rounded-square" && "rounded-xl",
-										)}
-									/>
+									</div>
+									<span className="label-mono text-subtle">{shape}</span>
 								</div>
-								<span className="label-mono text-subtle">{shape}</span>
-							</div>
-						))}
+							))}
+						</div>
+						<p className="text-xs text-muted-foreground">
+							Maskable exports keep artwork inside the safe circle; corner masks here are preview
+							only — exported icons stay square.
+						</p>
 					</div>
-					<p className="text-xs text-muted-foreground">
-						Maskable exports keep artwork inside the safe circle; corner masks here are preview only
-						— exported icons stay square.
-					</p>
 
 					{(preview.warnings.length > 0 || warnings.length > 0) && (
 						<Notice tone="caution">
@@ -253,10 +270,19 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 				{/* Controls ------------------------------------------------ */}
 				<div className="flex flex-col gap-4">
 					<Tabs defaultValue="artwork">
-						<TabsList>
-							<TabsTrigger value="artwork">Artwork</TabsTrigger>
-							<TabsTrigger value="app">Names & colors</TabsTrigger>
-							<TabsTrigger value="output">Output</TabsTrigger>
+						<TabsList className="grid w-full grid-cols-4">
+							<TabsTrigger value="artwork" className="px-1.5 text-xs sm:px-3 sm:text-sm">
+								Artwork
+							</TabsTrigger>
+							<TabsTrigger value="app" className="px-1.5 text-xs sm:px-3 sm:text-sm">
+								Names & colors
+							</TabsTrigger>
+							<TabsTrigger value="output" className="px-1.5 text-xs sm:px-3 sm:text-sm">
+								Output
+							</TabsTrigger>
+							<TabsTrigger value="snippets" className="px-1.5 text-xs sm:px-3 sm:text-sm">
+								Code Snippets
+							</TabsTrigger>
 						</TabsList>
 
 						<TabsContent value="artwork">
@@ -362,6 +388,10 @@ export default function FaviconGenerator({ params: _params }: ToolWidgetProps) {
 									README explains both.
 								</Notice>
 							</div>
+						</TabsContent>
+
+						<TabsContent value="snippets">
+							<FaviconSnippets options={options} />
 						</TabsContent>
 					</Tabs>
 

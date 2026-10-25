@@ -6,6 +6,8 @@
 
 import type { ProcessingOptions, ProcessingProgress } from "@qbtools/engines/processing";
 
+export type { ProcessingOptions, ProcessingProgress };
+
 /** How a tool executes in the CLI. Mirrors the plan's coverage tiers. */
 export type Availability =
 	| "local" // engines run headless today
@@ -118,9 +120,41 @@ export function strList(values: RunnerValues, name: string): string[] {
 
 export function files(values: RunnerValues, name: string): File[] {
 	const value = values[name];
-	if (Array.isArray(value)) return value.filter((v): v is File => v instanceof File);
-	if (value instanceof File) return [value];
-	return [];
+	if (!Array.isArray(value)) {
+		return value instanceof File ? [value] : [];
+	}
+	// FileRef entries carry the resolved File plus its source path.
+	return value.flatMap((entry) => {
+		if (entry && typeof entry === "object" && "file" in entry) {
+			const file = (entry as { file?: unknown }).file;
+			return file instanceof File ? [file] : [];
+		}
+		return entry instanceof File ? [entry] : [];
+	});
+}
+
+/** FileRef: a resolved input File plus the path it came from. */
+export interface FileRef {
+	file: File;
+	path: string;
+}
+
+export function isFileRef(value: unknown): value is FileRef {
+	return (
+		value !== null &&
+		typeof value === "object" &&
+		"file" in value &&
+		(value as { file?: unknown }).file instanceof File &&
+		"path" in value &&
+		typeof (value as { path?: unknown }).path === "string"
+	);
+}
+
+/** Original filesystem paths behind a file field (media subprocess inputs). */
+export function filePaths(values: RunnerValues, name: string): string[] {
+	const value = values[name];
+	if (!Array.isArray(value)) return isFileRef(value) ? [value.path] : [];
+	return value.filter(isFileRef).map((entry) => entry.path);
 }
 
 export function requireString(values: RunnerValues, name: string, label: string): string {

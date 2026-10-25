@@ -1,0 +1,165 @@
+/**
+ * Category browse screen and live search screen. Both are simple tool lists;
+ * the shared list rendering keeps their look identical.
+ */
+
+import type { SelectOption } from "@opentui/core";
+import {
+	buildSearchIndex,
+	categories,
+	getTool,
+	type ToolDef,
+	tools,
+	toolsInCategory,
+} from "@qbtools/registry";
+import { useEffect, useState } from "react";
+import { inputFocus } from "../components";
+import { accents, theme } from "../theme";
+
+export interface ToolListMeta {
+	slug: string;
+	name: string;
+	note: string;
+}
+
+export function ToolListScreen(props: {
+	title: string;
+	tools: ToolListMeta[];
+	onOpenTool(slug: string): void;
+	focused?: boolean;
+}) {
+	const [note, setNote] = useState(props.tools[0] ? noteFor(props.tools[0].slug) : "");
+	return (
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
+			<text>
+				<span fg={theme.fg}>
+					<strong>{props.title}</strong>
+				</span>
+				<span fg={theme.textSubtle}> — {props.tools.length} tools · Enter opens</span>
+			</text>
+			<text>{note}</text>
+			<select
+				focused={props.focused !== false}
+				options={props.tools.map((tool) => ({
+					name: tool.name,
+					description: "",
+					value: tool.slug,
+				}))}
+				onChange={(index: number) => {
+					const entry = props.tools[index];
+					if (entry) setNote(noteFor(entry.slug));
+				}}
+				onSelect={(_index: number, option: SelectOption | null) =>
+					props.onOpenTool(String(option?.value ?? ""))
+				}
+				height="100%"
+				selectedBackgroundColor={theme.muted}
+				selectedTextColor={theme.fg}
+			/>
+		</box>
+	);
+}
+
+export function noteFor(slug: string): string {
+	const tool = getTool(slug);
+	return tool ? tool.tagline : "";
+}
+
+export function categoryListMeta(categoryId: string): ToolListMeta[] {
+	return toolsInCategory(categoryId as never).map((tool: ToolDef) => ({
+		slug: tool.slug,
+		name: tool.name,
+		note: tool.tagline,
+	}));
+}
+
+export function categoryName(categoryId: string): string {
+	return categories.find((category) => category.id === categoryId)?.name ?? categoryId;
+}
+
+/* ---------- search ---------- */
+
+export function SearchScreen(props: { width: number; onOpenTool(slug: string): void }) {
+	const [query, setQuery] = useState("");
+	const results = searchTools(query);
+	const [note, setNote] = useState("");
+	// The search input always owns the keyboard — suppress global hotkeys.
+	useEffect(() => {
+		inputFocus.tag = "input";
+		return () => {
+			inputFocus.tag = "none";
+		};
+	}, []);
+	return (
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
+			<text>
+				<span fg={theme.fg}>
+					<strong>Search</strong>
+				</span>
+				<span fg={theme.textSubtle}> — type to filter, Tab to results, Enter opens</span>
+			</text>
+			<input
+				value={query}
+				onChange={setQuery}
+				placeholder="e.g. pdf, resize, password…"
+				width={Math.max(30, props.width - 4)}
+				focused
+				textColor={theme.fg}
+				backgroundColor={theme.card}
+				focusedBackgroundColor={theme.secondary}
+				placeholderColor={theme.textSubtle}
+				cursorColor={theme.fg}
+			/>
+			{query.trim() ? (
+				<select
+					options={results.map((result) => ({
+						name: result.name,
+						description: "",
+						value: result.slug,
+					}))}
+					onChange={(index: number) => {
+						const entry = results[index];
+						if (entry) setNote(noteFor(entry.slug));
+					}}
+					onSelect={(_index: number, option: SelectOption | null) =>
+						props.onOpenTool(String(option?.value ?? ""))
+					}
+					height="100%"
+					selectedBackgroundColor={theme.muted}
+					selectedTextColor={theme.fg}
+				/>
+			) : (
+				<text fg={theme.textSubtle}>
+					{note || "Start typing — the index matches names, slugs, keywords."}
+				</text>
+			)}
+		</box>
+	);
+}
+
+function searchTools(query: string): ToolListMeta[] {
+	const trimmed = query.trim();
+	if (!trimmed) return [];
+	const index = buildSearchIndex(tools);
+	return index.search(trimmed, 15).map((result) => ({
+		slug: result.tool.slug,
+		name: result.tool.name,
+		note: result.tool.tagline,
+	}));
+}
+
+export { accents, theme };

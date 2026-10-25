@@ -1,14 +1,37 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-10-25T04:26:18.883Z",
+  "recordedAt": "2026-10-25T05:28:34.658Z",
   "sessionId": "session_a4d7135783050fb9adbeeea5d3c5f9fb",
-  "event": "PostToolUse",
+  "event": "PreToolUse",
   "toolName": "Edit",
-  "file": "src/assets.test.ts",
-  "outcome": "clear",
-  "coverage": "complete",
+  "file": "/Users/quadbits/RD/QBTools/apps/cli/src/services/media.ts",
+  "outcome": "inconclusive",
+  "coverage": "partial",
   "findingCount": 0,
-  "durationMs": 3,
-  "hostState": "hook_complete",
+  "durationMs": 216,
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "PreToolUse",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 216,
+    "peakMemoryBytes": 203898880,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 1,
+    "cache": {
+      "hits": 0,
+      "misses": 1,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "hostState": "hook_complete_waiting_host_tool_decision",
   "reportHint": ".mimosa/reports/"
 }

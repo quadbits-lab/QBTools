@@ -3,8 +3,8 @@
  * with pre-built values, maps cancellation and unavailability to typed errors.
  */
 
-import { UnavailableError, type RunnerContext, type RunnerResult, type ToolRunner } from "./types";
 import { runnerFor, WEB_ONLY_TOOLS } from "./map";
+import { type RunnerContext, type RunnerResult, type ToolRunner, UnavailableError } from "./types";
 
 export class CancelledError extends Error {
 	constructor() {
@@ -25,7 +25,10 @@ export async function runTool(slug: string, options: RunOptions): Promise<Runner
 	const runner: ToolRunner | undefined = runnerFor(slug);
 	if (!runner) {
 		if (WEB_ONLY_TOOLS.has(slug)) {
-			throw new UnavailableError("web", `"${slug}" runs in the browser. Open it with: qbtools open ${slug}`);
+			throw new UnavailableError(
+				"web",
+				`"${slug}" runs in the browser. Open it with: qbtools open ${slug}`,
+			);
 		}
 		throw new Error(`Unknown tool: ${slug}. Run \`qbtools list\` to see every tool.`);
 	}

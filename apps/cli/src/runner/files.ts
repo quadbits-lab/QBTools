@@ -5,18 +5,20 @@
 
 import { mkdir } from "node:fs/promises";
 import { basename, join } from "node:path";
+import type { FileRef } from "./types";
 
 const MAX_INPUT_BYTES = 128 * 1024 * 1024;
 
-/** Read one or more filesystem paths into File objects (as the engines expect). */
-export async function readInputFiles(paths: readonly string[]): Promise<File[]> {
+/** Read one or more filesystem paths into FileRefs (File + source path).
+ * Engines receive the File; runners needing the on-disk path use filePaths(). */
+export async function readInputFiles(paths: readonly string[]): Promise<FileRef[]> {
 	if (!paths.length) throw new Error("No input files given. Use --in <path> […].");
-	const results: File[] = [];
+	const results: FileRef[] = [];
 	for (const path of paths) {
 		const file = Bun.file(path);
 		if (!(await file.exists())) throw new Error(`Input file not found: ${path}`);
 		if (file.size > MAX_INPUT_BYTES) throw new Error(`Input file is too large (>128 MiB): ${path}`);
-		results.push(new File([await file.arrayBuffer()], basename(path)));
+		results.push({ file: new File([await file.arrayBuffer()], basename(path)), path });
 	}
 	return results;
 }
@@ -56,6 +58,20 @@ async function dedupePath(dir: string, name: string): Promise<string> {
 	return candidate;
 }
 
+/**
+ * Reserve an output path for a process that writes the file itself
+ * (ffmpeg), with the same dedupe behavior as writeOutput.
+ */
+export async function pickOutputPath(outDir: string, suggestedName: string): Promise<string> {
+	await mkdir(outDir, { recursive: true });
+	return dedupePath(outDir, suggestedName);
+}
+
+export function stemOf(name: string): string {
+	const ext = name.slice(name.lastIndexOf("."));
+	return name.slice(0, name.length - ext.length);
+}
+
 export function formatBytes(bytes: number): string {
 	if (bytes < 1024) return `${bytes} B`;
 	const units = ["KiB", "MiB", "GiB"];
@@ -67,4 +83,9 @@ export function formatBytes(bytes: number): string {
 		unit = next;
 	}
 	return `${value.toFixed(value >= 100 ? 0 : 1)} ${unit}`;
+}
+
+/** Size of a file the runner (or a subprocess) has written. */
+export async function statFile(path: string): Promise<number> {
+	return Bun.file(path).size;
 }

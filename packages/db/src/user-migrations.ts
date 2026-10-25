@@ -50,4 +50,13 @@ ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS display_username text;
 ALTER TABLE auth_user ADD COLUMN IF NOT EXISTS phone text;
 `,
 	},
+	{
+		id: "0003_cli_tokens",
+		sql: `
+CREATE TABLE IF NOT EXISTS cli_token (id text PRIMARY KEY, user_id text NOT NULL REFERENCES auth_user(id) ON DELETE CASCADE,
+ token_hash text NOT NULL UNIQUE, name text NOT NULL DEFAULT 'CLI', created_at timestamptz NOT NULL DEFAULT now(),
+ last_used_at timestamptz, expires_at timestamptz);
+CREATE INDEX IF NOT EXISTS cli_token_user_idx ON cli_token(user_id);
+`,
+	},
 ];

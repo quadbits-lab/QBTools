@@ -3,7 +3,7 @@
  * stdin/stdout piping. Rendering helpers live here so the TUI reuses them.
  */
 
-import { runTool, CancelledError } from "../../runner/execute";
+import { CancelledError, runTool } from "../../runner/execute";
 import { readInputFiles } from "../../runner/files";
 import {
 	type RunnerOutput,

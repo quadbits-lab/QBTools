@@ -57,7 +57,14 @@ export const Route = createRootRoute({
 				{ rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
 				{ rel: "manifest", href: "/manifest.webmanifest" },
 			],
-			scripts: [{ children: THEME_INIT_SCRIPT }, ...(privatePage ? [] : analyticsScripts())],
+			scripts: [
+				{ children: THEME_INIT_SCRIPT }, ...(privatePage ? [] : analyticsScripts()),
+				{
+					src: "https://analytics.quadbits.app/script.js",
+					'data-website-id': "54309095-f625-429c-bea8-9da2f2acca3a",
+					defer: true,
+				}
+			],
 		};
 	},
 	component: RootComponent,

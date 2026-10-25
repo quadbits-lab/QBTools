@@ -2,6 +2,8 @@
  * Headless command registry. Commands are ordered for help output.
  */
 
+import { authCommands } from "./cmd/auth";
+import { cleanupCommand } from "./cmd/cleanup";
 import { completionsCommand } from "./cmd/completions";
 import { infoCommand, openCommand, searchCommand } from "./cmd/discover";
 import { helpCommand } from "./cmd/help";
@@ -17,6 +19,8 @@ export const COMMANDS: Command[] = [
 	searchCommand,
 	infoCommand,
 	openCommand,
+	cleanupCommand,
+	...authCommands,
 	helpCommand((): readonly Command[] => COMMANDS),
 	completionsCommand((): readonly Command[] => COMMANDS),
 ];

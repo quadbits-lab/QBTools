@@ -1,10 +1,10 @@
 {
   "schemaVersion": "mimosa-hook-status/v1",
-  "recordedAt": "2026-10-25T05:07:05.832Z",
+  "recordedAt": "2026-10-25T06:19:49.497Z",
   "sessionId": "session_a4d7135783050fb9adbeeea5d3c5f9fb",
   "event": "PostToolUse",
   "toolName": "Edit",
-  "file": "apps/cli/src/headless/cmd/run.ts",
+  "file": "apps/cli/src/services/cleanup/clean.ts",
   "outcome": "clear",
   "coverage": "complete",
   "findingCount": 0,

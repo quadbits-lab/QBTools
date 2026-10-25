@@ -1,0 +1,86 @@
+/**
+ * Cleanup path guards. Every candidate entering a delete operation must pass
+ * three checks: it lives inside the category's allowlisted base (realpath
+ * comparison), it is a regular file or real directory (never a symlink or
+ * device/socket), and it is not the base itself.
+ */
+
+import { lstat, realpath, type Stats } from "node:fs/promises";
+
+export interface GuardedPath {
+	/** The path as scanned (inside base). */
+	path: string;
+	/** Realpath of the deepest existing component. */
+	realPath: string;
+	/** Realpath of the category base. */
+	baseRealPath: string;
+	size: number;
+	isDirectory: boolean;
+	depth: number;
+}
+
+export type GuardResult =
+	| { ok: true; guarded: GuardedPath }
+	| { ok: false; reason: string };
+
+/** Resolve the realpath of the deepest existing ancestor (base must exist). */
+async function existingRealPath(path: string): Promise<string> {
+	let current = path;
+	const climbed: string[] = [];
+	for (;;) {
+		try {
+			const real = await realpath(current);
+			let suffix = "";
+			for (const part of climbed) {
+				suffix = `${suffix}/${part}`;
+			}
+			return suffix ? `${real}${suffix}` : real;
+		} catch {
+			const cut = current.lastIndexOf("/");
+			if (cut <= 0) throw new Error(`Cannot resolve ${path}`);
+			climbed.unshift(current.slice(cut + 1));
+			current = current.slice(0, cut);
+		}
+	}
+}
+
+/**
+ * Vet one scanned candidate against its allowlisted base. Throws nothing —
+ * every rejection returns a reason so scans can report skips.
+ */
+export async function guardCandidate(
+	path: string,
+	base: string,
+): Promise<GuardResult> {
+	try {
+		const baseRealPath = await realpath(base);
+		const stats: Stats = await lstat(path);
+		const realPath = await existingRealPath(path);
+		const normalized = realPath.endsWith("/") ? realPath.slice(0, -1) : realPath;
+		if (normalized === baseRealPath) {
+			return { ok: false, reason: "candidate is the base directory itself" };
+		}
+		if (!normalized.startsWith(`${baseRealPath}/`)) {
+			return { ok: false, reason: "candidate escapes the allowlisted base" };
+		}
+		if (stats.isSymbolicLink()) {
+			return { ok: false, reason: "candidate is a symlink" };
+		}
+		if (!stats.isFile() && !stats.isDirectory()) {
+			return { ok: false, reason: "candidate is not a regular file or directory" };
+		}
+		return {
+			ok: true,
+			guarded: {
+				path,
+				realPath: normalized,
+				baseRealPath,
+				size: Number(stats.size),
+				isDirectory: stats.isDirectory(),
+				depth: normalized.slice(baseRealPath.length + 1).split("/").length,
+			},
+		};
+	} catch (error) {
+		return { ok: false, reason: error instanceof Error ? error.message : String(error) };
+	}
+}

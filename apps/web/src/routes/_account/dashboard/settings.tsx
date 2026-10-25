@@ -122,6 +122,115 @@ function Settings() {
 					Sign out other devices
 				</Button>
 			</section>
+			<CliKeysCard />
 		</div>
+	);
+}
+
+interface CliKeyRecord {
+	id: string;
+	name: string;
+	createdAt: string;
+	lastUsedAt: string | null;
+	expiresAt: string;
+}
+
+function CliKeysCard() {
+	const [keys, setKeys] = useState<CliKeyRecord[]>([]);
+	const [created, setCreated] = useState<string | null>(null);
+	const [loadError, setLoadError] = useState(false);
+
+	const load = useCallback(async () => {
+		try {
+			const payload = await api<{ keys?: CliKeyRecord[] }>("/api/cli/keys");
+			setKeys(payload.keys ?? []);
+			setLoadError(false);
+		} catch {
+			setLoadError(true);
+		}
+	}, []);
+
+	useEffect(() => {
+		void load();
+	}, [load]);
+
+	return (
+		<section className="grid gap-4 border border-input p-5">
+			<h2 className="text-xl">CLI API keys</h2>
+			<p className="text-muted-foreground text-sm">
+				Tokens for the <code className="rounded bg-muted px-1 py-0.5 text-xs">qbtools</code>{" "}
+				command-line app. A key value is shown once at creation; revoke it any time.
+			</p>
+			{created ? (
+				<div className="grid gap-1 rounded-md border border-input bg-muted/40 p-3">
+					<span className="text-sm font-medium">Copy your key now — it won't be shown again:</span>
+					<code className="break-all font-mono text-sm">{created}</code>
+				</div>
+			) : null}
+			{loadError ? (
+				<p className="text-destructive text-sm">Keys could not be loaded right now.</p>
+			) : null}
+			{keys.map((key) => (
+				<div
+					key={key.id}
+					className="flex items-center justify-between gap-3 border-t border-input pt-3"
+				>
+					<div className="min-w-0">
+						<p className="truncate text-sm">{key.name}</p>
+						<p className="text-muted-foreground truncate text-xs">
+							Created {new Date(key.createdAt).toLocaleDateString()}
+							{" · "}
+							{key.lastUsedAt
+								? `last used ${new Date(key.lastUsedAt).toLocaleDateString()}`
+								: "never used"}
+							{" · "}
+							expires {new Date(key.expiresAt).toLocaleDateString()}
+						</p>
+					</div>
+					<Button
+						variant="secondary"
+						size="sm"
+						onClick={async () => {
+							try {
+								await api("/api/cli/keys", {
+									method: "DELETE",
+									body: JSON.stringify({ id: key.id }),
+								});
+								await load();
+							} catch {
+								toast.error("Key could not be revoked.");
+							}
+						}}
+					>
+						Revoke
+					</Button>
+				</div>
+			))}
+			<Button
+				variant="secondary"
+				onClick={async () => {
+					try {
+						const payload = await api<{ token?: string }>("/api/cli/keys", {
+							method: "POST",
+							body: JSON.stringify({ name: "CLI" }),
+						});
+						if (payload.token) {
+							setCreated(payload.token);
+							await load();
+						} else {
+							toast.error("Key created but the value could not be read — revoke and retry.");
+						}
+					} catch {
+						toast.error("Key could not be created.");
+					}
+				}}
+			>
+				Create new key
+			</Button>
+			<p className="text-muted-foreground text-xs">
+				Then run <code className="rounded bg-muted px-1 py-0.5">qbtools login --api-key qbk_…</code>{" "}
+				in your terminal.
+			</p>
+		</section>
 	);
 }

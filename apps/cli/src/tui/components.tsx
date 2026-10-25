@@ -4,44 +4,44 @@
  * panel. All components are OpenTUI React intrinsics.
  */
 
-import { createContext, useContext } from "react";
-import type { RunnerField, RunnerOutput, RunnerValues } from "../runner/types";
-import { categoryAccent, theme } from "./theme";
-import { accents } from "./theme";
-import { availabilityFor, AVAILABILITY_HINTS, AVAILABILITY_LABELS } from "../runner/map";
+import type { SelectOption } from "@opentui/core";
+import { AVAILABILITY_HINTS, AVAILABILITY_LABELS, availabilityFor } from "../runner/map";
+import type { RunnerField, RunnerOutput } from "../runner/types";
 import type { AccentId } from "./theme";
+import { accents, categoryAccent, theme } from "./theme";
 
 type Tag = "none" | "input" | "select";
 
-export interface FocusTracker {
-	readonly tag: Tag;
-	setTag(tag: Tag): void;
-}
+/** Module-level input-focus tracker: App reads it to gate global hotkeys. */
+export const inputFocus = { tag: "none" as Tag };
 
-export const FocusContext = createContext<FocusTracker>({
-	tag: "none",
-	setTag: () => {},
-});
-
-export function useFocusTracker(): FocusTracker {
-	return useContext(FocusContext);
+export function selectOptions(entries: { name: string; value: string }[]): SelectOption[] {
+	return entries.map((entry) => ({ name: entry.name, description: "", value: entry.value }));
 }
 
 /* ---------- header ---------- */
 
 export function Header(props: { userChip?: string; updateHint?: string }) {
 	return (
-		<box height={1} flexDirection="row" paddingLeft={1} paddingRight={1} justifyContent="space-between">
+		<box
+			height={1}
+			flexDirection="row"
+			paddingLeft={1}
+			paddingRight={1}
+			justifyContent="space-between"
+		>
 			<text>
-				<span fg={theme.fg}><strong>QBTools</strong></span>
+				<span fg={theme.fg}>
+					<strong>QBTools</strong>
+				</span>
 				<span fg={theme.textSubtle}> · toolkit</span>
 			</text>
 			<box flexDirection="row" gap={2}>
 				{props.updateHint ? <text fg={accents.amber}>{props.updateHint}</text> : null}
 				{props.userChip ? (
-					<text fg={theme.textDim}>
+					<text>
 						<span fg={accents.emerald}>●</span>
-						<span> {props.userChip}</span>
+						<span fg={theme.textDim}> {props.userChip}</span>
 					</text>
 				) : (
 					<text fg={theme.textSubtle}>○ signed out</text>
@@ -72,27 +72,22 @@ export interface SidebarItem {
 export function Sidebar(props: {
 	items: SidebarItem[];
 	selectedIndex: number;
-	onSelect(index: number, item: SidebarItem): void;
-	onChange(index: number, item: SidebarItem): void;
+	onSelect(value: string): void;
+	onChange(index: number): void;
 	focused: boolean;
-}): React.ReactElement {
+}) {
 	return (
-		<box width={24} border borderStyle="single" borderColor={theme.border} title="Navigate">
+		<box width={24} borderStyle="single" borderColor={theme.border} title="Navigate">
 			<select
 				focused={props.focused}
-				options={props.items.map((item) => ({
-					name: item.name,
-					description: undefined,
-					value: item.value,
-				}))}
+				options={selectOptions(props.items)}
 				selectedIndex={props.selectedIndex}
-				onSelect={(index: number, option: { value?: unknown }) =>
-					props.onSelect(index, props.items[index] ?? { name: "", value: String(option.value) })}
-				onChange={(index: number, option: { value?: unknown }) =>
-					props.onChange(index, props.items[index] ?? { name: "", value: String(option.value) })}
+				onSelect={(_index: number, option: SelectOption | null) =>
+					props.onSelect(String(option?.value ?? ""))
+				}
+				onChange={(index: number) => props.onChange(index)}
 				selectedBackgroundColor={theme.muted}
 				selectedTextColor={theme.fg}
-				fg={theme.textDim}
 				height="100%"
 			/>
 		</box>
@@ -102,11 +97,12 @@ export function Sidebar(props: {
 /* ---------- form fields ---------- */
 
 export function FieldLabel(props: { field: RunnerField }) {
-	const required = props.field.required ? <span fg={accents.rose}>*</span> : null;
 	return (
-		<text fg={theme.textDim}>
-			{props.field.label}
-			{required}
+		<text>
+			<span fg={theme.textDim}>
+				{props.field.label}
+				{props.field.required ? <span fg={accents.rose}>*</span> : null}
+			</span>
 			{props.field.help ? <span fg={theme.textSubtle}> — {props.field.help}</span> : null}
 		</text>
 	);
@@ -117,30 +113,27 @@ export function FieldInput(props: {
 	value: unknown;
 	focused: boolean;
 	onChange(value: unknown): void;
-	onEnter?(): void;
 	width: number;
-}): React.ReactElement {
-	const tracker = useFocusTracker();
+}) {
 	const field = props.field;
-	const focusProps = {
-		focused: props.focused,
-		onFocus: () => tracker.setTag(field.kind === "select" || field.kind === "boolean" ? "select" : "input"),
-		onBlur: () => tracker.setTag("none"),
-	};
+	const focusProps = { focused: props.focused };
 
 	if (field.kind === "boolean") {
 		const on = props.value === true || props.value === "true";
 		return (
-			<tab-select
+			<select
 				{...focusProps}
-				tabWidth={14}
-				options={[
-					{ name: on ? "● On" : "  On", value: "true" },
-					{ name: on ? "  Off" : "● Off", value: "false" },
-				]}
+				height={2}
+				showScrollIndicator={false}
+				options={selectOptions([
+					{ name: "On", value: "true" },
+					{ name: "Off", value: "false" },
+				])}
 				selectedIndex={on ? 0 : 1}
 				onSelect={(index: number) => props.onChange(index === 0)}
-				onChange={(index: number) => props.onChange(index === 0)}
+				onChange={(_index: number, _option: SelectOption | null) => {}}
+				selectedBackgroundColor={theme.muted}
+				selectedTextColor={theme.fg}
 			/>
 		);
 	}
@@ -148,29 +141,28 @@ export function FieldInput(props: {
 		return (
 			<select
 				{...focusProps}
-				options={(field.options ?? []).map((option) => ({
-					name: option.label,
-					description: undefined,
-					value: option.value,
-				}))}
+				options={selectOptions(
+					(field.options ?? []).map((option) => ({ name: option.label, value: option.value })),
+				)}
 				height={3}
 				showScrollIndicator={false}
 				selectedIndex={Math.max(
 					0,
 					(field.options ?? []).findIndex((option) => option.value === props.value),
 				)}
-				onSelect={(index: number, option: { value?: unknown }) => props.onChange(option.value)}
-				onChange={(index: number, option: { value?: unknown }) => props.onChange(option.value)}
+				onSelect={(_index: number, option: SelectOption | null) => props.onChange(option?.value)}
+				onChange={(_index: number, option: SelectOption | null) => props.onChange(option?.value)}
 				selectedBackgroundColor={theme.muted}
 				selectedTextColor={theme.fg}
 			/>
 		);
 	}
 	if (field.kind === "textarea") {
+		const initial = typeof props.value === "string" ? props.value : "";
 		return (
 			<textarea
 				{...focusProps}
-				initialValue={typeof props.value === "string" ? props.value : ""}
+				initialValue={initial}
 				placeholder={field.placeholder ?? "type here…"}
 				width={props.width}
 				height={5}
@@ -214,13 +206,15 @@ export function FieldInput(props: {
 export function ProgressBar(props: { label: string; fraction: number | null; width: number }) {
 	const fraction = props.fraction;
 	const filled =
-		fraction === null ? 0 : Math.max(0, Math.min(props.width - 2, Math.round(fraction * (props.width - 2))));
+		fraction === null
+			? 0
+			: Math.max(0, Math.min(props.width - 2, Math.round(fraction * (props.width - 2))));
 	const bar = `${"█".repeat(filled)}${"─".repeat(Math.max(0, props.width - 2 - filled))}`;
 	const percent = fraction === null ? "" : ` ${Math.round(fraction * 100)}%`;
 	return (
-		<text fg={theme.textDim}>
+		<text>
 			<span fg={accents.indigo}>{bar}</span>
-			<span>{percent} </span>
+			<span fg={theme.textDim}>{percent} </span>
 			<span fg={theme.textSubtle}>{props.label}</span>
 		</text>
 	);
@@ -228,7 +222,7 @@ export function ProgressBar(props: { label: string; fraction: number | null; wid
 
 /* ---------- result panel ---------- */
 
-export function OutputPanel(props: { outputs: RunnerOutput[] }): React.ReactElement {
+export function OutputPanel(props: { outputs: RunnerOutput[] }) {
 	return (
 		<box flexDirection="column" gap={1}>
 			{props.outputs.map((output, index) => (
@@ -238,20 +232,20 @@ export function OutputPanel(props: { outputs: RunnerOutput[] }): React.ReactElem
 	);
 }
 
-function OutputBlock(props: { output: RunnerOutput }): React.ReactElement {
+function OutputBlock(props: { output: RunnerOutput }) {
 	const output = props.output;
 	if (output.type === "table") {
 		return <text fg={theme.textDim}>{renderAsciiTable(output.columns, output.rows)}</text>;
 	}
 	if (output.type === "code") {
 		return (
-			<box border borderStyle="rounded" borderColor={theme.border} backgroundColor={theme.card} padding={1}>
-				<code
-					content={output.text}
-					syntaxStyle="github-dark"
-					width="100%"
-					height={Math.min(16, output.text.split("\n").length)}
-				/>
+			<box
+				borderStyle="rounded"
+				borderColor={theme.border}
+				backgroundColor={theme.card}
+				padding={1}
+			>
+				<text fg={theme.fg}>{output.text}</text>
 			</box>
 		);
 	}
@@ -272,7 +266,7 @@ function OutputBlock(props: { output: RunnerOutput }): React.ReactElement {
 	return <text fg={theme.fg}>{output.text}</text>;
 }
 
-function renderAsciiTable(columns: string[], rows: string[][]): string {
+export function renderAsciiTable(columns: string[], rows: string[][]): string {
 	const widths = columns.map((column, index) =>
 		Math.max(column.length, ...rows.map((row) => (row[index] ?? "").length)),
 	);
@@ -287,7 +281,7 @@ function renderAsciiTable(columns: string[], rows: string[][]): string {
 
 /* ---------- availability badge ---------- */
 
-export function AvailabilityBadge(props: { slug: string }): React.ReactElement {
+export function AvailabilityBadge(props: { slug: string }) {
 	const availability = availabilityFor(props.slug);
 	const accentColor: Record<string, string> = {
 		local: accents.emerald,
@@ -306,4 +300,4 @@ export function AvailabilityBadge(props: { slug: string }): React.ReactElement {
 	);
 }
 
-export { categoryAccent, accents, theme };
+export { accents, categoryAccent, theme };

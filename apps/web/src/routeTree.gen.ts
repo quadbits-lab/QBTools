@@ -31,7 +31,9 @@ import { Route as AccountDashboardFavoritesRouteImport } from './routes/_account
 import { Route as AccountDashboardMediaRouteImport } from './routes/_account/dashboard/media'
 import { Route as AccountDashboardSettingsRouteImport } from './routes/_account/dashboard/settings'
 import { Route as ApiAccountSplatRouteImport } from './routes/api/account/$'
+import { Route as ApiAiSplatRouteImport } from './routes/api/ai/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiCliSplatRouteImport } from './routes/api/cli/$'
 import { Route as ApiMediaSplatRouteImport } from './routes/api/media/$'
 import { Route as ToolsSlugIndexRouteImport } from './routes/tools/$slug/index'
 import { Route as ToolsSlugPresetRouteImport } from './routes/tools/$slug/$preset'
@@ -147,9 +149,19 @@ const ApiAccountSplatRoute = ApiAccountSplatRouteImport.update({
   path: '/api/account/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiSplatRoute = ApiAiSplatRouteImport.update({
+  id: '/api/ai/$',
+  path: '/api/ai/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCliSplatRoute = ApiCliSplatRouteImport.update({
+  id: '/api/cli/$',
+  path: '/api/cli/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMediaSplatRoute = ApiMediaSplatRouteImport.update({
@@ -189,7 +201,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/media': typeof AccountDashboardMediaRoute
   '/dashboard/settings': typeof AccountDashboardSettingsRoute
   '/api/account/$': typeof ApiAccountSplatRoute
+  '/api/ai/$': typeof ApiAiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cli/$': typeof ApiCliSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/tools/$slug/$preset': typeof ToolsSlugPresetRoute
   '/dashboard/': typeof AccountDashboardIndexRoute
@@ -215,7 +229,9 @@ export interface FileRoutesByTo {
   '/dashboard/media': typeof AccountDashboardMediaRoute
   '/dashboard/settings': typeof AccountDashboardSettingsRoute
   '/api/account/$': typeof ApiAccountSplatRoute
+  '/api/ai/$': typeof ApiAiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cli/$': typeof ApiCliSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/tools/$slug/$preset': typeof ToolsSlugPresetRoute
   '/dashboard': typeof AccountDashboardIndexRoute
@@ -244,7 +260,9 @@ export interface FileRoutesById {
   '/_account/dashboard/media': typeof AccountDashboardMediaRoute
   '/_account/dashboard/settings': typeof AccountDashboardSettingsRoute
   '/api/account/$': typeof ApiAccountSplatRoute
+  '/api/ai/$': typeof ApiAiSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/cli/$': typeof ApiCliSplatRoute
   '/api/media/$': typeof ApiMediaSplatRoute
   '/tools/$slug/$preset': typeof ToolsSlugPresetRoute
   '/_account/dashboard/': typeof AccountDashboardIndexRoute
@@ -273,7 +291,9 @@ export interface FileRouteTypes {
     | '/dashboard/media'
     | '/dashboard/settings'
     | '/api/account/$'
+    | '/api/ai/$'
     | '/api/auth/$'
+    | '/api/cli/$'
     | '/api/media/$'
     | '/tools/$slug/$preset'
     | '/dashboard/'
@@ -299,7 +319,9 @@ export interface FileRouteTypes {
     | '/dashboard/media'
     | '/dashboard/settings'
     | '/api/account/$'
+    | '/api/ai/$'
     | '/api/auth/$'
+    | '/api/cli/$'
     | '/api/media/$'
     | '/tools/$slug/$preset'
     | '/dashboard'
@@ -327,7 +349,9 @@ export interface FileRouteTypes {
     | '/_account/dashboard/media'
     | '/_account/dashboard/settings'
     | '/api/account/$'
+    | '/api/ai/$'
     | '/api/auth/$'
+    | '/api/cli/$'
     | '/api/media/$'
     | '/tools/$slug/$preset'
     | '/_account/dashboard/'
@@ -352,7 +376,9 @@ export interface RootRouteChildren {
   CategoriesCategoryRoute: typeof CategoriesCategoryRoute
   ToolsIndexRoute: typeof ToolsIndexRoute
   ApiAccountSplatRoute: typeof ApiAccountSplatRoute
+  ApiAiSplatRoute: typeof ApiAiSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiCliSplatRoute: typeof ApiCliSplatRoute
   ApiMediaSplatRoute: typeof ApiMediaSplatRoute
   ToolsSlugPresetRoute: typeof ToolsSlugPresetRoute
   ToolsSlugIndexRoute: typeof ToolsSlugIndexRoute
@@ -514,11 +540,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAccountSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai/$': {
+      id: '/api/ai/$'
+      path: '/api/ai/$'
+      fullPath: '/api/ai/$'
+      preLoaderRoute: typeof ApiAiSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cli/$': {
+      id: '/api/cli/$'
+      path: '/api/cli/$'
+      fullPath: '/api/cli/$'
+      preLoaderRoute: typeof ApiCliSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/media/$': {
@@ -591,7 +631,9 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriesCategoryRoute: CategoriesCategoryRoute,
   ToolsIndexRoute: ToolsIndexRoute,
   ApiAccountSplatRoute: ApiAccountSplatRoute,
+  ApiAiSplatRoute: ApiAiSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiCliSplatRoute: ApiCliSplatRoute,
   ApiMediaSplatRoute: ApiMediaSplatRoute,
   ToolsSlugPresetRoute: ToolsSlugPresetRoute,
   ToolsSlugIndexRoute: ToolsSlugIndexRoute,

@@ -4,23 +4,18 @@
  * directly; renderer.destroy() restores the terminal.
  */
 
-import { createCliRenderer, TextAttributes } from "@opentui/core";
+import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
-import { CLI_NAME, CLI_VERSION } from "../version";
-
-function App() {
-	return (
-		<box alignItems="center" justifyContent="center" flexGrow={1} flexDirection="column">
-			<ascii-font font="tiny" text={CLI_NAME.toUpperCase()} />
-			<text attributes={TextAttributes.DIM}>
-				{`${CLI_NAME} ${CLI_VERSION} — interactive UI under construction`}
-			</text>
-			<text attributes={TextAttributes.DIM}>Use `qbtools help` for headless commands.</text>
-		</box>
-	);
-}
+import { App } from "./app";
 
 export async function runTui(): Promise<void> {
-	const renderer = await createCliRenderer({ exitOnCtrlC: true });
+	const renderer = await createCliRenderer({ exitOnCtrlC: false, useMouse: true });
 	createRoot(renderer).render(<App />);
+
+	// Ctrl+C quits only when nothing is registered to cancel; a running tool
+	// handles its own cancellation first (keys.ts dispatch order).
+	process.on("SIGINT", () => {
+		void renderer.destroy();
+	});
+	await new Promise<void>(() => {});
 }

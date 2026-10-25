@@ -16,6 +16,8 @@ const HEADLESS_PACKAGES: Record<string, { spec: string; subdir: string }> = {
 	png: { spec: "@jsquash/oxipng", subdir: "codec/pkg" },
 	brotli: { spec: "brotli-wasm", subdir: "pkg.web" },
 	zstd: { spec: "@bokuweb/zstd-wasm", subdir: "dist/web" },
+	ffmpeg: { spec: "@ffmpeg/ffmpeg", subdir: "dist/esm" },
+	"ffmpeg-core": { spec: "@ffmpeg/core", subdir: "dist/esm" },
 };
 
 const headlessBases = new Map<string, Promise<string>>();

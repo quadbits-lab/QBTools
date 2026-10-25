@@ -96,7 +96,16 @@ export async function requestSession(headers: Headers) {
 	if (!authConfigured()) return null;
 	return (await getAuth()).api.getSession({ headers });
 }
+/**
+ * Accepts either a better-auth session cookie or a CLI API token
+ * (`Authorization: Bearer qbk_…`). Cookie-less token requests skip CSRF
+ * handling because no ambient credential is involved; cookie requests keep
+ * the callers' existing origin checks.
+ */
 export async function requireUser(request: Request) {
+	const bearer = (await import("./cli-token")).userForCliToken;
+	const tokenUser = await bearer(request).catch(() => null);
+	if (tokenUser) return tokenUser;
 	const session = await requestSession(request.headers);
 	if (!session)
 		throw new Response(JSON.stringify({ error: "UNAUTHORIZED", message: "Sign in to continue." }), {

@@ -15,7 +15,7 @@ import {
 	wrapTextLines,
 } from "./compose";
 import { defaultIconDesign, defaultOgDesign, OG_TEMPLATES } from "./defaults";
-import { generateFaviconSet } from "./favicon";
+import { buildPlatformSnippets, generateFaviconSet } from "./favicon";
 import { measureTextWidth } from "./fonts";
 import { buildIcns, icnsChunkTypes } from "./icns";
 import { buildIco, validateIco } from "./ico";
@@ -623,6 +623,53 @@ describe("favicon generation", () => {
 		// Text elements must not leak into the standalone svg.
 		expect(svg).not.toContain("<text");
 	}, 30000);
+
+	test("buildPlatformSnippets generates snippets for all platforms with dynamic options", () => {
+		const snippets = buildPlatformSnippets({
+			appName: "Awesome App",
+			shortName: "App",
+			themeColor: "#3b82f6",
+			bgColor: "#ffffff",
+			startUrl: "/",
+			assetPath: "/static/icons/",
+			transparentBrowserIcon: false,
+			webpBrowserIcons: true,
+			optimize: true,
+		});
+
+		const platformIds = snippets.map((s) => s.id);
+		expect(platformIds).toEqual([
+			"html",
+			"vite",
+			"react",
+			"tanstack-start",
+			"nextjs",
+			"solidjs",
+			"astro",
+			"sveltekit",
+			"nuxt",
+			"remix",
+		]);
+
+		for (const snippet of snippets) {
+			expect(snippet.code).toContain("/static/icons/favicon.ico");
+			expect(snippet.code).toContain("/static/icons/favicon.svg");
+			expect(snippet.code).toContain("/static/icons/apple-touch-icon.png");
+			expect(snippet.code).toContain("/static/icons/site.webmanifest");
+			expect(snippet.code).toContain("#3b82f6");
+		}
+
+		const tanstack = snippets.find((s) => s.id === "tanstack-start");
+		expect(tanstack?.code).toContain("createRootRoute");
+		expect(tanstack?.file).toBe("app/routes/__root.tsx");
+
+		const nextjs = snippets.find((s) => s.id === "nextjs");
+		expect(nextjs?.code).toContain("Metadata");
+		expect(nextjs?.code).toContain("viewport");
+
+		const astro = snippets.find((s) => s.id === "astro");
+		expect(astro?.file).toBe("src/layouts/Layout.astro");
+	});
 });
 
 describe("app icon generation", () => {

@@ -1,0 +1,237 @@
+/**
+ * System screen: per-OS cleanup. Scans on entry (read-only), lets the user
+ * toggle categories, and cleans the selection after an explicit two-step
+ * confirm (select row → Enter → Y). Native commands are opt-in via their
+ * own toggle row. Esc always returns; nothing is deleted without Y.
+ */
+
+import { useEffect, useState } from "react";
+import {
+	type CleanResult,
+	cleanScan,
+	type ScanReport,
+	scanTargets,
+} from "../../services/cleanup/clean";
+import { OS_LABELS } from "../../services/cleanup/targets";
+import { setKeyHandler } from "../keys";
+import { accents, theme } from "../theme";
+
+type Phase =
+	| { kind: "scanning"; label: string }
+	| { kind: "review" }
+	| { kind: "confirm" }
+	| { kind: "cleaning"; label: string; fraction: number | null }
+	| { kind: "done"; result: CleanResult }
+	| { kind: "error"; message: string };
+
+function formatBytes(bytes: number): string {
+	if (bytes < 1024) return `${bytes} B`;
+	const units = ["KiB", "MiB", "GiB"];
+	let value = bytes;
+	let unit = "B";
+	for (const next of units) {
+		if (value < 1024) break;
+		value /= 1024;
+		unit = next;
+	}
+	return `${value.toFixed(value >= 100 ? 0 : 1)} ${unit}`;
+}
+
+function osLabel(): "macos" | "linux" | "windows" {
+	const p = process.platform;
+	if (p === "darwin") return "macos";
+	if (p === "win32") return "windows";
+	return "linux";
+}
+
+export function CleanupScreen() {
+	const [phase, setPhase] = useState<Phase>({ kind: "scanning", label: "Starting scan…" });
+	const [report, setReport] = useState<ScanReport | null>(null);
+	const [selected, setSelected] = useState<Set<string>>(new Set());
+	const [cursor, setCursor] = useState(0);
+
+	useEffect(() => {
+		void scanTargets({
+			onProgress: (label) => setPhase({ kind: "scanning", label }),
+		})
+			.then((scanned) => {
+				setReport(scanned);
+				setPhase({ kind: "review" });
+			})
+			.catch((error) => {
+				setPhase({
+					kind: "error",
+					message: error instanceof Error ? error.message : String(error),
+				});
+			});
+	}, []);
+
+	const rows = report?.categories ?? [];
+	const selectableRows = rows.filter((row) => row.target.kind !== "command");
+	const totalRows = selectableRows.length + 2; // + clean row + native-commands row
+
+	async function runClean(): Promise<void> {
+		if (!report) return;
+		setPhase({ kind: "cleaning", label: "Preparing…", fraction: 0 });
+		try {
+			const result = await cleanScan(report, {
+				runCommands: selected.has("__commands__"),
+				onProgress: (entry) =>
+					setPhase({ kind: "cleaning", label: entry.label, fraction: entry.fraction }),
+			});
+			setPhase({ kind: "done", result });
+		} catch (error) {
+			setPhase({ kind: "error", message: error instanceof Error ? error.message : String(error) });
+		}
+	}
+
+	useEffect(() => {
+		setKeyHandler((key) => {
+			if (phase.kind !== "review" && phase.kind !== "confirm") return;
+			if (key.name === "down" || key.name === "j") {
+				setCursor((index) => Math.min(totalRows - 1, index + 1));
+				return;
+			}
+			if (key.name === "up" || key.name === "k") {
+				setCursor((index) => Math.max(0, index - 1));
+				return;
+			}
+			if (key.name === "space") {
+				if (cursor < selectableRows.length) {
+					const id = selectableRows[cursor]?.target.id;
+					if (id) {
+						setSelected((previous) => {
+							const next = new Set(previous);
+							if (next.has(id)) next.delete(id);
+							else next.add(id);
+							return next;
+						});
+					}
+				} else if (cursor === selectableRows.length + 1) {
+					setSelected((previous) => {
+						const next = new Set(previous);
+						if (next.has("__commands__")) next.delete("__commands__");
+						else next.add("__commands__");
+						return next;
+					});
+				}
+				return;
+			}
+			if ((key.name === "return" || key.name === "enter") && cursor === selectableRows.length) {
+				if (selected.size > 0) setPhase({ kind: "confirm" });
+				return;
+			}
+			if ((key.name === "y" || key.name === "Y") && phase.kind === "confirm") {
+				void runClean();
+				return;
+			}
+			if (key.name === "escape" && phase.kind === "confirm") {
+				setPhase({ kind: "review" });
+			}
+		});
+		return () => setKeyHandler(null);
+	});
+
+	if (phase.kind === "scanning") {
+		return (
+			<box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} gap={1}>
+				<text fg={theme.fg}>
+					<strong>System cleanup — {OS_LABELS[osLabel()]}</strong>
+				</text>
+				<text fg={theme.textDim}>{phase.label}</text>
+			</box>
+		);
+	}
+	if (phase.kind === "cleaning") {
+		const bar = phase.fraction === null ? "" : ` ${Math.round(phase.fraction * 100)}%`;
+		return (
+			<box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} gap={1}>
+				<text fg={theme.fg}>
+					<strong>Cleaning…</strong>
+				</text>
+				<text fg={theme.textDim}>
+					{phase.label}
+					{bar}
+				</text>
+			</box>
+		);
+	}
+	if (phase.kind === "error") {
+		return (
+			<box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} gap={1}>
+				<text fg={theme.destructive}>✗ {phase.message}</text>
+			</box>
+		);
+	}
+	if (phase.kind === "done") {
+		return (
+			<box flexDirection="column" flexGrow={1} paddingTop={1} paddingLeft={2} gap={1}>
+				<text fg={accents.emerald}>
+					✓ Deleted {phase.result.deletedFiles} files · freed {formatBytes(phase.result.freedBytes)}
+				</text>
+				{phase.result.commandsRun.map((command) => (
+					<text key={command.id} fg={theme.textDim}>
+						{command.label}: {command.ok ? "ok" : "skipped"} — {command.detail}
+					</text>
+				))}
+				<text fg={theme.textSubtle}>Audit log: {phase.result.auditPath}</text>
+			</box>
+		);
+	}
+	if (!report) {
+		return <text>Preparing…</text>;
+	}
+
+	const selectedBytes = rows
+		.filter((row) => selected.has(row.target.id))
+		.reduce((sum, row) => sum + row.totalBytes, 0);
+	const onCleanRow = cursor === selectableRows.length;
+	const onNativeRow = cursor === selectableRows.length + 1;
+
+	return (
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
+			<text>
+				<span fg={theme.fg}>
+					<strong>System cleanup — {OS_LABELS[report.os]}</strong>
+				</span>
+				<span fg={theme.textSubtle}> — Space toggle · ↑↓ move · scan is read-only until Y</span>
+			</text>
+			<scrollbox height="100%">
+				<box flexDirection="column" gap={0}>
+					{selectableRows.map((row, index) => {
+						const isSelected = selected.has(row.target.id);
+						const isCursor = cursor === index;
+						return (
+							<text key={row.target.id} fg={isCursor ? accents.emerald : theme.textDim}>
+								{`${isCursor ? "▶" : " "} ${isSelected ? "[x]" : "[ ]"} ${row.target.label.padEnd(26)} ${formatBytes(row.totalBytes).padStart(10)}  ${row.entries.length} files`}
+							</text>
+						);
+					})}
+					<box height={1} />
+					<text fg={onNativeRow ? accents.amber : theme.textSubtle}>
+						{`${onNativeRow ? "▶" : " "} [${selected.has("__commands__") ? "x" : " "}] Native commands (brew cleanup, apt-get clean…)`}
+					</text>
+					<box height={1} />
+					{phase.kind === "confirm" ? (
+						<text>
+							<span fg={accents.rose}>
+								<strong>▶ Press Y to delete the selection now — Esc to go back.</strong>
+							</span>
+						</text>
+					) : (
+						<text fg={onCleanRow ? accents.emerald : theme.textSubtle}>
+							{`${onCleanRow ? "▶" : " "} Clean selection (${formatBytes(selectedBytes)})${onCleanRow ? " — Enter, then Y to confirm" : ""}`}
+						</text>
+					)}
+				</box>
+			</scrollbox>
+		</box>
+	);
+}

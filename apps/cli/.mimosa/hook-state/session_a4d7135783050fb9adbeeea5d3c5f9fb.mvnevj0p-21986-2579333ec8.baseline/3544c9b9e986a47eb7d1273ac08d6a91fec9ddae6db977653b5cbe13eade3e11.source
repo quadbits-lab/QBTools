@@ -1,0 +1,215 @@
+/**
+ * Tool runner screen: schema-driven form → run → progress → results.
+ * Focus is a form-managed index; Tab cycles fields, Enter/Ctrl+R runs,
+ * Esc is handled by the shell (back).
+ */
+
+import { getTool } from "@qbtools/registry";
+import { useEffect, useMemo, useState } from "react";
+import { CancelledError, runTool } from "../../runner/execute";
+import { readInputFiles, writeOutput } from "../../runner/files";
+import { availabilityFor, RUNNERS } from "../../runner/map";
+import {
+	type RunnerField,
+	type RunnerOutput,
+	type RunnerResult,
+	UnavailableError,
+} from "../../runner/types";
+import { activeProfile, loadConfig, recordRecent } from "../../services/config";
+import {
+	AvailabilityBadge,
+	FieldInput,
+	FieldLabel,
+	inputFocus,
+	OutputPanel,
+	ProgressBar,
+} from "../components";
+import { setKeyHandler } from "../keys";
+import { accents, theme } from "../theme";
+
+type RunState =
+	| { phase: "idle" }
+	| { phase: "running"; label: string; fraction: number | null }
+	| { phase: "done"; result: RunnerResult; saved: string[] }
+	| { phase: "error"; message: string };
+
+export function ToolScreen(props: { slug: string; width: number }) {
+	const tool = getTool(props.slug);
+	const fields = useMemo(() => RUNNERS.get(props.slug)?.fields ?? [], [props.slug]);
+	const [focusIndex, setFocusIndex] = useState(0);
+	const [values, setValues] = useState<Record<string, unknown>>({});
+	const [run, setRun] = useState<RunState>({ phase: "idle" });
+	const runRow = fields.length;
+
+	useEffect(() => {
+		setValues(initialValues(fields));
+		setFocusIndex(0);
+		setRun({ phase: "idle" });
+	}, [fields]);
+
+	// Gates global hotkeys while a text-typed field owns the keyboard.
+	useEffect(() => {
+		const field = fields[focusIndex];
+		const typing = field !== undefined && field.kind !== "select" && field.kind !== "boolean";
+		inputFocus.tag = typing ? "input" : "none";
+		return () => {
+			inputFocus.tag = "none";
+		};
+	}, [focusIndex, fields]);
+
+	const focusIndexRef = { current: focusIndex };
+	focusIndexRef.current = focusIndex;
+	const runPhaseRef = { current: run.phase };
+	runPhaseRef.current = run.phase;
+	const valuesRef = { current: values };
+	valuesRef.current = values;
+
+	async function doRun(): Promise<void> {
+		if (runPhaseRef.current === "running") return;
+		const config = await loadConfig();
+		const profile = activeProfile(config);
+		// File fields hold typed paths; resolve them to File objects first.
+		const prepared: Record<string, unknown> = { ...valuesRef.current };
+		for (const field of fields) {
+			if (field.kind === "file" || field.kind === "files") {
+				const raw = prepared[field.name];
+				const paths = Array.isArray(raw) ? raw : typeof raw === "string" ? [raw] : [];
+				const cleaned = paths.map((path) => String(path).trim()).filter(Boolean);
+				if (cleaned.length) prepared[field.name] = await readInputFiles(cleaned);
+			}
+			if (field.kind === "number") {
+				const raw = prepared[field.name];
+				if (typeof raw === "string" && raw.trim() === "") delete prepared[field.name];
+			}
+		}
+		setRun({ phase: "running", label: "Starting…", fraction: null });
+		try {
+			const result = await runTool(props.slug, {
+				values: prepared,
+				outDir: profile.outputDir,
+				onProgress: (entry) =>
+					setRun({ phase: "running", label: entry.label, fraction: entry.fraction }),
+			});
+			await recordRecent(props.slug);
+			const saved: string[] = [];
+			for (const output of result.outputs as RunnerOutput[]) {
+				if (output.type === "image" || output.type === "file") {
+					const wrote = await writeOutput(
+						{ outDir: profile.outputDir, suggestedName: output.suggestedName },
+						output.bytes,
+					);
+					saved.push(wrote.path);
+				}
+			}
+			setRun({ phase: "done", result, saved });
+		} catch (error) {
+			if (error instanceof CancelledError) setRun({ phase: "error", message: "Cancelled." });
+			else if (error instanceof UnavailableError)
+				setRun({ phase: "error", message: error.message });
+			else
+				setRun({
+					phase: "error",
+					message: error instanceof Error ? error.message : String(error),
+				});
+		}
+	}
+
+	useEffect(() => {
+		const totalRows = fields.length + 1;
+		setKeyHandler((key) => {
+			if (key.name === "escape" || key.name === "return" || key.name === "enter") {
+				if (key.name !== "escape" && focusIndexRef.current === runRow) {
+					void doRun();
+					return;
+				}
+			}
+			if (key.name === "tab") {
+				setFocusIndex((index) => (index + (key.shift ? -1 : 1) + totalRows) % totalRows);
+				return;
+			}
+			if (key.name === "r" && key.ctrl) {
+				void doRun();
+				return;
+			}
+		});
+		return () => setKeyHandler(null);
+	});
+
+	if (!tool) {
+		return <text fg={theme.destructive}>Unknown tool: {props.slug}</text>;
+	}
+
+	function setValue(name: string, value: unknown): void {
+		setValues((previous) => ({ ...previous, [name]: value }));
+	}
+
+	const innerWidth = Math.max(30, props.width - 4);
+	const onRunRow = focusIndex === runRow;
+
+	return (
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
+			<box flexDirection="column">
+				<text>
+					<span fg={theme.fg}>
+						<strong>{tool.name}</strong>
+					</span>
+					<span fg={theme.textSubtle}> /{tool.slug}</span>
+				</text>
+				<text fg={theme.textDim}>{tool.tagline}</text>
+				<AvailabilityBadge slug={props.slug} />
+			</box>
+
+			{run.phase === "running" ? (
+				<ProgressBar label={run.label} fraction={run.fraction} width={Math.min(60, innerWidth)} />
+			) : null}
+
+			<box flexDirection="column" gap={1}>
+				{fields.map((field, index) => (
+					<box key={`${props.slug}-${field.name}`} flexDirection="column" width={innerWidth}>
+						<FieldLabel field={field} />
+						<FieldInput
+							field={field}
+							value={values[field.name]}
+							focused={focusIndex === index}
+							onChange={(value) => setValue(field.name, value)}
+							width={innerWidth}
+						/>
+					</box>
+				))}
+				<text fg={onRunRow ? accents.emerald : theme.textSubtle}>
+					{onRunRow ? "▶ Run (Enter or Ctrl+R)" : "  Run (Tab to this row, then Enter)"}
+				</text>
+			</box>
+
+			{run.phase === "done" ? (
+				<scrollbox focused height="100%" borderStyle="rounded" border borderColor={theme.border}>
+					<box flexDirection="column" gap={1} padding={1}>
+						<text fg={accents.emerald}>✓ {run.result.summary}</text>
+						{run.saved.length ? (
+							<text fg={theme.textDim}>Saved: {run.saved.join(", ")}</text>
+						) : null}
+						<OutputPanel outputs={run.result.outputs} />
+					</box>
+				</scrollbox>
+			) : null}
+			{run.phase === "error" ? <text fg={theme.destructive}>✗ {run.message}</text> : null}
+		</box>
+	);
+}
+
+function initialValues(fields: RunnerField[]): Record<string, unknown> {
+	const values: Record<string, unknown> = {};
+	for (const field of fields) {
+		if (field.default !== undefined) values[field.name] = field.default;
+		else if (field.kind === "boolean") values[field.name] = false;
+		else values[field.name] = "";
+	}
+	return values;
+}

@@ -172,6 +172,255 @@ function buildManifest(options: FaviconExportOptions): string {
 	);
 }
 
+export interface PlatformSnippet {
+	id: string;
+	name: string;
+	file: string;
+	language: string;
+	description: string;
+	code: string;
+}
+
+export function buildPlatformSnippets(options: FaviconExportOptions): PlatformSnippet[] {
+	const p = options.assetPath;
+	const ico = joinPath(p, "favicon.ico");
+	const svg = joinPath(p, "favicon.svg");
+	const png32 = joinPath(p, "favicon-32x32.png");
+	const appleTouch = joinPath(p, "apple-touch-icon.png");
+	const manifest = joinPath(p, "site.webmanifest");
+	const themeColor = options.themeColor;
+
+	return [
+		{
+			id: "html",
+			name: "HTML",
+			file: "index.html",
+			language: "html",
+			description: "Standard HTML5 tags to paste inside the <head> element of your HTML pages.",
+			code: [
+				`<link rel="icon" href="${ico}" sizes="48x48">`,
+				`<link rel="icon" type="image/svg+xml" href="${svg}">`,
+				`<link rel="icon" type="image/png" sizes="32x32" href="${png32}">`,
+				`<link rel="apple-touch-icon" href="${appleTouch}">`,
+				`<link rel="manifest" href="${manifest}">`,
+				`<meta name="theme-color" content="${themeColor}">`,
+				`<meta name="mobile-web-app-capable" content="yes">`,
+			].join("\n"),
+		},
+		{
+			id: "vite",
+			name: "Vite",
+			file: "index.html",
+			language: "html",
+			description:
+				"Place icons inside public/ and paste these tags in your root index.html <head>.",
+			code: [
+				`<!-- Place icon files in public/ and add to index.html <head> -->`,
+				`<link rel="icon" href="${ico}" sizes="48x48" />`,
+				`<link rel="icon" type="image/svg+xml" href="${svg}" />`,
+				`<link rel="icon" type="image/png" sizes="32x32" href="${png32}" />`,
+				`<link rel="apple-touch-icon" href="${appleTouch}" />`,
+				`<link rel="manifest" href="${manifest}" />`,
+				`<meta name="theme-color" content="${themeColor}" />`,
+			].join("\n"),
+		},
+		{
+			id: "react",
+			name: "React",
+			file: "App.tsx / Helmet",
+			language: "tsx",
+			description: "JSX tags for React Helmet, Head component, or custom root layout.",
+			code: [
+				`<>`,
+				`\t<link rel="icon" href="${ico}" sizes="48x48" />`,
+				`\t<link rel="icon" type="image/svg+xml" href="${svg}" />`,
+				`\t<link rel="icon" type="image/png" sizes="32x32" href="${png32}" />`,
+				`\t<link rel="apple-touch-icon" href="${appleTouch}" />`,
+				`\t<link rel="manifest" href="${manifest}" />`,
+				`\t<meta name="theme-color" content="${themeColor}" />`,
+				`</>`,
+			].join("\n"),
+		},
+		{
+			id: "tanstack-start",
+			name: "TanStack Start",
+			file: "app/routes/__root.tsx",
+			language: "typescript",
+			description:
+				"Configure head metadata and icon links in your root route createRootRoute definition.",
+			code: [
+				`// app/routes/__root.tsx`,
+				`import { createRootRoute } from "@tanstack/react-router";`,
+				``,
+				`export const Route = createRootRoute({`,
+				`\thead: () => ({`,
+				`\t\tmeta: [`,
+				`\t\t\t{ name: "theme-color", content: "${themeColor}" },`,
+				`\t\t\t{ name: "mobile-web-app-capable", content: "yes" },`,
+				`\t\t],`,
+				`\t\tlinks: [`,
+				`\t\t\t{ rel: "icon", href: "${ico}", sizes: "48x48" },`,
+				`\t\t\t{ rel: "icon", type: "image/svg+xml", href: "${svg}" },`,
+				`\t\t\t{ rel: "icon", type: "image/png", sizes: "32x32", href: "${png32}" },`,
+				`\t\t\t{ rel: "apple-touch-icon", href: "${appleTouch}" },`,
+				`\t\t\t{ rel: "manifest", href: "${manifest}" },`,
+				`\t\t],`,
+				`\t}),`,
+				`});`,
+			].join("\n"),
+		},
+		{
+			id: "nextjs",
+			name: "Next.js",
+			file: "app/layout.tsx",
+			language: "typescript",
+			description: "Export metadata and viewport objects in app/layout.tsx (App Router).",
+			code: [
+				`// app/layout.tsx (Next.js App Router)`,
+				`import type { Metadata, Viewport } from "next";`,
+				``,
+				`export const viewport: Viewport = {`,
+				`\tthemeColor: "${themeColor}",`,
+				`};`,
+				``,
+				`export const metadata: Metadata = {`,
+				`\tmanifest: "${manifest}",`,
+				`\ticons: {`,
+				`\t\ticon: [`,
+				`\t\t\t{ url: "${ico}", sizes: "48x48" },`,
+				`\t\t\t{ url: "${svg}", type: "image/svg+xml" },`,
+				`\t\t\t{ url: "${png32}", sizes: "32x32", type: "image/png" },`,
+				`\t\t],`,
+				`\t\tapple: [`,
+				`\t\t\t{ url: "${appleTouch}" },`,
+				`\t\t],`,
+				`\t},`,
+				`};`,
+			].join("\n"),
+		},
+		{
+			id: "solidjs",
+			name: "SolidJS",
+			file: "src/app.tsx",
+			language: "tsx",
+			description: "Add tags using @solidjs/meta Link and Meta components in your root component.",
+			code: [
+				`// src/app.tsx (SolidStart / SolidJS)`,
+				`import { Link, Meta } from "@solidjs/meta";`,
+				``,
+				`export default function App() {`,
+				`\treturn (`,
+				`\t\t<>`,
+				`\t\t\t<Link rel="icon" href="${ico}" sizes="48x48" />`,
+				`\t\t\t<Link rel="icon" type="image/svg+xml" href="${svg}" />`,
+				`\t\t\t<Link rel="icon" type="image/png" sizes="32x32" href="${png32}" />`,
+				`\t\t\t<Link rel="apple-touch-icon" href="${appleTouch}" />`,
+				`\t\t\t<Link rel="manifest" href="${manifest}" />`,
+				`\t\t\t<Meta name="theme-color" content="${themeColor}" />`,
+				`\t\t</>`,
+				`\t);`,
+				`}`,
+			].join("\n"),
+		},
+		{
+			id: "astro",
+			name: "Astro",
+			file: "src/layouts/Layout.astro",
+			language: "astro",
+			description: "Include favicon link tags in your root Astro layout head section.",
+			code: [
+				`---`,
+				`// src/layouts/Layout.astro`,
+				`---`,
+				`<!doctype html>`,
+				`<html lang="en">`,
+				`\t<head>`,
+				`\t\t<meta charset="UTF-8" />`,
+				`\t\t<link rel="icon" href="${ico}" sizes="48x48" />`,
+				`\t\t<link rel="icon" type="image/svg+xml" href="${svg}" />`,
+				`\t\t<link rel="icon" type="image/png" sizes="32x32" href="${png32}" />`,
+				`\t\t<link rel="apple-touch-icon" href="${appleTouch}" />`,
+				`\t\t<link rel="manifest" href="${manifest}" />`,
+				`\t\t<meta name="theme-color" content="${themeColor}" />`,
+				`\t</head>`,
+				`\t<body>`,
+				`\t\t<slot />`,
+				`\t</body>`,
+				`</html>`,
+			].join("\n"),
+		},
+		{
+			id: "sveltekit",
+			name: "SvelteKit",
+			file: "src/routes/+layout.svelte",
+			language: "svelte",
+			description: "Use <svelte:head> inside your root layout or add directly to src/app.html.",
+			code: [
+				`<!-- src/routes/+layout.svelte -->`,
+				`<svelte:head>`,
+				`\t<link rel="icon" href="${ico}" sizes="48x48" />`,
+				`\t<link rel="icon" type="image/svg+xml" href="${svg}" />`,
+				`\t<link rel="icon" type="image/png" sizes="32x32" href="${png32}" />`,
+				`\t<link rel="apple-touch-icon" href="${appleTouch}" />`,
+				`\t<link rel="manifest" href="${manifest}" />`,
+				`\t<meta name="theme-color" content="${themeColor}" />`,
+				`</svelte:head>`,
+				``,
+				`<slot />`,
+			].join("\n"),
+		},
+		{
+			id: "nuxt",
+			name: "Nuxt",
+			file: "nuxt.config.ts",
+			language: "typescript",
+			description: "Define head links and meta in your nuxt.config.ts app configuration.",
+			code: [
+				`// nuxt.config.ts`,
+				`export default defineNuxtConfig({`,
+				`\tapp: {`,
+				`\t\thead: {`,
+				`\t\t\tlink: [`,
+				`\t\t\t\t{ rel: "icon", href: "${ico}", sizes: "48x48" },`,
+				`\t\t\t\t{ rel: "icon", type: "image/svg+xml", href: "${svg}" },`,
+				`\t\t\t\t{ rel: "icon", type: "image/png", sizes: "32x32", href: "${png32}" },`,
+				`\t\t\t\t{ rel: "apple-touch-icon", href: "${appleTouch}" },`,
+				`\t\t\t\t{ rel: "manifest", href: "${manifest}" },`,
+				`\t\t\t],`,
+				`\t\t\tmeta: [`,
+				`\t\t\t\t{ name: "theme-color", content: "${themeColor}" },`,
+				`\t\t\t],`,
+				`\t\t},`,
+				`\t},`,
+				`});`,
+			].join("\n"),
+		},
+		{
+			id: "remix",
+			name: "Remix",
+			file: "app/root.tsx",
+			language: "typescript",
+			description: "Export links and meta functions in your root route (app/root.tsx).",
+			code: [
+				`// app/root.tsx`,
+				`import type { LinksFunction, MetaFunction } from "@remix-run/node";`,
+				``,
+				`export const links: LinksFunction = () => [`,
+				`\t{ rel: "icon", href: "${ico}", sizes: "48x48" },`,
+				`\t{ rel: "icon", type: "image/svg+xml", href: "${svg}" },`,
+				`\t{ rel: "icon", type: "image/png", sizes: "32x32", href: "${png32}" },`,
+				`\t{ rel: "apple-touch-icon", href: "${appleTouch}" },`,
+				`\t{ rel: "manifest", href: "${manifest}" },`,
+				`];`,
+				``,
+				`export const meta: MetaFunction = () => [`,
+				`\t{ name: "theme-color", content: "${themeColor}" },`,
+				`];`,
+			].join("\n"),
+		},
+	];
+}
+
 function buildHtmlSnippet(options: FaviconExportOptions): string {
 	const p = options.assetPath;
 	return [

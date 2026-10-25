@@ -4,11 +4,14 @@
  * in runner-map.test.ts, mirroring the web app's widgets parity test).
  */
 
+import { aiRunners } from "./runners/ai";
 import { barcodeRunner } from "./runners/barcode";
 import { calculatorRunners } from "./runners/calculators";
 import { developerRunners } from "./runners/developer";
 import { generatorRunners } from "./runners/generators";
 import { graphicRunners } from "./runners/graphics";
+import { imageRunners } from "./runners/image";
+import { mediaRunners } from "./runners/media";
 import { pdfRunners } from "./runners/pdf";
 import { securityRunners } from "./runners/security";
 import { textRunners } from "./runners/text";
@@ -43,18 +46,10 @@ const SHARP_HINT =
 	"Needs the optional sharp dependency for image processing (wired in the sharp phase).";
 const FFMPEG_HINT = "Needs a native ffmpeg binary on your PATH (wired in the media phase).";
 
+/** Only the 5 web-only tools and the 2 AI tools remain as stubs (AI needs a server). */
 export const STUB_RUNNERS: ToolRunner[] = [
 	stubRunner("grammar-checker", "server", SERVER_HINT),
 	stubRunner("paraphrasing-tool", "server", SERVER_HINT),
-	stubRunner("compress-image", "sharp", SHARP_HINT),
-	stubRunner("resize-image", "sharp", SHARP_HINT),
-	stubRunner("convert-image", "sharp", SHARP_HINT),
-	stubRunner("video-compressor", "ffmpeg", FFMPEG_HINT),
-	stubRunner("video-trimmer", "ffmpeg", FFMPEG_HINT),
-	stubRunner("video-to-audio", "ffmpeg", FFMPEG_HINT),
-	stubRunner("video-to-gif", "ffmpeg", FFMPEG_HINT),
-	stubRunner("audio-trimmer", "ffmpeg", FFMPEG_HINT),
-	stubRunner("thumbnail-maker", "ffmpeg", FFMPEG_HINT),
 ];
 
 const ALL_RUNNERS: ToolRunner[] = [
@@ -65,6 +60,9 @@ const ALL_RUNNERS: ToolRunner[] = [
 	...securityRunners,
 	...developerRunners,
 	...graphicRunners,
+	...imageRunners,
+	...mediaRunners,
+	...aiRunners,
 	pngToSvg,
 	barcodeRunner,
 	...STUB_RUNNERS,

@@ -28,7 +28,7 @@ export interface CliConfig {
 export const DEFAULT_PROFILE = "default";
 export const DEFAULT_SERVER_URL = "http://localhost:8310";
 
-function configDir(): string {
+export function configDir(): string {
 	if (process.env.QBTOOLS_CONFIG_DIR) return process.env.QBTOOLS_CONFIG_DIR;
 	const xdg = process.env.XDG_CONFIG_HOME;
 	if (xdg) return join(xdg, "qbtools");

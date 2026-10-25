@@ -1,0 +1,162 @@
+import "@tanstack/react-start/server-only";
+
+import { ensureUserData, getUserDb } from "@qbtools/db/users";
+import { z } from "zod";
+import { requireUser } from "./auth";
+import { createCliToken, listCliTokens, readBearerToken, revokeCliToken } from "./cli-token";
+
+const privateHeaders = {
+	"Content-Type": "application/json",
+	"Cache-Control": "private, no-store",
+	Vary: "Cookie, Authorization",
+};
+function json(data: unknown, status = 200) {
+	return Response.json(data, { status, headers: privateHeaders });
+}
+function fail(status: number, code: string, message: string) {
+	return json({ error: code, message }, status);
+}
+async function readJson(request: Request): Promise<unknown> {
+	if (!request.headers.get("content-type")?.startsWith("application/json")) return {};
+	if (!request.body) return {};
+	const reader = request.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let size = 0;
+	try {
+		for (;;) {
+			const next = await reader.read();
+			if (next.done) break;
+			size += next.value.length;
+			if (size > 16384) {
+				await reader.cancel();
+				return null;
+			}
+			chunks.push(next.value);
+		}
+		const data = new Uint8Array(size);
+		let offset = 0;
+		for (const chunk of chunks) {
+			data.set(chunk, offset);
+			offset += chunk.length;
+		}
+		return JSON.parse(new TextDecoder().decode(data)) as unknown;
+	} finally {
+		reader.releaseLock();
+	}
+}
+const RECENTS_CAP = 50;
+const FAVORITES_CAP = 200;
+
+/**
+ * Cookie-authenticated (dashboard) mutation requests must be same-origin;
+ * CLI bearer-token requests skip the check — they carry their own explicit
+ * credential and can't ride ambient cookies.
+ */
+function checkOrigin(request: Request) {
+	if (readBearerToken(request)) return undefined;
+	if (["GET", "HEAD"].includes(request.method)) return undefined;
+	const origin = request.headers.get("origin");
+	const expected = new URL(process.env.BETTER_AUTH_URL ?? request.url).origin;
+	if (origin !== expected) return fail(403, "ORIGIN", "Request origin is not allowed.");
+	return undefined;
+}
+
+const slugListSchema = (max: number) =>
+	z.object({ slugs: z.array(z.string().regex(/^[a-z0-9-]{1,64}$/)).max(max) }).strict();
+const favoritesBody = slugListSchema(FAVORITES_CAP);
+const recentsBody = slugListSchema(RECENTS_CAP);
+const keyCreateBody = z.object({ name: z.string().min(1).max(60).optional() }).strict();
+const keyDeleteBody = z.object({ id: z.string().regex(/^[0-9a-f]{32}$/) }).strict();
+
+export async function cliApiHandler(request: Request): Promise<Response> {
+	const url = new URL(request.url);
+	const action = url.pathname.split("/api/cli/")[1] ?? "";
+	const originResult = checkOrigin(request);
+	if (originResult) return originResult;
+	try {
+		const user = await requireUser(request);
+		const { pg } = await getUserDb();
+		await ensureUserData(pg, user.id);
+
+		if (request.method === "GET" && action === "whoami") {
+			return json({
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				authKind: readBearerToken(request) ? "cli-token" : "session",
+				server: process.env.BETTER_AUTH_URL ?? url.origin,
+			});
+		}
+
+		if (request.method === "GET" && action === "keys") {
+			return json({ keys: await listCliTokens(user.id) });
+		}
+		if (request.method === "POST" && action === "keys") {
+			const body = keyCreateBody.safeParse(await readJson(request));
+			if (!body.success) return fail(400, "VALIDATION", "Provide a name (max 60 characters).");
+			const created = await createCliToken(user.id, body.data.name ?? "CLI");
+			// The plaintext token is returned exactly once, in this response.
+			return json({ key: created.record, token: created.token }, 201);
+		}
+		if (request.method === "DELETE" && action === "keys") {
+			const body = keyDeleteBody.safeParse(await readJson(request));
+			if (!body.success) return fail(400, "VALIDATION", "Provide the key id to revoke.");
+			const removed = await revokeCliToken(user.id, body.data.id);
+			if (!removed) return fail(404, "NOT_FOUND", "That key doesn't exist.");
+			return json({ revoked: true });
+		}
+
+		if (request.method === "GET" && action === "favorites") {
+			const rows = await pg.query<{ slug: string }>(
+				"SELECT slug FROM favorite_tool WHERE user_id=$1 ORDER BY created_at DESC, slug LIMIT $2",
+				[user.id, FAVORITES_CAP],
+			);
+			return json({ slugs: rows.rows.map((row) => row.slug) });
+		}
+		if (request.method === "GET" && action === "recents") {
+			const rows = await pg.query<{ slug: string }>(
+				"SELECT slug FROM recent_tool WHERE user_id=$1 ORDER BY used_at DESC, slug LIMIT $2",
+				[user.id, RECENTS_CAP],
+			);
+			return json({ slugs: rows.rows.map((row) => row.slug) });
+		}
+		if ((request.method === "PUT" || request.method === "POST") && action === "favorites") {
+			const parsed = favoritesBody.safeParse(await readJson(request));
+			if (!parsed.success)
+				return fail(400, "VALIDATION", `Provide up to ${FAVORITES_CAP} tool slugs.`);
+			const slugs = [...new Set(parsed.data.slugs)];
+			await pg.query("DELETE FROM favorite_tool WHERE user_id=$1", [user.id]);
+			for (const slug of slugs) {
+				await pg.query(
+					"INSERT INTO favorite_tool (user_id, slug) VALUES ($1, $2) ON CONFLICT (user_id, slug) DO UPDATE SET created_at = now()",
+					[user.id, slug],
+				);
+			}
+			return json({ saved: slugs.length });
+		}
+		if ((request.method === "PUT" || request.method === "POST") && action === "recents") {
+			const parsed = recentsBody.safeParse(await readJson(request));
+			if (!parsed.success)
+				return fail(400, "VALIDATION", `Provide up to ${RECENTS_CAP} tool slugs.`);
+			const slugs = [...new Set(parsed.data.slugs)];
+			await pg.query("DELETE FROM recent_tool WHERE user_id=$1", [user.id]);
+			// Newest first: spread the slugs backwards in time so ordering holds.
+			const spanMinutes = slugs.length + 1;
+			for (const [index, slug] of slugs.entries()) {
+				const minutesAgo = String(spanMinutes - index);
+				await pg.query(
+					"INSERT INTO recent_tool (user_id, slug, used_at) VALUES ($1, $2, now() - ($3 || ' minutes')::interval) ON CONFLICT (user_id, slug) DO UPDATE SET used_at = now() - ($3 || ' minutes')::interval",
+					[user.id, slug, minutesAgo],
+				);
+			}
+			return json({ saved: slugs.length });
+		}
+
+		return fail(404, "NOT_FOUND", "Unknown CLI endpoint.");
+	} catch (error) {
+		if (error instanceof Response) return error;
+		if (error instanceof z.ZodError) return fail(400, "VALIDATION", "Check the submitted values.");
+		console.error("[cli-api] request failed", error instanceof Error ? error.name : "Error");
+		return fail(503, "UNAVAILABLE", "This service is temporarily unavailable. Please try again.");
+	}
+}

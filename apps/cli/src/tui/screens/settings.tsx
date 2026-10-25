@@ -1,0 +1,182 @@
+/**
+ * Settings screen (doubles as the first-run wizard): server URL, output
+ * directory, update-check toggle, and the active profile readout.
+ */
+
+import { useEffect, useState } from "react";
+import {
+	activeProfile,
+	type CliConfig,
+	effectiveProfileName,
+	loadConfig,
+	saveConfig,
+} from "../../services/config";
+import { inputFocus } from "../components";
+import { setKeyHandler } from "../keys";
+import { accents, theme } from "../theme";
+
+export function SettingsScreen(props: { width: number; wizard?: boolean; onDone(): void }) {
+	const [config, setConfig] = useState<CliConfig | null>(null);
+	const [serverUrl, setServerUrl] = useState("");
+	const [outputDir, setOutputDir] = useState("");
+	const [updateCheck, setUpdateCheck] = useState(true);
+	const [focusIndex, setFocusIndex] = useState(0);
+	const [status, setStatus] = useState("");
+	const saveRow = 3;
+
+	useEffect(() => {
+		void loadConfig().then((loaded) => {
+			setConfig(loaded);
+			const profile = activeProfile(loaded);
+			setServerUrl(profile.serverUrl);
+			setOutputDir(profile.outputDir);
+			setUpdateCheck(loaded.updateCheck);
+			setFocusIndex(0);
+		});
+	}, []);
+
+	// Gates global hotkeys while a text-typed row owns the keyboard.
+	useEffect(() => {
+		inputFocus.tag = focusIndex === 0 || focusIndex === 1 ? "input" : "none";
+		return () => {
+			inputFocus.tag = "none";
+		};
+	}, [focusIndex]);
+
+	const phaseRef = { current: focusIndex };
+	phaseRef.current = focusIndex;
+	const savedRef = { current: { serverUrl, outputDir, updateCheck } };
+	savedRef.current = { serverUrl, outputDir, updateCheck };
+
+	async function save(): Promise<void> {
+		if (!config) return;
+		const name = effectiveProfileName(config);
+		const profiles = {
+			...config.profiles,
+			[name]: {
+				...config.profiles[name],
+				serverUrl: serverUrl.trim().replace(/\/+$/, "") || "http://localhost:8310",
+				outputDir: outputDir.trim() || "./qbtools-output",
+			},
+		};
+		const next: CliConfig = {
+			...config,
+			profiles,
+			updateCheck,
+			onboarded: true,
+		};
+		await saveConfig(next);
+		setConfig(next);
+		setStatus(
+			props.wizard
+				? "Setup complete — welcome to QBTools."
+				: "Settings saved to ~/.config/qbtools/config.json",
+		);
+		setTimeout(
+			() => {
+				setStatus("");
+				props.onDone();
+			},
+			props.wizard ? 900 : 250,
+		);
+	}
+
+	useEffect(() => {
+		setKeyHandler((key) => {
+			if (key.name === "tab") {
+				setFocusIndex((index) => (index + (key.shift ? -1 : 1)) % (saveRow + 1));
+				return;
+			}
+			if ((key.name === "return" || key.name === "enter") && phaseRef.current === saveRow) {
+				void save();
+			}
+		});
+		return () => setKeyHandler(null);
+	});
+
+	if (!config) {
+		return <text fg={theme.textSubtle}>Loading settings…</text>;
+	}
+
+	const focusedInput = phaseRef.current === saveRow;
+	const innerWidth = Math.max(30, props.width - 4);
+
+	return (
+		<box
+			flexDirection="column"
+			flexGrow={1}
+			paddingTop={1}
+			paddingLeft={2}
+			paddingRight={2}
+			gap={1}
+		>
+			<text>
+				<span fg={theme.fg}>
+					<strong>{props.wizard ? "Welcome to QBTools" : "Settings"}</strong>
+				</span>
+				<span fg={theme.textSubtle}>
+					{props.wizard
+						? "  — quick setup (you can change this later)"
+						: "  — profile: " + effectiveProfileName(config)}
+				</span>
+			</text>
+
+			<box flexDirection="column" width={innerWidth} gap={1}>
+				<text fg={theme.textDim}>
+					QBTools server URL <span fg={theme.textSubtle}>(for auth and web-tool links)</span>
+				</text>
+				<input
+					value={serverUrl}
+					onChange={setServerUrl}
+					placeholder="http://localhost:8310"
+					width={innerWidth}
+					focused={focusIndex === 0}
+					textColor={theme.fg}
+					backgroundColor={theme.card}
+					focusedBackgroundColor={theme.secondary}
+					placeholderColor={theme.textSubtle}
+					cursorColor={theme.fg}
+				/>
+				<text fg={theme.textDim}>
+					Default output directory <span fg={theme.textSubtle}>(absolute or relative to cwd)</span>
+				</text>
+				<input
+					value={outputDir}
+					onChange={setOutputDir}
+					placeholder="./qbtools-output"
+					width={innerWidth}
+					focused={focusIndex === 1}
+					textColor={theme.fg}
+					backgroundColor={theme.card}
+					focusedBackgroundColor={theme.secondary}
+					placeholderColor={theme.textSubtle}
+					cursorColor={theme.fg}
+				/>
+				<text fg={theme.textDim}>Check npm for updates on startup</text>
+				<select
+					height={2}
+					showScrollIndicator={false}
+					focused={focusIndex === 2}
+					options={[
+						{ name: "On", description: "", value: "true" },
+						{ name: "Off", description: "", value: "false" },
+					]}
+					selectedIndex={updateCheck ? 0 : 1}
+					onSelect={(index: number) => setUpdateCheck(index === 0)}
+					onChange={() => {}}
+					selectedBackgroundColor={theme.muted}
+					selectedTextColor={theme.fg}
+				/>
+				<text fg={focusedInput ? accents.emerald : theme.textSubtle}>
+					{focusedInput ? "▶ Save (Enter)" : "  Save (Tab to this row, then Enter)"}
+				</text>
+				{status ? <text fg={accents.emerald}>{status}</text> : null}
+				{config.profiles && Object.keys(config.profiles).length > 1 ? (
+					<text fg={theme.textSubtle}>
+						Profiles: {Object.keys(config.profiles).join(", ")} — switch with --profile &lt;name&gt;
+					</text>
+				) : null}
+			</box>
+		</box>
+	);
+}
