@@ -37,6 +37,21 @@ const FFPROBE_CANDIDATES: Array<{ cmd: string }> = [
 
 let resolved: { ffmpeg: { cmd: string }; ffprobe: { cmd: string } } | null | undefined;
 
+/** Resolved binary paths (or null when absent) — used by doctor. */
+export async function ffmpegPaths(): Promise<{ ffmpeg: string; ffprobe: string } | null> {
+	try {
+		const bins = await resolveBinaries();
+		return { ffmpeg: bins.ffmpeg.cmd, ffprobe: bins.ffprobe.cmd };
+	} catch (error) {
+		if (isFfmpegMissingPublic(error)) return null;
+		throw error;
+	}
+}
+
+function isFfmpegMissingPublic(error: unknown): boolean {
+	return (error as Error | undefined)?.name === "FfmpegUnavailable";
+}
+
 async function resolveBinaries(): Promise<{ ffmpeg: { cmd: string }; ffprobe: { cmd: string } }> {
 	if (resolved !== undefined) {
 		if (!resolved) throw unavailable();

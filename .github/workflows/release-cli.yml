@@ -1,0 +1,56 @@
+name: Release CLI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun test apps/cli packages/engines packages/registry
+
+      - name: Build bundle
+        run: bun run --cwd apps/cli build:package
+
+      - name: Verify package contents
+        working-directory: apps/cli
+        run: |
+          npm pack --dry-run
+          tar -tzf qbtools-*.tgz | grep -q "dist/bin.js"
+          tar -tzf qbtools-*.tgz | grep -q "docs/features.md"
+
+      - name: Smoke test the bundle
+        working-directory: apps/cli
+        run: |
+          bun dist/bin.js version
+          echo "smoke" | bun dist/bin.js run word-counter --stdin --json
+
+      - name: Publish to npm
+        working-directory: apps/cli
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        run: npm publish
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

@@ -58,12 +58,13 @@ export const Route = createRootRoute({
 				{ rel: "manifest", href: "/manifest.webmanifest" },
 			],
 			scripts: [
-				{ children: THEME_INIT_SCRIPT }, ...(privatePage ? [] : analyticsScripts()),
+				{ children: THEME_INIT_SCRIPT },
+				...(privatePage ? [] : analyticsScripts()),
 				{
 					src: "https://analytics.quadbits.app/script.js",
-					'data-website-id': "54309095-f625-429c-bea8-9da2f2acca3a",
+					"data-website-id": "54309095-f625-429c-bea8-9da2f2acca3a",
 					defer: true,
-				}
+				},
 			],
 		};
 	},

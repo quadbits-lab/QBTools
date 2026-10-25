@@ -21,8 +21,8 @@ for (const manifest of [
 }
 
 const result = await Bun.build({
-	entrypoints: [new URL("./src/bin.tsx", import.meta.url).pathname],
-	outdir: new URL("./dist", import.meta.url).pathname,
+	entrypoints: [new URL("../src/bin.tsx", import.meta.url).pathname],
+	outdir: new URL("../dist", import.meta.url).pathname,
 	target: "bun",
 	format: "esm",
 	minify: false,

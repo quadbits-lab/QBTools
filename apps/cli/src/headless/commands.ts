@@ -6,6 +6,7 @@ import { authCommands } from "./cmd/auth";
 import { cleanupCommand } from "./cmd/cleanup";
 import { completionsCommand } from "./cmd/completions";
 import { infoCommand, openCommand, searchCommand } from "./cmd/discover";
+import { doctorCommand } from "./cmd/doctor";
 import { helpCommand } from "./cmd/help";
 import { listCommand } from "./cmd/list";
 import { runCommand } from "./cmd/run";
@@ -20,6 +21,7 @@ export const COMMANDS: Command[] = [
 	infoCommand,
 	openCommand,
 	cleanupCommand,
+	doctorCommand,
 	...authCommands,
 	helpCommand((): readonly Command[] => COMMANDS),
 	completionsCommand((): readonly Command[] => COMMANDS),

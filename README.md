@@ -256,6 +256,29 @@ Open [http://localhost:8310](http://localhost:8310) in your browser. Live HMR is
 | `bun run assets:prepare` | Root           | Compiles and validates versioned WASM artifacts & web workers       |
 | `bun run db:backup`      | `@qbtools/db`  | Performs safe online SQLite snapshot (`VACUUM INTO`)                |
 | `bun run test:browser`   | Root           | Runs end-to-end Playwright browser integration tests                |
+| `bun run cli`            | `@qbtools/cli` | Runs the `qbtools` terminal app (interactive TUI + headless mode)   |
+
+---
+
+## ⌨️ Terminal CLI
+
+The same 42 tools run in your terminal via **`qbtools`** (`apps/cli`, built with
+OpenTUI on Bun): an interactive TUI with fuzzy search and schema-driven forms, a
+scriptable headless mode (`run`, `--json`, stdin/stdout piping, deterministic
+exit codes), a **system cleanup utility** for macOS/Linux/Windows, and optional
+server sync via CLI API keys.
+
+```bash
+bun run cli                       # interactive UI (from the repo)
+qbtools run bmi-calculator --weight 70 --height 175 --json
+qbtools cleanup scan              # read-only cache inventory
+qbtools doctor                    # environment check
+```
+
+See [`apps/cli/README.md`](apps/cli/README.md),
+[features](apps/cli/docs/features.md),
+[tutorials](apps/cli/docs/tutorials.md) and
+[npm deployment](apps/cli/docs/npm-deployment.md).
 
 ---
 
